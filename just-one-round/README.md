@@ -26,6 +26,7 @@
 - [MVP 범위](docs/mvp.md)
 - [기술 구조](docs/architecture.md)
 - [도트 UI/UX 방향](docs/design-system.md)
+- [개발 및 기기 검증](docs/development.md)
 - [미결정 사항](docs/open-questions.md)
 
 ## 다음 목표
