@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
@@ -47,7 +48,7 @@ class TodayScreen extends StatelessWidget {
                       PixelButton(
                         label: '오늘의 한 판 시작',
                         icon: Icons.play_arrow_rounded,
-                        onPressed: () {},
+                        onPressed: () => context.go('/play'),
                       ),
                       const SizedBox(height: 20),
                       Text(
@@ -81,8 +82,8 @@ class _Header extends StatelessWidget {
             children: [
               Text('딱한판만', style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: 6),
-              const Text(
-                'JUL 21 · 오늘의 게임',
+              Text(
+                '${_monthName(DateTime.now().month)} ${DateTime.now().day} · 오늘의 게임',
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 13,
@@ -101,6 +102,24 @@ class _Header extends StatelessWidget {
       ],
     );
   }
+}
+
+String _monthName(int month) {
+  const months = [
+    'JAN',
+    'FEB',
+    'MAR',
+    'APR',
+    'MAY',
+    'JUN',
+    'JUL',
+    'AUG',
+    'SEP',
+    'OCT',
+    'NOV',
+    'DEC',
+  ];
+  return months[month - 1];
 }
 
 class _GamePreview extends StatelessWidget {
