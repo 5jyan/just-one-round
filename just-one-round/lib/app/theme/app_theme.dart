@@ -17,6 +17,7 @@ abstract final class AppTheme {
       splashFactory: NoSplash.splashFactory,
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
+          fontFamily: 'Galmuri',
           color: AppColors.text,
           fontSize: 34,
           fontWeight: FontWeight.w900,
@@ -24,6 +25,7 @@ abstract final class AppTheme {
           letterSpacing: -1.2,
         ),
         titleLarge: TextStyle(
+          fontFamily: 'Galmuri',
           color: AppColors.text,
           fontSize: 22,
           fontWeight: FontWeight.w800,

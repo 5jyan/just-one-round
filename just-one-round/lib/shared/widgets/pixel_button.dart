@@ -69,6 +69,7 @@ class _PixelButtonState extends State<PixelButton> {
                   Text(
                     widget.label,
                     style: const TextStyle(
+                      fontFamily: 'Galmuri',
                       color: AppColors.backgroundDeep,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
