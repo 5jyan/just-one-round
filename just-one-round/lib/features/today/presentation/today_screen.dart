@@ -1,62 +1,140 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/features/today/data/daily_game_repository.dart';
+import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 
-class TodayScreen extends StatelessWidget {
+class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
 
   @override
+  ConsumerState<TodayScreen> createState() => _TodayScreenState();
+}
+
+class _TodayScreenState extends ConsumerState<TodayScreen> {
+  var _isClaiming = false;
+
+  Future<void> _start({required bool rewarded}) async {
+    if (_isClaiming) return;
+    setState(() => _isClaiming = true);
+    try {
+      final repository = ref.read(dailyGameRepositoryProvider);
+      final attempt = rewarded
+          ? await repository.claimRewardedAttempt()
+          : await repository.claimDailyAttempt();
+      if (!mounted) return;
+      await context.push('/play', extra: attempt);
+      ref.invalidate(todayStateProvider);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('시작하지 못했어요: $error')));
+    } finally {
+      if (mounted) setState(() => _isClaiming = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final today = ref.watch(todayStateProvider);
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
             const Positioned.fill(child: _PixelGridBackground()),
-            Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const _Header(),
-                      const SizedBox(height: 32),
-                      PixelPanel(
-                        child: Column(
-                          children: [
-                            const _GamePreview(),
-                            const SizedBox(height: 24),
-                            Text(
-                              '별빛 피하기',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '장애물을 피하고 별을 모아\n오늘의 최고 기록에 도전하세요.',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 20),
-                            const _GameMeta(),
-                          ],
+            today.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+              error: (error, stackTrace) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: PixelPanel(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('서버에 연결하지 못했어요.'),
+                        const SizedBox(height: 16),
+                        PixelButton(
+                          label: '다시 연결',
+                          onPressed: () => ref.invalidate(todayStateProvider),
                         ),
-                      ),
-                      const SizedBox(height: 28),
-                      PixelButton(
-                        label: '오늘의 한 판 시작',
-                        icon: Icons.play_arrow_rounded,
-                        onPressed: () => context.go('/play'),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        '아직 플레이하지 않았어요 · 기회 1회',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              data: (state) => Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const _Header(),
+                        const SizedBox(height: 32),
+                        PixelPanel(
+                          child: Column(
+                            children: [
+                              const _GamePreview(),
+                              const SizedBox(height: 24),
+                              Text(
+                                state.game?.displayName ?? '오늘의 게임 준비 중',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                state.game?.description ?? '잠시 후 다시 확인해 주세요.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 20),
+                              const _GameMeta(),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+                        if (state.canClaimDaily)
+                          PixelButton(
+                            label: _isClaiming ? '기회 받는 중...' : '오늘의 한 판 시작',
+                            icon: Icons.play_arrow_rounded,
+                            onPressed: _isClaiming
+                                ? null
+                                : () => _start(rewarded: false),
+                          )
+                        else if (state.adAttemptAvailable)
+                          PixelButton(
+                            label: _isClaiming
+                                ? '기회 받는 중...'
+                                : '광고 테스트 · 한 판 더',
+                            icon: Icons.ondemand_video_outlined,
+                            onPressed: _isClaiming
+                                ? null
+                                : () => _start(rewarded: true),
+                          )
+                        else
+                          const PixelButton(
+                            label: '오늘의 플레이 완료',
+                            icon: Icons.check_rounded,
+                            onPressed: null,
+                          ),
+                        const SizedBox(height: 20),
+                        Text(
+                          _statusText(state),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        if (state.result?.score case final score?) ...[
+                          const SizedBox(height: 20),
+                          _TodayRank(result: state.result!, score: score),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -64,6 +142,55 @@ class TodayScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  String _statusText(TodayState state) {
+    if (state.canClaimDaily) return '아직 플레이하지 않았어요 · 기회 1회';
+    if (state.adAttemptAvailable) return '첫 판 완료 · 광고로 기회 1회 추가 가능';
+    if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';
+    return '중단된 게임은 다시 시작할 수 없어요';
+  }
+}
+
+class _TodayRank extends StatelessWidget {
+  const _TodayRank({required this.result, required this.score});
+
+  final DailyRankResult result;
+  final int score;
+
+  @override
+  Widget build(BuildContext context) {
+    return PixelPanel(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _RankValue(label: '최고 점수', value: '$score'),
+          _RankValue(
+            label: '오늘 순위',
+            value: result.rank == null ? '-' : '${result.rank}등',
+          ),
+          _RankValue(label: '참가자', value: '${result.participants}명'),
+        ],
+      ),
+    );
+  }
+}
+
+class _RankValue extends StatelessWidget {
+  const _RankValue({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(value, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 5),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 }

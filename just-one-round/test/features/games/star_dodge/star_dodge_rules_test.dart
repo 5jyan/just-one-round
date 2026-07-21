@@ -17,6 +17,17 @@ void main() {
       expect(StarDodgeRules.hitObstacle(0), 0);
     });
 
+    test('서버와 같은 카운터 공식으로 최종 점수를 계산한다', () {
+      expect(
+        StarDodgeRules.calculateScore(
+          starsCollected: 3,
+          collisions: 2,
+          survivalSeconds: 60,
+        ),
+        800,
+      );
+    });
+
     test('시간이 지날수록 생성 간격은 짧고 낙하 속도는 빨라진다', () {
       expect(
         StarDodgeRules.spawnInterval(1),

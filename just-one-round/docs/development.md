@@ -11,6 +11,38 @@ flutter test
 
 Android 및 iOS 빌드는 한글 경로에서도 정상 동작한다.
 
+## 로컬 Supabase 연결
+
+```sh
+npm run supabase:start
+npm run supabase:reset
+```
+
+iOS Simulator는 기본값인 `http://127.0.0.1:54321`로 바로 연결한다. Android Emulator는 호스트 주소가 다르므로 실행할 때 지정한다.
+
+```sh
+flutter run -d <android-emulator-id> \
+  --dart-define=SUPABASE_URL=http://10.0.2.2:54321
+```
+
+실기기는 Mac의 같은 Wi-Fi LAN 주소를 `SUPABASE_URL`로 지정한다. 운영 빌드에서는 반드시 Supabase Cloud의 HTTPS 주소와 publishable key를 지정한다.
+
+## iOS Simulator
+
+```sh
+flutter build ios --simulator
+xcrun simctl install <simulator-id> build/ios/iphonesimulator/Runner.app
+xcrun simctl launch <simulator-id> com.justoneround.app
+```
+
+게임 중 홈 전환은 Simulator의 Home 버튼으로, 강제 종료는 다음 명령으로 재현한다.
+
+```sh
+xcrun simctl terminate <simulator-id> com.justoneround.app
+```
+
+홈 전환·전화 수신·다른 시스템 UI 노출로 앱이 `inactive`, `hidden`, `paused` 상태가 되면 진행 중인 판은 즉시 중단한다. 강제 종료로 만료 요청을 전송하지 못한 경우에도 서버에 남은 `issued` 시도를 다음 실행에서 `expired`로 복구하므로 같은 기회를 다시 사용할 수 없다.
+
 ## Android 실기기
 
 ```sh

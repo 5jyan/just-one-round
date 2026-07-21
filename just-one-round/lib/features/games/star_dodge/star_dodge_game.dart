@@ -72,7 +72,6 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   var _countdownElapsed = 0.0;
   var _playingElapsed = 0.0;
   var _spawnElapsed = 0.0;
-  var _survivalElapsed = 0.0;
   var _score = 0;
   var _starsCollected = 0;
   var _collisions = 0;
@@ -137,12 +136,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   void _updatePlaying(double dt) {
     _playingElapsed += dt;
     _spawnElapsed += dt;
-    _survivalElapsed += dt;
-
-    while (_survivalElapsed >= 1) {
-      _survivalElapsed -= 1;
-      _score = StarDodgeRules.addSurvivalTime(_score, 1);
-    }
+    _recalculateScore();
 
     final interval = StarDodgeRules.spawnInterval(progress);
     if (_spawnElapsed >= interval) {
@@ -189,17 +183,16 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
 
       if (object.isStar) {
         object.removeFromParent();
-        _score = StarDodgeRules.collectStar(_score);
         _starsCollected += 1;
       } else {
         if (_player.isInvulnerable) {
           continue;
         }
         object.removeFromParent();
-        _score = StarDodgeRules.hitObstacle(_score);
         _collisions += 1;
         _player.takeHit();
       }
+      _recalculateScore();
       _publishHud(force: true);
       break;
     }
@@ -223,6 +216,25 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
         collisions: _collisions,
         duration: gameDuration,
       ),
+    );
+  }
+
+  void interrupt() {
+    if (_hasFinished) return;
+    _hasFinished = true;
+    _phase = StarDodgePhase.finished;
+    for (final object in world.children.whereType<_FallingObjectComponent>()) {
+      object.removeFromParent();
+    }
+    _publishHud(force: true);
+    pauseEngine();
+  }
+
+  void _recalculateScore() {
+    _score = StarDodgeRules.calculateScore(
+      starsCollected: _starsCollected,
+      collisions: _collisions,
+      survivalSeconds: _playingElapsed.floor(),
     );
   }
 

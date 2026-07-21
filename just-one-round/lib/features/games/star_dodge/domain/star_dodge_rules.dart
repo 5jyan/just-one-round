@@ -3,6 +3,17 @@ abstract final class StarDodgeRules {
   static const collisionPenalty = 50;
   static const survivalScorePerSecond = 10;
 
+  static int calculateScore({
+    required int starsCollected,
+    required int collisions,
+    required int survivalSeconds,
+  }) {
+    return (starsCollected * starScore +
+            survivalSeconds * survivalScorePerSecond -
+            collisions * collisionPenalty)
+        .clamp(0, 1 << 31);
+  }
+
   static int collectStar(int currentScore) => currentScore + starScore;
 
   static int hitObstacle(int currentScore) {

@@ -1,10 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/app/app.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
 
 void main() {
   testWidgets('오늘의 게임과 플레이 기회를 보여준다', (tester) async {
-    await tester.pumpWidget(const JustOneRoundApp());
+    await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('딱한판만'), findsOneWidget);
     expect(find.text('별빛 피하기'), findsOneWidget);
@@ -13,7 +16,8 @@ void main() {
   });
 
   testWidgets('시작 버튼으로 게임 화면에 진입한다', (tester) async {
-    await tester.pumpWidget(const JustOneRoundApp());
+    await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
+    await tester.pumpAndSettle();
 
     final startButton = find.byType(PixelButton);
     await tester.ensureVisible(startButton);
