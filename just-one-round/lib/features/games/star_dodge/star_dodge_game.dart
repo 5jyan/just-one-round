@@ -95,9 +95,9 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     camera.viewport = FixedResolutionViewport(resolution: logicalSize);
     camera.viewfinder.position = logicalSize / 2;
 
-    await world.add(_StarfieldComponent(size: logicalSize.clone()));
+    await world.add(_GroundComponent(size: logicalSize.clone()));
     _player = _PlayerComponent(
-      position: Vector2(logicalSize.x / 2, logicalSize.y - 66),
+      position: Vector2(logicalSize.x / 2, logicalSize.y - 92),
     );
     world.add(_player);
 
@@ -138,7 +138,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     _recalculateScore();
 
     final interval = StarDodgeRules.spawnInterval(progress);
-    if (_spawnElapsed >= interval) {
+    while (_spawnElapsed >= interval) {
       _spawnElapsed -= interval;
       _spawnFallingObject();
     }
@@ -266,26 +266,49 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
       return;
     }
     final viewportPosition = camera.viewport.globalToLocal(canvasPosition);
-    _player.moveToX(viewportPosition.x);
+    _player.setTargetX(viewportPosition.x);
   }
 }
 
 class _PlayerComponent extends SpriteComponent {
   _PlayerComponent({required super.position})
-    : super(size: Vector2(34, 42), anchor: Anchor.center, priority: 10);
+    : super(size: Vector2(78, 96), anchor: Anchor.center, priority: 10);
 
-  double get collisionRadius => 13;
+  static const _moveSpeed = 320.0;
+  double? _targetX;
+  var _walkElapsed = 0.0;
+
+  double get collisionRadius => 24;
 
   @override
   Future<void> onLoad() async {
     sprite = await Sprite.load('dodge_hero.png');
   }
 
-  void moveToX(double x) {
-    position.x = x.clamp(
+  void setTargetX(double x) {
+    _targetX = x.clamp(
       size.x / 2 + 8,
       StarDodgeGame.logicalSize.x - size.x / 2 - 8,
     );
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    final target = _targetX;
+    if (target == null) return;
+    final delta = target - position.x;
+    if (delta.abs() < 1) {
+      position.x = target;
+      _targetX = null;
+      angle = 0;
+      return;
+    }
+    final direction = delta.sign;
+    position.x += direction * min(_moveSpeed * dt, delta.abs());
+    _walkElapsed += dt * 13;
+    angle = sin(_walkElapsed) * 0.045;
+    scale.x = direction;
   }
 }
 
@@ -322,43 +345,40 @@ class _FallingObjectComponent extends PositionComponent {
   }
 
   void _renderObstacle(Canvas canvas) {
-    final fill = Paint()..color = const Color(0xFF91522C);
-    final shadow = Paint()..color = const Color(0xFF56301F);
+    final fill = Paint()..color = const Color(0xFF9C572B);
+    final shadow = Paint()..color = const Color(0xFF5A2E19);
     final dark = Paint()..color = AppColors.backgroundDeep;
-    final diameter = radius * 2;
-
-    canvas.drawRect(Rect.fromLTWH(4, 0, diameter - 8, diameter), fill);
-    canvas.drawRect(Rect.fromLTWH(0, 5, diameter, diameter - 10), fill);
-    canvas.drawRect(Rect.fromLTWH(4, diameter - 6, diameter - 8, 6), shadow);
-    canvas.drawRect(Rect.fromLTWH(radius * 0.35, radius * 0.45, 6, 6), dark);
-    canvas.drawRect(Rect.fromLTWH(radius * 1.15, radius * 1.05, 5, 5), dark);
+    canvas.drawCircle(Offset(radius, radius * 1.25), radius * .72, fill);
+    canvas.drawCircle(Offset(radius * .82, radius * .75), radius * .52, fill);
+    canvas.drawCircle(Offset(radius * 1.1, radius * .36), radius * .33, fill);
+    canvas.drawRect(
+      Rect.fromLTWH(radius * .75, radius * 1.65, radius * .7, 5),
+      shadow,
+    );
+    canvas.drawRect(Rect.fromLTWH(radius * .65, radius * .9, 4, 4), dark);
+    canvas.drawRect(Rect.fromLTWH(radius * 1.2, radius * .9, 4, 4), dark);
   }
 }
 
-class _StarfieldComponent extends PositionComponent {
-  _StarfieldComponent({required super.size}) : super(priority: -10);
-
-  final _stars = List.generate(54, (index) {
-    final random = Random(index * 7919);
-    return Offset(
-      random.nextDouble() * StarDodgeGame.logicalSize.x,
-      random.nextDouble() * StarDodgeGame.logicalSize.y,
-    );
-  });
+class _GroundComponent extends PositionComponent {
+  _GroundComponent({required super.size}) : super(priority: -10);
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    final dimPaint = Paint()
-      ..color = AppColors.surfaceLight.withValues(alpha: 0.45);
-    final brightPaint = Paint()
-      ..color = AppColors.border.withValues(alpha: 0.65);
-
-    for (var index = 0; index < _stars.length; index++) {
-      final star = _stars[index];
-      final paint = index % 7 == 0 ? brightPaint : dimPaint;
-      final side = index % 7 == 0 ? 2.0 : 1.0;
-      canvas.drawRect(Rect.fromLTWH(star.dx, star.dy, side, side), paint);
+    final sky = Paint()..color = const Color(0xFF8DD8F8);
+    final cloud = Paint()..color = const Color(0xFFF6F0D2);
+    final grass = Paint()..color = const Color(0xFF3B9B55);
+    final soil = Paint()..color = const Color(0xFF89502B);
+    canvas.drawRect(Offset.zero & Size(size.x, size.y), sky);
+    canvas.drawRect(Rect.fromLTWH(0, 540, size.x, 100), soil);
+    canvas.drawRect(Rect.fromLTWH(0, 532, size.x, 12), grass);
+    for (final x in [40.0, 188.0, 292.0]) {
+      canvas.drawRect(Rect.fromLTWH(x, 92 + (x % 3) * 18, 48, 15), cloud);
+      canvas.drawRect(Rect.fromLTWH(x + 10, 77 + (x % 3) * 18, 28, 16), cloud);
+    }
+    for (var x = 0.0; x < size.x; x += 28) {
+      canvas.drawRect(Rect.fromLTWH(x, 570 + (x % 2) * 15, 7, 5), grass);
     }
   }
 }
