@@ -270,20 +270,16 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 }
 
-class _PlayerComponent extends SpriteComponent {
+class _PlayerComponent extends PositionComponent {
   _PlayerComponent({required super.position})
     : super(size: Vector2(78, 96), anchor: Anchor.center, priority: 10);
 
   static const _moveSpeed = 320.0;
   double? _targetX;
   var _walkElapsed = 0.0;
+  var _isWalking = false;
 
   double get collisionRadius => 24;
-
-  @override
-  Future<void> onLoad() async {
-    sprite = await Sprite.load('dodge_hero.png');
-  }
 
   void setTargetX(double x) {
     _targetX = x.clamp(
@@ -302,6 +298,7 @@ class _PlayerComponent extends SpriteComponent {
       position.x = target;
       _targetX = null;
       angle = 0;
+      _isWalking = false;
       return;
     }
     final direction = delta.sign;
@@ -309,6 +306,52 @@ class _PlayerComponent extends SpriteComponent {
     _walkElapsed += dt * 13;
     angle = sin(_walkElapsed) * 0.045;
     scale.x = direction;
+    _isWalking = true;
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    // An original, deliberately low-resolution character: every feature is a
+    // chunky 8px tile rather than detailed illustration pixels.
+    const tile = 8.0;
+    final outline = Paint()..color = const Color(0xFF18223B);
+    final skin = Paint()..color = const Color(0xFFF1B86A);
+    final hair = Paint()..color = const Color(0xFF523459);
+    final jacket = Paint()..color = const Color(0xFFFFC43D);
+    final shirt = Paint()..color = const Color(0xFF2D9C9D);
+    final shoe = Paint()..color = const Color(0xFFEF6B5B);
+    final step = _isWalking && _walkElapsed.floor().isOdd ? tile : 0.0;
+    void block(
+      double x,
+      double y,
+      Paint paint, [
+      double w = tile,
+      double h = tile,
+    ]) {
+      canvas.drawRect(Rect.fromLTWH(x, y, w, h), paint);
+    }
+
+    block(16, 0, outline, 40, 32);
+    block(24, 0, hair, 24, 8);
+    block(16, 8, hair, 8, 24);
+    block(48, 8, hair, 8, 24);
+    block(24, 8, skin, 24, 24);
+    block(24, 16, outline, 8, 8);
+    block(40, 16, outline, 8, 8);
+    block(32, 24, skin, 8, 8);
+    block(16, 32, outline, 40, 32);
+    block(24, 32, jacket, 24, 24);
+    block(32, 40, shirt, 8, 24);
+    block(8, 40 + step, outline, 8, 24);
+    block(8, 40 + step, jacket, 8, 16);
+    block(56, 40 + (tile - step), outline, 8, 24);
+    block(56, 40 + (tile - step), jacket, 8, 16);
+    block(16, 64, outline, 40, 16);
+    block(24, 64 + step, shirt, 8, 16);
+    block(40, 64 + (tile - step), shirt, 8, 16);
+    block(16, 80 + step, shoe, 16, 8);
+    block(40, 80 + (tile - step), shoe, 16, 8);
   }
 }
 
