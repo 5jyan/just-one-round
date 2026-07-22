@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: 2D mobile arcade player animation sprite sheet
+Primary request: Create an original small gravity-running prism drone, a compact beveled cube-like machine with a glowing cyan core, coral-orange corner guards, dark navy metal edges, and a tiny white chevron symbol. It should feel playful and readable at 48 pixels, but must not reproduce any existing game character or logo.
+Style/medium: polished clean 2D game sprite, neon arcade, crisp vector-like shading with subtle pixel-inspired hard edges
+Composition: EXACT 2x2 grid containing four consecutive frames of the same drone rotating forward by 90 degrees across the sequence. One centered full object in each equal cell. Same camera distance, same size, same identity.
+Camera: side/three-quarter view, consistent across all four frames
+Background: perfectly flat solid #FF00FF chroma-key background only
+Constraints: each drone occupies the central 60% of its cell; generous magenta padding; nothing crosses cell boundaries; no separators, labels, grid lines, cast shadows, particles, trails, extra objects, text, watermark, or floor; do not use #FF00FF in the subject.

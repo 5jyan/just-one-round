@@ -72,7 +72,7 @@ flutter:
     - assets/images/pixel_cloud_small_uniform.png
     - assets/images/pixel_ground_uniform.png
     - assets/images/dodge_v2/
-    - assets/images/gravity_switch/
+    - assets/images/gravity_switch_v2/
 
   fonts:
     - family: Galmuri
