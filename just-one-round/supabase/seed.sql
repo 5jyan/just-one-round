@@ -16,6 +16,24 @@ insert into public.games (
   description = excluded.description,
   duration_seconds = excluded.duration_seconds;
 
+insert into public.games (
+  id,
+  version,
+  display_name,
+  description,
+  duration_seconds
+) values (
+  'gravity_switch',
+  1,
+  '뒤집어! 공룡',
+  '화면을 탭해 중력을 뒤집고 바닥과 천장의 장애물을 피해 오래 살아남으세요.',
+  180
+) on conflict (id) do update set
+  version = excluded.version,
+  display_name = excluded.display_name,
+  description = excluded.description,
+  duration_seconds = excluded.duration_seconds;
+
 insert into public.daily_games (play_date, game_id, game_version)
 values (
   (now() at time zone 'Asia/Seoul')::date,

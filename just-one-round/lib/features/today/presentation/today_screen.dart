@@ -208,7 +208,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               const SizedBox(height: 20),
-                              const _GameMeta(),
+                              _GameMeta(game: state.game),
                             ],
                           ),
                         ),
@@ -493,18 +493,23 @@ class _PixelStar extends StatelessWidget {
 }
 
 class _GameMeta extends StatelessWidget {
-  const _GameMeta();
+  const _GameMeta({required this.game});
+
+  final TodayGame? game;
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    final durationLabel = game?.id == 'gravity_switch'
+        ? '제한 없음'
+        : '${game?.durationSeconds ?? 60}초';
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _MetaItem(icon: Icons.timer_outlined, label: '60초'),
-        SizedBox(width: 24),
-        _MetaItem(icon: Icons.touch_app_outlined, label: '한 손'),
-        SizedBox(width: 24),
-        _MetaItem(icon: Icons.public, label: '전체 순위'),
+        _MetaItem(icon: Icons.timer_outlined, label: durationLabel),
+        const SizedBox(width: 24),
+        const _MetaItem(icon: Icons.touch_app_outlined, label: '한 손'),
+        const SizedBox(width: 24),
+        const _MetaItem(icon: Icons.public, label: '전체 순위'),
       ],
     );
   }
