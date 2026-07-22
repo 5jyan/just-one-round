@@ -26,7 +26,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.text('SCORE'), findsOneWidget);
+    expect(find.text('SURVIVE'), findsOneWidget);
     expect(find.text('TIME'), findsOneWidget);
     expect(find.text('화면을 좌우로 드래그하세요'), findsOneWidget);
   });

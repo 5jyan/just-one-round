@@ -21,7 +21,7 @@ void main() {
     expect(find.text('2026.07.22'), findsOneWidget);
     expect(find.text('별빛 피하기'), findsOneWidget);
     expect(find.text('2등 / 30명'), findsOneWidget);
-    expect(find.text('800'), findsOneWidget);
+    expect(find.text('0.80초'), findsOneWidget);
   });
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 
@@ -54,7 +55,7 @@ class NearbyRanking extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${item.score}',
+                    StarDodgeRules.formatSurvival(item.score),
                     style: const TextStyle(
                       fontFamily: 'Galmuri',
                       color: AppColors.reward,

@@ -73,7 +73,6 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   var _playingElapsed = 0.0;
   var _spawnElapsed = 0.0;
   var _score = 0;
-  var _starsCollected = 0;
   var _collisions = 0;
   var _lastDisplayedSecond = -1;
   var _lastCountdownNumber = -1;
@@ -100,7 +99,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     _player = _PlayerComponent(
       position: Vector2(logicalSize.x / 2, logicalSize.y - 66),
     );
-    await world.add(_player);
+    world.add(_player);
 
     if (countdownDuration == Duration.zero) {
       _phase = StarDodgePhase.playing;
@@ -156,15 +155,13 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 
   void _spawnFallingObject() {
-    final isStar = _random.nextDouble() < 0.3;
-    final radius = isStar ? 11.0 : 15.0 + (_random.nextDouble() * 7);
+    final radius = 15.0 + (_random.nextDouble() * 9);
     final x = 24 + (_random.nextDouble() * (logicalSize.x - 48));
     final baseSpeed = StarDodgeRules.fallingSpeed(progress);
     final speed = baseSpeed * (0.88 + (_random.nextDouble() * 0.3));
 
     world.add(
       _FallingObjectComponent(
-        isStar: isStar,
         radius: radius,
         speed: speed,
         position: Vector2(x, -radius * 2),
@@ -181,20 +178,10 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
         continue;
       }
 
-      if (object.isStar) {
-        object.removeFromParent();
-        _starsCollected += 1;
-      } else {
-        if (_player.isInvulnerable) {
-          continue;
-        }
-        object.removeFromParent();
-        _collisions += 1;
-        _player.takeHit();
-      }
-      _recalculateScore();
-      _publishHud(force: true);
-      break;
+      object.removeFromParent();
+      _collisions = 1;
+      _finishGame();
+      return;
     }
   }
 
@@ -212,7 +199,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     onFinished(
       GameResult(
         score: _score,
-        starsCollected: _starsCollected,
+        starsCollected: 0,
         collisions: _collisions,
         duration: gameDuration,
       ),
@@ -231,11 +218,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 
   void _recalculateScore() {
-    _score = StarDodgeRules.calculateScore(
-      starsCollected: _starsCollected,
-      collisions: _collisions,
-      survivalSeconds: _playingElapsed.floor(),
-    );
+    _score = (_playingElapsed * 1000).floor();
   }
 
   void _publishHud({bool force = false}) {
@@ -262,7 +245,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
       score: _score,
       remainingSeconds: remaining,
       countdownNumber: countdown,
-      starsCollected: _starsCollected,
+      starsCollected: 0,
       collisions: _collisions,
     );
   }
@@ -287,15 +270,16 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 }
 
-class _PlayerComponent extends PositionComponent {
+class _PlayerComponent extends SpriteComponent {
   _PlayerComponent({required super.position})
     : super(size: Vector2(34, 42), anchor: Anchor.center, priority: 10);
 
-  static const _invulnerabilityDuration = 1.1;
-  var _invulnerabilityRemaining = 0.0;
-
-  bool get isInvulnerable => _invulnerabilityRemaining > 0;
   double get collisionRadius => 13;
+
+  @override
+  Future<void> onLoad() async {
+    sprite = await Sprite.load('dodge_hero.png');
+  }
 
   void moveToX(double x) {
     position.x = x.clamp(
@@ -303,47 +287,15 @@ class _PlayerComponent extends PositionComponent {
       StarDodgeGame.logicalSize.x - size.x / 2 - 8,
     );
   }
-
-  void takeHit() {
-    _invulnerabilityRemaining = _invulnerabilityDuration;
-  }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-    _invulnerabilityRemaining = max(0, _invulnerabilityRemaining - dt);
-  }
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    if (isInvulnerable && (_invulnerabilityRemaining * 12).floor().isOdd) {
-      return;
-    }
-
-    final bodyPaint = Paint()..color = AppColors.reward;
-    final darkPaint = Paint()..color = AppColors.backgroundDeep;
-    final flamePaint = Paint()..color = AppColors.primary;
-
-    canvas.drawRect(const Rect.fromLTWH(13, 2, 8, 4), bodyPaint);
-    canvas.drawRect(const Rect.fromLTWH(9, 6, 16, 24), bodyPaint);
-    canvas.drawRect(const Rect.fromLTWH(5, 18, 8, 16), bodyPaint);
-    canvas.drawRect(const Rect.fromLTWH(21, 18, 8, 16), bodyPaint);
-    canvas.drawRect(const Rect.fromLTWH(13, 30, 8, 6), bodyPaint);
-    canvas.drawRect(const Rect.fromLTWH(13, 11, 8, 8), darkPaint);
-    canvas.drawRect(const Rect.fromLTWH(13, 36, 8, 5), flamePaint);
-  }
 }
 
 class _FallingObjectComponent extends PositionComponent {
   _FallingObjectComponent({
-    required this.isStar,
     required this.radius,
     required this.speed,
     required super.position,
   }) : super(size: Vector2.all(radius * 2), anchor: Anchor.center, priority: 5);
 
-  final bool isStar;
   final double radius;
   final double speed;
 
@@ -366,46 +318,12 @@ class _FallingObjectComponent extends PositionComponent {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    if (isStar) {
-      _renderStar(canvas);
-    } else {
-      _renderObstacle(canvas);
-    }
-  }
-
-  void _renderStar(Canvas canvas) {
-    final paint = Paint()..color = AppColors.primary;
-    final center = radius;
-    final unit = max(2.0, (radius / 4).floorToDouble());
-    canvas.drawRect(
-      Rect.fromCenter(
-        center: Offset(center, center),
-        width: unit * 2,
-        height: radius * 2,
-      ),
-      paint,
-    );
-    canvas.drawRect(
-      Rect.fromCenter(
-        center: Offset(center, center),
-        width: radius * 2,
-        height: unit * 2,
-      ),
-      paint,
-    );
-    canvas.drawRect(
-      Rect.fromCenter(
-        center: Offset(center, center),
-        width: radius * 1.35,
-        height: radius * 1.35,
-      ),
-      paint,
-    );
+    _renderObstacle(canvas);
   }
 
   void _renderObstacle(Canvas canvas) {
-    final fill = Paint()..color = AppColors.danger;
-    final shadow = Paint()..color = const Color(0xFF8D3A4B);
+    final fill = Paint()..color = const Color(0xFF91522C);
+    final shadow = Paint()..color = const Color(0xFF56301F);
     final dark = Paint()..color = AppColors.backgroundDeep;
     final diameter = radius * 2;
 

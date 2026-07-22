@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/profile/presentation/profile_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
+import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
@@ -287,7 +288,10 @@ class _RankSection extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _RankValue(label: '최고 점수', value: '$score'),
+                _RankValue(
+                  label: '최고 생존',
+                  value: StarDodgeRules.formatSurvival(score),
+                ),
                 _RankValue(
                   label: '오늘 순위',
                   value: result.rank == null ? '-' : '${result.rank}등',
@@ -411,16 +415,15 @@ class _GamePreview extends StatelessWidget {
           color: AppColors.backgroundDeep,
           border: Border.all(color: AppColors.surfaceLight, width: 2),
         ),
-        child: const Stack(
+        child: Stack(
           children: [
-            Positioned(left: 30, top: 24, child: _PixelStar(size: 18)),
-            Positioned(right: 38, top: 44, child: _PixelStar(size: 12)),
-            Positioned(left: 84, bottom: 24, child: _PixelStar(size: 10)),
+            const Positioned(left: 30, top: 24, child: _PixelStar(size: 18)),
+            const Positioned(right: 38, top: 44, child: _PixelStar(size: 12)),
             Center(
-              child: Icon(
-                Icons.rocket_launch_rounded,
-                color: AppColors.reward,
-                size: 62,
+              child: Image.asset(
+                'assets/images/dodge_hero.png',
+                width: 102,
+                filterQuality: FilterQuality.none,
               ),
             ),
           ],
@@ -437,7 +440,11 @@ class _PixelStar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.star, size: size, color: AppColors.primary);
+    return Icon(
+      Icons.warning_amber_rounded,
+      size: size,
+      color: AppColors.danger,
+    );
   }
 }
 

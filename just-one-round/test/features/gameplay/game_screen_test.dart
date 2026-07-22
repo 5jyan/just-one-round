@@ -29,7 +29,8 @@ void main() {
     );
 
     await tester.pump(const Duration(milliseconds: 16));
-    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pump();
 
     expect(find.text('한 판 종료!'), findsOneWidget);

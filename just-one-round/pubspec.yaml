@@ -65,6 +65,7 @@ flutter:
 
   assets:
     - assets/licenses/Galmuri-OFL-1.1.txt
+    - assets/images/dodge_hero.png
 
   fonts:
     - family: Galmuri

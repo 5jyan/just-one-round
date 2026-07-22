@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/star_dodge/star_dodge_game.dart';
+import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
@@ -209,7 +210,10 @@ class _GameHud extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _HudValue(label: 'SCORE', value: '${state.score}'),
+                    _HudValue(
+                      label: 'SURVIVE',
+                      value: StarDodgeRules.formatSurvival(state.score),
+                    ),
                     _HudValue(
                       label: 'TIME',
                       value: '${state.remainingSeconds}'.padLeft(2, '0'),
@@ -259,7 +263,7 @@ class _GameHud extends StatelessWidget {
                   right: 0,
                   bottom: 18,
                   child: Text(
-                    '★ ${state.starsCollected}   ·   충돌 ${state.collisions}',
+                    '떨어지는 똥을 피하세요! · 충돌하면 종료',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.textMuted,
@@ -364,7 +368,7 @@ class _ResultOverlay extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    '${result.score}',
+                    StarDodgeRules.formatSurvival(result.score),
                     key: const Key('final-score'),
                     style: const TextStyle(
                       fontFamily: 'Galmuri',
@@ -375,7 +379,7 @@ class _ResultOverlay extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'FINAL SCORE',
+                    'SURVIVAL TIME',
                     style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
@@ -384,16 +388,7 @@ class _ResultOverlay extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _ResultStat(
-                        label: '모은 별',
-                        value: '${result.starsCollected}',
-                      ),
-                      _ResultStat(label: '충돌', value: '${result.collisions}'),
-                    ],
-                  ),
+                  _ResultStat(label: '기록 단위', value: '0.01초'),
                   const SizedBox(height: 24),
                   if (isSubmitting)
                     const Text('오늘 순위를 계산하고 있어요...')

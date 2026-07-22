@@ -3,29 +3,8 @@ import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules
 
 void main() {
   group('StarDodgeRules', () {
-    test('별 수집과 생존 시간으로 점수를 얻는다', () {
-      final afterStar = StarDodgeRules.collectStar(20);
-      final afterSurvival = StarDodgeRules.addSurvivalTime(afterStar, 3);
-
-      expect(afterStar, 120);
-      expect(afterSurvival, 150);
-    });
-
-    test('장애물 감점으로 점수가 음수가 되지 않는다', () {
-      expect(StarDodgeRules.hitObstacle(120), 70);
-      expect(StarDodgeRules.hitObstacle(20), 0);
-      expect(StarDodgeRules.hitObstacle(0), 0);
-    });
-
-    test('서버와 같은 카운터 공식으로 최종 점수를 계산한다', () {
-      expect(
-        StarDodgeRules.calculateScore(
-          starsCollected: 3,
-          collisions: 2,
-          survivalSeconds: 60,
-        ),
-        800,
-      );
+    test('생존 시간을 0.01초 단위로 표시한다', () {
+      expect(StarDodgeRules.formatSurvival(12345), '12.35초');
     });
 
     test('시간이 지날수록 생성 간격은 짧고 낙하 속도는 빨라진다', () {
