@@ -514,10 +514,12 @@ class _GravityGamePreview extends StatelessWidget {
             child: SizedBox.square(
               dimension: 54,
               child: ClipRect(
-                child: Align(
+                child: OverflowBox(
                   alignment: Alignment.topLeft,
-                  widthFactor: 0.5,
-                  heightFactor: 0.5,
+                  minWidth: 108,
+                  maxWidth: 108,
+                  minHeight: 108,
+                  maxHeight: 108,
                   child: Image.asset(
                     'assets/images/gravity_switch_v2/player_sheet.png',
                     width: 108,
