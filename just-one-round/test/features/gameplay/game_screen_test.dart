@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_screen.dart';
+import 'package:just_one_round/features/history/domain/play_history_entry.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 
@@ -109,6 +110,9 @@ class _RecordingRepository implements DailyGameRepository {
 
   @override
   Future<TodayState> fetchToday() => throw UnimplementedError();
+
+  @override
+  Future<List<PlayHistoryEntry>> fetchHistory() => throw UnimplementedError();
 
   @override
   Future<DailyRankResult> submitScore(String attemptId, GameResult result) =>

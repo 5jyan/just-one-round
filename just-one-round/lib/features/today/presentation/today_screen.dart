@@ -143,6 +143,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                       children: [
                         _Header(
                           isSaving: _isSavingProfile,
+                          onHistory: () => context.push('/history'),
                           onSettings: () => _editProfile(state.profile),
                         ),
                         const SizedBox(height: 32),
@@ -322,9 +323,14 @@ class _RankValue extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onSettings, required this.isSaving});
+  const _Header({
+    required this.onSettings,
+    required this.onHistory,
+    required this.isSaving,
+  });
 
   final VoidCallback onSettings;
+  final VoidCallback onHistory;
   final bool isSaving;
 
   @override
@@ -350,15 +356,25 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
-        IconButton(
-          tooltip: '프로필 설정',
-          onPressed: isSaving ? null : onSettings,
-          icon: isSaving
-              ? const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.person_outline, color: AppColors.text),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: '내 기록',
+              onPressed: onHistory,
+              icon: const Icon(Icons.history, color: AppColors.text),
+            ),
+            IconButton(
+              tooltip: '프로필 설정',
+              onPressed: isSaving ? null : onSettings,
+              icon: isSaving
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.person_outline, color: AppColors.text),
+            ),
+          ],
         ),
       ],
     );

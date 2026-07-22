@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/history/domain/play_history_entry.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,6 +19,7 @@ abstract interface class DailyGameRepository {
     int? birthDecade,
     ProfileGender? gender,
   });
+  Future<List<PlayHistoryEntry>> fetchHistory();
 }
 
 final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
@@ -150,6 +152,18 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
     return DailyRankResult.fromJson(Map<String, dynamic>.from(response as Map));
   }
 
+  @override
+  Future<List<PlayHistoryEntry>> fetchHistory() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('get_my_play_history');
+    return (response as List<dynamic>)
+        .map(
+          (item) =>
+              PlayHistoryEntry.fromJson(Map<String, dynamic>.from(item as Map)),
+        )
+        .toList(growable: false);
+  }
+
   PlayAttempt _attemptFromRpc(dynamic response) {
     return PlayAttempt.fromJson(Map<String, dynamic>.from(response as Map));
   }
@@ -233,4 +247,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     nickname: null,
     nearby: [],
   );
+
+  @override
+  Future<List<PlayHistoryEntry>> fetchHistory() async => const [];
 }
