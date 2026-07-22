@@ -224,6 +224,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 
   String _statusText(TodayState state) {
+    if (state.testMode) return '테스트 모드 · 제한 없이 계속 플레이할 수 있어요';
     if (state.canClaimDaily) return '아직 플레이하지 않았어요 · 기회 1회';
     if (state.adAttemptAvailable) return '첫 판 완료 · 광고로 기회 1회 추가 가능';
     if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';

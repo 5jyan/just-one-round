@@ -137,6 +137,7 @@ class TodayState {
     required this.game,
     required this.attempts,
     required this.adAttemptAvailable,
+    required this.testMode,
     required this.result,
     required this.profile,
   });
@@ -153,6 +154,7 @@ class TodayState {
       game: gameJson == null ? null : TodayGame.fromJson(gameJson),
       attempts: attempts,
       adAttemptAvailable: json['ad_attempt_available'] as bool? ?? false,
+      testMode: json['test_mode'] as bool? ?? false,
       result: resultJson == null ? null : DailyRankResult.fromJson(resultJson),
       profile: profileJson == null
           ? const UserProfile(nickname: null, birthDecade: null, gender: null)
@@ -164,12 +166,13 @@ class TodayState {
   final TodayGame? game;
   final List<PlayAttempt> attempts;
   final bool adAttemptAvailable;
+  final bool testMode;
   final DailyRankResult? result;
   final UserProfile profile;
 
-  bool get canClaimDaily => attempts.isEmpty;
+  bool get canClaimDaily => testMode || attempts.isEmpty;
   bool get hasPlayed => result?.score != null;
   bool get isExhausted =>
-      attempts.length >= 2 ||
+      (!testMode && attempts.length >= 2) ||
       (attempts.isNotEmpty && !adAttemptAvailable && !canClaimDaily);
 }

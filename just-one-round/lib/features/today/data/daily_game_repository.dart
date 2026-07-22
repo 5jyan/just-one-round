@@ -212,6 +212,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     ),
     attempts: const [],
     adAttemptAvailable: false,
+    testMode: false,
     result: const DailyRankResult(
       score: null,
       rank: null,
