@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/features/profile/presentation/profile_dialog.dart';
+import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
@@ -16,6 +18,10 @@ class TodayScreen extends ConsumerStatefulWidget {
 
 class _TodayScreenState extends ConsumerState<TodayScreen> {
   var _isClaiming = false;
+  var _isSavingProfile = false;
+  var _isLoadingRank = false;
+  _RankFilter _rankFilter = _RankFilter.all;
+  DailyRankResult? _filteredResult;
 
   Future<void> _start({required bool rewarded}) async {
     if (_isClaiming) return;
@@ -35,6 +41,65 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       ).showSnackBar(SnackBar(content: Text('시작하지 못했어요: $error')));
     } finally {
       if (mounted) setState(() => _isClaiming = false);
+    }
+  }
+
+  Future<void> _editProfile(UserProfile profile) async {
+    final draft = await showProfileDialog(context, profile: profile);
+    if (draft == null || !mounted) return;
+    setState(() => _isSavingProfile = true);
+    try {
+      final repository = ref.read(dailyGameRepositoryProvider);
+      await repository.setNickname(draft.nickname);
+      await repository.updateDemographics(
+        birthDecade: draft.birthDecade,
+        gender: draft.gender,
+      );
+      _rankFilter = _RankFilter.all;
+      _filteredResult = null;
+      ref.invalidate(todayStateProvider);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('프로필을 저장하지 못했어요: $error')));
+    } finally {
+      if (mounted) setState(() => _isSavingProfile = false);
+    }
+  }
+
+  Future<void> _selectRankFilter(
+    _RankFilter filter,
+    UserProfile profile,
+  ) async {
+    if (_isLoadingRank || filter == _rankFilter) return;
+    if (filter == _RankFilter.all) {
+      setState(() {
+        _rankFilter = filter;
+        _filteredResult = null;
+      });
+      return;
+    }
+    setState(() => _isLoadingRank = true);
+    try {
+      final result = await ref
+          .read(dailyGameRepositoryProvider)
+          .fetchFilteredRank(
+            birthDecade: filter == _RankFilter.age ? profile.birthDecade : null,
+            gender: filter == _RankFilter.gender ? profile.gender : null,
+          );
+      if (!mounted) return;
+      setState(() {
+        _rankFilter = filter;
+        _filteredResult = result;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('필터 순위를 불러오지 못했어요: $error')));
+    } finally {
+      if (mounted) setState(() => _isLoadingRank = false);
     }
   }
 
@@ -76,7 +141,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const _Header(),
+                        _Header(
+                          isSaving: _isSavingProfile,
+                          onSettings: () => _editProfile(state.profile),
+                        ),
                         const SizedBox(height: 32),
                         PixelPanel(
                           child: Column(
@@ -131,7 +199,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                         ),
                         if (state.result?.score case final score?) ...[
                           const SizedBox(height: 20),
-                          _TodayRank(result: state.result!, score: score),
+                          _RankSection(
+                            result: _filteredResult ?? state.result!,
+                            score: score,
+                            profile: state.profile,
+                            selectedFilter: _rankFilter,
+                            isLoading: _isLoadingRank,
+                            onSelect: (filter) =>
+                                _selectRankFilter(filter, state.profile),
+                          ),
                         ],
                       ],
                     ),
@@ -153,26 +229,76 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 }
 
-class _TodayRank extends StatelessWidget {
-  const _TodayRank({required this.result, required this.score});
+enum _RankFilter { all, age, gender }
+
+class _RankSection extends StatelessWidget {
+  const _RankSection({
+    required this.result,
+    required this.score,
+    required this.profile,
+    required this.selectedFilter,
+    required this.isLoading,
+    required this.onSelect,
+  });
 
   final DailyRankResult result;
   final int score;
+  final UserProfile profile;
+  final _RankFilter selectedFilter;
+  final bool isLoading;
+  final ValueChanged<_RankFilter> onSelect;
 
   @override
   Widget build(BuildContext context) {
-    return PixelPanel(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _RankValue(label: '최고 점수', value: '$score'),
-          _RankValue(
-            label: '오늘 순위',
-            value: result.rank == null ? '-' : '${result.rank}등',
+    return Column(
+      children: [
+        Wrap(
+          spacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('전체'),
+              selected: selectedFilter == _RankFilter.all,
+              onSelected: (_) => onSelect(_RankFilter.all),
+            ),
+            if (profile.birthDecade case final decade?)
+              ChoiceChip(
+                label: Text('$decade년대생'),
+                selected: selectedFilter == _RankFilter.age,
+                onSelected: (_) => onSelect(_RankFilter.age),
+              ),
+            if (profile.gender case final gender?
+                when gender != ProfileGender.preferNotToSay)
+              ChoiceChip(
+                label: Text(gender.label),
+                selected: selectedFilter == _RankFilter.gender,
+                onSelected: (_) => onSelect(_RankFilter.gender),
+              ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (isLoading)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: CircularProgressIndicator(color: AppColors.primary),
+          )
+        else ...[
+          PixelPanel(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _RankValue(label: '최고 점수', value: '$score'),
+                _RankValue(
+                  label: '오늘 순위',
+                  value: result.rank == null ? '-' : '${result.rank}등',
+                ),
+                _RankValue(label: '참가자', value: '${result.participants}명'),
+              ],
+            ),
           ),
-          _RankValue(label: '참가자', value: '${result.participants}명'),
+          const SizedBox(height: 12),
+          NearbyRanking(result: result),
         ],
-      ),
+      ],
     );
   }
 }
@@ -196,7 +322,10 @@ class _RankValue extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  const _Header({required this.onSettings, required this.isSaving});
+
+  final VoidCallback onSettings;
+  final bool isSaving;
 
   @override
   Widget build(BuildContext context) {
@@ -222,9 +351,14 @@ class _Header extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: '설정',
-          onPressed: () {},
-          icon: const Icon(Icons.settings_outlined, color: AppColors.text),
+          tooltip: '프로필 설정',
+          onPressed: isSaving ? null : onSettings,
+          icon: isSaving
+              ? const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.person_outline, color: AppColors.text),
         ),
       ],
     );

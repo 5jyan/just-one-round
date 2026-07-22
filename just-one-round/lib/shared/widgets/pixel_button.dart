@@ -66,13 +66,18 @@ class _PixelButtonState extends State<PixelButton> {
                     Icon(icon, color: AppColors.backgroundDeep, size: 22),
                     const SizedBox(width: 8),
                   ],
-                  Text(
-                    widget.label,
-                    style: const TextStyle(
-                      fontFamily: 'Galmuri',
-                      color: AppColors.backgroundDeep,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                  Flexible(
+                    child: Text(
+                      widget.label,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: 'Galmuri',
+                        color: AppColors.backgroundDeep,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ],

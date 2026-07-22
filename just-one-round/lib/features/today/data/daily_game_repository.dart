@@ -9,6 +9,15 @@ abstract interface class DailyGameRepository {
   Future<PlayAttempt> claimRewardedAttempt();
   Future<void> expireAttempt(String attemptId);
   Future<DailyRankResult> submitScore(String attemptId, GameResult result);
+  Future<UserProfile> setNickname(String nickname);
+  Future<UserProfile> updateDemographics({
+    required int? birthDecade,
+    required ProfileGender? gender,
+  });
+  Future<DailyRankResult> fetchFilteredRank({
+    int? birthDecade,
+    ProfileGender? gender,
+  });
 }
 
 final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
@@ -102,6 +111,45 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
     return DailyRankResult.fromJson(Map<String, dynamic>.from(response as Map));
   }
 
+  @override
+  Future<UserProfile> setNickname(String nickname) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'set_my_nickname',
+      params: {'new_nickname': nickname},
+    );
+    return UserProfile.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
+  @override
+  Future<UserProfile> updateDemographics({
+    required int? birthDecade,
+    required ProfileGender? gender,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'update_my_demographics',
+      params: {'new_birth_decade': birthDecade, 'new_gender': gender?.value},
+    );
+    return UserProfile.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
+  @override
+  Future<DailyRankResult> fetchFilteredRank({
+    int? birthDecade,
+    ProfileGender? gender,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'get_filtered_daily_result',
+      params: {
+        'filter_birth_decade': birthDecade,
+        'filter_gender': gender?.value,
+      },
+    );
+    return DailyRankResult.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
   PlayAttempt _attemptFromRpc(dynamic response) {
     return PlayAttempt.fromJson(Map<String, dynamic>.from(response as Map));
   }
@@ -132,7 +180,10 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       rank: null,
       participants: 0,
       topPercent: null,
+      nickname: null,
+      nearby: [],
     ),
+    profile: const UserProfile(nickname: null, birthDecade: null, gender: null),
   );
 
   @override
@@ -153,5 +204,33 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     rank: 1,
     participants: 1,
     topPercent: 1,
+    nickname: '테스트',
+    nearby: [
+      NearbyRank(rank: 1, nickname: '테스트', score: result.score, isMe: true),
+    ],
+  );
+
+  @override
+  Future<UserProfile> setNickname(String nickname) async =>
+      UserProfile(nickname: nickname, birthDecade: null, gender: null);
+
+  @override
+  Future<UserProfile> updateDemographics({
+    required int? birthDecade,
+    required ProfileGender? gender,
+  }) async =>
+      UserProfile(nickname: '테스트', birthDecade: birthDecade, gender: gender);
+
+  @override
+  Future<DailyRankResult> fetchFilteredRank({
+    int? birthDecade,
+    ProfileGender? gender,
+  }) async => const DailyRankResult(
+    score: null,
+    rank: null,
+    participants: 0,
+    topPercent: null,
+    nickname: null,
+    nearby: [],
   );
 }

@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/star_dodge/star_dodge_game.dart';
+import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
+import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
@@ -38,6 +40,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
   var _isSubmitting = false;
   var _wasInterrupted = false;
   var _hasEnded = false;
+  var _isSavingNickname = false;
+  var _nicknamePromptShown = false;
 
   @override
   void initState() {
@@ -60,6 +64,25 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
+  Future<void> _chooseNickname() async {
+    final nickname = await showNicknameDialog(context);
+    if (nickname == null || !mounted) return;
+    setState(() => _isSavingNickname = true);
+    try {
+      await _repository.setNickname(nickname);
+      final rank = await _repository.fetchFilteredRank();
+      if (!mounted) return;
+      setState(() => _rankResult = rank);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('닉네임을 저장하지 못했어요: $error')));
+    } finally {
+      if (mounted) setState(() => _isSavingNickname = false);
+    }
+  }
+
   Future<void> _submitResult(GameResult result) async {
     final attempt = widget.attempt;
     if (attempt == null) return;
@@ -68,6 +91,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
       final rank = await _repository.submitScore(attempt.id, result);
       if (!mounted) return;
       setState(() => _rankResult = rank);
+      if (rank.nickname == null && !_nicknamePromptShown) {
+        _nicknamePromptShown = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) unawaited(_chooseNickname());
+        });
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() => _submitError = error);
@@ -79,10 +108,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (_hasEnded || _wasInterrupted) return;
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.hidden ||
-        state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
+    if (shouldInterruptGame(state)) {
       _interruptAttempt();
     }
   }
@@ -151,6 +177,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 rankResult: _rankResult,
                 isSubmitting: _isSubmitting,
                 submitError: _submitError,
+                isSavingNickname: _isSavingNickname,
+                onChooseNickname: _chooseNickname,
               ),
           ],
         ),
@@ -297,12 +325,16 @@ class _ResultOverlay extends StatelessWidget {
     required this.rankResult,
     required this.isSubmitting,
     required this.submitError,
+    required this.isSavingNickname,
+    required this.onChooseNickname,
   });
 
   final GameResult result;
   final DailyRankResult? rankResult;
   final bool isSubmitting;
   final Object? submitError;
+  final bool isSavingNickname;
+  final VoidCallback onChooseNickname;
 
   @override
   Widget build(BuildContext context) {
@@ -363,16 +395,36 @@ class _ResultOverlay extends StatelessWidget {
                   if (isSubmitting)
                     const Text('오늘 순위를 계산하고 있어요...')
                   else if (rankResult case final rank?)
-                    Text(
-                      '${rank.rank}등 / ${rank.participants}명'
-                      '${rank.participants >= 10 ? ' · 상위 ${rank.topPercent}%' : ''}',
-                      key: const Key('daily-rank'),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.reward,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    Column(
+                      children: [
+                        Text(
+                          '${rank.rank}등 / ${rank.participants}명'
+                          '${rank.participants >= 10 ? ' · 상위 ${rank.topPercent}%' : ''}',
+                          key: const Key('daily-rank'),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.reward,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        if (rank.nickname == null)
+                          SizedBox(
+                            width: double.infinity,
+                            child: PixelButton(
+                              label: isSavingNickname
+                                  ? '저장 중...'
+                                  : '닉네임 정하고 랭킹 보기',
+                              icon: Icons.edit_outlined,
+                              onPressed: isSavingNickname
+                                  ? null
+                                  : onChooseNickname,
+                            ),
+                          )
+                        else
+                          NearbyRanking(result: rank),
+                      ],
                     )
                   else if (submitError != null)
                     const Text(
@@ -458,6 +510,10 @@ class _InterruptedOverlay extends StatelessWidget {
       ),
     );
   }
+}
+
+bool shouldInterruptGame(AppLifecycleState state) {
+  return state != AppLifecycleState.resumed;
 }
 
 void _returnHome(BuildContext context) {

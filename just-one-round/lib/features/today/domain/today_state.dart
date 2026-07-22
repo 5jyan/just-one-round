@@ -43,12 +43,72 @@ class PlayAttempt {
   final String grantType;
 }
 
+enum ProfileGender {
+  female('female', '여성'),
+  male('male', '남성'),
+  nonBinary('non_binary', '논바이너리'),
+  preferNotToSay('prefer_not_to_say', '응답하지 않음');
+
+  const ProfileGender(this.value, this.label);
+
+  final String value;
+  final String label;
+
+  static ProfileGender? fromValue(String? value) {
+    for (final gender in values) {
+      if (gender.value == value) return gender;
+    }
+    return null;
+  }
+}
+
+class UserProfile {
+  const UserProfile({
+    required this.nickname,
+    required this.birthDecade,
+    required this.gender,
+  });
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
+    nickname: json['nickname'] as String?,
+    birthDecade: (json['birth_decade'] as num?)?.toInt(),
+    gender: ProfileGender.fromValue(json['gender'] as String?),
+  );
+
+  final String? nickname;
+  final int? birthDecade;
+  final ProfileGender? gender;
+}
+
+class NearbyRank {
+  const NearbyRank({
+    required this.rank,
+    required this.nickname,
+    required this.score,
+    required this.isMe,
+  });
+
+  factory NearbyRank.fromJson(Map<String, dynamic> json) => NearbyRank(
+    rank: (json['rank'] as num).toInt(),
+    nickname: json['nickname'] as String,
+    score: (json['score'] as num).toInt(),
+    isMe: json['is_me'] as bool,
+  );
+
+  final int rank;
+  final String nickname;
+  final int score;
+  final bool isMe;
+}
+
 class DailyRankResult {
   const DailyRankResult({
     required this.score,
     required this.rank,
     required this.participants,
     required this.topPercent,
+    required this.nickname,
+    required this.nearby,
   });
 
   factory DailyRankResult.fromJson(Map<String, dynamic> json) =>
@@ -57,12 +117,18 @@ class DailyRankResult {
         rank: (json['rank'] as num?)?.toInt(),
         participants: (json['participants'] as num?)?.toInt() ?? 0,
         topPercent: (json['top_percent'] as num?)?.toInt(),
+        nickname: json['nickname'] as String?,
+        nearby: (json['nearby'] as List<dynamic>? ?? const [])
+            .map((item) => NearbyRank.fromJson(item as Map<String, dynamic>))
+            .toList(growable: false),
       );
 
   final int? score;
   final int? rank;
   final int participants;
   final int? topPercent;
+  final String? nickname;
+  final List<NearbyRank> nearby;
 }
 
 class TodayState {
@@ -72,6 +138,7 @@ class TodayState {
     required this.attempts,
     required this.adAttemptAvailable,
     required this.result,
+    required this.profile,
   });
 
   factory TodayState.fromJson(Map<String, dynamic> json) {
@@ -80,12 +147,16 @@ class TodayState {
         .toList(growable: false);
     final gameJson = json['game'] as Map<String, dynamic>?;
     final resultJson = json['result'] as Map<String, dynamic>?;
+    final profileJson = json['profile'] as Map<String, dynamic>?;
     return TodayState(
       playDate: DateTime.parse(json['play_date'] as String),
       game: gameJson == null ? null : TodayGame.fromJson(gameJson),
       attempts: attempts,
       adAttemptAvailable: json['ad_attempt_available'] as bool? ?? false,
       result: resultJson == null ? null : DailyRankResult.fromJson(resultJson),
+      profile: profileJson == null
+          ? const UserProfile(nickname: null, birthDecade: null, gender: null)
+          : UserProfile.fromJson(profileJson),
     );
   }
 
@@ -94,6 +165,7 @@ class TodayState {
   final List<PlayAttempt> attempts;
   final bool adAttemptAvailable;
   final DailyRankResult? result;
+  final UserProfile profile;
 
   bool get canClaimDaily => attempts.isEmpty;
   bool get hasPlayed => result?.score != null;
