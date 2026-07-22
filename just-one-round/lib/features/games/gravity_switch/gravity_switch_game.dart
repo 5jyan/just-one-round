@@ -57,6 +57,7 @@ class GravitySwitchGame extends FlameGame
   var _lastDisplayedSecond = -1;
   var _lastSpawnSurface = GravitySurface.floor;
   var _hasFinished = false;
+  var _hazardSprites = <Sprite>[];
 
   @override
   Color backgroundColor() => AppColors.backgroundDeep;
@@ -71,6 +72,7 @@ class GravitySwitchGame extends FlameGame
       'dodge_v2/player_run_sheet.png',
       'dodge_v2/background_map.png',
       'dodge_v2/ground_strip.png',
+      'gravity_switch/hazard_sheet.png',
     ]);
     final runSheet = SpriteSheet(image: loaded[0], srcSize: Vector2.all(32));
     final background = _GravityBackground(
@@ -85,6 +87,8 @@ class GravitySwitchGame extends FlameGame
       runSprites: _spritesFrom2x2(runSheet),
     );
     await world.add(_player);
+    final hazardSheet = SpriteSheet(image: loaded[3], srcSize: Vector2.all(64));
+    _hazardSprites = _spritesFrom2x2(hazardSheet);
 
     if (countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
@@ -145,9 +149,10 @@ class GravitySwitchGame extends FlameGame
     world.add(
       _GravityObstacle(
         surface: surface,
+        sprites: _hazardSprites,
         position: Vector2(
           logicalSize.x + 36,
-          surface == GravitySurface.floor ? floorY - 28 : ceilingY + 28,
+          surface == GravitySurface.floor ? floorY - 32 : ceilingY + 32,
         ),
       ),
     );
@@ -288,22 +293,29 @@ class _GravityPlayer extends PositionComponent {
 }
 
 class _GravityObstacle extends PositionComponent {
-  _GravityObstacle({required this.surface, required super.position})
-    : super(size: Vector2(42, 56), anchor: Anchor.center, priority: 6);
+  _GravityObstacle({
+    required this.surface,
+    required this.sprites,
+    required super.position,
+  }) : super(size: Vector2.all(64), anchor: Anchor.center, priority: 6) {
+    if (surface == GravitySurface.ceiling) scale.y = -1;
+  }
 
   final GravitySurface surface;
-  final Paint _bodyPaint = Paint()..color = AppColors.danger;
-  final Paint _highlightPaint = Paint()..color = AppColors.primary;
+  final List<Sprite> sprites;
+  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
   var removing = false;
+  var _animationElapsed = 0.0;
 
   Rect get hitbox => Rect.fromCenter(
     center: Offset(position.x, position.y),
-    width: 34,
+    width: 42,
     height: 48,
   );
 
   void advance(double dt, double speed) {
     position.x -= speed * dt;
+    _animationElapsed += dt;
     if (position.x + size.x < 0) {
       removing = true;
       removeFromParent();
@@ -315,15 +327,9 @@ class _GravityObstacle extends PositionComponent {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    canvas.drawRect(const Rect.fromLTWH(6, 10, 30, 42), _bodyPaint);
-    final path = Path()
-      ..moveTo(3, surface == GravitySurface.floor ? 10 : 46)
-      ..lineTo(12, surface == GravitySurface.floor ? 0 : 56)
-      ..lineTo(21, surface == GravitySurface.floor ? 10 : 46)
-      ..lineTo(30, surface == GravitySurface.floor ? 0 : 56)
-      ..lineTo(39, surface == GravitySurface.floor ? 10 : 46)
-      ..close();
-    canvas.drawPath(path, _highlightPaint);
+    if (sprites.isEmpty) return;
+    final index = (_animationElapsed / 0.11).floor() % sprites.length;
+    sprites[index].render(canvas, size: size, overridePaint: _spritePaint);
   }
 }
 
