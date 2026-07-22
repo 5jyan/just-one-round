@@ -54,6 +54,15 @@ npm run supabase:start
 
 같은 시도 결과를 두 번 보내도 `scores`에는 한 건만 남고 동일한 순위 결과가 반환되어야 한다.
 
+### 날짜 변경 일정 검증
+
+`daily_games`에 없는 미래 날짜를 대상으로 `ensure_daily_game`을 호출하면 활성 게임 하나가 배정된다. 같은 날짜를 다시 호출해도 동일한 `game_id`, `game_version`이 반환되어야 한다.
+
+```sh
+docker exec supabase_db_just-one-round psql -U postgres -d postgres \
+  -c "select * from public.ensure_daily_game(current_date + 30);"
+```
+
 ## Android 실기기
 
 ```sh
