@@ -46,27 +46,71 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 
   Future<void> _editProfile(UserProfile profile) async {
-    final draft = await showProfileDialog(context, profile: profile);
-    if (draft == null || !mounted) return;
-    setState(() => _isSavingProfile = true);
-    try {
-      final repository = ref.read(dailyGameRepositoryProvider);
-      await repository.setNickname(draft.nickname);
-      await repository.updateDemographics(
-        birthDecade: draft.birthDecade,
-        gender: draft.gender,
-      );
-      _rankFilter = _RankFilter.all;
-      _filteredResult = null;
-      ref.invalidate(todayStateProvider);
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('프로필을 저장하지 못했어요: $error')));
-    } finally {
-      if (mounted) setState(() => _isSavingProfile = false);
+    var draft = await showProfileDialog(context, profile: profile);
+    while (draft != null && mounted) {
+      setState(() => _isSavingProfile = true);
+      try {
+        final repository = ref.read(dailyGameRepositoryProvider);
+        await repository.setNickname(draft.nickname);
+        await repository.updateDemographics(
+          birthYear: draft.birthYear,
+          birthMonth: draft.birthMonth,
+          gender: draft.gender,
+        );
+        _rankFilter = _RankFilter.all;
+        _filteredResult = null;
+        ref.invalidate(todayStateProvider);
+        if (!mounted) return;
+        setState(() => _isSavingProfile = false);
+        await _showProfileResultDialog(title: '저장 완료', message: '프로필이 저장됐어요.');
+        return;
+      } catch (error) {
+        if (!mounted) return;
+        setState(() => _isSavingProfile = false);
+        final retryDraft = showProfileDialog(
+          context,
+          profile: UserProfile(
+            nickname: draft.nickname,
+            birthYear: draft.birthYear,
+            birthMonth: draft.birthMonth,
+            gender: draft.gender,
+          ),
+        );
+        await _showProfileResultDialog(
+          title: '저장 오류',
+          message: _profileSaveErrorMessage(error),
+        );
+        draft = await retryDraft;
+      }
     }
+  }
+
+  String _profileSaveErrorMessage(Object error) {
+    final message = error.toString();
+    if (message.contains('nickname already taken')) {
+      return '이미 사용 중인 닉네임이에요. 다른 닉네임을 입력해 주세요.';
+    }
+    return '프로필을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.';
+  }
+
+  Future<void> _showProfileResultDialog({
+    required String title,
+    required String message,
+  }) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('확인'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _selectRankFilter(
@@ -269,8 +313,7 @@ class _RankSection extends StatelessWidget {
                 selected: selectedFilter == _RankFilter.age,
                 onSelected: (_) => onSelect(_RankFilter.age),
               ),
-            if (profile.gender case final gender?
-                when gender != ProfileGender.preferNotToSay)
+            if (profile.gender case final gender?)
               ChoiceChip(
                 label: Text(gender.label),
                 selected: selectedFilter == _RankFilter.gender,
@@ -422,8 +465,8 @@ class _GamePreview extends StatelessWidget {
             const Positioned(right: 38, top: 44, child: _PixelStar(size: 12)),
             Center(
               child: Image.asset(
-                'assets/images/dodge_hero.png',
-                width: 102,
+                'assets/images/dinosaur_side_left_1_uniform.png',
+                width: 72,
                 filterQuality: FilterQuality.none,
               ),
             ),

@@ -14,7 +14,8 @@ abstract interface class DailyGameRepository {
   Future<DailyRankResult?> retryPendingScore();
   Future<UserProfile> setNickname(String nickname);
   Future<UserProfile> updateDemographics({
-    required int? birthDecade,
+    required int? birthYear,
+    required int? birthMonth,
     required ProfileGender? gender,
   });
   Future<DailyRankResult> fetchFilteredRank({
@@ -29,7 +30,10 @@ final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
 );
 
 final todayStateProvider = FutureProvider<TodayState>((ref) async {
-  return ref.watch(dailyGameRepositoryProvider).fetchToday();
+  return ref
+      .watch(dailyGameRepositoryProvider)
+      .fetchToday()
+      .timeout(const Duration(seconds: 12));
 });
 
 class SupabaseDailyGameRepository implements DailyGameRepository {
@@ -148,13 +152,18 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
 
   @override
   Future<UserProfile> updateDemographics({
-    required int? birthDecade,
+    required int? birthYear,
+    required int? birthMonth,
     required ProfileGender? gender,
   }) async {
     await _ensureSignedIn();
     final response = await _client.rpc(
       'update_my_demographics',
-      params: {'new_birth_decade': birthDecade, 'new_gender': gender?.value},
+      params: {
+        'new_birth_year': birthYear,
+        'new_birth_month': birthMonth,
+        'new_gender': gender?.value,
+      },
     );
     return UserProfile.fromJson(Map<String, dynamic>.from(response as Map));
   }
@@ -221,7 +230,12 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       nickname: null,
       nearby: [],
     ),
-    profile: const UserProfile(nickname: null, birthDecade: null, gender: null),
+    profile: const UserProfile(
+      nickname: null,
+      birthYear: null,
+      birthMonth: null,
+      gender: null,
+    ),
   );
 
   @override
@@ -252,15 +266,24 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   Future<DailyRankResult?> retryPendingScore() async => null;
 
   @override
-  Future<UserProfile> setNickname(String nickname) async =>
-      UserProfile(nickname: nickname, birthDecade: null, gender: null);
+  Future<UserProfile> setNickname(String nickname) async => UserProfile(
+    nickname: nickname,
+    birthYear: null,
+    birthMonth: null,
+    gender: null,
+  );
 
   @override
   Future<UserProfile> updateDemographics({
-    required int? birthDecade,
+    required int? birthYear,
+    required int? birthMonth,
     required ProfileGender? gender,
-  }) async =>
-      UserProfile(nickname: '테스트', birthDecade: birthDecade, gender: gender);
+  }) async => UserProfile(
+    nickname: '테스트',
+    birthYear: birthYear,
+    birthMonth: birthMonth,
+    gender: gender,
+  );
 
   @override
   Future<DailyRankResult> fetchFilteredRank({

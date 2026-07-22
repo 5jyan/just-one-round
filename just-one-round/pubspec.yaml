@@ -66,6 +66,12 @@ flutter:
   assets:
     - assets/licenses/Galmuri-OFL-1.1.txt
     - assets/images/dodge_hero.png
+    - assets/images/dinosaur_side_left_1_uniform.png
+    - assets/images/dinosaur_side_left_2_uniform.png
+    - assets/images/pixel_cloud_uniform.png
+    - assets/images/pixel_cloud_small_uniform.png
+    - assets/images/pixel_ground_uniform.png
+    - assets/images/dodge_v2/
 
   fonts:
     - family: Galmuri

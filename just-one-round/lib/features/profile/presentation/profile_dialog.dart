@@ -5,12 +5,14 @@ import 'package:just_one_round/features/today/domain/today_state.dart';
 class ProfileDraft {
   const ProfileDraft({
     required this.nickname,
-    required this.birthDecade,
+    required this.birthYear,
+    required this.birthMonth,
     required this.gender,
   });
 
   final String nickname;
-  final int? birthDecade;
+  final int? birthYear;
+  final int? birthMonth;
   final ProfileGender? gender;
 }
 
@@ -36,18 +38,20 @@ class _ProfileDialog extends StatefulWidget {
 class _ProfileDialogState extends State<_ProfileDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nicknameController;
-  int? _birthDecade;
+  int? _birthYear;
+  int? _birthMonth;
   ProfileGender? _gender;
 
-  static final _decades = [
-    for (var decade = 2010; decade >= 1940; decade -= 10) decade,
+  static final _years = [
+    for (var year = DateTime.now().year; year >= 1900; year--) year,
   ];
 
   @override
   void initState() {
     super.initState();
     _nicknameController = TextEditingController(text: widget.profile.nickname);
-    _birthDecade = widget.profile.birthDecade;
+    _birthYear = widget.profile.birthYear;
+    _birthMonth = widget.profile.birthMonth;
     _gender = widget.profile.gender;
   }
 
@@ -82,22 +86,73 @@ class _ProfileDialogState extends State<_ProfileDialog> {
                 },
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<int?>(
-                initialValue: _birthDecade,
-                decoration: const InputDecoration(
-                  labelText: '연령대 · 선택',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('입력하지 않음')),
-                  ..._decades.map(
-                    (decade) => DropdownMenuItem(
-                      value: decade,
-                      child: Text('$decade년대생'),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: DropdownButtonFormField<int?>(
+                      initialValue: _birthYear,
+                      decoration: const InputDecoration(
+                        labelText: '출생 연도 · 선택',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('입력 안 함'),
+                        ),
+                        ..._years.map(
+                          (year) => DropdownMenuItem(
+                            value: year,
+                            child: Text('$year년'),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) => setState(() {
+                        _birthYear = value;
+                        if (value == null) _birthMonth = null;
+                        if (value == DateTime.now().year &&
+                            (_birthMonth ?? 0) > DateTime.now().month) {
+                          _birthMonth = null;
+                        }
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 2,
+                    child: DropdownButtonFormField<int>(
+                      key: ValueKey((_birthYear, _birthMonth)),
+                      initialValue: _birthMonth,
+                      decoration: const InputDecoration(
+                        labelText: '월',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        for (
+                          var month = 1;
+                          month <=
+                              (_birthYear == DateTime.now().year
+                                  ? DateTime.now().month
+                                  : 12);
+                          month++
+                        )
+                          DropdownMenuItem(
+                            value: month,
+                            child: Text('$month월'),
+                          ),
+                      ],
+                      onChanged: _birthYear == null
+                          ? null
+                          : (value) => setState(() => _birthMonth = value),
+                      validator: (_) =>
+                          _birthYear != null && _birthMonth == null
+                          ? '월을 선택해 주세요.'
+                          : null,
                     ),
                   ),
                 ],
-                onChanged: (value) => setState(() => _birthDecade = value),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<ProfileGender?>(
@@ -108,18 +163,20 @@ class _ProfileDialogState extends State<_ProfileDialog> {
                 ),
                 items: [
                   const DropdownMenuItem(value: null, child: Text('입력하지 않음')),
-                  ...ProfileGender.values.map(
-                    (gender) => DropdownMenuItem(
-                      value: gender,
-                      child: Text(gender.label),
-                    ),
+                  const DropdownMenuItem(
+                    value: ProfileGender.male,
+                    child: Text('남성'),
+                  ),
+                  const DropdownMenuItem(
+                    value: ProfileGender.female,
+                    child: Text('여성'),
                   ),
                 ],
                 onChanged: (value) => setState(() => _gender = value),
               ),
               const SizedBox(height: 10),
               const Text(
-                '연령대와 성별은 입력하지 않아도 게임을 이용할 수 있어요.',
+                '출생 연월과 성별은 입력하지 않아도 게임을 이용할 수 있어요.',
                 style: TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
@@ -137,7 +194,8 @@ class _ProfileDialogState extends State<_ProfileDialog> {
             Navigator.of(context).pop(
               ProfileDraft(
                 nickname: _nicknameController.text.trim(),
-                birthDecade: _birthDecade,
+                birthYear: _birthYear,
+                birthMonth: _birthMonth,
                 gender: _gender,
               ),
             );

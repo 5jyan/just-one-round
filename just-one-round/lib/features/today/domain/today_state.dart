@@ -44,10 +44,8 @@ class PlayAttempt {
 }
 
 enum ProfileGender {
-  female('female', '여성'),
   male('male', '남성'),
-  nonBinary('non_binary', '논바이너리'),
-  preferNotToSay('prefer_not_to_say', '응답하지 않음');
+  female('female', '여성');
 
   const ProfileGender(this.value, this.label);
 
@@ -65,19 +63,24 @@ enum ProfileGender {
 class UserProfile {
   const UserProfile({
     required this.nickname,
-    required this.birthDecade,
+    required this.birthYear,
+    required this.birthMonth,
     required this.gender,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
     nickname: json['nickname'] as String?,
-    birthDecade: (json['birth_decade'] as num?)?.toInt(),
+    birthYear: (json['birth_year'] as num?)?.toInt(),
+    birthMonth: (json['birth_month'] as num?)?.toInt(),
     gender: ProfileGender.fromValue(json['gender'] as String?),
   );
 
   final String? nickname;
-  final int? birthDecade;
+  final int? birthYear;
+  final int? birthMonth;
   final ProfileGender? gender;
+
+  int? get birthDecade => birthYear == null ? null : (birthYear! ~/ 10) * 10;
 }
 
 class NearbyRank {
@@ -157,7 +160,12 @@ class TodayState {
       testMode: json['test_mode'] as bool? ?? false,
       result: resultJson == null ? null : DailyRankResult.fromJson(resultJson),
       profile: profileJson == null
-          ? const UserProfile(nickname: null, birthDecade: null, gender: null)
+          ? const UserProfile(
+              nickname: null,
+              birthYear: null,
+              birthMonth: null,
+              gender: null,
+            )
           : UserProfile.fromJson(profileJson),
     );
   }

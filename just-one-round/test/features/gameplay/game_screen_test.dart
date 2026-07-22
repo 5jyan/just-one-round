@@ -38,6 +38,36 @@ void main() {
     expect(find.text('홈으로'), findsOneWidget);
   });
 
+  testWidgets('똥피하기 생존 시간을 ms 단위로 서버에 제출한다', (tester) async {
+    final repository = _CompletedScoreRepository();
+    const attempt = PlayAttempt(
+      id: 'attempt-score',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            gameDuration: Duration(milliseconds: 100),
+            countdownDuration: Duration.zero,
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pumpAndSettle();
+
+    expect(repository.submittedAttemptId, 'attempt-score');
+    expect(repository.submittedResult?.score, 100);
+    expect(repository.submittedResult?.duration.inMilliseconds, 100);
+  });
+
   testWidgets('백그라운드로 전환되면 게임을 중단하고 시도를 소진한다', (tester) async {
     final repository = _RecordingRepository();
     const attempt = PlayAttempt(
@@ -166,7 +196,8 @@ class _RecordingRepository implements DailyGameRepository {
 
   @override
   Future<UserProfile> updateDemographics({
-    required int? birthDecade,
+    required int? birthYear,
+    required int? birthMonth,
     required ProfileGender? gender,
   }) => throw UnimplementedError();
 }
@@ -192,7 +223,12 @@ class _NicknameRepository extends _RecordingRepository {
   @override
   Future<UserProfile> setNickname(String nickname) async {
     savedNickname = nickname;
-    return UserProfile(nickname: nickname, birthDecade: null, gender: null);
+    return UserProfile(
+      nickname: nickname,
+      birthYear: null,
+      birthMonth: null,
+      gender: null,
+    );
   }
 
   @override
@@ -214,6 +250,28 @@ class _NicknameRepository extends _RecordingRepository {
           isMe: true,
         ),
       ],
+    );
+  }
+}
+
+class _CompletedScoreRepository extends _RecordingRepository {
+  String? submittedAttemptId;
+  GameResult? submittedResult;
+
+  @override
+  Future<DailyRankResult> submitScore(
+    String attemptId,
+    GameResult result,
+  ) async {
+    submittedAttemptId = attemptId;
+    submittedResult = result;
+    return DailyRankResult(
+      score: result.score,
+      rank: 1,
+      participants: 1,
+      topPercent: 100,
+      nickname: '테스트',
+      nearby: const [],
     );
   }
 }

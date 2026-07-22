@@ -4,12 +4,17 @@ import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 
 enum StarDodgePhase { countdown, playing, finished }
+
+const _artPixel = 2.0;
+
+double _snapToArtGrid(double value) => (value / _artPixel).round() * _artPixel;
 
 class StarDodgeHudState {
   const StarDodgeHudState({
@@ -68,6 +73,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   final ValueNotifier<StarDodgeHudState> hud;
 
   late final _PlayerComponent _player;
+  var _poopSprites = <Sprite>[];
   var _phase = StarDodgePhase.countdown;
   var _countdownElapsed = 0.0;
   var _playingElapsed = 0.0;
@@ -95,11 +101,47 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     camera.viewport = FixedResolutionViewport(resolution: logicalSize);
     camera.viewfinder.position = logicalSize / 2;
 
-    await world.add(_GroundComponent(size: logicalSize.clone()));
-    _player = _PlayerComponent(
-      position: Vector2(logicalSize.x / 2, logicalSize.y - 92),
-    );
-    world.add(_player);
+    final ground = _GroundComponent(size: logicalSize.clone());
+    await world.add(ground);
+    _player = _PlayerComponent(position: Vector2(logicalSize.x / 2, 512));
+    await world.add(_player);
+    images
+        .loadAll([
+          'dodge_v2/player_idle_sheet.png',
+          'dodge_v2/player_run_sheet.png',
+          'dodge_v2/poop_fall_sheet.png',
+          'dodge_v2/dust_sheet.png',
+          'dodge_v2/background_map.png',
+          'dodge_v2/ground_strip.png',
+        ])
+        .then((loaded) {
+          final idleSheet = SpriteSheet(
+            image: loaded[0],
+            srcSize: Vector2.all(32),
+          );
+          final runSheet = SpriteSheet(
+            image: loaded[1],
+            srcSize: Vector2.all(32),
+          );
+          final poopSheet = SpriteSheet(
+            image: loaded[2],
+            srcSize: Vector2.all(24),
+          );
+          final dustSheet = SpriteSheet(
+            image: loaded[3],
+            srcSize: Vector2.all(16),
+          );
+          _poopSprites = _spritesFrom2x2(poopSheet);
+          _player.setSprites(
+            idleFrames: _spritesFrom2x2(idleSheet),
+            walkFrames: _spritesFrom2x2(runSheet),
+            dustFrames: _spritesFrom2x2(dustSheet),
+          );
+          ground.setSprites(
+            background: Sprite(loaded[4]),
+            ground: Sprite(loaded[5]),
+          );
+        });
 
     if (countdownDuration == Duration.zero) {
       _phase = StarDodgePhase.playing;
@@ -155,16 +197,17 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 
   void _spawnFallingObject() {
-    final radius = 15.0 + (_random.nextDouble() * 9);
-    final x = 24 + (_random.nextDouble() * (logicalSize.x - 48));
+    final x = _snapToArtGrid(
+      24 + (_random.nextDouble() * (logicalSize.x - 48)),
+    );
     final baseSpeed = StarDodgeRules.fallingSpeed(progress);
     final speed = baseSpeed * (0.88 + (_random.nextDouble() * 0.3));
 
     world.add(
       _FallingObjectComponent(
-        radius: radius,
         speed: speed,
-        position: Vector2(x, -radius * 2),
+        position: Vector2(x, -48),
+        sprites: _poopSprites,
       ),
     );
   }
@@ -201,7 +244,10 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
         score: _score,
         starsCollected: 0,
         collisions: _collisions,
-        duration: gameDuration,
+        // Star Dodge's raw score is its actual survival time. Keep the
+        // transport value in integer milliseconds as well, so the value shown
+        // by the client and the value ranked by the server cannot diverge.
+        duration: Duration(milliseconds: _score),
       ),
     );
   }
@@ -218,7 +264,8 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 
   void _recalculateScore() {
-    _score = (_playingElapsed * 1000).floor();
+    final maximumMilliseconds = gameDuration.inMilliseconds;
+    _score = (_playingElapsed * 1000).floor().clamp(0, maximumMilliseconds);
   }
 
   void _publishHud({bool force = false}) {
@@ -261,6 +308,18 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     _movePlayerTo(event.canvasEndPosition);
   }
 
+  @override
+  void onDragEnd(DragEndEvent event) {
+    super.onDragEnd(event);
+    _player.stopMoving();
+  }
+
+  @override
+  void onDragCancel(DragCancelEvent event) {
+    super.onDragCancel(event);
+    _player.stopMoving();
+  }
+
   void _movePlayerTo(Vector2 canvasPosition) {
     if (_phase != StarDodgePhase.playing) {
       return;
@@ -270,106 +329,200 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 }
 
-class _PlayerComponent extends PositionComponent {
-  _PlayerComponent({required super.position})
-    : super(size: Vector2(78, 96), anchor: Anchor.center, priority: 10);
+List<Sprite> _spritesFrom2x2(SpriteSheet sheet) => [
+  sheet.getSprite(0, 0),
+  sheet.getSprite(0, 1),
+  sheet.getSprite(1, 0),
+  sheet.getSprite(1, 1),
+];
 
-  static const _moveSpeed = 320.0;
+class _PlayerComponent extends PositionComponent {
+  _PlayerComponent({required Vector2 position})
+    : _preciseX = position.x,
+      super(
+        position: position,
+        size: Vector2.all(64),
+        anchor: Anchor.center,
+        priority: 10,
+      );
+
+  static const _moveSpeed = 355.0;
+  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
+  var _idleSprites = <Sprite>[];
+  var _walkSprites = <Sprite>[];
+  var _dustSprites = <Sprite>[];
   double? _targetX;
+  double _preciseX;
+  var _velocityX = 0.0;
   var _walkElapsed = 0.0;
+  var _idleElapsed = 0.0;
+  var _dustElapsed = 0.0;
+  var _facing = 1.0;
   var _isWalking = false;
 
-  double get collisionRadius => 24;
+  double get collisionRadius => 18;
+
+  void setSprites({
+    required List<Sprite> idleFrames,
+    required List<Sprite> walkFrames,
+    required List<Sprite> dustFrames,
+  }) {
+    _idleSprites = idleFrames;
+    _walkSprites = walkFrames;
+    _dustSprites = dustFrames;
+  }
 
   void setTargetX(double x) {
-    _targetX = x.clamp(
-      size.x / 2 + 8,
-      StarDodgeGame.logicalSize.x - size.x / 2 - 8,
-    );
+    final clamped = x
+        .clamp(size.x / 2 + 8, StarDodgeGame.logicalSize.x - size.x / 2 - 8)
+        .toDouble();
+    _targetX = _snapToArtGrid(clamped);
+  }
+
+  void stopMoving() {
+    _targetX = null;
+    _velocityX = 0;
+    _isWalking = false;
+    _dustElapsed = 0;
+    scale.x = -_facing;
+    angle = 0;
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     final target = _targetX;
-    if (target == null) return;
-    final delta = target - position.x;
-    if (delta.abs() < 1) {
-      position.x = target;
-      _targetX = null;
-      angle = 0;
-      _isWalking = false;
+    if (target == null) {
+      _velocityX = 0;
+      _settleAnimation(dt);
       return;
     }
-    final direction = delta.sign;
-    position.x += direction * min(_moveSpeed * dt, delta.abs());
-    _walkElapsed += dt * 13;
-    angle = sin(_walkElapsed) * 0.045;
-    scale.x = direction;
+
+    final delta = target - _preciseX;
+    final desiredVelocity = (delta * 11).clamp(-_moveSpeed, _moveSpeed);
+    _velocityX += (desiredVelocity - _velocityX) * min(1, dt * 17);
+    final step = _velocityX * dt;
+    if (delta.abs() < 0.8 ||
+        (step.abs() >= delta.abs() && step.sign == delta.sign)) {
+      _preciseX = target;
+      position.x = target;
+      _targetX = null;
+      _velocityX = 0;
+      _settleAnimation(dt);
+      return;
+    }
+
+    _preciseX += step;
+    position.x = _snapToArtGrid(_preciseX);
+    _facing = _velocityX.sign == 0 ? _facing : _velocityX.sign;
+    // The authored side sprite faces left, so mirror it while moving right.
+    scale.x = -_facing;
+    _walkElapsed += dt;
+    angle = 0;
     _isWalking = true;
+
+    _dustElapsed += dt;
+    if (_dustElapsed >= 0.13) {
+      _dustElapsed = 0;
+      parent?.add(
+        _DustPuffComponent(
+          position: Vector2(
+            _snapToArtGrid(position.x - (_facing * 15)),
+            _snapToArtGrid(position.y + 28),
+          ),
+          direction: _facing,
+          sprites: _dustSprites,
+        ),
+      );
+    }
+  }
+
+  void _settleAnimation(double dt) {
+    _isWalking = false;
+    _idleElapsed += dt;
+    _dustElapsed = 0;
+    scale.x = -_facing;
+    angle = 0;
+  }
+
+  @override
+  void render(Canvas canvas) {
+    final sprite = _isWalking && _walkSprites.isNotEmpty
+        ? _walkSprites[(_walkElapsed / 0.10).floor() % _walkSprites.length]
+        : _idleSprites.isEmpty
+        ? null
+        : _idleSprites[(_idleElapsed / 0.18).floor() % _idleSprites.length];
+    sprite?.render(canvas, size: size, overridePaint: _spritePaint);
+  }
+}
+
+class _DustPuffComponent extends PositionComponent {
+  _DustPuffComponent({
+    required Vector2 position,
+    required this.direction,
+    required this.sprites,
+  }) : _preciseX = position.x,
+       _preciseY = position.y,
+       super(
+         position: position,
+         size: Vector2.all(32),
+         anchor: Anchor.center,
+         priority: 8,
+       );
+
+  final double direction;
+  final List<Sprite> sprites;
+  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
+  double _preciseX;
+  double _preciseY;
+  var _age = 0.0;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _age += dt;
+    _preciseX -= direction * 24 * dt;
+    _preciseY -= 9 * dt;
+    position.x = _snapToArtGrid(_preciseX);
+    position.y = _snapToArtGrid(_preciseY);
+    if (_age >= 0.34) removeFromParent();
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    // An original, deliberately low-resolution character: every feature is a
-    // chunky 8px tile rather than detailed illustration pixels.
-    const tile = 8.0;
-    final outline = Paint()..color = const Color(0xFF18223B);
-    final skin = Paint()..color = const Color(0xFFF1B86A);
-    final hair = Paint()..color = const Color(0xFF523459);
-    final jacket = Paint()..color = const Color(0xFFFFC43D);
-    final shirt = Paint()..color = const Color(0xFF2D9C9D);
-    final shoe = Paint()..color = const Color(0xFFEF6B5B);
-    final step = _isWalking && _walkElapsed.floor().isOdd ? tile : 0.0;
-    void block(
-      double x,
-      double y,
-      Paint paint, [
-      double w = tile,
-      double h = tile,
-    ]) {
-      canvas.drawRect(Rect.fromLTWH(x, y, w, h), paint);
-    }
-
-    block(16, 0, outline, 40, 32);
-    block(24, 0, hair, 24, 8);
-    block(16, 8, hair, 8, 24);
-    block(48, 8, hair, 8, 24);
-    block(24, 8, skin, 24, 24);
-    block(24, 16, outline, 8, 8);
-    block(40, 16, outline, 8, 8);
-    block(32, 24, skin, 8, 8);
-    block(16, 32, outline, 40, 32);
-    block(24, 32, jacket, 24, 24);
-    block(32, 40, shirt, 8, 24);
-    block(8, 40 + step, outline, 8, 24);
-    block(8, 40 + step, jacket, 8, 16);
-    block(56, 40 + (tile - step), outline, 8, 24);
-    block(56, 40 + (tile - step), jacket, 8, 16);
-    block(16, 64, outline, 40, 16);
-    block(24, 64 + step, shirt, 8, 16);
-    block(40, 64 + (tile - step), shirt, 8, 16);
-    block(16, 80 + step, shoe, 16, 8);
-    block(40, 80 + (tile - step), shoe, 16, 8);
+    if (sprites.isEmpty) return;
+    final index = ((_age / 0.085).floor()).clamp(0, sprites.length - 1);
+    sprites[index].render(canvas, size: size, overridePaint: _spritePaint);
   }
 }
 
 class _FallingObjectComponent extends PositionComponent {
   _FallingObjectComponent({
-    required this.radius,
     required this.speed,
-    required super.position,
-  }) : super(size: Vector2.all(radius * 2), anchor: Anchor.center, priority: 5);
+    required Vector2 position,
+    required this.sprites,
+  }) : _preciseY = position.y,
+       super(
+         position: position,
+         size: Vector2.all(48),
+         anchor: Anchor.center,
+         priority: 5,
+       );
 
-  final double radius;
   final double speed;
+  final List<Sprite> sprites;
+  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
+  double _preciseY;
+  var _animationElapsed = 0.0;
 
   @override
   void update(double dt) {
     super.update(dt);
-    position.y += speed * dt;
-    if (position.y - radius > StarDodgeGame.logicalSize.y) {
+    _preciseY += speed * dt;
+    _animationElapsed += dt;
+    position.y = _snapToArtGrid(_preciseY);
+    if (position.y - 24 > StarDodgeGame.logicalSize.y) {
       removeFromParent();
     }
   }
@@ -377,51 +530,44 @@ class _FallingObjectComponent extends PositionComponent {
   bool collidesWith(_PlayerComponent player) {
     final dx = position.x - player.position.x;
     final dy = position.y - player.position.y;
-    final combinedRadius = radius * 0.72 + player.collisionRadius;
+    final combinedRadius = 18 + player.collisionRadius;
     return (dx * dx) + (dy * dy) <= combinedRadius * combinedRadius;
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    _renderObstacle(canvas);
-  }
-
-  void _renderObstacle(Canvas canvas) {
-    final fill = Paint()..color = const Color(0xFF9C572B);
-    final shadow = Paint()..color = const Color(0xFF5A2E19);
-    final dark = Paint()..color = AppColors.backgroundDeep;
-    canvas.drawCircle(Offset(radius, radius * 1.25), radius * .72, fill);
-    canvas.drawCircle(Offset(radius * .82, radius * .75), radius * .52, fill);
-    canvas.drawCircle(Offset(radius * 1.1, radius * .36), radius * .33, fill);
-    canvas.drawRect(
-      Rect.fromLTWH(radius * .75, radius * 1.65, radius * .7, 5),
-      shadow,
-    );
-    canvas.drawRect(Rect.fromLTWH(radius * .65, radius * .9, 4, 4), dark);
-    canvas.drawRect(Rect.fromLTWH(radius * 1.2, radius * .9, 4, 4), dark);
+    if (sprites.isEmpty) return;
+    final sprite = sprites[(_animationElapsed / 0.11).floor() % sprites.length];
+    sprite.render(canvas, size: size, overridePaint: _spritePaint);
   }
 }
 
 class _GroundComponent extends PositionComponent {
   _GroundComponent({required super.size}) : super(priority: -10);
 
+  final Paint _pixelPaint = Paint()..filterQuality = FilterQuality.none;
+  Sprite? _background;
+  Sprite? _ground;
+
+  void setSprites({required Sprite background, required Sprite ground}) {
+    _background = background;
+    _ground = ground;
+  }
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    final sky = Paint()..color = const Color(0xFF8DD8F8);
-    final cloud = Paint()..color = const Color(0xFFF6F0D2);
-    final grass = Paint()..color = const Color(0xFF3B9B55);
-    final soil = Paint()..color = const Color(0xFF89502B);
-    canvas.drawRect(Offset.zero & Size(size.x, size.y), sky);
-    canvas.drawRect(Rect.fromLTWH(0, 540, size.x, 100), soil);
-    canvas.drawRect(Rect.fromLTWH(0, 532, size.x, 12), grass);
-    for (final x in [40.0, 188.0, 292.0]) {
-      canvas.drawRect(Rect.fromLTWH(x, 92 + (x % 3) * 18, 48, 15), cloud);
-      canvas.drawRect(Rect.fromLTWH(x + 10, 77 + (x % 3) * 18, 28, 16), cloud);
-    }
-    for (var x = 0.0; x < size.x; x += 28) {
-      canvas.drawRect(Rect.fromLTWH(x, 570 + (x % 2) * 15, 7, 5), grass);
-    }
+    _background?.render(
+      canvas,
+      size: StarDodgeGame.logicalSize,
+      overridePaint: _pixelPaint,
+    );
+    _ground?.render(
+      canvas,
+      position: Vector2(0, 544),
+      size: Vector2(360, 96),
+      overridePaint: _pixelPaint,
+    );
   }
 }
