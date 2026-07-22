@@ -42,4 +42,16 @@ void main() {
     expect(state.result?.nearby, hasLength(3));
     expect(state.result?.nearby[1].isMe, isTrue);
   });
+
+  test('플레이 시도에서 게임 ID를 파싱한다', () {
+    final attempt = PlayAttempt.fromJson({
+      'id': 'attempt-1',
+      'ordinal': 1,
+      'status': 'issued',
+      'grant_type': 'daily',
+      'game_id': 'gravity_switch',
+    });
+
+    expect(attempt.gameId, 'gravity_switch');
+  });
 }

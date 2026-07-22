@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
-import 'package:just_one_round/features/games/star_dodge/star_dodge_game.dart';
-import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
+import 'package:just_one_round/features/games/domain/mini_game.dart';
+import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
@@ -33,7 +33,8 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen>
     with WidgetsBindingObserver {
-  late final StarDodgeGame _game;
+  late final MiniGameDefinition _definition;
+  late final MiniGameController _game;
   late final DailyGameRepository _repository;
   GameResult? _result;
   DailyRankResult? _rankResult;
@@ -49,7 +50,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
     super.initState();
     _repository = ref.read(dailyGameRepositoryProvider);
     WidgetsBinding.instance.addObserver(this);
-    _game = StarDodgeGame(
+    _definition = GameRegistry.forId(widget.attempt?.gameId);
+    _game = _definition.create(
       gameDuration: widget.gameDuration,
       countdownDuration: widget.countdownDuration,
       onFinished: (result) {
@@ -142,7 +144,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         unawaited(_repository.expireAttempt(attempt.id).catchError((_) {}));
       }
     }
-    _game.hud.dispose();
+    _game.disposeController();
     super.dispose();
   }
 
@@ -154,8 +156,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
         child: Stack(
           fit: StackFit.expand,
           children: [
-            GameWidget(game: _game),
-            _GameHud(game: _game),
+            GameWidget(game: _game.flameGame),
+            _GameHud(game: _game, definition: _definition),
             Positioned(
               left: 8,
               top: 8,
@@ -175,6 +177,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
             if (_result case final result?)
               _ResultOverlay(
                 result: result,
+                definition: _definition,
                 rankResult: _rankResult,
                 isSubmitting: _isSubmitting,
                 submitError: _submitError,
@@ -190,13 +193,14 @@ class _GameScreenState extends ConsumerState<GameScreen>
 }
 
 class _GameHud extends StatelessWidget {
-  const _GameHud({required this.game});
+  const _GameHud({required this.game, required this.definition});
 
-  final StarDodgeGame game;
+  final MiniGameController game;
+  final MiniGameDefinition definition;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<StarDodgeHudState>(
+    return ValueListenableBuilder<MiniGameHudState>(
       valueListenable: game.hud,
       builder: (context, state, child) {
         return IgnorePointer(
@@ -212,18 +216,21 @@ class _GameHud extends StatelessWidget {
                   children: [
                     _HudValue(
                       label: 'SURVIVE',
-                      value: StarDodgeRules.formatSurvival(state.score),
+                      value: definition.formatScore(state.score),
                     ),
                     _HudValue(
                       label: 'TIME',
-                      value: '${state.remainingSeconds}'.padLeft(2, '0'),
+                      value: '${state.remainingSeconds ?? state.elapsedSeconds}'
+                          .padLeft(2, '0'),
                       alignEnd: true,
-                      isDanger: state.remainingSeconds <= 10,
+                      isDanger:
+                          state.remainingSeconds != null &&
+                          state.remainingSeconds! <= 10,
                     ),
                   ],
                 ),
               ),
-              if (state.phase == StarDodgePhase.countdown)
+              if (state.phase == MiniGamePhase.countdown)
                 Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -246,9 +253,9 @@ class _GameHud extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      const Text(
-                        '화면을 좌우로 드래그하세요',
-                        style: TextStyle(
+                      Text(
+                        definition.countdownInstruction,
+                        style: const TextStyle(
                           color: AppColors.text,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -257,13 +264,13 @@ class _GameHud extends StatelessWidget {
                     ],
                   ),
                 ),
-              if (state.phase == StarDodgePhase.playing)
+              if (state.phase == MiniGamePhase.playing)
                 Positioned(
                   left: 0,
                   right: 0,
                   bottom: 18,
                   child: Text(
-                    '떨어지는 똥을 피하세요! · 충돌하면 종료',
+                    definition.playingInstruction,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.textMuted,
@@ -327,6 +334,7 @@ class _HudValue extends StatelessWidget {
 class _ResultOverlay extends StatelessWidget {
   const _ResultOverlay({
     required this.result,
+    required this.definition,
     required this.rankResult,
     required this.isSubmitting,
     required this.submitError,
@@ -336,6 +344,7 @@ class _ResultOverlay extends StatelessWidget {
   });
 
   final GameResult result;
+  final MiniGameDefinition definition;
   final DailyRankResult? rankResult;
   final bool isSubmitting;
   final Object? submitError;
@@ -368,7 +377,7 @@ class _ResultOverlay extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    StarDodgeRules.formatSurvival(result.score),
+                    definition.formatScore(result.score),
                     key: const Key('final-score'),
                     style: const TextStyle(
                       fontFamily: 'Galmuri',
@@ -378,9 +387,9 @@ class _ResultOverlay extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'SURVIVAL TIME',
-                    style: TextStyle(
+                  Text(
+                    definition.scoreLabel,
+                    style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w900,

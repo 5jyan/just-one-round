@@ -8,49 +8,16 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
-
-enum StarDodgePhase { countdown, playing, finished }
 
 const _artPixel = 2.0;
 
 double _snapToArtGrid(double value) => (value / _artPixel).round() * _artPixel;
 
-class StarDodgeHudState {
-  const StarDodgeHudState({
-    required this.phase,
-    required this.score,
-    required this.remainingSeconds,
-    required this.countdownNumber,
-    required this.starsCollected,
-    required this.collisions,
-  });
-
-  factory StarDodgeHudState.initial({
-    required Duration duration,
-    required Duration countdownDuration,
-  }) {
-    return StarDodgeHudState(
-      phase: countdownDuration == Duration.zero
-          ? StarDodgePhase.playing
-          : StarDodgePhase.countdown,
-      score: 0,
-      remainingSeconds: duration.inSeconds,
-      countdownNumber: countdownDuration.inSeconds,
-      starsCollected: 0,
-      collisions: 0,
-    );
-  }
-
-  final StarDodgePhase phase;
-  final int score;
-  final int remainingSeconds;
-  final int countdownNumber;
-  final int starsCollected;
-  final int collisions;
-}
-
-class StarDodgeGame extends FlameGame with DragCallbacks {
+class StarDodgeGame extends FlameGame
+    with DragCallbacks
+    implements MiniGameController {
   StarDodgeGame({
     required this.onFinished,
     this.gameDuration = const Duration(seconds: 60),
@@ -58,9 +25,14 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     Random? random,
   }) : _random = random ?? Random(),
        hud = ValueNotifier(
-         StarDodgeHudState.initial(
-           duration: gameDuration,
-           countdownDuration: countdownDuration,
+         MiniGameHudState(
+           phase: countdownDuration == Duration.zero
+               ? MiniGamePhase.playing
+               : MiniGamePhase.countdown,
+           score: 0,
+           elapsedSeconds: 0,
+           remainingSeconds: gameDuration.inSeconds,
+           countdownNumber: countdownDuration.inSeconds,
          ),
        );
 
@@ -70,11 +42,15 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   final Duration countdownDuration;
   final ValueChanged<GameResult> onFinished;
   final Random _random;
-  final ValueNotifier<StarDodgeHudState> hud;
+  @override
+  final ValueNotifier<MiniGameHudState> hud;
+
+  @override
+  FlameGame get flameGame => this;
 
   late final _PlayerComponent _player;
   var _poopSprites = <Sprite>[];
-  var _phase = StarDodgePhase.countdown;
+  var _phase = MiniGamePhase.countdown;
   var _countdownElapsed = 0.0;
   var _playingElapsed = 0.0;
   var _spawnElapsed = 0.0;
@@ -144,7 +120,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
         });
 
     if (countdownDuration == Duration.zero) {
-      _phase = StarDodgePhase.playing;
+      _phase = MiniGamePhase.playing;
       _publishHud(force: true);
     }
   }
@@ -154,11 +130,11 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     super.update(dt);
 
     switch (_phase) {
-      case StarDodgePhase.countdown:
+      case MiniGamePhase.countdown:
         _updateCountdown(dt);
-      case StarDodgePhase.playing:
+      case MiniGamePhase.playing:
         _updatePlaying(dt);
-      case StarDodgePhase.finished:
+      case MiniGamePhase.finished:
         return;
     }
   }
@@ -167,7 +143,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     _countdownElapsed += dt;
     final countdownSeconds = countdownDuration.inMicroseconds / 1000000;
     if (_countdownElapsed >= countdownSeconds) {
-      _phase = StarDodgePhase.playing;
+      _phase = MiniGamePhase.playing;
       _publishHud(force: true);
       return;
     }
@@ -233,7 +209,7 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
       return;
     }
     _hasFinished = true;
-    _phase = StarDodgePhase.finished;
+    _phase = MiniGamePhase.finished;
     for (final object in world.children.whereType<_FallingObjectComponent>()) {
       object.removeFromParent();
     }
@@ -252,10 +228,11 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
     );
   }
 
+  @override
   void interrupt() {
     if (_hasFinished) return;
     _hasFinished = true;
-    _phase = StarDodgePhase.finished;
+    _phase = MiniGamePhase.finished;
     for (final object in world.children.whereType<_FallingObjectComponent>()) {
       object.removeFromParent();
     }
@@ -287,13 +264,12 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
 
     _lastDisplayedSecond = remaining;
     _lastCountdownNumber = countdown;
-    hud.value = StarDodgeHudState(
+    hud.value = MiniGameHudState(
       phase: _phase,
       score: _score,
+      elapsedSeconds: _playingElapsed.floor(),
       remainingSeconds: remaining,
       countdownNumber: countdown,
-      starsCollected: 0,
-      collisions: _collisions,
     );
   }
 
@@ -321,12 +297,15 @@ class StarDodgeGame extends FlameGame with DragCallbacks {
   }
 
   void _movePlayerTo(Vector2 canvasPosition) {
-    if (_phase != StarDodgePhase.playing) {
+    if (_phase != MiniGamePhase.playing) {
       return;
     }
     final viewportPosition = camera.viewport.globalToLocal(canvasPosition);
     _player.setTargetX(viewportPosition.x);
   }
+
+  @override
+  void disposeController() => hud.dispose();
 }
 
 List<Sprite> _spritesFrom2x2(SpriteSheet sheet) => [

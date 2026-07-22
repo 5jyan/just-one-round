@@ -28,6 +28,7 @@ class PlayAttempt {
     required this.ordinal,
     required this.status,
     required this.grantType,
+    this.gameId,
   });
 
   factory PlayAttempt.fromJson(Map<String, dynamic> json) => PlayAttempt(
@@ -35,12 +36,14 @@ class PlayAttempt {
     ordinal: json['ordinal'] as int,
     status: json['status'] as String,
     grantType: json['grant_type'] as String,
+    gameId: json['game_id'] as String?,
   );
 
   final String id;
   final int ordinal;
   final String status;
   final String grantType;
+  final String? gameId;
 }
 
 enum ProfileGender {
