@@ -12,4 +12,11 @@ void main() {
   test('알 수 없는 게임은 기본 게임으로 안전하게 대체한다', () {
     expect(GameRegistry.forId('unknown').id, GameRegistry.fallbackGameId);
   });
+
+  test('중력 스위치 게임을 선택한다', () {
+    final definition = GameRegistry.forId('gravity_switch');
+
+    expect(definition.id, 'gravity_switch');
+    expect(definition.countdownInstruction, contains('중력'));
+  });
 }

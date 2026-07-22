@@ -1,4 +1,6 @@
 import 'package:just_one_round/features/games/domain/mini_game.dart';
+import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
+import 'package:just_one_round/features/games/gravity_switch/gravity_switch_game.dart';
 import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/games/star_dodge/star_dodge_game.dart';
 
@@ -22,6 +24,22 @@ abstract final class GameRegistry {
       playingInstruction: '떨어지는 똥을 피하세요! · 충돌하면 종료',
       scoreLabel: 'SURVIVAL TIME',
       formatScore: StarDodgeRules.formatSurvival,
+    ),
+    'gravity_switch': MiniGameDefinition(
+      id: 'gravity_switch',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required onFinished,
+          }) => GravitySwitchGame(
+            countdownDuration: countdownDuration,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '탭해서 중력을 뒤집으세요',
+      playingInstruction: '바닥과 천장을 오가며 장애물을 피하세요!',
+      scoreLabel: 'SURVIVAL TIME',
+      formatScore: GravitySwitchRules.formatSurvival,
     ),
   };
 

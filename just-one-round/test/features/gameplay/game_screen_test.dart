@@ -38,6 +38,31 @@ void main() {
     expect(find.text('홈으로'), findsOneWidget);
   });
 
+  testWidgets('게임 ID가 중력 스위치면 전용 게임과 HUD를 실행한다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'attempt-gravity',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+      gameId: 'gravity_switch',
+    );
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            countdownDuration: Duration(seconds: 3),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(milliseconds: 32));
+
+    expect(find.text('탭해서 중력을 뒤집으세요'), findsOneWidget);
+    expect(find.text('TIME'), findsOneWidget);
+  });
+
   testWidgets('똥피하기 생존 시간을 ms 단위로 서버에 제출한다', (tester) async {
     final repository = _CompletedScoreRepository();
     const attempt = PlayAttempt(
@@ -176,6 +201,16 @@ class _RecordingRepository implements DailyGameRepository {
 
   @override
   Future<List<PlayHistoryEntry>> fetchHistory() => throw UnimplementedError();
+
+  @override
+  Future<List<DeveloperGame>> fetchDeveloperGames() =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> resetDeveloperDailyProgress() => throw UnimplementedError();
+
+  @override
+  Future<void> setDeveloperGame(String gameId) => throw UnimplementedError();
 
   @override
   Future<DailyRankResult> submitScore(String attemptId, GameResult result) =>
