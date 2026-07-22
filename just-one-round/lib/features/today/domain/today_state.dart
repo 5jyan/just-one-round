@@ -92,6 +92,7 @@ class NearbyRank {
     required this.nickname,
     required this.score,
     required this.isMe,
+    this.isNpc = false,
   });
 
   factory NearbyRank.fromJson(Map<String, dynamic> json) => NearbyRank(
@@ -99,12 +100,14 @@ class NearbyRank {
     nickname: json['nickname'] as String,
     score: (json['score'] as num).toInt(),
     isMe: json['is_me'] as bool,
+    isNpc: json['is_npc'] as bool? ?? false,
   );
 
   final int rank;
   final String nickname;
   final int score;
   final bool isMe;
+  final bool isNpc;
 }
 
 class DailyRankResult {

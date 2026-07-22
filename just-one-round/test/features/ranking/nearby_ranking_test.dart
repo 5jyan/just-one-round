@@ -12,7 +12,13 @@ void main() {
       topPercent: 67,
       nickname: '별하나',
       nearby: [
-        NearbyRank(rank: 1, nickname: '별셋', score: 900, isMe: false),
+        NearbyRank(
+          rank: 1,
+          nickname: '별셋',
+          score: 900,
+          isMe: false,
+          isNpc: true,
+        ),
         NearbyRank(rank: 2, nickname: '별하나', score: 800, isMe: true),
         NearbyRank(rank: 3, nickname: '별둘', score: 700, isMe: false),
       ],
@@ -28,5 +34,6 @@ void main() {
     expect(find.text('별하나'), findsOneWidget);
     expect(find.text('별둘'), findsOneWidget);
     expect(find.byKey(const Key('my-nearby-rank')), findsOneWidget);
+    expect(find.byKey(const Key('npc-rank-badge')), findsOneWidget);
   });
 }

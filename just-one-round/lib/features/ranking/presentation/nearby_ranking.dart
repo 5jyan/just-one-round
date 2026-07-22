@@ -48,10 +48,38 @@ class NearbyRanking extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Text(
-                      item.nickname,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            item.nickname,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        if (item.isNpc) ...[
+                          const SizedBox(width: 5),
+                          Container(
+                            key: const Key('npc-rank-badge'),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.textMuted),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: const Text(
+                              'NPC',
+                              style: TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   Text(
