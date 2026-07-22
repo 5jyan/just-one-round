@@ -59,7 +59,7 @@ void main() {
 
     await tester.pump(const Duration(milliseconds: 32));
 
-    expect(find.text('탭해서 중력을 뒤집으세요'), findsOneWidget);
+    expect(find.text('탭해서 중력을 뒤집고 반대편으로 이동하세요'), findsOneWidget);
     expect(find.byKey(const Key('gravity-distance-score')), findsOneWidget);
     expect(find.text('TIME'), findsNothing);
   });

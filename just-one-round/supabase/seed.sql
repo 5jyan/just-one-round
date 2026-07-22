@@ -25,8 +25,8 @@ insert into public.games (
 ) values (
   'gravity_switch',
   1,
-  '뒤집어! 공룡',
-  '화면을 탭해 중력을 뒤집고 바닥과 천장의 장애물을 피해 오래 살아남으세요.',
+  '그래비티 스위치',
+  '탭으로 중력을 뒤집어 위아래로 이어지는 입체 기둥 미로를 돌파하세요.',
   180
 ) on conflict (id) do update set
   version = excluded.version,

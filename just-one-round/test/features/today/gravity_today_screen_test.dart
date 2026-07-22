@@ -17,8 +17,19 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('뒤집어! 공룡'), findsOneWidget);
+    expect(find.text('그래비티 스위치'), findsOneWidget);
     expect(find.text('제한 없음'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image &&
+            widget.image is AssetImage &&
+            (widget.image as AssetImage).assetName.contains(
+              'gravity_switch_v2',
+            ),
+      ),
+      findsOneWidget,
+    );
   });
 }
 
@@ -29,8 +40,8 @@ class _GravityRepository extends PreviewDailyGameRepository {
     game: const TodayGame(
       id: 'gravity_switch',
       version: 1,
-      displayName: '뒤집어! 공룡',
-      description: '중력을 뒤집으세요.',
+      displayName: '그래비티 스위치',
+      description: '입체 기둥 미로를 돌파하세요.',
       durationSeconds: 180,
     ),
     attempts: const [],

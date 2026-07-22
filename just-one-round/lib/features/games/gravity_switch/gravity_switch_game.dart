@@ -153,9 +153,13 @@ class GravitySwitchGame extends FlameGame
       _appendColumn(x);
     }
 
-    final support = _columnAtPlayer();
+    final support = _supportAtPlayer();
     if (support != null) {
-      _player.updateSurface(dt, support);
+      _player.updateSurface(
+        dt,
+        floorTop: support.floorTop,
+        ceilingBottom: support.ceilingBottom,
+      );
     }
     for (final column in _columns) {
       if (column.collidesWith(_player)) {
@@ -166,14 +170,21 @@ class GravitySwitchGame extends FlameGame
     _publishHud();
   }
 
-  _MazeColumn? _columnAtPlayer() {
-    for (final column in _columns) {
-      if (playerX >= column.position.x &&
-          playerX < column.position.x + GravitySwitchRules.columnWidth) {
-        return column;
-      }
-    }
-    return null;
+  ({double floorTop, double ceilingBottom})? _supportAtPlayer() {
+    final left = playerX - _player.hitbox.width / 2;
+    final right = playerX + _player.hitbox.width / 2;
+    final supporting = _columns.where(
+      (column) =>
+          column.position.x < right &&
+          column.position.x + GravitySwitchRules.columnWidth > left,
+    );
+    if (supporting.isEmpty) return null;
+    return (
+      floorTop: supporting.map((column) => column.floorTop).reduce(min),
+      ceilingBottom: supporting
+          .map((column) => column.ceilingBottom)
+          .reduce(max),
+    );
   }
 
   void _appendColumn(double x, {bool forceSafe = false}) {
@@ -333,13 +344,17 @@ class _PrismRunner extends PositionComponent {
     _switchStartY = position.y;
   }
 
-  void updateSurface(double dt, _MazeColumn column) {
+  void updateSurface(
+    double dt, {
+    required double floorTop,
+    required double ceilingBottom,
+  }) {
     _animationElapsed += dt;
     final target = _targetSurface;
     if (target == null) {
       final desiredY = surface == GravitySurface.floor
-          ? column.floorTop - size.y / 2
-          : column.ceilingBottom + size.y / 2;
+          ? floorTop - size.y / 2
+          : ceilingBottom + size.y / 2;
       if ((desiredY - position.y).abs() <= 26) {
         position.y = desiredY;
       }
@@ -353,8 +368,8 @@ class _PrismRunner extends PositionComponent {
     );
     final eased = Curves.easeIn.transform(progress);
     final targetY = target == GravitySurface.floor
-        ? column.floorTop - size.y / 2
-        : column.ceilingBottom + size.y / 2;
+        ? floorTop - size.y / 2
+        : ceilingBottom + size.y / 2;
     position.y = _switchStartY + ((targetY - _switchStartY) * eased);
     angle = (target == GravitySurface.floor ? 1 : -1) * pi * progress;
     if (progress >= 1) {

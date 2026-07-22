@@ -195,7 +195,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                         PixelPanel(
                           child: Column(
                             children: [
-                              const _GamePreview(),
+                              _GamePreview(gameId: state.game?.id),
                               const SizedBox(height: 24),
                               Text(
                                 state.game?.displayName ?? '오늘의 게임 준비 중',
@@ -448,7 +448,9 @@ String _monthName(int month) {
 }
 
 class _GamePreview extends StatelessWidget {
-  const _GamePreview();
+  const _GamePreview({required this.gameId});
+
+  final String? gameId;
 
   @override
   Widget build(BuildContext context) {
@@ -459,22 +461,106 @@ class _GamePreview extends StatelessWidget {
           color: AppColors.backgroundDeep,
           border: Border.all(color: AppColors.surfaceLight, width: 2),
         ),
-        child: Stack(
-          children: [
-            const Positioned(left: 30, top: 24, child: _PixelStar(size: 18)),
-            const Positioned(right: 38, top: 44, child: _PixelStar(size: 12)),
-            Center(
-              child: Image.asset(
-                'assets/images/dinosaur_side_left_1_uniform.png',
-                width: 72,
-                filterQuality: FilterQuality.none,
+        child: gameId == 'gravity_switch'
+            ? const _GravityGamePreview()
+            : Stack(
+                children: [
+                  const Positioned(
+                    left: 30,
+                    top: 24,
+                    child: _PixelStar(size: 18),
+                  ),
+                  const Positioned(
+                    right: 38,
+                    top: 44,
+                    child: _PixelStar(size: 12),
+                  ),
+                  Center(
+                    child: Image.asset(
+                      'assets/images/dinosaur_side_left_1_uniform.png',
+                      width: 72,
+                      filterQuality: FilterQuality.none,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
+}
+
+class _GravityGamePreview extends StatelessWidget {
+  const _GravityGamePreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+            'assets/images/gravity_switch_v2/space_background.png',
+          ),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Stack(
+        children: [
+          const Positioned.fill(
+            child: CustomPaint(painter: _PrismBarsPainter()),
+          ),
+          Positioned(
+            left: 70,
+            bottom: 42,
+            child: SizedBox.square(
+              dimension: 54,
+              child: ClipRect(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  widthFactor: 0.5,
+                  heightFactor: 0.5,
+                  child: Image.asset(
+                    'assets/images/gravity_switch_v2/player_sheet.png',
+                    width: 108,
+                    height: 108,
+                    filterQuality: FilterQuality.high,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrismBarsPainter extends CustomPainter {
+  const _PrismBarsPainter();
+
+  static const colors = [
+    Color(0xFF0FC9CE),
+    Color(0xFFFF6B4A),
+    Color(0xFF8B5CF6),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const width = 34.0;
+    for (var index = 0; index * width < size.width; index++) {
+      final x = index * width;
+      final paint = Paint()..color = colors[index % colors.length];
+      final topHeight = 34.0 + (index % 3) * 7;
+      final bottomHeight = 38.0 + ((index + 1) % 3) * 8;
+      canvas.drawRect(Rect.fromLTWH(x, 0, width - 2, topHeight), paint);
+      canvas.drawRect(
+        Rect.fromLTWH(x, size.height - bottomHeight, width - 2, bottomHeight),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _PixelStar extends StatelessWidget {
