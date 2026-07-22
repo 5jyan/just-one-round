@@ -179,6 +179,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 submitError: _submitError,
                 isSavingNickname: _isSavingNickname,
                 onChooseNickname: _chooseNickname,
+                onRetrySubmit: () => _submitResult(result),
               ),
           ],
         ),
@@ -327,6 +328,7 @@ class _ResultOverlay extends StatelessWidget {
     required this.submitError,
     required this.isSavingNickname,
     required this.onChooseNickname,
+    required this.onRetrySubmit,
   });
 
   final GameResult result;
@@ -335,6 +337,7 @@ class _ResultOverlay extends StatelessWidget {
   final Object? submitError;
   final bool isSavingNickname;
   final VoidCallback onChooseNickname;
+  final VoidCallback onRetrySubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -427,10 +430,23 @@ class _ResultOverlay extends StatelessWidget {
                       ],
                     )
                   else if (submitError != null)
-                    const Text(
-                      '점수 제출에 실패했어요. 홈에서 기록을 확인해 주세요.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.danger, fontSize: 12),
+                    Column(
+                      children: [
+                        const Text(
+                          '점수를 기기에 보관했어요. 서버가 복구되면 자동 전송됩니다.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.danger,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        PixelButton(
+                          label: '지금 다시 전송',
+                          icon: Icons.refresh,
+                          onPressed: onRetrySubmit,
+                        ),
+                      ],
                     ),
                   const SizedBox(height: 24),
                   SizedBox(

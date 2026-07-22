@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/gameplay/data/pending_score_submission.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,6 +11,7 @@ abstract interface class DailyGameRepository {
   Future<PlayAttempt> claimRewardedAttempt();
   Future<void> expireAttempt(String attemptId);
   Future<DailyRankResult> submitScore(String attemptId, GameResult result);
+  Future<DailyRankResult?> retryPendingScore();
   Future<UserProfile> setNickname(String nickname);
   Future<UserProfile> updateDemographics({
     required int? birthDecade,
@@ -31,9 +33,14 @@ final todayStateProvider = FutureProvider<TodayState>((ref) async {
 });
 
 class SupabaseDailyGameRepository implements DailyGameRepository {
-  SupabaseDailyGameRepository(this._client);
+  SupabaseDailyGameRepository(this._client, {PendingScoreStore? pendingStore})
+    : _pendingStore = pendingStore ?? SharedPreferencesPendingScoreStore();
 
   final SupabaseClient _client;
+  final PendingScoreStore _pendingStore;
+  late final _pendingScoreRetry = PendingScoreRetryService<DailyRankResult>(
+    _pendingStore,
+  );
   var _sessionValidated = false;
 
   Future<void> _ensureSignedIn() async {
@@ -55,12 +62,15 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
   @override
   Future<TodayState> fetchToday() async {
     await _ensureSignedIn();
+    final pending = await _pendingStore.load();
+    await retryPendingScore();
     var state = TodayState.fromJson(
       Map<String, dynamic>.from(await _client.rpc('get_today_state') as Map),
     );
 
     final interrupted = state.attempts
         .where((attempt) => attempt.status == 'issued')
+        .where((attempt) => attempt.id != pending?.attemptId)
         .toList(growable: false);
     if (interrupted.isNotEmpty) {
       for (final attempt in interrupted) {
@@ -101,13 +111,26 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
     GameResult result,
   ) async {
     await _ensureSignedIn();
+    final pending = PendingScoreSubmission.fromGameResult(attemptId, result);
+    return _pendingScoreRetry.sendAndPersist(pending, _submitPendingScore);
+  }
+
+  @override
+  Future<DailyRankResult?> retryPendingScore() async {
+    await _ensureSignedIn();
+    return _pendingScoreRetry.retry(_submitPendingScore);
+  }
+
+  Future<DailyRankResult> _submitPendingScore(
+    PendingScoreSubmission pending,
+  ) async {
     final response = await _client.rpc(
       'submit_daily_score',
       params: {
-        'attempt_id': attemptId,
-        'stars_collected': result.starsCollected,
-        'collisions': result.collisions,
-        'duration_ms': result.duration.inMilliseconds,
+        'attempt_id': pending.attemptId,
+        'stars_collected': pending.starsCollected,
+        'collisions': pending.collisions,
+        'duration_ms': pending.durationMs,
       },
     );
     return DailyRankResult.fromJson(Map<String, dynamic>.from(response as Map));
@@ -223,6 +246,9 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       NearbyRank(rank: 1, nickname: '테스트', score: result.score, isMe: true),
     ],
   );
+
+  @override
+  Future<DailyRankResult?> retryPendingScore() async => null;
 
   @override
   Future<UserProfile> setNickname(String nickname) async =>

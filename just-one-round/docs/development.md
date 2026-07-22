@@ -43,6 +43,17 @@ xcrun simctl terminate <simulator-id> com.justoneround.app
 
 홈 전환·전화 수신·다른 시스템 UI 노출로 앱이 `inactive`, `hidden`, `paused` 상태가 되면 진행 중인 판은 즉시 중단한다. 강제 종료로 만료 요청을 전송하지 못한 경우에도 서버에 남은 `issued` 시도를 다음 실행에서 `expired`로 복구하므로 같은 기회를 다시 사용할 수 없다.
 
+### Supabase 중단·복구 검증
+
+점수 제출 직전에 로컬 Supabase를 중지한 뒤, 결과 화면에서 전송 실패 안내가 보이는지 확인한다. 완료 점수는 기기에 보관되며, 스택을 다시 시작하고 홈으로 돌아오거나 `지금 다시 전송`을 누르면 자동 복구된다.
+
+```sh
+npm run supabase:stop
+npm run supabase:start
+```
+
+같은 시도 결과를 두 번 보내도 `scores`에는 한 건만 남고 동일한 순위 결과가 반환되어야 한다.
+
 ## Android 실기기
 
 ```sh

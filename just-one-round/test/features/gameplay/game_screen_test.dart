@@ -92,6 +92,38 @@ void main() {
     expect(repository.savedNickname, '별하나');
     expect(find.text('별하나'), findsOneWidget);
   });
+
+  testWidgets('제출 실패 후 사용자가 즉시 재시도할 수 있다', (tester) async {
+    final repository = _FlakyRepository();
+    const attempt = PlayAttempt(
+      id: 'attempt-retry',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            gameDuration: Duration(milliseconds: 100),
+            countdownDuration: Duration.zero,
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pumpAndSettle();
+
+    expect(find.text('지금 다시 전송'), findsOneWidget);
+    await tester.tap(find.text('지금 다시 전송'));
+    await tester.pumpAndSettle();
+
+    expect(repository.submitCalls, 2);
+    expect(find.byKey(const Key('daily-rank')), findsOneWidget);
+  });
 }
 
 class _RecordingRepository implements DailyGameRepository {
@@ -117,6 +149,9 @@ class _RecordingRepository implements DailyGameRepository {
   @override
   Future<DailyRankResult> submitScore(String attemptId, GameResult result) =>
       throw UnimplementedError();
+
+  @override
+  Future<DailyRankResult?> retryPendingScore() => throw UnimplementedError();
 
   @override
   Future<DailyRankResult> fetchFilteredRank({
@@ -178,6 +213,27 @@ class _NicknameRepository extends _RecordingRepository {
           isMe: true,
         ),
       ],
+    );
+  }
+}
+
+class _FlakyRepository extends _RecordingRepository {
+  var submitCalls = 0;
+
+  @override
+  Future<DailyRankResult> submitScore(
+    String attemptId,
+    GameResult result,
+  ) async {
+    submitCalls += 1;
+    if (submitCalls == 1) throw Exception('network unavailable');
+    return const DailyRankResult(
+      score: 600,
+      rank: 1,
+      participants: 1,
+      topPercent: 100,
+      nickname: '테스트',
+      nearby: [],
     );
   }
 }
