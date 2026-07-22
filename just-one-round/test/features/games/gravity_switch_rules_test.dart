@@ -7,17 +7,23 @@ void main() {
       GravitySwitchRules.scrollSpeed(60),
       greaterThan(GravitySwitchRules.scrollSpeed(0)),
     );
-    expect(GravitySwitchRules.scrollSpeed(1000), 680);
+    expect(GravitySwitchRules.scrollSpeed(1000), 360);
   });
 
-  test('약 60초부터 연속 중력 전환이 매우 어려워진다', () {
-    expect(GravitySwitchRules.spawnInterval(0), closeTo(1.24, 0.001));
-    expect(GravitySwitchRules.spawnInterval(60), closeTo(0.34, 0.001));
-    expect(GravitySwitchRules.alternatingPatternChance(60), 0.95);
+  test('약 60초부터 기둥 사이 안전 구간이 최소화된다', () {
+    expect(GravitySwitchRules.safeColumnCount(0), 4);
+    expect(GravitySwitchRules.safeColumnCount(60), 1);
+    expect(GravitySwitchRules.hazardHeight(60), 205);
+    expect(
+      GravitySwitchRules.alternatingPatternChance(60),
+      closeTo(0.918, 0.001),
+    );
   });
 
   test('난이도 값은 장시간 생존해도 안전 범위에 고정된다', () {
-    expect(GravitySwitchRules.spawnInterval(1000), 0.34);
-    expect(GravitySwitchRules.alternatingPatternChance(1000), 0.95);
+    expect(GravitySwitchRules.scrollSpeed(1000), 360);
+    expect(GravitySwitchRules.safeColumnCount(1000), 1);
+    expect(GravitySwitchRules.hazardHeight(1000), 205);
+    expect(GravitySwitchRules.alternatingPatternChance(1000), 0.92);
   });
 }

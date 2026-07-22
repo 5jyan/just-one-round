@@ -60,7 +60,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 32));
 
     expect(find.text('탭해서 중력을 뒤집으세요'), findsOneWidget);
-    expect(find.text('TIME'), findsOneWidget);
+    expect(find.byKey(const Key('gravity-distance-score')), findsOneWidget);
+    expect(find.text('TIME'), findsNothing);
   });
 
   testWidgets('똥피하기 생존 시간을 ms 단위로 서버에 제출한다', (tester) async {

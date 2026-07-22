@@ -203,6 +203,9 @@ class _GameHud extends StatelessWidget {
     return ValueListenableBuilder<MiniGameHudState>(
       valueListenable: game.hud,
       builder: (context, state, child) {
+        if (definition.hudStyle == MiniGameHudStyle.gravitySwitch) {
+          return _GravitySwitchHud(state: state, definition: definition);
+        }
         return IgnorePointer(
           child: Stack(
             fit: StackFit.expand,
@@ -283,6 +286,89 @@ class _GameHud extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _GravitySwitchHud extends StatelessWidget {
+  const _GravitySwitchHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 18,
+            child: Text(
+              '${state.distance}',
+              key: const Key('gravity-distance-score'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Galmuri',
+                color: Colors.white,
+                fontSize: 42,
+                fontWeight: FontWeight.w700,
+                shadows: [
+                  Shadow(color: Color(0x99000000), offset: Offset(3, 3)),
+                ],
+              ),
+            ),
+          ),
+          if (state.phase == MiniGamePhase.countdown)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.countdownNumber > 0
+                        ? '${state.countdownNumber}'
+                        : 'GO!',
+                    style: const TextStyle(
+                      fontFamily: 'Galmuri',
+                      color: Color(0xFF4CF4E8),
+                      fontSize: 68,
+                      fontWeight: FontWeight.w700,
+                      shadows: [
+                        Shadow(color: Color(0xFF0B6371), offset: Offset(5, 5)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    definition.countdownInstruction,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (state.phase == MiniGamePhase.playing && state.elapsedSeconds < 5)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 26,
+              child: Text(
+                definition.playingInstruction,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xCCFFFFFF),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

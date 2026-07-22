@@ -6,7 +6,6 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
@@ -34,9 +33,10 @@ class GravitySwitchGame extends FlameGame
        );
 
   static final logicalSize = Vector2(360, 640);
-  static const ceilingY = 112.0;
-  static const floorY = 560.0;
   static const playerX = 92.0;
+  static const playerSize = 44.0;
+  static const initialFloorTop = 500.0;
+  static const initialCeilingBottom = 140.0;
 
   final Duration countdownDuration;
   final ValueChanged<GameResult> onFinished;
@@ -48,19 +48,24 @@ class GravitySwitchGame extends FlameGame
   @override
   FlameGame get flameGame => this;
 
-  late final _GravityPlayer _player;
+  late final _PrismRunner _player;
+  final List<_MazeColumn> _columns = [];
+  final List<GravitySurface?> _patternQueue = [];
   var _phase = MiniGamePhase.countdown;
   var _countdownElapsed = 0.0;
   var _playingElapsed = 0.0;
-  var _spawnElapsed = 0.0;
   var _score = 0;
+  var _distance = 0;
   var _lastDisplayedSecond = -1;
-  var _lastSpawnSurface = GravitySurface.floor;
+  var _nextSequence = 0;
+  var _safeColumnsRemaining = 8;
+  var _lastHazardSurface = GravitySurface.ceiling;
+  var _floorTop = initialFloorTop;
+  var _ceilingBottom = initialCeilingBottom;
   var _hasFinished = false;
-  var _hazardSprites = <Sprite>[];
 
   @override
-  Color backgroundColor() => AppColors.backgroundDeep;
+  Color backgroundColor() => const Color(0xFF020617);
 
   @override
   Future<void> onLoad() async {
@@ -69,26 +74,31 @@ class GravitySwitchGame extends FlameGame
     camera.viewfinder.position = logicalSize / 2;
 
     final loaded = await images.loadAll([
-      'dodge_v2/player_run_sheet.png',
-      'dodge_v2/background_map.png',
-      'dodge_v2/ground_strip.png',
-      'gravity_switch/hazard_sheet.png',
+      'gravity_switch_v2/space_background.png',
+      'gravity_switch_v2/player_sheet.png',
     ]);
-    final runSheet = SpriteSheet(image: loaded[0], srcSize: Vector2.all(32));
-    final background = _GravityBackground(
-      size: logicalSize.clone(),
-      background: Sprite(loaded[1]),
-      ground: Sprite(loaded[2]),
+    await world.add(
+      SpriteComponent(
+        sprite: Sprite(loaded[0]),
+        size: logicalSize.clone(),
+        priority: -20,
+      ),
     );
-    await world.add(background);
 
-    _player = _GravityPlayer(
-      position: Vector2(playerX, floorY - 32),
-      runSprites: _spritesFrom2x2(runSheet),
+    final playerSheet = SpriteSheet(image: loaded[1], srcSize: Vector2.all(96));
+    _player = _PrismRunner(
+      position: Vector2(playerX, initialFloorTop - playerSize / 2),
+      sprites: _spritesFrom2x2(playerSheet),
     );
+
+    for (
+      var x = -GravitySwitchRules.columnWidth;
+      x < logicalSize.x + GravitySwitchRules.columnWidth * 3;
+      x += GravitySwitchRules.columnWidth
+    ) {
+      _appendColumn(x, forceSafe: true);
+    }
     await world.add(_player);
-    final hazardSheet = SpriteSheet(image: loaded[3], srcSize: Vector2.all(64));
-    _hazardSprites = _spritesFrom2x2(hazardSheet);
 
     if (countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
@@ -118,19 +128,37 @@ class GravitySwitchGame extends FlameGame
 
   void _updatePlaying(double dt) {
     _playingElapsed += dt;
-    _spawnElapsed += dt;
     _score = (_playingElapsed * 1000).floor();
+    final speed = GravitySwitchRules.scrollSpeed(_playingElapsed);
 
-    final interval = GravitySwitchRules.spawnInterval(_playingElapsed);
-    while (_spawnElapsed >= interval) {
-      _spawnElapsed -= interval;
-      _spawnObstacle();
+    for (final column in List<_MazeColumn>.of(_columns)) {
+      column.position.x -= speed * dt;
+      if (!column.wasPassed &&
+          column.position.x + GravitySwitchRules.columnWidth < playerX) {
+        column.wasPassed = true;
+        _distance += 1;
+      }
+      if (column.position.x + GravitySwitchRules.columnWidth < 0) {
+        _columns.remove(column);
+        column.removeFromParent();
+      }
     }
 
-    final speed = GravitySwitchRules.scrollSpeed(_playingElapsed);
-    for (final obstacle in world.children.whereType<_GravityObstacle>()) {
-      obstacle.advance(dt, speed);
-      if (!obstacle.removing && obstacle.collidesWith(_player)) {
+    while (_columns.isEmpty ||
+        _columns.last.position.x <
+            logicalSize.x + GravitySwitchRules.columnWidth * 2) {
+      final x = _columns.isEmpty
+          ? logicalSize.x
+          : _columns.last.position.x + GravitySwitchRules.columnWidth;
+      _appendColumn(x);
+    }
+
+    final support = _columnAtPlayer();
+    if (support != null) {
+      _player.updateSurface(dt, support);
+    }
+    for (final column in _columns) {
+      if (column.collidesWith(_player)) {
         _finish();
         return;
       }
@@ -138,24 +166,69 @@ class GravitySwitchGame extends FlameGame
     _publishHud();
   }
 
-  void _spawnObstacle() {
+  _MazeColumn? _columnAtPlayer() {
+    for (final column in _columns) {
+      if (playerX >= column.position.x &&
+          playerX < column.position.x + GravitySwitchRules.columnWidth) {
+        return column;
+      }
+    }
+    return null;
+  }
+
+  void _appendColumn(double x, {bool forceSafe = false}) {
+    final hazard = forceSafe ? null : _nextHazard();
+    if (hazard == null) {
+      _floorTop = (_floorTop + (_random.nextInt(3) - 1) * 8).clamp(
+        474.0,
+        518.0,
+      );
+      _ceilingBottom = (_ceilingBottom + (_random.nextInt(3) - 1) * 8).clamp(
+        118.0,
+        162.0,
+      );
+    }
+
+    final height = GravitySwitchRules.hazardHeight(_playingElapsed);
+    final floorTop = hazard == GravitySurface.floor
+        ? min(_floorTop, initialFloorTop - height)
+        : _floorTop;
+    final ceilingBottom = hazard == GravitySurface.ceiling
+        ? max(_ceilingBottom, initialCeilingBottom + height)
+        : _ceilingBottom;
+    final column = _MazeColumn(
+      sequence: _nextSequence++,
+      floorTop: floorTop,
+      ceilingBottom: ceilingBottom,
+      position: Vector2(x, 0),
+      palette: _paletteForTime(_playingElapsed),
+    );
+    _columns.add(column);
+    world.add(column);
+  }
+
+  GravitySurface? _nextHazard() {
+    if (_patternQueue.isNotEmpty) return _patternQueue.removeAt(0);
+    if (_safeColumnsRemaining > 0) {
+      _safeColumnsRemaining -= 1;
+      return null;
+    }
+
     final alternate =
         _random.nextDouble() <
         GravitySwitchRules.alternatingPatternChance(_playingElapsed);
     final surface = alternate
-        ? _opposite(_lastSpawnSurface)
+        ? _opposite(_lastHazardSurface)
         : (_random.nextBool() ? GravitySurface.floor : GravitySurface.ceiling);
-    _lastSpawnSurface = surface;
-    world.add(
-      _GravityObstacle(
-        surface: surface,
-        sprites: _hazardSprites,
-        position: Vector2(
-          logicalSize.x + 36,
-          surface == GravitySurface.floor ? floorY - 32 : ceilingY + 32,
-        ),
-      ),
-    );
+    _lastHazardSurface = surface;
+    final hazardWidth = _playingElapsed >= 35 && _random.nextDouble() < 0.32
+        ? 2
+        : 1;
+    for (var i = 1; i < hazardWidth; i++) {
+      _patternQueue.add(surface);
+    }
+    _safeColumnsRemaining = GravitySwitchRules.safeColumnCount(_playingElapsed);
+    return surface;
   }
 
   @override
@@ -200,6 +273,7 @@ class GravitySwitchGame extends FlameGame
     if (!force &&
         elapsedSecond == _lastDisplayedSecond &&
         hud.value.score == _score &&
+        hud.value.distance == _distance &&
         hud.value.countdownNumber == countdown) {
       return;
     }
@@ -210,6 +284,7 @@ class GravitySwitchGame extends FlameGame
       elapsedSeconds: elapsedSecond,
       remainingSeconds: null,
       countdownNumber: countdown,
+      distance: _distance,
     );
   }
 
@@ -229,142 +304,208 @@ List<Sprite> _spritesFrom2x2(SpriteSheet sheet) => [
   sheet.getSprite(1, 1),
 ];
 
-class _GravityPlayer extends PositionComponent {
-  _GravityPlayer({required super.position, required this.runSprites})
-    : super(size: Vector2.all(64), anchor: Anchor.center, priority: 10) {
-    scale.x = -1;
-  }
+class _PrismRunner extends PositionComponent {
+  _PrismRunner({required super.position, required this.sprites})
+    : super(
+        size: Vector2.all(GravitySwitchGame.playerSize),
+        anchor: Anchor.center,
+        priority: 20,
+      );
 
-  final List<Sprite> runSprites;
-  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
+  final List<Sprite> sprites;
+  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.high;
   GravitySurface surface = GravitySurface.floor;
   GravitySurface? _targetSurface;
   var _switchElapsed = 0.0;
   var _animationElapsed = 0.0;
+  var _switchStartY = 0.0;
 
   Rect get hitbox => Rect.fromCenter(
     center: Offset(position.x, position.y),
-    width: 34,
-    height: 42,
+    width: 30,
+    height: 30,
   );
 
   void switchGravity() {
     if (_targetSurface != null) return;
     _targetSurface = _opposite(surface);
     _switchElapsed = 0;
+    _switchStartY = position.y;
   }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
+  void updateSurface(double dt, _MazeColumn column) {
     _animationElapsed += dt;
     final target = _targetSurface;
-    if (target == null) return;
+    if (target == null) {
+      final desiredY = surface == GravitySurface.floor
+          ? column.floorTop - size.y / 2
+          : column.ceilingBottom + size.y / 2;
+      if ((desiredY - position.y).abs() <= 26) {
+        position.y = desiredY;
+      }
+      return;
+    }
 
     _switchElapsed += dt;
     final progress = (_switchElapsed / GravitySwitchRules.switchDuration).clamp(
       0.0,
       1.0,
     );
-    final eased = progress < 0.5
-        ? 4 * progress * progress * progress
-        : 1 - pow(-2 * progress + 2, 3) / 2;
-    final startY = surface == GravitySurface.floor
-        ? GravitySwitchGame.floorY - 32
-        : GravitySwitchGame.ceilingY + 32;
-    final endY = target == GravitySurface.floor
-        ? GravitySwitchGame.floorY - 32
-        : GravitySwitchGame.ceilingY + 32;
-    position.y = startY + ((endY - startY) * eased);
-    if (progress >= 0.5) scale.y = target == GravitySurface.floor ? 1 : -1;
+    final eased = Curves.easeIn.transform(progress);
+    final targetY = target == GravitySurface.floor
+        ? column.floorTop - size.y / 2
+        : column.ceilingBottom + size.y / 2;
+    position.y = _switchStartY + ((targetY - _switchStartY) * eased);
+    angle = (target == GravitySurface.floor ? 1 : -1) * pi * progress;
     if (progress >= 1) {
       surface = target;
       _targetSurface = null;
-      position.y = endY;
+      position.y = targetY;
+      angle = 0;
     }
   }
 
   @override
   void render(Canvas canvas) {
-    if (runSprites.isEmpty) return;
-    final index = (_animationElapsed / 0.09).floor() % runSprites.length;
-    runSprites[index].render(canvas, size: size, overridePaint: _spritePaint);
-  }
-}
-
-class _GravityObstacle extends PositionComponent {
-  _GravityObstacle({
-    required this.surface,
-    required this.sprites,
-    required super.position,
-  }) : super(size: Vector2.all(64), anchor: Anchor.center, priority: 6) {
-    if (surface == GravitySurface.ceiling) scale.y = -1;
-  }
-
-  final GravitySurface surface;
-  final List<Sprite> sprites;
-  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
-  var removing = false;
-  var _animationElapsed = 0.0;
-
-  Rect get hitbox => Rect.fromCenter(
-    center: Offset(position.x, position.y),
-    width: 42,
-    height: 48,
-  );
-
-  void advance(double dt, double speed) {
-    position.x -= speed * dt;
-    _animationElapsed += dt;
-    if (position.x + size.x < 0) {
-      removing = true;
-      removeFromParent();
-    }
-  }
-
-  bool collidesWith(_GravityPlayer player) => hitbox.overlaps(player.hitbox);
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
     if (sprites.isEmpty) return;
-    final index = (_animationElapsed / 0.11).floor() % sprites.length;
+    final index = (_animationElapsed / 0.09).floor() % sprites.length;
     sprites[index].render(canvas, size: size, overridePaint: _spritePaint);
   }
 }
 
-class _GravityBackground extends PositionComponent {
-  _GravityBackground({
-    required super.size,
-    required this.background,
-    required this.ground,
-  }) : super(priority: -10);
+class _MazeColumn extends PositionComponent {
+  _MazeColumn({
+    required this.sequence,
+    required this.floorTop,
+    required this.ceilingBottom,
+    required this.palette,
+    required super.position,
+  }) : super(
+         size: Vector2(
+           GravitySwitchRules.columnWidth,
+           GravitySwitchGame.logicalSize.y,
+         ),
+         priority: 5,
+       );
 
-  final Sprite background;
-  final Sprite ground;
-  final Paint _paint = Paint()..filterQuality = FilterQuality.none;
+  final int sequence;
+  final double floorTop;
+  final double ceilingBottom;
+  final _PrismPalette palette;
+  bool wasPassed = false;
+
+  bool collidesWith(_PrismRunner player) {
+    final x = position.x;
+    final width = GravitySwitchRules.columnWidth;
+    final floorRect = Rect.fromLTWH(
+      x,
+      floorTop,
+      width,
+      GravitySwitchGame.logicalSize.y - floorTop,
+    );
+    final ceilingRect = Rect.fromLTWH(x, 0, width, ceilingBottom);
+    return floorRect.overlaps(player.hitbox) ||
+        ceilingRect.overlaps(player.hitbox);
+  }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    background.render(canvas, size: size, overridePaint: _paint);
-    canvas.save();
-    canvas.translate(0, GravitySwitchGame.ceilingY);
-    canvas.scale(1, -1);
-    ground.render(
-      canvas,
-      size: Vector2(size.x, 96),
-      position: Vector2(0, 0),
-      anchor: Anchor.bottomLeft,
-      overridePaint: _paint,
+    final colors = palette.colors[sequence % palette.colors.length];
+    _drawFloorPrism(canvas, floorTop, colors);
+    _drawCeilingPrism(canvas, ceilingBottom, colors);
+  }
+
+  void _drawFloorPrism(Canvas canvas, double top, _PrismColor colors) {
+    const depth = 7.0;
+    final width = size.x;
+    canvas.drawRect(
+      Rect.fromLTWH(0, top, width, size.y - top),
+      Paint()..color = colors.face,
     );
-    canvas.restore();
-    ground.render(
-      canvas,
-      size: Vector2(size.x, 96),
-      position: Vector2(0, GravitySwitchGame.floorY),
-      anchor: Anchor.topLeft,
-      overridePaint: _paint,
+    canvas.drawRect(
+      Rect.fromLTWH(width - depth, top, depth, size.y - top),
+      Paint()..color = colors.side,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(0, top)
+        ..lineTo(width - depth, top)
+        ..lineTo(width, top - depth)
+        ..lineTo(depth, top - depth)
+        ..close(),
+      Paint()..color = colors.cap,
+    );
+    canvas.drawLine(
+      Offset(0, top),
+      Offset(0, size.y),
+      Paint()
+        ..color = const Color(0x55020817)
+        ..strokeWidth = 1.4,
+    );
+  }
+
+  void _drawCeilingPrism(Canvas canvas, double bottom, _PrismColor colors) {
+    const depth = 7.0;
+    final width = size.x;
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, width, bottom),
+      Paint()..color = colors.face,
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(width - depth, 0, depth, bottom),
+      Paint()..color = colors.side,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(0, bottom)
+        ..lineTo(width - depth, bottom)
+        ..lineTo(width, bottom + depth)
+        ..lineTo(depth, bottom + depth)
+        ..close(),
+      Paint()..color = colors.cap,
+    );
+    canvas.drawLine(
+      Offset(0, 0),
+      Offset(0, bottom),
+      Paint()
+        ..color = const Color(0x55020817)
+        ..strokeWidth = 1.4,
     );
   }
 }
+
+class _PrismColor {
+  const _PrismColor(this.face, this.side, this.cap);
+
+  final Color face;
+  final Color side;
+  final Color cap;
+}
+
+class _PrismPalette {
+  const _PrismPalette(this.colors);
+
+  final List<_PrismColor> colors;
+}
+
+const _palettes = [
+  _PrismPalette([
+    _PrismColor(Color(0xFF0FC9CE), Color(0xFF08737D), Color(0xFF57FFF2)),
+    _PrismColor(Color(0xFFFF6B4A), Color(0xFF9E2F3D), Color(0xFFFFA06F)),
+    _PrismColor(Color(0xFF8B5CF6), Color(0xFF4C2B9B), Color(0xFFC4A1FF)),
+  ]),
+  _PrismPalette([
+    _PrismColor(Color(0xFFFFC857), Color(0xFFB0602F), Color(0xFFFFE58F)),
+    _PrismColor(Color(0xFF4ADE80), Color(0xFF18794E), Color(0xFF9DFFB8)),
+    _PrismColor(Color(0xFF38BDF8), Color(0xFF155E9A), Color(0xFF9FE8FF)),
+  ]),
+  _PrismPalette([
+    _PrismColor(Color(0xFFF43F8C), Color(0xFF8F245B), Color(0xFFFF8EC1)),
+    _PrismColor(Color(0xFF22D3EE), Color(0xFF0B7189), Color(0xFF8AF5FF)),
+    _PrismColor(Color(0xFFA3E635), Color(0xFF4D7C0F), Color(0xFFD7FF87)),
+  ]),
+];
+
+_PrismPalette _paletteForTime(double seconds) =>
+    _palettes[(seconds / 18).floor() % _palettes.length];

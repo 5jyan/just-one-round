@@ -4,6 +4,8 @@ import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 
 enum MiniGamePhase { countdown, playing, finished }
 
+enum MiniGameHudStyle { standard, gravitySwitch }
+
 class MiniGameHudState {
   const MiniGameHudState({
     required this.phase,
@@ -11,6 +13,7 @@ class MiniGameHudState {
     required this.elapsedSeconds,
     required this.remainingSeconds,
     required this.countdownNumber,
+    this.distance = 0,
   });
 
   final MiniGamePhase phase;
@@ -18,6 +21,7 @@ class MiniGameHudState {
   final int elapsedSeconds;
   final int? remainingSeconds;
   final int countdownNumber;
+  final int distance;
 }
 
 abstract interface class MiniGameController {
@@ -43,6 +47,7 @@ class MiniGameDefinition {
     required this.playingInstruction,
     required this.scoreLabel,
     required this.formatScore,
+    this.hudStyle = MiniGameHudStyle.standard,
   });
 
   final String id;
@@ -51,4 +56,5 @@ class MiniGameDefinition {
   final String playingInstruction;
   final String scoreLabel;
   final String Function(int score) formatScore;
+  final MiniGameHudStyle hudStyle;
 }

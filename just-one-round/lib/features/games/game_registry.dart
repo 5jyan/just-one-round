@@ -40,6 +40,7 @@ abstract final class GameRegistry {
       playingInstruction: '바닥과 천장을 오가며 장애물을 피하세요!',
       scoreLabel: 'SURVIVAL TIME',
       formatScore: GravitySwitchRules.formatSurvival,
+      hudStyle: MiniGameHudStyle.gravitySwitch,
     ),
   };
 
