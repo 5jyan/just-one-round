@@ -47,37 +47,9 @@ class GravityMapLayout {
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException('Gravity map root must be a JSON object.');
     }
-    final screenHeight = _positiveNumber(decoded, 'screenHeight');
-    final columnWidth = _positiveNumber(decoded, 'columnWidth');
-    final rawProfiles = decoded['profiles'];
-    if (rawProfiles is! Map<String, dynamic> || rawProfiles.isEmpty) {
-      throw const FormatException('Gravity map needs at least one profile.');
-    }
-
-    final profiles = <String, GravityMapProfile>{};
-    for (final entry in rawProfiles.entries) {
-      final raw = entry.value;
-      if (raw is! Map<String, dynamic>) {
-        throw FormatException('Profile "${entry.key}" must be an object.');
-      }
-      final floorHeight = _nonNegativeNumber(raw, 'floorHeight');
-      final ceilingHeight = _nonNegativeNumber(raw, 'ceilingHeight');
-      if (floorHeight + ceilingHeight >= screenHeight) {
-        throw FormatException(
-          'Profile "${entry.key}" leaves no open corridor.',
-        );
-      }
-      profiles[entry.key] = GravityMapProfile(
-        floorTop: screenHeight - floorHeight,
-        ceilingBottom: ceilingHeight,
-      );
-    }
-
-    final initialName = decoded['initialProfile'];
-    final initialProfile = profiles[initialName];
-    if (initialName is! String || initialProfile == null) {
-      throw FormatException('Unknown initialProfile "$initialName".');
-    }
+    final cellSize = _positiveNumber(decoded, 'cellSize');
+    final baseCeilingHeight = _nonNegativeNumber(decoded, 'baseCeilingHeight');
+    final baseFloorHeight = _nonNegativeNumber(decoded, 'baseFloorHeight');
     final initialColumnCount = decoded['initialColumnCount'];
     if (initialColumnCount is! int || initialColumnCount < 1) {
       throw const FormatException(
@@ -91,6 +63,7 @@ class GravityMapLayout {
     }
     final patterns = <GravityMapPattern>[];
     final ids = <String>{};
+    int? gridHeight;
     for (final raw in rawPatterns) {
       if (raw is! Map<String, dynamic>) {
         throw const FormatException('Every pattern must be an object.');
@@ -100,23 +73,26 @@ class GravityMapLayout {
         throw FormatException('Pattern id "$id" is empty or duplicated.');
       }
       final unlock = _nonNegativeNumber(raw, 'unlockAfterSeconds');
-      final rawColumns = raw['columns'];
-      if (rawColumns is! List || rawColumns.isEmpty) {
-        throw FormatException('Pattern "$id" needs at least one column.');
+      final rawGrid = raw['grid'];
+      if (rawGrid is! List || rawGrid.isEmpty) {
+        throw FormatException('Pattern "$id" needs a non-empty grid.');
       }
-      final columns = rawColumns
-          .map((name) {
-            final profile = profiles[name];
-            if (name is! String || profile == null) {
-              throw FormatException(
-                'Pattern "$id" uses unknown profile "$name".',
-              );
-            }
-            return profile;
-          })
-          .toList(growable: false);
+      gridHeight ??= rawGrid.length;
+      if (rawGrid.length != gridHeight) {
+        throw FormatException('Pattern "$id" must have $gridHeight grid rows.');
+      }
       patterns.add(
-        GravityMapPattern(id: id, unlockAfterSeconds: unlock, columns: columns),
+        GravityMapPattern(
+          id: id,
+          unlockAfterSeconds: unlock,
+          columns: _parseGrid(
+            rawGrid,
+            patternId: id,
+            cellSize: cellSize,
+            baseCeilingHeight: baseCeilingHeight,
+            baseFloorHeight: baseFloorHeight,
+          ),
+        ),
       );
     }
     if (patterns.every((pattern) => pattern.unlockAfterSeconds > 0)) {
@@ -126,11 +102,69 @@ class GravityMapLayout {
     }
 
     return GravityMapLayout(
-      columnWidth: columnWidth,
-      initialProfile: initialProfile,
+      columnWidth: cellSize,
+      initialProfile: GravityMapProfile(
+        floorTop: baseCeilingHeight + (gridHeight! * cellSize),
+        ceilingBottom: baseCeilingHeight,
+      ),
       initialColumnCount: initialColumnCount,
       patterns: patterns,
     );
+  }
+
+  static List<GravityMapProfile> _parseGrid(
+    List<dynamic> rawGrid, {
+    required String patternId,
+    required double cellSize,
+    required double baseCeilingHeight,
+    required double baseFloorHeight,
+  }) {
+    if (rawGrid.any((row) => row is! String)) {
+      throw FormatException('Pattern "$patternId" grid rows must be strings.');
+    }
+    final rows = rawGrid.cast<String>();
+    final width = rows.first.runes.length;
+    if (width == 0 || rows.any((row) => row.runes.length != width)) {
+      throw FormatException(
+        'Pattern "$patternId" grid rows must have equal width.',
+      );
+    }
+    const wall = 'ㅁ';
+    const empty = 'ㅇ';
+    if (rows.any(
+      (row) => row.runes
+          .map(String.fromCharCode)
+          .any((symbol) => symbol != wall && symbol != empty),
+    )) {
+      throw FormatException('Pattern "$patternId" grid may only use ㅁ and ㅇ.');
+    }
+
+    final screenHeight =
+        baseCeilingHeight + (rows.length * cellSize) + baseFloorHeight;
+    return List.generate(width, (column) {
+      final cells = rows
+          .map((row) => String.fromCharCode(row.runes.elementAt(column)))
+          .toList(growable: false);
+      var topWalls = 0;
+      while (topWalls < cells.length && cells[topWalls] == wall) {
+        topWalls++;
+      }
+      var bottomWalls = 0;
+      while (bottomWalls < cells.length - topWalls &&
+          cells[cells.length - 1 - bottomWalls] == wall) {
+        bottomWalls++;
+      }
+      if (topWalls + bottomWalls == cells.length ||
+          cells.sublist(topWalls, cells.length - bottomWalls).contains(wall)) {
+        throw FormatException(
+          'Pattern "$patternId" column ${column + 1} has a floating wall or no open corridor.',
+        );
+      }
+      return GravityMapProfile(
+        floorTop: screenHeight - baseFloorHeight - (bottomWalls * cellSize),
+        ceilingBottom: baseCeilingHeight + (topWalls * cellSize),
+      );
+    }, growable: false);
   }
 
   static double _positiveNumber(Map<String, dynamic> json, String key) {

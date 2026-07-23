@@ -20,21 +20,18 @@ void main() {
     expect(layout.patterns.first.columns, hasLength(7));
   });
 
-  test('reports a pattern that references an unknown profile', () {
+  test('reports a floating wall in a visual grid', () {
     const source = '''
 {
-  "screenHeight": 640,
-  "columnWidth": 48,
-  "initialProfile": "safe",
+  "cellSize": 48,
+  "baseCeilingHeight": 128,
+  "baseFloorHeight": 128,
   "initialColumnCount": 4,
-  "profiles": {
-    "safe": {"floorHeight": 128, "ceilingHeight": 128}
-  },
   "patterns": [
     {
       "id": "broken",
       "unlockAfterSeconds": 0,
-      "columns": ["missing"]
+      "grid": ["ㅇ", "ㅁ", "ㅇ"]
     }
   ]
 }
@@ -46,7 +43,7 @@ void main() {
         isA<FormatException>().having(
           (error) => error.message,
           'message',
-          contains('unknown profile "missing"'),
+          contains('floating wall'),
         ),
       ),
     );
