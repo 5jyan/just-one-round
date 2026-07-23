@@ -350,31 +350,7 @@ class _AppleGameHud extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Text(
-                    definition.countdownInstruction,
-                    style: const TextStyle(
-                      color: Color(0xFFFFF3C4),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
                 ],
-              ),
-            ),
-          if (state.phase == MiniGamePhase.playing && state.elapsedSeconds < 6)
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 16,
-              child: Text(
-                definition.playingInstruction,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xDDFFF3C4),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
               ),
             ),
         ],

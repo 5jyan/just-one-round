@@ -39,10 +39,28 @@ class GravityMapLayout {
   final int initialColumnCount;
   final List<GravityMapPattern> patterns;
 
-  static Future<GravityMapLayout> load() async =>
-      fromJsonString(await rootBundle.loadString(assetPath));
+  static Future<GravityMapLayout> load() async {
+    final source = await rootBundle.loadString(assetPath);
+    final decoded = jsonDecode(source);
+    if (decoded is! Map<String, dynamic> || decoded['patterns'] is! List) {
+      throw const FormatException('Gravity map needs a patterns list.');
+    }
+    final mapFiles = <String, String>{};
+    for (final raw in decoded['patterns'] as List) {
+      if (raw is! Map<String, dynamic>) continue;
+      final mapFile = raw['mapFile'];
+      if (mapFile is String && !mapFiles.containsKey(mapFile)) {
+        _validateMapFilePath(mapFile);
+        mapFiles[mapFile] = await rootBundle.loadString('assets/maps/$mapFile');
+      }
+    }
+    return fromJsonString(source, mapFiles: mapFiles);
+  }
 
-  static GravityMapLayout fromJsonString(String source) {
+  static GravityMapLayout fromJsonString(
+    String source, {
+    required Map<String, String> mapFiles,
+  }) {
     final decoded = jsonDecode(source);
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException('Gravity map root must be a JSON object.');
@@ -73,12 +91,18 @@ class GravityMapLayout {
         throw FormatException('Pattern id "$id" is empty or duplicated.');
       }
       final unlock = _nonNegativeNumber(raw, 'unlockAfterSeconds');
-      final rawGrid = raw['grid'];
-      if (rawGrid is! List || rawGrid.isEmpty) {
-        throw FormatException('Pattern "$id" needs a non-empty grid.');
+      final mapFile = raw['mapFile'];
+      if (mapFile is! String || mapFile.isEmpty) {
+        throw FormatException('Pattern "$id" needs a mapFile.');
       }
-      gridHeight ??= rawGrid.length;
-      if (rawGrid.length != gridHeight) {
+      _validateMapFilePath(mapFile);
+      final mapSource = mapFiles[mapFile];
+      if (mapSource == null) {
+        throw FormatException('Pattern "$id" map file "$mapFile" is missing.');
+      }
+      final grid = _readMapRows(mapSource, patternId: id);
+      gridHeight ??= grid.length;
+      if (grid.length != gridHeight) {
         throw FormatException('Pattern "$id" must have $gridHeight grid rows.');
       }
       patterns.add(
@@ -86,7 +110,7 @@ class GravityMapLayout {
           id: id,
           unlockAfterSeconds: unlock,
           columns: _parseGrid(
-            rawGrid,
+            grid,
             patternId: id,
             cellSize: cellSize,
             baseCeilingHeight: baseCeilingHeight,
@@ -112,31 +136,64 @@ class GravityMapLayout {
     );
   }
 
+  static List<String> _readMapRows(String source, {required String patternId}) {
+    final rows = source.replaceAll('\r\n', '\n').split('\n');
+    if (rows.isNotEmpty && rows.last.isEmpty) rows.removeLast();
+    if (rows.isEmpty) {
+      throw FormatException('Pattern "$patternId" map file is empty.');
+    }
+    final bounded = rows.every(
+      (row) => row.startsWith('|') && row.endsWith('|'),
+    );
+    final hasPartialBoundary = rows.any(
+      (row) => row.startsWith('|') || row.endsWith('|'),
+    );
+    if (!bounded && hasPartialBoundary) {
+      throw FormatException(
+        'Pattern "$patternId" must use | on both sides of every row.',
+      );
+    }
+    return bounded
+        ? rows.map((row) => row.substring(1, row.length - 1)).toList()
+        : rows;
+  }
+
+  static void _validateMapFilePath(String path) {
+    if (path.startsWith('/') ||
+        path.contains('..') ||
+        path.contains(r'\') ||
+        !path.endsWith('.map')) {
+      throw FormatException('Invalid mapFile path "$path".');
+    }
+  }
+
   static List<GravityMapProfile> _parseGrid(
-    List<dynamic> rawGrid, {
+    List<String> rows, {
     required String patternId,
     required double cellSize,
     required double baseCeilingHeight,
     required double baseFloorHeight,
   }) {
-    if (rawGrid.any((row) => row is! String)) {
-      throw FormatException('Pattern "$patternId" grid rows must be strings.');
-    }
-    final rows = rawGrid.cast<String>();
     final width = rows.first.runes.length;
     if (width == 0 || rows.any((row) => row.runes.length != width)) {
       throw FormatException(
         'Pattern "$patternId" grid rows must have equal width.',
       );
     }
-    const wall = 'ㅁ';
-    const empty = 'ㅇ';
+    const wall = '■';
+    const markedEmpty = '□';
+    const blank = ' ';
     if (rows.any(
       (row) => row.runes
           .map(String.fromCharCode)
-          .any((symbol) => symbol != wall && symbol != empty),
+          .any(
+            (symbol) =>
+                symbol != wall && symbol != markedEmpty && symbol != blank,
+          ),
     )) {
-      throw FormatException('Pattern "$patternId" grid may only use ㅁ and ㅇ.');
+      throw FormatException(
+        'Pattern "$patternId" grid may only use ■, □, and spaces.',
+      );
     }
 
     final screenHeight =

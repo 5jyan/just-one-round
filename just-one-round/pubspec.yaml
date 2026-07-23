@@ -76,6 +76,7 @@ flutter:
     - assets/images/failed_bakery_25d/
     - assets/images/apple_game/
     - assets/maps/
+    - assets/maps/patterns/
 
   fonts:
     - family: Galmuri
