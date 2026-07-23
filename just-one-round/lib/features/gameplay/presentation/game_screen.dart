@@ -212,6 +212,9 @@ class _GameHud extends StatelessWidget {
         if (definition.hudStyle == MiniGameHudStyle.appleGame) {
           return _AppleGameHud(state: state, definition: definition);
         }
+        if (definition.hudStyle == MiniGameHudStyle.numberRush) {
+          return _NumberRushHud(state: state, definition: definition);
+        }
         return IgnorePointer(
           child: Stack(
             fit: StackFit.expand,
@@ -292,6 +295,53 @@ class _GameHud extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _NumberRushHud extends StatelessWidget {
+  const _NumberRushHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    if (state.phase != MiniGamePhase.countdown) {
+      return const SizedBox.shrink();
+    }
+    return IgnorePointer(
+      child: ColoredBox(
+        color: const Color(0xB8030713),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                state.countdownNumber > 0 ? '${state.countdownNumber}' : 'GO!',
+                style: const TextStyle(
+                  fontFamily: 'Galmuri',
+                  color: Color(0xFF39F3FF),
+                  fontSize: 68,
+                  fontWeight: FontWeight.w700,
+                  shadows: [
+                    Shadow(color: Color(0xFFFF3EBC), offset: Offset(5, 5)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                definition.countdownInstruction,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

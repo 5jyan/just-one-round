@@ -4,7 +4,13 @@ import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 
 enum MiniGamePhase { countdown, playing, finished }
 
-enum MiniGameHudStyle { standard, gravitySwitch, failedBakery, appleGame }
+enum MiniGameHudStyle {
+  standard,
+  gravitySwitch,
+  failedBakery,
+  appleGame,
+  numberRush,
+}
 
 class MiniGameHudState {
   const MiniGameHudState({

@@ -5,6 +5,8 @@ import 'package:just_one_round/features/games/failed_bakery/domain/failed_bakery
 import 'package:just_one_round/features/games/failed_bakery/failed_bakery_game.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
 import 'package:just_one_round/features/games/gravity_switch/gravity_switch_game.dart';
+import 'package:just_one_round/features/games/number_rush/domain/number_rush_rules.dart';
+import 'package:just_one_round/features/games/number_rush/number_rush_game.dart';
 import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/games/star_dodge/star_dodge_game.dart';
 
@@ -84,6 +86,26 @@ abstract final class GameRegistry {
       defaultDuration: const Duration(seconds: 120),
       hudStyle: MiniGameHudStyle.appleGame,
       resultUnitLabel: '제거한 사과',
+    ),
+    'number_rush': MiniGameDefinition(
+      id: 'number_rush',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required onFinished,
+          }) => NumberRushGame(
+            countdownDuration: countdownDuration,
+            maxDuration: gameDuration,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '1부터 25까지 순서대로 터치하세요',
+      playingInstruction: '틀려도 멈추지 않아요 · 최대한 빠르게!',
+      scoreLabel: 'CLEAR TIME',
+      formatScore: NumberRushRules.formatRankingScore,
+      defaultDuration: const Duration(minutes: 2),
+      hudStyle: MiniGameHudStyle.numberRush,
+      resultUnitLabel: '기록 시간 · 최대 2분',
     ),
   };
 

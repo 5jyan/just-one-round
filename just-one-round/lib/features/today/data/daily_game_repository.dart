@@ -245,6 +245,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     DeveloperGame(id: 'gravity_switch', version: 1, displayName: '그래비티 스위치'),
     DeveloperGame(id: 'failed_bakery', version: 1, displayName: '대충 케이크'),
     DeveloperGame(id: 'apple_game', version: 1, displayName: '사과게임'),
+    DeveloperGame(id: 'number_rush', version: 1, displayName: '넘버 러시'),
   ];
 
   @override
@@ -375,6 +376,13 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       version: 1,
       displayName: '사과게임',
       description: '드래그한 사과 숫자의 합을 10으로 만들어 최대한 많이 지우세요.',
+      durationSeconds: 120,
+    ),
+    'number_rush' => const TodayGame(
+      id: 'number_rush',
+      version: 1,
+      displayName: '넘버 러시',
+      description: '흩어진 숫자를 1부터 25까지 순서대로 최대한 빠르게 터치하세요.',
       durationSeconds: 120,
     ),
     _ => const TodayGame(

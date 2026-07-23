@@ -662,6 +662,7 @@ class _GamePreview extends StatelessWidget {
           'gravity_switch' => const _GravityGamePreview(),
           'failed_bakery' => const _FailedBakeryPreview(),
           'apple_game' => const _AppleGamePreview(),
+          'number_rush' => const _NumberRushPreview(),
           _ => Stack(
             children: [
               const Positioned(left: 30, top: 24, child: _PixelStar(size: 18)),
@@ -676,6 +677,156 @@ class _GamePreview extends StatelessWidget {
             ],
           ),
         },
+      ),
+    );
+  }
+}
+
+class _NumberRushPreview extends StatelessWidget {
+  const _NumberRushPreview();
+
+  static const _numbers = [
+    12,
+    3,
+    19,
+    7,
+    24,
+    15,
+    1,
+    21,
+    9,
+    5,
+    18,
+    11,
+    25,
+    2,
+    14,
+    6,
+    23,
+    10,
+    17,
+    4,
+    20,
+    8,
+    16,
+    22,
+    13,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/number_rush/arcade_background.png'),
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.none,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 46, vertical: 14),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: const Color(0xE8071025),
+            border: Border.all(color: const Color(0xFF7B2FB0), width: 3),
+            boxShadow: const [
+              BoxShadow(color: Color(0xAAFF3EBC), blurRadius: 8),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(9),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          mainAxisSpacing: 3,
+                          crossAxisSpacing: 3,
+                        ),
+                    itemCount: _numbers.length,
+                    itemBuilder: (context, index) {
+                      final number = _numbers[index];
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0A1938),
+                          border: Border.all(
+                            color: number == 25
+                                ? const Color(0xFFFFD84A)
+                                : number == 1
+                                ? const Color(0xFFFF4FC3)
+                                : const Color(0xFF633094),
+                            width: number == 1 || number == 25 ? 2 : 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$number',
+                            style: TextStyle(
+                              fontFamily: 'Galmuri',
+                              color: number == 25
+                                  ? const Color(0xFFFFD84A)
+                                  : const Color(0xFF5DF5FF),
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  flex: 2,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'NUMBER\nRUSH',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Galmuri',
+                          color: Color(0xFF39F3FF),
+                          fontSize: 15,
+                          height: 1.05,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF071025),
+                          border: Border.fromBorderSide(
+                            BorderSide(color: Color(0xFFFF3EBC), width: 2),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                          child: Text(
+                            '12.45',
+                            style: TextStyle(
+                              fontFamily: 'Galmuri',
+                              color: Color(0xFFFF77CE),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1054,6 +1205,7 @@ class _GameMeta extends StatelessWidget {
       'gravity_switch' => '제한 없음',
       'failed_bakery' => '실수할 때까지',
       'apple_game' => '2분',
+      'number_rush' => '최대 2분',
       _ => '${game?.durationSeconds ?? 60}초',
     };
     return Row(

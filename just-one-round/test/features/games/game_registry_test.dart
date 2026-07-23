@@ -39,4 +39,15 @@ void main() {
     expect(definition.countdownInstruction, contains('합을 10'));
     expect(definition.defaultDuration, const Duration(seconds: 120));
   });
+
+  test('넘버 러시는 완주 시간을 소수점 둘째 자리로 표시한다', () {
+    final definition = GameRegistry.forId('number_rush');
+
+    expect(definition.id, 'number_rush');
+    expect(definition.scoreLabel, 'CLEAR TIME');
+    expect(definition.formatScore(3590123), '9.88초');
+    expect(definition.hudStyle, MiniGameHudStyle.numberRush);
+    expect(definition.countdownInstruction, contains('1부터 25'));
+    expect(definition.defaultDuration, const Duration(minutes: 2));
+  });
 }
