@@ -18,12 +18,12 @@ import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({
     this.attempt,
-    this.gameDuration = const Duration(seconds: 60),
+    this.gameDuration,
     this.countdownDuration = const Duration(seconds: 3),
     super.key,
   });
 
-  final Duration gameDuration;
+  final Duration? gameDuration;
   final Duration countdownDuration;
   final PlayAttempt? attempt;
 
@@ -52,7 +52,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     WidgetsBinding.instance.addObserver(this);
     _definition = GameRegistry.forId(widget.attempt?.gameId);
     _game = _definition.create(
-      gameDuration: widget.gameDuration,
+      gameDuration: widget.gameDuration ?? _definition.defaultDuration,
       countdownDuration: widget.countdownDuration,
       onFinished: (result) {
         if (!mounted) {
@@ -206,6 +206,12 @@ class _GameHud extends StatelessWidget {
         if (definition.hudStyle == MiniGameHudStyle.gravitySwitch) {
           return _GravitySwitchHud(state: state, definition: definition);
         }
+        if (definition.hudStyle == MiniGameHudStyle.failedBakery) {
+          return _FailedBakeryHud(state: state, definition: definition);
+        }
+        if (definition.hudStyle == MiniGameHudStyle.appleGame) {
+          return _AppleGameHud(state: state, definition: definition);
+        }
         return IgnorePointer(
           child: Stack(
             fit: StackFit.expand,
@@ -286,6 +292,190 @@ class _GameHud extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _AppleGameHud extends StatelessWidget {
+  const _AppleGameHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 64,
+            right: 16,
+            top: 12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _HudValue(
+                  label: definition.scoreLabel,
+                  value: definition.formatScore(state.score),
+                ),
+                _HudValue(
+                  label: 'TIME',
+                  value: '${state.remainingSeconds ?? state.elapsedSeconds}'
+                      .padLeft(2, '0'),
+                  alignEnd: true,
+                  isDanger:
+                      state.remainingSeconds != null &&
+                      state.remainingSeconds! <= 10,
+                ),
+              ],
+            ),
+          ),
+          if (state.phase == MiniGamePhase.countdown)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.countdownNumber > 0
+                        ? '${state.countdownNumber}'
+                        : 'GO!',
+                    style: const TextStyle(
+                      fontFamily: 'Galmuri',
+                      color: Color(0xFFFFD24A),
+                      fontSize: 68,
+                      fontWeight: FontWeight.w700,
+                      shadows: [
+                        Shadow(color: Color(0xFF591F2C), offset: Offset(5, 5)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    definition.countdownInstruction,
+                    style: const TextStyle(
+                      color: Color(0xFFFFF3C4),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (state.phase == MiniGamePhase.playing && state.elapsedSeconds < 6)
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 16,
+              child: Text(
+                definition.playingInstruction,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xDDFFF3C4),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FailedBakeryHud extends StatelessWidget {
+  const _FailedBakeryHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 16,
+            child: Column(
+              children: [
+                Text(
+                  definition.formatScore(state.score),
+                  key: const Key('failed-bakery-score'),
+                  style: const TextStyle(
+                    fontFamily: 'Galmuri',
+                    color: Color(0xFFFFF0C7),
+                    fontSize: 42,
+                    fontWeight: FontWeight.w700,
+                    shadows: [
+                      Shadow(color: Color(0xB0120B1C), offset: Offset(3, 3)),
+                    ],
+                  ),
+                ),
+                if (state.combo >= 2)
+                  Text(
+                    'PERFECT ×${state.combo}',
+                    key: const Key('failed-bakery-combo'),
+                    style: const TextStyle(
+                      fontFamily: 'Galmuri',
+                      color: Color(0xFFFF91A8),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (state.phase == MiniGamePhase.countdown)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.countdownNumber > 0
+                        ? '${state.countdownNumber}'
+                        : 'GO!',
+                    style: const TextStyle(
+                      fontFamily: 'Galmuri',
+                      color: Color(0xFFFFD36A),
+                      fontSize: 68,
+                      fontWeight: FontWeight.w700,
+                      shadows: [
+                        Shadow(color: Color(0xFF7D3B3E), offset: Offset(5, 5)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    definition.countdownInstruction,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (state.phase == MiniGamePhase.playing && state.elapsedSeconds < 6)
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 22,
+              child: Text(
+                definition.playingInstruction,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xDDFFF4D6),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -483,7 +673,10 @@ class _ResultOverlay extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _ResultStat(label: '기록 단위', value: '0.01초'),
+                  _ResultStat(
+                    label: '기록 단위',
+                    value: definition.resultUnitLabel,
+                  ),
                   const SizedBox(height: 24),
                   if (isSubmitting)
                     const Text('오늘 순위를 계산하고 있어요...')
@@ -516,7 +709,10 @@ class _ResultOverlay extends StatelessWidget {
                             ),
                           )
                         else
-                          NearbyRanking(result: rank),
+                          NearbyRanking(
+                            result: rank,
+                            formatScore: definition.formatScore,
+                          ),
                       ],
                     )
                   else if (submitError != null)
@@ -623,11 +819,7 @@ bool shouldInterruptGame(AppLifecycleState state) {
 }
 
 void _returnHome(BuildContext context) {
-  if (context.canPop()) {
-    context.pop();
-  } else {
-    context.go('/');
-  }
+  context.go('/');
 }
 
 class _ResultStat extends StatelessWidget {

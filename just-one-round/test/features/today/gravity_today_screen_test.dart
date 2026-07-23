@@ -28,7 +28,7 @@ void main() {
               'gravity_switch_v2',
             ),
       ),
-      findsOneWidget,
+      findsAtLeastNWidgets(2),
     );
   });
 }

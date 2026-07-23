@@ -26,4 +26,11 @@ void main() {
     expect(GravitySwitchRules.hazardHeight(1000), 205);
     expect(GravitySwitchRules.alternatingPatternChance(1000), 0.92);
   });
+
+  test('활성 표면 방향으로 중력이 계속 가속된다', () {
+    expect(GravitySwitchRules.columnWidth, 48);
+    expect(GravitySwitchRules.gravityAcceleration, greaterThan(0));
+    expect(GravitySwitchRules.maxVerticalSpeed, greaterThan(0));
+    expect(GravitySwitchRules.surfaceSnapTolerance, lessThan(16));
+  });
 }

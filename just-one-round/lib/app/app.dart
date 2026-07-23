@@ -6,13 +6,15 @@ import 'package:just_one_round/features/history/presentation/play_history_screen
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
 
-final _router = GoRouter(
+GoRouter createAppRouter({String initialLocation = '/'}) => GoRouter(
+  initialLocation: initialLocation,
   routes: [
     GoRoute(path: '/', builder: (context, state) => const TodayScreen()),
     GoRoute(
       path: '/play',
+      redirect: (context, state) => state.extra is PlayAttempt ? null : '/',
       builder: (context, state) =>
-          GameScreen(attempt: state.extra as PlayAttempt?),
+          GameScreen(attempt: state.extra! as PlayAttempt),
     ),
     GoRoute(
       path: '/history',
@@ -21,8 +23,21 @@ final _router = GoRouter(
   ],
 );
 
-class JustOneRoundApp extends StatelessWidget {
+class JustOneRoundApp extends StatefulWidget {
   const JustOneRoundApp({super.key});
+
+  @override
+  State<JustOneRoundApp> createState() => _JustOneRoundAppState();
+}
+
+class _JustOneRoundAppState extends State<JustOneRoundApp> {
+  late final GoRouter _router = createAppRouter();
+
+  @override
+  void dispose() {
+    _router.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

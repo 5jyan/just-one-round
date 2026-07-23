@@ -23,11 +23,47 @@ insert into public.games (
   description,
   duration_seconds
 ) values (
+  'failed_bakery',
+  1,
+  '대충 케이크',
+  '움직이는 못난이 케이크를 탭해 쌓으세요. 어긋난 부분은 잘리고 3연속 퍼펙트면 크기가 회복됩니다.',
+  180
+) on conflict (id) do update set
+  version = excluded.version,
+  display_name = excluded.display_name,
+  description = excluded.description,
+  duration_seconds = excluded.duration_seconds;
+
+insert into public.games (
+  id,
+  version,
+  display_name,
+  description,
+  duration_seconds
+) values (
   'gravity_switch',
   1,
   '그래비티 스위치',
   '탭으로 중력을 뒤집어 위아래로 이어지는 입체 기둥 미로를 돌파하세요.',
   180
+) on conflict (id) do update set
+  version = excluded.version,
+  display_name = excluded.display_name,
+  description = excluded.description,
+  duration_seconds = excluded.duration_seconds;
+
+insert into public.games (
+  id,
+  version,
+  display_name,
+  description,
+  duration_seconds
+) values (
+  'apple_game',
+  1,
+  '사과게임',
+  '드래그한 사과 숫자의 합을 10으로 만들어 제한 시간 안에 최대한 많이 지우세요.',
+  120
 ) on conflict (id) do update set
   version = excluded.version,
   display_name = excluded.display_name,

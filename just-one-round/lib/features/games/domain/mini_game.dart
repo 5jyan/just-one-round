@@ -4,7 +4,7 @@ import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 
 enum MiniGamePhase { countdown, playing, finished }
 
-enum MiniGameHudStyle { standard, gravitySwitch }
+enum MiniGameHudStyle { standard, gravitySwitch, failedBakery, appleGame }
 
 class MiniGameHudState {
   const MiniGameHudState({
@@ -14,6 +14,8 @@ class MiniGameHudState {
     required this.remainingSeconds,
     required this.countdownNumber,
     this.distance = 0,
+    this.combo = 0,
+    this.perfects = 0,
   });
 
   final MiniGamePhase phase;
@@ -22,6 +24,8 @@ class MiniGameHudState {
   final int? remainingSeconds;
   final int countdownNumber;
   final int distance;
+  final int combo;
+  final int perfects;
 }
 
 abstract interface class MiniGameController {
@@ -47,7 +51,9 @@ class MiniGameDefinition {
     required this.playingInstruction,
     required this.scoreLabel,
     required this.formatScore,
+    this.defaultDuration = const Duration(seconds: 60),
     this.hudStyle = MiniGameHudStyle.standard,
+    this.resultUnitLabel = '0.01초',
   });
 
   final String id;
@@ -56,5 +62,7 @@ class MiniGameDefinition {
   final String playingInstruction;
   final String scoreLabel;
   final String Function(int score) formatScore;
+  final Duration defaultDuration;
   final MiniGameHudStyle hudStyle;
+  final String resultUnitLabel;
 }

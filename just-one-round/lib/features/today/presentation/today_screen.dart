@@ -1,10 +1,14 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/profile/presentation/profile_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
-import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
@@ -20,9 +24,107 @@ class TodayScreen extends ConsumerStatefulWidget {
 class _TodayScreenState extends ConsumerState<TodayScreen> {
   var _isClaiming = false;
   var _isSavingProfile = false;
+  var _isRunningDeveloperAction = false;
   var _isLoadingRank = false;
   _RankFilter _rankFilter = _RankFilter.all;
   DailyRankResult? _filteredResult;
+
+  Future<void> _openSettings(TodayState state) async {
+    final action = await showDialog<_SettingsAction>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('설정'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(context).pop(_SettingsAction.profile),
+            child: const ListTile(
+              leading: Icon(Icons.person_outline, color: AppColors.text),
+              title: Text('프로필 설정'),
+            ),
+          ),
+          if (state.testMode)
+            SimpleDialogOption(
+              onPressed: () =>
+                  Navigator.of(context).pop(_SettingsAction.developer),
+              child: const ListTile(
+                key: Key('developer-mode-menu'),
+                leading: Icon(Icons.developer_mode, color: AppColors.reward),
+                title: Text('개발자 모드'),
+                subtitle: Text('게임 변경 및 횟수 초기화'),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    switch (action) {
+      case _SettingsAction.profile:
+        await _editProfile(state.profile);
+      case _SettingsAction.developer:
+        await _openDeveloperTools(state);
+      case null:
+        return;
+    }
+  }
+
+  Future<void> _openDeveloperTools(TodayState state) async {
+    setState(() => _isRunningDeveloperAction = true);
+    try {
+      final repository = ref.read(dailyGameRepositoryProvider);
+      final games = await repository.fetchDeveloperGames();
+      if (!mounted) return;
+      final action = await showDialog<_DeveloperAction>(
+        context: context,
+        builder: (context) =>
+            _DeveloperToolsDialog(games: games, currentGameId: state.game?.id),
+      );
+      if (action == null || !mounted) return;
+      if (action.resetProgress) {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            title: const Text('오늘 기록을 초기화할까요?'),
+            content: const Text('테스트 계정의 오늘 시도와 점수만 삭제됩니다.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('취소'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('초기화'),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) return;
+        await repository.resetDeveloperDailyProgress();
+      } else {
+        await repository.setDeveloperGame(action.gameId!);
+      }
+      _rankFilter = _RankFilter.all;
+      _filteredResult = null;
+      ref.invalidate(todayStateProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              action.resetProgress ? '오늘 기록을 초기화했어요.' : '테스트 게임을 변경했어요.',
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('개발자 기능을 실행하지 못했어요: $error')));
+    } finally {
+      if (mounted) setState(() => _isRunningDeveloperAction = false);
+    }
+  }
 
   Future<void> _start({required bool rewarded}) async {
     if (_isClaiming) return;
@@ -33,7 +135,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           ? await repository.claimRewardedAttempt()
           : await repository.claimDailyAttempt();
       if (!mounted) return;
+      setState(() => _isClaiming = false);
       await context.push('/play', extra: attempt);
+      if (!mounted) return;
       ref.invalidate(todayStateProvider);
     } catch (error) {
       if (!mounted) return;
@@ -41,7 +145,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text('시작하지 못했어요: $error')));
     } finally {
-      if (mounted) setState(() => _isClaiming = false);
+      if (mounted && _isClaiming) setState(() => _isClaiming = false);
     }
   }
 
@@ -187,9 +291,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _Header(
-                          isSaving: _isSavingProfile,
+                          isSaving:
+                              _isSavingProfile || _isRunningDeveloperAction,
                           onHistory: () => context.push('/history'),
-                          onSettings: () => _editProfile(state.profile),
+                          onSettings: () => _openSettings(state),
                         ),
                         const SizedBox(height: 32),
                         PixelPanel(
@@ -248,6 +353,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                           _RankSection(
                             result: _filteredResult ?? state.result!,
                             score: score,
+                            gameId: state.game?.id,
                             profile: state.profile,
                             selectedFilter: _rankFilter,
                             isLoading: _isLoadingRank,
@@ -276,12 +382,99 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 }
 
+enum _SettingsAction { profile, developer }
+
+class _DeveloperAction {
+  const _DeveloperAction.changeGame(this.gameId) : resetProgress = false;
+  const _DeveloperAction.reset() : gameId = null, resetProgress = true;
+
+  final String? gameId;
+  final bool resetProgress;
+}
+
+class _DeveloperToolsDialog extends StatefulWidget {
+  const _DeveloperToolsDialog({
+    required this.games,
+    required this.currentGameId,
+  });
+
+  final List<DeveloperGame> games;
+  final String? currentGameId;
+
+  @override
+  State<_DeveloperToolsDialog> createState() => _DeveloperToolsDialogState();
+}
+
+class _DeveloperToolsDialogState extends State<_DeveloperToolsDialog> {
+  late String? _selectedGameId =
+      widget.games.any((game) => game.id == widget.currentGameId)
+      ? widget.currentGameId
+      : widget.games.firstOrNull?.id;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.surface,
+      title: const Text('개발자 모드'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DropdownButtonFormField<String>(
+            key: const Key('developer-game-dropdown'),
+            initialValue: _selectedGameId,
+            decoration: const InputDecoration(
+              labelText: '테스트할 게임',
+              border: OutlineInputBorder(),
+            ),
+            items: [
+              for (final game in widget.games)
+                DropdownMenuItem(
+                  value: game.id,
+                  child: Text('${game.displayName} v${game.version}'),
+                ),
+            ],
+            onChanged: (value) => setState(() => _selectedGameId = value),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            '게임 변경은 현재 테스트 계정에만 적용됩니다.',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          key: const Key('reset-daily-progress'),
+          onPressed: () =>
+              Navigator.of(context).pop(const _DeveloperAction.reset()),
+          child: const Text('게임 횟수 초기화'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('닫기'),
+        ),
+        FilledButton(
+          key: const Key('apply-developer-game'),
+          onPressed: _selectedGameId == null
+              ? null
+              : () => Navigator.of(
+                  context,
+                ).pop(_DeveloperAction.changeGame(_selectedGameId)),
+          child: const Text('게임 적용'),
+        ),
+      ],
+    );
+  }
+}
+
 enum _RankFilter { all, age, gender }
 
 class _RankSection extends StatelessWidget {
   const _RankSection({
     required this.result,
     required this.score,
+    required this.gameId,
     required this.profile,
     required this.selectedFilter,
     required this.isLoading,
@@ -290,6 +483,7 @@ class _RankSection extends StatelessWidget {
 
   final DailyRankResult result;
   final int score;
+  final String? gameId;
   final UserProfile profile;
   final _RankFilter selectedFilter;
   final bool isLoading;
@@ -333,8 +527,8 @@ class _RankSection extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _RankValue(
-                  label: '최고 생존',
-                  value: StarDodgeRules.formatSurvival(score),
+                  label: gameId == 'failed_bakery' ? '최고 층수' : '최고 생존',
+                  value: GameRegistry.formatScore(gameId, score),
                 ),
                 _RankValue(
                   label: '오늘 순위',
@@ -345,7 +539,10 @@ class _RankSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          NearbyRanking(result: result),
+          NearbyRanking(
+            result: result,
+            formatScore: (value) => GameRegistry.formatScore(gameId, value),
+          ),
         ],
       ],
     );
@@ -413,14 +610,14 @@ class _Header extends StatelessWidget {
               icon: const Icon(Icons.history, color: AppColors.text),
             ),
             IconButton(
-              tooltip: '프로필 설정',
+              tooltip: '설정',
               onPressed: isSaving ? null : onSettings,
               icon: isSaving
                   ? const SizedBox.square(
                       dimension: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.person_outline, color: AppColors.text),
+                  : const Icon(Icons.settings_outlined, color: AppColors.text),
             ),
           ],
         ),
@@ -461,32 +658,242 @@ class _GamePreview extends StatelessWidget {
           color: AppColors.backgroundDeep,
           border: Border.all(color: AppColors.surfaceLight, width: 2),
         ),
-        child: gameId == 'gravity_switch'
-            ? const _GravityGamePreview()
-            : Stack(
-                children: [
-                  const Positioned(
-                    left: 30,
-                    top: 24,
-                    child: _PixelStar(size: 18),
-                  ),
-                  const Positioned(
-                    right: 38,
-                    top: 44,
-                    child: _PixelStar(size: 12),
-                  ),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/dinosaur_side_left_1_uniform.png',
-                      width: 72,
-                      filterQuality: FilterQuality.none,
-                    ),
-                  ),
-                ],
+        child: switch (gameId) {
+          'gravity_switch' => const _GravityGamePreview(),
+          'failed_bakery' => const _FailedBakeryPreview(),
+          'apple_game' => const _AppleGamePreview(),
+          _ => Stack(
+            children: [
+              const Positioned(left: 30, top: 24, child: _PixelStar(size: 18)),
+              const Positioned(right: 38, top: 44, child: _PixelStar(size: 12)),
+              Center(
+                child: Image.asset(
+                  'assets/images/dinosaur_side_left_1_uniform.png',
+                  width: 72,
+                  filterQuality: FilterQuality.none,
+                ),
               ),
+            ],
+          ),
+        },
       ),
     );
   }
+}
+
+class _AppleGamePreview extends StatelessWidget {
+  const _AppleGamePreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+            'assets/images/apple_game/apple_game_background.png',
+          ),
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.none,
+        ),
+      ),
+      child: Center(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: const Color(0xDD24181B),
+            border: Border.all(color: const Color(0xFFE6B94E), width: 3),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Image.asset(
+              'assets/images/apple_game/apple_faces_atlas.png',
+              width: 116,
+              height: 116,
+              filterQuality: FilterQuality.none,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FailedBakeryPreview extends StatefulWidget {
+  const _FailedBakeryPreview();
+
+  @override
+  State<_FailedBakeryPreview> createState() => _FailedBakeryPreviewState();
+}
+
+class _FailedBakeryPreviewState extends State<_FailedBakeryPreview> {
+  late final Future<List<ui.Image>> _cakeImages;
+
+  @override
+  void initState() {
+    super.initState();
+    _cakeImages = Future.wait([
+      _loadPreviewImage('assets/images/failed_bakery_25d/cake_top_atlas.png'),
+      _loadPreviewImage(
+        'assets/images/failed_bakery_25d/cake_side_face_atlas.png',
+      ),
+      _loadPreviewImage(
+        'assets/images/failed_bakery_25d/cake_side_plain_atlas.png',
+      ),
+    ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+            'assets/images/failed_bakery_25d/bakery_background_3q.png',
+          ),
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.none,
+        ),
+      ),
+      child: FutureBuilder<List<ui.Image>>(
+        future: _cakeImages,
+        builder: (context, snapshot) => CustomPaint(
+          painter: snapshot.hasData
+              ? _FailedBakeryPreviewPainter(
+                  topAtlas: snapshot.data![0],
+                  faceSideAtlas: snapshot.data![1],
+                  plainSideAtlas: snapshot.data![2],
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+}
+
+Future<ui.Image> _loadPreviewImage(String path) async {
+  final data = await rootBundle.load(path);
+  final codec = await ui.instantiateImageCodec(
+    data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+  );
+  final frame = await codec.getNextFrame();
+  codec.dispose();
+  return frame.image;
+}
+
+class _FailedBakeryPreviewPainter extends CustomPainter {
+  const _FailedBakeryPreviewPainter({
+    required this.topAtlas,
+    required this.faceSideAtlas,
+    required this.plainSideAtlas,
+  });
+
+  final ui.Image topAtlas;
+  final ui.Image faceSideAtlas;
+  final ui.Image plainSideAtlas;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height * 0.73);
+    const skins = [0, 4, 1, 3, 2];
+    for (var layer = 0; layer < skins.length; layer++) {
+      final width = 82.0 - layer * 3;
+      final halfWidth = width / 2;
+      final halfHeight = width / 4;
+      final y = center.dy - layer * 8;
+      final back = Offset(center.dx, y - halfHeight);
+      final right = Offset(center.dx + halfWidth, y);
+      final front = Offset(center.dx, y + halfHeight);
+      final left = Offset(center.dx - halfWidth, y);
+      _drawPreviewCakeFace(
+        canvas,
+        origin: left,
+        horizontal: front - left,
+        skin: skins[layer],
+        image: faceSideAtlas,
+      );
+      _drawPreviewCakeFace(
+        canvas,
+        origin: front,
+        horizontal: right - front,
+        skin: skins[layer],
+        image: plainSideAtlas,
+      );
+      final topRow = skins[layer] ~/ 3;
+      final topColumn = skins[layer] % 3;
+      _drawPreviewImage(
+        canvas,
+        image: topAtlas,
+        source: Rect.fromLTWH(topColumn * 40.0, topRow * 40.0, 40, 40),
+        origin: back,
+        horizontal: right - back,
+        vertical: left - back,
+      );
+    }
+  }
+
+  void _drawPreviewCakeFace(
+    Canvas canvas, {
+    required Offset origin,
+    required Offset horizontal,
+    required int skin,
+    required ui.Image image,
+  }) {
+    final row = skin ~/ 2;
+    final column = skin % 2;
+    _drawPreviewImage(
+      canvas,
+      image: image,
+      source: Rect.fromLTWH(column * 40.0, row * 8.0, 40, 8),
+      origin: origin,
+      horizontal: horizontal,
+      vertical: const Offset(0, 8),
+    );
+  }
+
+  void _drawPreviewImage(
+    Canvas canvas, {
+    required ui.Image image,
+    required Rect source,
+    required Offset origin,
+    required Offset horizontal,
+    required Offset vertical,
+  }) {
+    final matrix = Float64List.fromList([
+      horizontal.dx / source.width,
+      horizontal.dy / source.width,
+      0,
+      0,
+      vertical.dx / source.height,
+      vertical.dy / source.height,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      origin.dx,
+      origin.dy,
+      0,
+      1,
+    ]);
+    canvas
+      ..save()
+      ..transform(matrix)
+      ..drawImageRect(
+        image,
+        source,
+        Rect.fromLTWH(0, 0, source.width, source.height),
+        Paint()
+          ..filterQuality = FilterQuality.none
+          ..isAntiAlias = false,
+      )
+      ..restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _FailedBakeryPreviewPainter oldDelegate) =>
+      oldDelegate.topAtlas != topAtlas ||
+      oldDelegate.faceSideAtlas != faceSideAtlas ||
+      oldDelegate.plainSideAtlas != plainSideAtlas;
 }
 
 class _GravityGamePreview extends StatelessWidget {
@@ -505,26 +912,72 @@ class _GravityGamePreview extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          const Positioned.fill(
-            child: CustomPaint(painter: _PrismBarsPainter()),
+          const Positioned(
+            left: 0,
+            top: 0,
+            width: 56,
+            height: 40,
+            child: _GravityPreviewPlatform(ceiling: true),
+          ),
+          const Positioned(
+            left: 56,
+            top: 0,
+            width: 56,
+            height: 72,
+            child: _GravityPreviewPlatform(ceiling: true),
+          ),
+          const Positioned(
+            left: 112,
+            top: 0,
+            width: 56,
+            height: 104,
+            child: _GravityPreviewPlatform(ceiling: true),
+          ),
+          const Positioned(
+            right: 168,
+            bottom: 0,
+            width: 56,
+            height: 48,
+            child: _GravityPreviewPlatform(),
+          ),
+          const Positioned(
+            right: 112,
+            bottom: 0,
+            width: 56,
+            height: 76,
+            child: _GravityPreviewPlatform(),
+          ),
+          const Positioned(
+            right: 56,
+            bottom: 0,
+            width: 56,
+            height: 104,
+            child: _GravityPreviewPlatform(),
+          ),
+          const Positioned(
+            right: 0,
+            bottom: 0,
+            width: 56,
+            height: 132,
+            child: _GravityPreviewPlatform(),
           ),
           Positioned(
             left: 70,
-            bottom: 42,
+            bottom: 48,
             child: SizedBox.square(
-              dimension: 54,
+              dimension: 42,
               child: ClipRect(
                 child: OverflowBox(
                   alignment: Alignment.topLeft,
-                  minWidth: 108,
-                  maxWidth: 108,
-                  minHeight: 108,
-                  maxHeight: 108,
+                  minWidth: 84,
+                  maxWidth: 84,
+                  minHeight: 84,
+                  maxHeight: 84,
                   child: Image.asset(
                     'assets/images/gravity_switch_v2/player_sheet.png',
-                    width: 108,
-                    height: 108,
-                    filterQuality: FilterQuality.high,
+                    width: 84,
+                    height: 84,
+                    filterQuality: FilterQuality.none,
                   ),
                 ),
               ),
@@ -536,33 +989,43 @@ class _GravityGamePreview extends StatelessWidget {
   }
 }
 
-class _PrismBarsPainter extends CustomPainter {
-  const _PrismBarsPainter();
+class _GravityPreviewPlatform extends StatelessWidget {
+  const _GravityPreviewPlatform({this.ceiling = false});
 
-  static const colors = [
-    Color(0xFF0FC9CE),
-    Color(0xFFFF6B4A),
-    Color(0xFF8B5CF6),
-  ];
+  final bool ceiling;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    const width = 34.0;
-    for (var index = 0; index * width < size.width; index++) {
-      final x = index * width;
-      final paint = Paint()..color = colors[index % colors.length];
-      final topHeight = 34.0 + (index % 3) * 7;
-      final bottomHeight = 38.0 + ((index + 1) % 3) * 8;
-      canvas.drawRect(Rect.fromLTWH(x, 0, width - 2, topHeight), paint);
-      canvas.drawRect(
-        Rect.fromLTWH(x, size.height - bottomHeight, width - 2, bottomHeight),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget build(BuildContext context) => Stack(
+    fit: StackFit.expand,
+    children: [
+      const DecoratedBox(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+              'assets/images/gravity_switch_v2/platform_fill.png',
+            ),
+            repeat: ImageRepeat.repeat,
+            filterQuality: FilterQuality.none,
+          ),
+        ),
+      ),
+      Positioned(
+        left: 0,
+        right: 0,
+        top: ceiling ? null : 0,
+        bottom: ceiling ? 0 : null,
+        height: 12,
+        child: Transform.flip(
+          flipY: ceiling,
+          child: Image.asset(
+            'assets/images/gravity_switch_v2/platform_surface.png',
+            fit: BoxFit.fill,
+            filterQuality: FilterQuality.none,
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 class _PixelStar extends StatelessWidget {
@@ -587,9 +1050,12 @@ class _GameMeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final durationLabel = game?.id == 'gravity_switch'
-        ? '제한 없음'
-        : '${game?.durationSeconds ?? 60}초';
+    final durationLabel = switch (game?.id) {
+      'gravity_switch' => '제한 없음',
+      'failed_bakery' => '실수할 때까지',
+      'apple_game' => '2분',
+      _ => '${game?.durationSeconds ?? 60}초',
+    };
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

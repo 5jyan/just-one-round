@@ -1,11 +1,14 @@
 import 'dart:math';
 
 abstract final class GravitySwitchRules {
-  static const switchDuration = 0.23;
-  static const columnWidth = 40.0;
+  // One course column is exactly one displayed player width.
+  static const columnWidth = 48.0;
+  static const gravityAcceleration = 5200.0;
+  static const maxVerticalSpeed = 1400.0;
+  static const surfaceSnapTolerance = 10.0;
 
   static double scrollSpeed(double elapsedSeconds) =>
-      min(360, 112 + (2.2 * elapsedSeconds));
+      min(360, 108 + (1.9 * elapsedSeconds));
 
   static int safeColumnCount(double elapsedSeconds) =>
       max(1, 4 - (elapsedSeconds / 20).floor());

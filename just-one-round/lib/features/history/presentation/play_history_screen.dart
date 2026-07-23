@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
-import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 
@@ -116,7 +116,7 @@ class _HistoryCard extends StatelessWidget {
             ),
           ),
           Text(
-            StarDodgeRules.formatSurvival(entry.score),
+            GameRegistry.formatScore(entry.gameId, entry.score),
             style: const TextStyle(
               fontFamily: 'Galmuri',
               color: AppColors.reward,

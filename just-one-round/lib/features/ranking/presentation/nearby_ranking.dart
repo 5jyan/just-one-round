@@ -5,9 +5,14 @@ import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 
 class NearbyRanking extends StatelessWidget {
-  const NearbyRanking({required this.result, super.key});
+  const NearbyRanking({
+    required this.result,
+    this.formatScore = StarDodgeRules.formatSurvival,
+    super.key,
+  });
 
   final DailyRankResult result;
+  final String Function(int score) formatScore;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +88,7 @@ class NearbyRanking extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    StarDodgeRules.formatSurvival(item.score),
+                    formatScore(item.score),
                     style: const TextStyle(
                       fontFamily: 'Galmuri',
                       color: AppColors.reward,

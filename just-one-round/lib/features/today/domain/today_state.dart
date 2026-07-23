@@ -22,6 +22,24 @@ class TodayGame {
   final int durationSeconds;
 }
 
+class DeveloperGame {
+  const DeveloperGame({
+    required this.id,
+    required this.version,
+    required this.displayName,
+  });
+
+  factory DeveloperGame.fromJson(Map<String, dynamic> json) => DeveloperGame(
+    id: json['id'] as String,
+    version: (json['version'] as num).toInt(),
+    displayName: json['display_name'] as String,
+  );
+
+  final String id;
+  final int version;
+  final String displayName;
+}
+
 class PlayAttempt {
   const PlayAttempt({
     required this.id,

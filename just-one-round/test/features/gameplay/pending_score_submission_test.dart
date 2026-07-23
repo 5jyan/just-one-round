@@ -17,6 +17,7 @@ void main() {
     final restored = PendingScoreSubmission.fromJson(pending.toJson());
 
     expect(restored.attemptId, 'attempt-1');
+    expect(restored.rawScore, 800);
     expect(restored.starsCollected, 3);
     expect(restored.collisions, 2);
     expect(restored.durationMs, 60000);
@@ -27,6 +28,7 @@ void main() {
     final retry = PendingScoreRetryService<String>(store);
     const submission = PendingScoreSubmission(
       attemptId: 'attempt-1',
+      rawScore: 800,
       starsCollected: 3,
       collisions: 2,
       durationMs: 60000,

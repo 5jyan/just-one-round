@@ -23,6 +23,9 @@ abstract interface class DailyGameRepository {
     ProfileGender? gender,
   });
   Future<List<PlayHistoryEntry>> fetchHistory();
+  Future<List<DeveloperGame>> fetchDeveloperGames();
+  Future<void> resetDeveloperDailyProgress();
+  Future<void> setDeveloperGame(String gameId);
 }
 
 final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
@@ -132,6 +135,7 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
       'submit_daily_score',
       params: {
         'attempt_id': pending.attemptId,
+        'raw_score': pending.rawScore,
         'stars_collected': pending.starsCollected,
         'collisions': pending.collisions,
         'duration_ms': pending.durationMs,
@@ -196,32 +200,60 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
         .toList(growable: false);
   }
 
+  @override
+  Future<List<DeveloperGame>> fetchDeveloperGames() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('get_developer_games');
+    return (response as List<dynamic>)
+        .map(
+          (item) =>
+              DeveloperGame.fromJson(Map<String, dynamic>.from(item as Map)),
+        )
+        .toList(growable: false);
+  }
+
+  @override
+  Future<void> resetDeveloperDailyProgress() async {
+    await _ensureSignedIn();
+    await _client.rpc('reset_developer_daily_progress');
+    await _pendingStore.clear();
+  }
+
+  @override
+  Future<void> setDeveloperGame(String gameId) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'set_developer_game',
+      params: {'selected_game_id': gameId},
+    );
+    await _pendingStore.clear();
+  }
+
   PlayAttempt _attemptFromRpc(dynamic response) {
     return PlayAttempt.fromJson(Map<String, dynamic>.from(response as Map));
   }
 }
 
 class PreviewDailyGameRepository implements DailyGameRepository {
-  final _attempt = const PlayAttempt(
-    id: 'preview-attempt',
-    ordinal: 1,
-    status: 'issued',
-    grantType: 'daily',
-  );
+  PreviewDailyGameRepository({this.testMode = false});
+
+  final bool testMode;
+  String _selectedGameId = 'star_dodge';
+
+  static const _games = [
+    DeveloperGame(id: 'star_dodge', version: 1, displayName: '별빛 피하기'),
+    DeveloperGame(id: 'gravity_switch', version: 1, displayName: '그래비티 스위치'),
+    DeveloperGame(id: 'failed_bakery', version: 1, displayName: '대충 케이크'),
+    DeveloperGame(id: 'apple_game', version: 1, displayName: '사과게임'),
+  ];
 
   @override
   Future<TodayState> fetchToday() async => TodayState(
     playDate: DateTime.now(),
-    game: const TodayGame(
-      id: 'star_dodge',
-      version: 1,
-      displayName: '별빛 피하기',
-      description: '장애물을 피하고 별을 모아\n오늘의 최고 기록에 도전하세요.',
-      durationSeconds: 60,
-    ),
+    game: _previewGame(_selectedGameId),
     attempts: const [],
     adAttemptAvailable: false,
-    testMode: false,
+    testMode: testMode,
     result: const DailyRankResult(
       score: null,
       rank: null,
@@ -230,8 +262,8 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       nickname: null,
       nearby: [],
     ),
-    profile: const UserProfile(
-      nickname: null,
+    profile: UserProfile(
+      nickname: testMode ? 'tester' : null,
       birthYear: null,
       birthMonth: null,
       gender: null,
@@ -239,10 +271,11 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   );
 
   @override
-  Future<PlayAttempt> claimDailyAttempt() async => _attempt;
+  Future<PlayAttempt> claimDailyAttempt() async => _previewAttempt('daily');
 
   @override
-  Future<PlayAttempt> claimRewardedAttempt() async => _attempt;
+  Future<PlayAttempt> claimRewardedAttempt() async =>
+      _previewAttempt('rewarded');
 
   @override
   Future<void> expireAttempt(String attemptId) async {}
@@ -300,4 +333,56 @@ class PreviewDailyGameRepository implements DailyGameRepository {
 
   @override
   Future<List<PlayHistoryEntry>> fetchHistory() async => const [];
+
+  @override
+  Future<List<DeveloperGame>> fetchDeveloperGames() async => _games;
+
+  @override
+  Future<void> resetDeveloperDailyProgress() async {}
+
+  @override
+  Future<void> setDeveloperGame(String gameId) async {
+    if (_games.any((game) => game.id == gameId)) {
+      _selectedGameId = gameId;
+    }
+  }
+
+  PlayAttempt _previewAttempt(String grantType) => PlayAttempt(
+    id: 'preview-attempt',
+    ordinal: 1,
+    status: 'issued',
+    grantType: grantType,
+    gameId: _selectedGameId,
+  );
+
+  TodayGame _previewGame(String gameId) => switch (gameId) {
+    'gravity_switch' => const TodayGame(
+      id: 'gravity_switch',
+      version: 1,
+      displayName: '그래비티 스위치',
+      description: '탭으로 중력을 뒤집어 위아래로 이어지는 입체 기둥 미로를 돌파하세요.',
+      durationSeconds: 180,
+    ),
+    'failed_bakery' => const TodayGame(
+      id: 'failed_bakery',
+      version: 1,
+      displayName: '대충 케이크',
+      description: '움직이는 못난이 케이크를 탭해 쌓으세요.',
+      durationSeconds: 180,
+    ),
+    'apple_game' => const TodayGame(
+      id: 'apple_game',
+      version: 1,
+      displayName: '사과게임',
+      description: '드래그한 사과 숫자의 합을 10으로 만들어 최대한 많이 지우세요.',
+      durationSeconds: 120,
+    ),
+    _ => const TodayGame(
+      id: 'star_dodge',
+      version: 1,
+      displayName: '별빛 피하기',
+      description: '장애물을 피하고 별을 모아\n오늘의 최고 기록에 도전하세요.',
+      durationSeconds: 60,
+    ),
+  };
 }

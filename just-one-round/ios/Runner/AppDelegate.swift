@@ -3,6 +3,8 @@ import UIKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  private var environmentChannel: FlutterMethodChannel?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -12,5 +14,26 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+
+    guard let registrar = engineBridge.pluginRegistry.registrar(
+      forPlugin: "AppEnvironmentPlugin"
+    ) else {
+      return
+    }
+    environmentChannel = FlutterMethodChannel(
+      name: "just_one_round/app_environment",
+      binaryMessenger: registrar.messenger()
+    )
+    environmentChannel?.setMethodCallHandler { call, result in
+      guard call.method == "isIosSimulator" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+#if targetEnvironment(simulator)
+      result(true)
+#else
+      result(false)
+#endif
+    }
   }
 }

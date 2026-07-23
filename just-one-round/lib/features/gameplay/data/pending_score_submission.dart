@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PendingScoreSubmission {
   const PendingScoreSubmission({
     required this.attemptId,
+    required this.rawScore,
     required this.starsCollected,
     required this.collisions,
     required this.durationMs,
@@ -16,6 +17,7 @@ class PendingScoreSubmission {
     GameResult result,
   ) => PendingScoreSubmission(
     attemptId: attemptId,
+    rawScore: result.score,
     starsCollected: result.starsCollected,
     collisions: result.collisions,
     durationMs: result.duration.inMilliseconds,
@@ -24,18 +26,23 @@ class PendingScoreSubmission {
   factory PendingScoreSubmission.fromJson(Map<String, dynamic> json) =>
       PendingScoreSubmission(
         attemptId: json['attempt_id'] as String,
+        rawScore:
+            (json['raw_score'] as num?)?.toInt() ??
+            (json['duration_ms'] as num).toInt(),
         starsCollected: (json['stars_collected'] as num).toInt(),
         collisions: (json['collisions'] as num).toInt(),
         durationMs: (json['duration_ms'] as num).toInt(),
       );
 
   final String attemptId;
+  final int rawScore;
   final int starsCollected;
   final int collisions;
   final int durationMs;
 
   Map<String, dynamic> toJson() => {
     'attempt_id': attemptId,
+    'raw_score': rawScore,
     'stars_collected': starsCollected,
     'collisions': collisions,
     'duration_ms': durationMs,
