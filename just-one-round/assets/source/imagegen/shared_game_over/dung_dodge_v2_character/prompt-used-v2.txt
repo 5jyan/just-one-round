@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: corrected production single-frame GAME OVER reaction sprite
+Input images: Image 1 is the accepted defeated seated pose and composition to preserve. Image 2 locks the exact baby dinosaur identity, gameplay palette, outline, facial simplicity, and pixel density.
+Primary request: Redraw the same defeated seated baby dinosaur from Image 1, changing only what is necessary to make the KO face readable after reduction to a 64×64 sprite. Give it two large simple cream eyes, each with a bold deep-plum square spiral that remains unmistakable at tiny size, plus the same tiny tongue. Reduce the oversized blank forehead and excess body texture slightly so the face carries the expression. Preserve the awkward splayed legs, limp arms, low tail, left-facing side view, harmless defeated mood, and exact teal-blue/mustard/cream/deep-plum identity.
+Scene/backdrop: perfectly uniform solid #FF00FF chroma-key background with no gradient, texture, floor, shadow, or reflection.
+Style/medium: extremely simple native low-resolution pixel art, visibly constructed from very large square blocks, crisp hard edges, no antialiasing, no soft shading, no microtexture. Design as if the final 64×64 sprite already exists and is enlarged with nearest-neighbor.
+Composition/framing: exactly one complete character centered in a square, subject contained within the central 78%, generous uniform magenta padding, stable bottom contact, no edge contact.
+Constraints: keep the same character and seated KO pose; prioritize readable spiral eyes; no text, panels, ground, poop, effects, props, extra characters, blood, injuries, bones, ghost, halo, watermark, or #FF00FF inside the character.

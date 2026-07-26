@@ -1,0 +1,26 @@
+{
+  "capture": "dung-dodge-v2-game-over.png",
+  "result_capture": "dung-dodge-v2-result-layout.png",
+  "capture_method": "Flutter runtime render after iPhone 17 simulator smoke test",
+  "viewport": "393x852 portrait",
+  "game_id": "dung_dodge_v2",
+  "observed_sequence": [
+    "collision swaps the in-world player to the 64x64 KO sprite",
+    "playing scene freezes on the terminal collision result",
+    "shared deep-navy scrim fades over the full device viewport",
+    "GAME OVER title settles and shakes in the upper third",
+    "the existing result and ranking panel slides up beneath GAME OVER after 2100ms without replacing the scene"
+  ],
+  "visual_qc": {
+    "in_world_ko_character_clipped": false,
+    "duplicate_overlay_character_present": false,
+    "scrim_covers_full_viewport": true,
+    "title_clipped": false,
+    "title_above_center": true,
+    "title_and_backdrop_persist_during_result_reveal": true,
+    "result_panel_reveal_duration_ms": 520,
+    "background_readable_under_scrim": true,
+    "nearest_neighbor_character_rendering": true,
+    "simulator_gameplay_smoke_test": true
+  }
+}

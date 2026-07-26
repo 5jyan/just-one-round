@@ -1,0 +1,25 @@
+{
+  "captured_at": "2026-07-26",
+  "source": "iPhone iOS Simulator runtime capture",
+  "source_file": "home_gameplay_full.png",
+  "runtime_output": "assets/images/number_rush/home_gameplay_hero.png",
+  "source_dimensions": [
+    1206,
+    2622
+  ],
+  "crop": {
+    "x": 0,
+    "y": 360,
+    "width": 1206,
+    "height": 1546
+  },
+  "processing": "lossless gameplay crop containing the live TIME/NEXT HUD and complete 5x5 board; no generative edits",
+  "capture_note": "Live TAP 50 board using the original procedural cabinet; the complete 5x5 board remains mechanically plausible.",
+  "art_contract": {
+    "home_aspect_ratio": 0.78,
+    "content_occupancy": "edge-to-edge gameplay hero",
+    "filter_quality": "nearest-neighbor / none",
+    "safe_core": "TIME, NEXT, and the complete 5x5 board",
+    "viewport_crop": "fixed approved portrait crop"
+  }
+}

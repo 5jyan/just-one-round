@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: production single-frame GAME OVER reaction sprite for a mobile 2D pixel-art game
+Input image: exact identity, palette, outline, facial proportions, apparent pixel size, and ugly-cute style reference for the baby duck-billed dinosaur. Preserve this same character; change only the pose and expression.
+Primary request: Create one full-body defeated KO pose of the exact same baby dinosaur, facing left in side view. The dinosaur has collapsed into an awkward seated slump with legs splayed, tiny arms hanging limp, tail resting low, head tilted, spiral dizzy eyes, and a tiny tongue sticking out. It should look harmlessly knocked out, pathetic, dopey, and endearing—not injured.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background, 100% uniform with no gradient, floor, texture, shadow, or reflection.
+Style/medium: genuinely low-resolution hand-authored pixel art matching the reference, designed for a 64×64 runtime canvas with mostly 2×2 pixel clusters, crisp stair-step contours, restrained flat palette, and no antialiasing.
+Composition/framing: exactly one character, centered optically, complete silhouette inside the central 72% of the square canvas, generous transparent-key padding, lowest body contact near a stable bottom baseline, no cropping or edge contact.
+Color palette: preserve the reference dinosaur’s muted teal-blue body, cream belly and eyes, mustard-yellow bill and feet, small warm orange accents, deep plum outline and features.
+Constraints: single static pose only; preserve character identity and proportions; crisp large pixel clusters; no text, GAME OVER lettering, labels, borders, panel, ground, poop, props, particles, extra characters, cast shadow, watermark, blood, wounds, bruises, bones, ghost, halo, tombstone, or violent imagery. Do not use #FF00FF anywhere in the character.

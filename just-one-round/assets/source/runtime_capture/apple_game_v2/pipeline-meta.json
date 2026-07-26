@@ -1,0 +1,30 @@
+{
+  "captured_at": "2026-07-26",
+  "source": "iPhone 17 iOS Simulator runtime capture",
+  "source_file": "home_gameplay_full.png",
+  "runtime_output": "assets/images/apple_game_v2/home_gameplay_hero.png",
+  "source_dimensions": [
+    1206,
+    2622
+  ],
+  "crop": {
+    "x": 0,
+    "y": 439,
+    "width": 1206,
+    "height": 1546
+  },
+  "processing": "lossless PNG crop aligned between complete apple rows; no generative edits",
+  "capture_note": "Live Apple Game 2 board after the built-in timed apple drops; no capture-only gameplay changes.",
+  "art_contract": {
+    "home_aspect_ratio": 0.78,
+    "apple_source_cell": [
+      42,
+      42
+    ],
+    "apple_display_size": [
+      42,
+      42
+    ],
+    "filter_quality": "nearest-neighbor / none"
+  }
+}

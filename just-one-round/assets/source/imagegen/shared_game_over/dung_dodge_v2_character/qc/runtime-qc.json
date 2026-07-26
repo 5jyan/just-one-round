@@ -1,0 +1,95 @@
+{
+  "input": "source/imagegen/shared_game_over/dung_dodge_v2_character/processed/player-game-over-alpha-v2.png",
+  "runtime_output": "images/dung_dodge_v2/player_game_over.png",
+  "canvas": [
+    64,
+    64
+  ],
+  "subject_bounds": [
+    2,
+    3,
+    62,
+    62
+  ],
+  "display_size": [
+    128,
+    128
+  ],
+  "display_scale": 2,
+  "filter": "nearest-neighbor",
+  "palette": [
+    [
+      42,
+      25,
+      56
+    ],
+    [
+      60,
+      45,
+      72
+    ],
+    [
+      44,
+      105,
+      113
+    ],
+    [
+      70,
+      128,
+      132
+    ],
+    [
+      92,
+      149,
+      152
+    ],
+    [
+      117,
+      174,
+      175
+    ],
+    [
+      190,
+      125,
+      27
+    ],
+    [
+      240,
+      183,
+      43
+    ],
+    [
+      255,
+      210,
+      79
+    ],
+    [
+      213,
+      138,
+      99
+    ],
+    [
+      245,
+      197,
+      139
+    ],
+    [
+      255,
+      239,
+      178
+    ],
+    [
+      230,
+      102,
+      74
+    ]
+  ],
+  "opaque_pixels": 1995,
+  "transparent_corners": true,
+  "edge_touches": {
+    "left": false,
+    "top": false,
+    "right": false,
+    "bottom": false
+  }
+}

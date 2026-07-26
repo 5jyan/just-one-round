@@ -1,0 +1,23 @@
+{
+  "asset": "dung_dodge_v2 GAME OVER character",
+  "generator": "OpenAI built-in image_gen",
+  "intent": "identity-preserving single-frame reaction sprite",
+  "identity_reference": "assets/images/dung_dodge_v2/player_idle_sheet.png",
+  "selected_raw": "raw/player-game-over-chroma-v2.png",
+  "selected_prompt": "prompt-used-v2.txt",
+  "rejected_raw": "raw/player-game-over-chroma.png",
+  "rejected_reason": "spiral eyes lost too much readability at the approved 64x64 runtime size",
+  "chroma_key": "#FF00FF",
+  "alpha_processor": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+  "runtime_processor": "process_game_over_character.py",
+  "runtime_output": "assets/images/dung_dodge_v2/player_game_over.png",
+  "runtime_size": [
+    64,
+    64
+  ],
+  "display_size": [
+    128,
+    128
+  ],
+  "display_filter": "nearest-neighbor"
+}

@@ -1,0 +1,20 @@
+{
+  "asset": "gravity-switch-player-game-over",
+  "generation_mode": "built-in-imagegen-identity-preserving-edit",
+  "master_reference": "assets/images/gravity_switch_v2/player_magnet_mite_sheet_v3.png",
+  "raw_output": "raw/player-game-over-chroma.png",
+  "processed_output": "processed/player-game-over.png",
+  "runtime_output": "assets/images/gravity_switch_v2/player_game_over.png",
+  "runtime_capture": "assets/source/runtime_capture/shared_game_over/gravity-switch-ko-runtime.png",
+  "source_cell": [48, 48],
+  "display_size": [48, 48],
+  "anchor": "center",
+  "runtime_filter": "nearest-neighbor",
+  "frames": 1,
+  "runtime_validation": {
+    "simulator": "iPhone 17 / iOS 26.5",
+    "actual_collision_time_seconds": 4.37,
+    "player_swap": "pass",
+    "visual_review": "pass"
+  }
+}

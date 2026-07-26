@@ -1,0 +1,90 @@
+{
+  "asset": "apple_game_v2 animated guide drag sprite",
+  "method": "deterministic composition from active runtime apple atlas",
+  "master_references": [
+    "assets/images/apple_game_v2/apple_faces_atlas.png",
+    "assets/images/apple_game_v2/apple_pop_sheet.png",
+    "assets/images/apple_game_v2/apple_combo_burst_sheet.png"
+  ],
+  "runtime_output": "assets/images/apple_game_v2/guide_drag_sprite_sheet.png",
+  "source_output": "assets/source/guide_composite/apple_game_v2/guide_drag_sprite/guide_drag_sprite_sheet.png",
+  "static_reference": "assets/images/apple_game_v2/guide_drag_sprite.png",
+  "frame_dimensions": [
+    246,
+    176
+  ],
+  "sheet_dimensions": [
+    1968,
+    176
+  ],
+  "frame_count": 8,
+  "frame_duration_ms": 175,
+  "loop_duration_ms": 1400,
+  "sheet_layout": "8 columns x 1 row; left-to-right",
+  "frame_order": [
+    "idle",
+    "press first apple",
+    "drag one-third",
+    "drag two-thirds",
+    "reach second apple",
+    "hold with touch pulse",
+    "hold selected pair",
+    "hold selected pair"
+  ],
+  "apple_source_cell": [
+    42,
+    42
+  ],
+  "apple_display_size": [
+    42,
+    42
+  ],
+  "board": {
+    "rows": 3,
+    "columns": 5,
+    "padding": 8,
+    "values": [
+      [
+        7,
+        4,
+        6,
+        8,
+        2
+      ],
+      [
+        3,
+        1,
+        9,
+        5,
+        4
+      ],
+      [
+        6,
+        2,
+        8,
+        1,
+        7
+      ]
+    ]
+  },
+  "selection": {
+    "start": [
+      0,
+      1
+    ],
+    "end": [
+      0,
+      2
+    ],
+    "size": [
+      84,
+      42
+    ]
+  },
+  "filtering": "nearest-neighbor",
+  "generated_art": false,
+  "related_animations": {
+    "target_pop": "assets/images/apple_game_v2/guide_target_pop_sprite_sheet.png",
+    "sparse_pop": "assets/images/apple_game_v2/guide_sparse_pop_sprite_sheet.png"
+  }
+}
