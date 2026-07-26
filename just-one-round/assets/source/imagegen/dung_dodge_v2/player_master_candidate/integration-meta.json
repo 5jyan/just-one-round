@@ -1,0 +1,23 @@
+{
+  "source_asset": "player-master-candidate-32.png",
+  "source_cell": [32, 32],
+  "display_size": [64, 64],
+  "display_filter": "nearest-neighbor",
+  "subject_bbox": [4, 2, 27, 30],
+  "opaque_palette_colors": 5,
+  "sheet_layout": {
+    "rows": 2,
+    "columns": 2,
+    "frame_order": ["top-left", "top-right", "bottom-left", "bottom-right"],
+    "note": "The approved master frame is repeated in all four cells; no unapproved motion poses were invented."
+  },
+  "runtime_outputs": [
+    "assets/images/dung_dodge_v2/player_idle_sheet.png",
+    "assets/images/dung_dodge_v2/player_run_sheet.png"
+  ],
+  "simulator_validation": {
+    "device": "iPhone 17, iOS 26.5",
+    "result": "passed",
+    "screenshot": "artifacts/dung_dodge_v2/player-master-simulator-gameplay.png"
+  }
+}

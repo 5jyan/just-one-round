@@ -1,0 +1,17 @@
+{
+  "pipeline": "built-in-imagegen-plus-chroma-removal-and-deterministic-pixel-normalization",
+  "status": "concept-a-integrated",
+  "base_cell": [170, 126],
+  "runtime_size": [170, 126],
+  "display_scale": 1,
+  "art_pixel": "approximately 1-2 logical pixels, matched to the native background",
+  "palette_colors_per_concept": 112,
+  "runtime_filter": "nearest-neighbor",
+  "reference_background": "assets/images/dung_dodge_v2/background_map.png",
+  "calibration_asset": "assets/images/dung_dodge_v2/player_run_sheet.png",
+  "selected_concept": "A",
+  "runtime_background": "assets/images/dung_dodge_v2/background_map.png",
+  "sprite_position": [95, 183],
+  "runtime_integration": true,
+  "preserved_runtime_behavior": true
+}

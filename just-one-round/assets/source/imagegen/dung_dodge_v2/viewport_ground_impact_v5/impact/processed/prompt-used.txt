@@ -1,0 +1,6 @@
+Create an exact 2×2 grid containing four chronological ground-impact frames for the 똥피하기2 poop hazard.
+Frame order: contact, expansion, peak burst, fade.
+Use the existing poop's warm brown, tan highlights, dark outline, chunky 2×2 logical-pixel cluster language, and goofy tone.
+Keep one fixed horizontal contact baseline in all frames. Keep every blob and dust cluster inside the central 70% of its cell.
+No baked floor, soil plate, shadow, crater, character, pterosaur, UI, text, labels, dividers, or watermark.
+Use one perfectly flat solid #FF00FF background and do not use that color in the effect.

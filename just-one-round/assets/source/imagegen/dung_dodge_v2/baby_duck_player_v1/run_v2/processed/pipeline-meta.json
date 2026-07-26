@@ -1,0 +1,309 @@
+{
+  "target": "player",
+  "mode": "run",
+  "prompt": "",
+  "role": "",
+  "input": "assets/source/imagegen/dung_dodge_v2/baby_duck_player_v1/run_v2/raw.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 150,
+  "rows": 2,
+  "cols": 2,
+  "cell_size": 64,
+  "fit_scale": 0.78,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "feet",
+  "shared_scale": true,
+  "scale_strategy": "fit",
+  "component_mode": "largest",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "run-1",
+    "run-2",
+    "run-3",
+    "run-4"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        627,
+        627
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 80376,
+      "selected_component_bbox": [
+        114,
+        145,
+        534,
+        510
+      ],
+      "crop_bbox": [
+        114,
+        145,
+        534,
+        510
+      ],
+      "source_frame_size": [
+        619,
+        619
+      ],
+      "is_empty": false,
+      "subject_area": 80376,
+      "body_core_area": 73872,
+      "body_area_fraction": 0.19279623970080462,
+      "anchor_source": [
+        357.0,
+        490.0
+      ],
+      "source_edge_touch": false,
+      "output_edge_touch": false,
+      "edge_touch": false,
+      "output_size": [
+        49,
+        43
+      ],
+      "paste_position": [
+        7,
+        14
+      ],
+      "paste_clamped": false,
+      "aligned_bbox": [
+        7,
+        14,
+        56,
+        57
+      ],
+      "source_to_output_scale": 0.11885714285714287,
+      "bbox_scale_applied": true,
+      "scale_strategy": "fit",
+      "scale_changed": true
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        627,
+        0,
+        1254,
+        627
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 74547,
+      "selected_component_bbox": [
+        66,
+        151,
+        483,
+        509
+      ],
+      "crop_bbox": [
+        66,
+        151,
+        483,
+        509
+      ],
+      "source_frame_size": [
+        619,
+        619
+      ],
+      "is_empty": false,
+      "subject_area": 74547,
+      "body_core_area": 66477,
+      "body_area_fraction": 0.17349625875284802,
+      "anchor_source": [
+        278.0,
+        489.0
+      ],
+      "source_edge_touch": false,
+      "output_edge_touch": false,
+      "edge_touch": false,
+      "output_size": [
+        49,
+        42
+      ],
+      "paste_position": [
+        7,
+        15
+      ],
+      "paste_clamped": false,
+      "aligned_bbox": [
+        7,
+        15,
+        56,
+        57
+      ],
+      "source_to_output_scale": 0.11885714285714287,
+      "bbox_scale_applied": true,
+      "scale_strategy": "fit",
+      "scale_changed": true
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        627,
+        627,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 79802,
+      "selected_component_bbox": [
+        113,
+        90,
+        525,
+        464
+      ],
+      "crop_bbox": [
+        113,
+        90,
+        525,
+        464
+      ],
+      "source_frame_size": [
+        619,
+        619
+      ],
+      "is_empty": false,
+      "subject_area": 79802,
+      "body_core_area": 74246,
+      "body_area_fraction": 0.193772330691276,
+      "anchor_source": [
+        349.0,
+        444.0
+      ],
+      "source_edge_touch": false,
+      "output_edge_touch": false,
+      "edge_touch": false,
+      "output_size": [
+        48,
+        44
+      ],
+      "paste_position": [
+        8,
+        13
+      ],
+      "paste_clamped": false,
+      "aligned_bbox": [
+        8,
+        13,
+        56,
+        57
+      ],
+      "source_to_output_scale": 0.11885714285714287,
+      "bbox_scale_applied": true,
+      "scale_strategy": "fit",
+      "scale_changed": true
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        627,
+        627,
+        1254,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 75913,
+      "selected_component_bbox": [
+        87,
+        86,
+        492,
+        474
+      ],
+      "crop_bbox": [
+        87,
+        86,
+        492,
+        474
+      ],
+      "source_frame_size": [
+        619,
+        619
+      ],
+      "is_empty": false,
+      "subject_area": 75913,
+      "body_core_area": 70727,
+      "body_area_fraction": 0.1845882018263863,
+      "anchor_source": [
+        331.0,
+        452.0
+      ],
+      "source_edge_touch": false,
+      "output_edge_touch": false,
+      "edge_touch": false,
+      "output_size": [
+        48,
+        46
+      ],
+      "paste_position": [
+        8,
+        11
+      ],
+      "paste_clamped": false,
+      "aligned_bbox": [
+        8,
+        11,
+        56,
+        57
+      ],
+      "source_to_output_scale": 0.11885714285714287,
+      "bbox_scale_applied": true,
+      "scale_strategy": "fit",
+      "scale_changed": true
+    }
+  ],
+  "edge_touch_frames": [],
+  "source_edge_touch_frames": [],
+  "output_edge_touch_frames": [],
+  "empty_frames": [],
+  "paste_clamped_frames": [],
+  "qc_summary": {
+    "frame_count": 4,
+    "valid_frame_count": 4,
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "paste_clamped_count": 0,
+    "body_scale_mean": 0.4313618962185379,
+    "output_subject_height_mean": 43.75,
+    "body_scale_cv": 0.022013780613168957,
+    "anchor_x_std": 0.04971956610942911,
+    "anchor_y_std": 0.033836620527514516,
+    "anchor_y_mean": 0.7572697899838449,
+    "profile_body_scale_drift": 0.08669422812461558
+  },
+  "scale_profile": {
+    "path": "assets/source/imagegen/dung_dodge_v2/baby_duck_player_v1/character-scale-profile.json",
+    "version": 1,
+    "name": "baby_duck_player",
+    "reference_mode": "idle",
+    "processing_contract_applied": true
+  },
+  "qc_config": {
+    "strict_qc": true,
+    "reject_edge_touch": false,
+    "allow_source_edge_touch": false,
+    "max_body_scale_cv": 0.08,
+    "max_anchor_y_std": 0.05,
+    "max_profile_scale_drift": 0.1
+  }
+}

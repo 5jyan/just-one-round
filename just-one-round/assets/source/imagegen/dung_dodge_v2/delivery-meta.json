@@ -1,0 +1,100 @@
+{
+  "game_id": "dung_dodge_v2",
+  "display_name": "똥피하기 2",
+  "concept": "작은 익룡들이 날아다니는 밝은 선사시대 놀이터에서 겁먹은 아기 공룡이 못난이 똥 생물을 피한다.",
+  "asset_only_variant_of": "dung_dodge",
+  "runtime_contract": {
+    "background_map.png": [360, 640],
+    "ground_strip.png": {
+      "source": [180, 48],
+      "display": [360, 96],
+      "scale": 2
+    },
+    "player_idle_sheet.png": {
+      "sheet": [64, 64],
+      "grid": [2, 2],
+      "cell": [32, 32],
+      "display_cell": [64, 64],
+      "scale": 2,
+      "frame_duration_ms": 180
+    },
+    "player_run_sheet.png": {
+      "sheet": [64, 64],
+      "grid": [2, 2],
+      "cell": [32, 32],
+      "display_cell": [64, 64],
+      "scale": 2,
+      "frame_duration_ms": 100
+    },
+    "poop_fall_sheet.png": {
+      "sheet": [48, 48],
+      "grid": [2, 2],
+      "cell": [24, 24],
+      "display_cell": [48, 48],
+      "scale": 2,
+      "frame_duration_ms": 110
+    },
+    "dust_sheet.png": {
+      "sheet": [32, 32],
+      "grid": [2, 2],
+      "cell": [16, 16],
+      "display_cell": [32, 32],
+      "scale": 2,
+      "frame_duration_ms": 85
+    }
+  },
+  "unchanged_runtime_values": {
+    "logical_size": [360, 640],
+    "player_display_size": [64, 64],
+    "player_collision_radius": 18,
+    "poop_display_size": [48, 48],
+    "poop_collision_radius": 18,
+    "dust_display_size": [32, 32],
+    "ground_position_y": 544
+  },
+  "qc": {
+    "player_idle": {
+      "valid_frames": 4,
+      "edge_touches": 0,
+      "paste_clamps": 0,
+      "body_scale_cv": 0.028645381304837507,
+      "anchor_y_std": 0.05342640785723058
+    },
+    "player_run": {
+      "valid_frames": 4,
+      "edge_touches": 0,
+      "paste_clamps": 0,
+      "body_scale_cv": 0.03211810165598738,
+      "anchor_y_std": 0.06394410898501908,
+      "profile_body_scale_drift": 0.03183219745053345
+    },
+    "poop": {
+      "valid_frames": 4,
+      "edge_touches": 0,
+      "paste_clamps": 0,
+      "body_scale_cv": 0.06192922750871597,
+      "anchor_y_std": 0.04519276022572851
+    },
+    "dust": {
+      "valid_frames": 4,
+      "edge_touches": 0,
+      "paste_clamps": 0,
+      "anchor_y_std": 0.06193296202278298
+    },
+    "ground": {
+      "alpha_bounds": [14, 350, 1806, 545],
+      "detected_subject": [1792, 195],
+      "aspect_preserving_crop": [712, 0, 1443, 195],
+      "crop_bias": "shifted right to keep the spiral fossil fully visible",
+      "runtime_source": [180, 48],
+      "non_uniform_stretch": false,
+      "restored_from": "revision-2/raw/ground.png"
+    }
+  },
+  "provenance": {
+    "generator": "OpenAI image_gen",
+    "exact_prompts": "Each asset directory contains prompt-used.txt.",
+    "previous_revisions": ["revision-1/", "revision-2/", "revision-3/"],
+    "postprocessor": "postprocess.py and generate2dsprite.py"
+  }
+}

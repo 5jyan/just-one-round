@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: 똥피하기2 game pterosaur character concept C, single opaque pixel-art sprite
+Reference: current 똥피하기2 gameplay screenshot, used only for chunky ugly-cute prehistoric pixel-art style and scale.
+Request: A large left-facing pterosaur with an absurdly oversized round head, smaller pear-shaped body, tiny struggling wings, bloated rear, puffed cheeks, mismatched vacant eyes, short bent orange beak, curled tiny feet, and one stress mark. It must look slow, foolish, overconfident, and urgently poop-needy, but show no poop or toilet.
+Style: crisp low-resolution pixel art, mostly 2×2 logical-pixel clusters at gameplay size, dark plum-brown outline, very simple silhouette, restrained detail, intentionally lumpy and endearing.
+Palette: rusty red-orange body, dusty coral wings, muted cream belly.
+Backdrop: perfectly flat solid #FF00FF chroma-key background.
+Avoid: head crest, horns, extra limbs, accessories, shadows, borders, text, watermark, smooth vector edges, 3D, realism, clipping.

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "green-dino",
+  "processing": {
+    "cell_size": 32,
+    "fit_scale": 0.82,
+    "trim_border": 4,
+    "edge_clean_depth": 3,
+    "align": "feet",
+    "shared_scale": true,
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "component_padding": 0,
+    "min_component_area": 1,
+    "edge_touch_margin": 0
+  },
+  "output_origin": [
+    16.0,
+    30
+  ],
+  "reference": {
+    "target": "player",
+    "mode": "idle",
+    "rows": 2,
+    "cols": 2,
+    "body_scale_mean": 0.35192254584697,
+    "body_scale_cv": 0.006426822944532476,
+    "anchor_y_mean": 0.7096122778675282
+  },
+  "qc": {
+    "max_body_scale_drift": 0.1
+  }
+}

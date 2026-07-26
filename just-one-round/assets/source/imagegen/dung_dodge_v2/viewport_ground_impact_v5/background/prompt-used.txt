@@ -1,0 +1,5 @@
+Create a genuinely authored 360×960 vertical pixel-art background for 똥피하기2.
+Preserve the current turquoise prehistoric ugly-cute style and open central play lane.
+The canvas represents world y=-160 through y=800. Place the grass-to-soil contact edge at source y=752, which maps to world y=592.
+Author substantially more sky. Add one recognizable goofy pterosaur approximately 56×32 logical pixels in the upper-middle sky and one small distant pterosaur. Keep them below the crop-safe top region and away from HUD text.
+Keep the central lane low contrast. Draw genuine sky and underground continuation throughout; no flat padding, repeated rows, visible bands, stretching, text, UI, characters, poop, borders, or watermark.

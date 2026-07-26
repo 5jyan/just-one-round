@@ -1,0 +1,20 @@
+{
+  "captured_at": "2026-07-26",
+  "source": "iPhone 17 iOS Simulator runtime capture",
+  "source_file": "home_gameplay_full.png",
+  "runtime_output": "../../../images/dung_dodge_v2/home_gameplay_hero.png",
+  "source_dimensions": [1206, 2622],
+  "crop": {
+    "x": 0,
+    "y": 700,
+    "width": 1206,
+    "height": 1546
+  },
+  "processing": "lossless PNG crop using macOS sips; no generative edits",
+  "capture_note": "A temporary capture-only build disabled player collision so a dense runtime scene could be staged. The temporary route and collision exception were removed after capture.",
+  "art_contract": {
+    "gameplay_view_width": 360,
+    "foreground_art_pixel": "approximately 2 logical pixels",
+    "filter_quality": "nearest-neighbor / none"
+  }
+}

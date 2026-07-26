@@ -1,0 +1,11 @@
+{
+  "pipeline": "built-in-imagegen-reference-edit-plus-deterministic-postprocess",
+  "raw": "raw-background-v2.png",
+  "runtime_path": "assets/images/dung_dodge_v2/background_map.png",
+  "runtime_size": [360, 960],
+  "runtime_world_rect": [0, -160, 360, 800],
+  "maximum_visible_height": 800,
+  "camera_center": [180, 320],
+  "runtime_filter": "nearest-neighbor",
+  "large_pterosaur_runtime_bounds": "approximately 56x32 logical pixels"
+}

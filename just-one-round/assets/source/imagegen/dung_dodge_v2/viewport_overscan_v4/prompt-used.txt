@@ -1,0 +1,8 @@
+Use case: style-transfer
+Asset type: runtime-ready vertical pixel-art background for the mobile minigame 똥피하기2
+Input images: current 360×640 background as the master composition/style reference; current ground strip as the material reference.
+Primary request: recreate the scene as a genuinely taller 9:20 background corresponding to 360×800. Preserve a central 360×640 gameplay-safe core. Draw approximately 80 logical pixels of new sky above it and 80 logical pixels of new underground terrain below it.
+Style: deliberate chunky ugly-cute prehistoric pixel art with an effective 2×2 logical-pixel cluster language and crisp nearest-neighbor runtime rendering.
+Constraints: keep the central movement lane readable; preserve the ground contact edge at y=544; no flat-color padding, edge cloning, mirrored repetition, vertical stretching, text, UI, characters, hazards, borders, or watermark.
+
+Correction pass: preserve the accepted identity and move the grass-to-soil edge to exactly 78% of the full frame. The final image represents world y=-80 through y=720, so source y=624 maps to gameplay world y=544.

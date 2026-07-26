@@ -6,7 +6,6 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
@@ -15,6 +14,42 @@ const _artPixel = 2.0;
 
 double _snapToArtGrid(double value) => (value / _artPixel).round() * _artPixel;
 
+class StarDodgeAssetSet {
+  const StarDodgeAssetSet({
+    required this.directory,
+    required this.playerSourceCellSize,
+    required this.poopSourceCellSize,
+    required this.dustSourceCellSize,
+    required this.renderBackgroundInWorld,
+    required this.edgeToEdge,
+  });
+
+  static const classic = StarDodgeAssetSet(
+    directory: 'dodge_v2',
+    playerSourceCellSize: 32,
+    poopSourceCellSize: 24,
+    dustSourceCellSize: 16,
+    renderBackgroundInWorld: true,
+    edgeToEdge: false,
+  );
+
+  static const uglyCute = StarDodgeAssetSet(
+    directory: 'dung_dodge_v2',
+    playerSourceCellSize: 64,
+    poopSourceCellSize: 48,
+    dustSourceCellSize: 16,
+    renderBackgroundInWorld: true,
+    edgeToEdge: true,
+  );
+
+  final String directory;
+  final double playerSourceCellSize;
+  final double poopSourceCellSize;
+  final double dustSourceCellSize;
+  final bool renderBackgroundInWorld;
+  final bool edgeToEdge;
+}
+
 class StarDodgeGame extends FlameGame
     with DragCallbacks
     implements MiniGameController {
@@ -22,6 +57,7 @@ class StarDodgeGame extends FlameGame
     required this.onFinished,
     this.gameDuration = const Duration(seconds: 60),
     this.countdownDuration = const Duration(seconds: 3),
+    this.assetSet = StarDodgeAssetSet.classic,
     Random? random,
   }) : _random = random ?? Random(),
        hud = ValueNotifier(
@@ -31,15 +67,33 @@ class StarDodgeGame extends FlameGame
                : MiniGamePhase.countdown,
            score: 0,
            elapsedSeconds: 0,
-           remainingSeconds: gameDuration.inSeconds,
+           remainingSeconds: assetSet.edgeToEdge
+               ? null
+               : gameDuration.inSeconds,
            countdownNumber: countdownDuration.inSeconds,
          ),
        );
 
   static final logicalSize = Vector2(360, 640);
+  static final overscanSize = Vector2(360, 960);
+  static const overscanTop = 160.0;
+  static const maxVisibleHeight = 800.0;
+  static const classicGroundY = 544.0;
+  static const uglyCuteGroundY = 576.0;
+  static const classicPlayerSize = 64.0;
+  static const uglyCutePlayerSize = 64.0;
+
+  static ({double minimum, double maximum}) playerHorizontalBounds({
+    required double displaySize,
+    required double edgePadding,
+  }) => (
+    minimum: displaySize / 2 + edgePadding,
+    maximum: logicalSize.x - displaySize / 2 - edgePadding,
+  );
 
   final Duration gameDuration;
   final Duration countdownDuration;
+  final StarDodgeAssetSet assetSet;
   final ValueChanged<GameResult> onFinished;
   final Random _random;
   @override
@@ -50,6 +104,7 @@ class StarDodgeGame extends FlameGame
 
   late final _PlayerComponent _player;
   var _poopSprites = <Sprite>[];
+  var _poopImpactSprites = <Sprite>[];
   var _phase = MiniGamePhase.countdown;
   var _countdownElapsed = 0.0;
   var _playingElapsed = 0.0;
@@ -59,6 +114,11 @@ class StarDodgeGame extends FlameGame
   var _lastDisplayedSecond = -1;
   var _lastCountdownNumber = -1;
   var _hasFinished = false;
+  double? _lastDragX;
+  var _pendingDragDistance = 0.0;
+  var _dragActivated = false;
+
+  static const dragActivationDistance = 6.0;
 
   double get progress {
     final totalSeconds = gameDuration.inMicroseconds / 1000000;
@@ -68,53 +128,103 @@ class StarDodgeGame extends FlameGame
     return (_playingElapsed / totalSeconds).clamp(0.0, 1.0);
   }
 
+  double get groundY => assetSet.edgeToEdge ? uglyCuteGroundY : classicGroundY;
+  double get playerSize =>
+      assetSet.edgeToEdge ? uglyCutePlayerSize : classicPlayerSize;
+
+  static bool hasReachedGround({
+    required double centerY,
+    required double objectHeight,
+    required double groundY,
+  }) => centerY + objectHeight / 2 >= groundY;
+
   @override
-  Color backgroundColor() => AppColors.backgroundDeep;
+  Color backgroundColor() => Colors.transparent;
+
+  static Vector2 viewportResolutionForCanvas(Vector2 canvasSize) {
+    if (canvasSize.x <= 0 || canvasSize.y <= 0) {
+      return logicalSize.clone();
+    }
+    final visibleHeight = (canvasSize.y * logicalSize.x / canvasSize.x).clamp(
+      logicalSize.y,
+      maxVisibleHeight,
+    );
+    return Vector2(logicalSize.x, visibleHeight);
+  }
+
+  void _configureViewport(Vector2 canvasSize) {
+    final resolution = assetSet.edgeToEdge
+        ? viewportResolutionForCanvas(canvasSize)
+        : logicalSize.clone();
+    camera.viewport = FixedResolutionViewport(resolution: resolution);
+    // Keep the original 360×640 gameplay core centered. Taller screens reveal
+    // authored sky and soil overscan instead of stretching or color padding.
+    camera.viewfinder.position = logicalSize / 2;
+  }
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewport = FixedResolutionViewport(resolution: logicalSize);
-    camera.viewfinder.position = logicalSize / 2;
+    _configureViewport(canvasSize);
 
-    final ground = _GroundComponent(size: logicalSize.clone());
+    final ground = _GroundComponent(
+      size: logicalSize.clone(),
+      usesOverscanArt: assetSet.edgeToEdge,
+      groundY: groundY,
+    );
     await world.add(ground);
-    _player = _PlayerComponent(position: Vector2(logicalSize.x / 2, 512));
+    _player = _PlayerComponent(
+      position: Vector2(logicalSize.x / 2, groundY - playerSize / 2),
+      displaySize: playerSize,
+      edgePadding: assetSet.edgeToEdge ? 0 : 8,
+      collisionRadius: assetSet.edgeToEdge ? 16 : 18,
+    );
     await world.add(_player);
     images
         .loadAll([
-          'dodge_v2/player_idle_sheet.png',
-          'dodge_v2/player_run_sheet.png',
-          'dodge_v2/poop_fall_sheet.png',
-          'dodge_v2/dust_sheet.png',
-          'dodge_v2/background_map.png',
-          'dodge_v2/ground_strip.png',
+          '${assetSet.directory}/player_idle_sheet.png',
+          '${assetSet.directory}/player_run_sheet.png',
+          '${assetSet.directory}/poop_fall_sheet.png',
+          '${assetSet.directory}/dust_sheet.png',
+          '${assetSet.directory}/background_map.png',
+          '${assetSet.directory}/ground_strip.png',
+          if (assetSet.edgeToEdge)
+            '${assetSet.directory}/poop_impact_sheet.png',
         ])
         .then((loaded) {
           final idleSheet = SpriteSheet(
             image: loaded[0],
-            srcSize: Vector2.all(32),
+            srcSize: Vector2.all(assetSet.playerSourceCellSize),
           );
           final runSheet = SpriteSheet(
             image: loaded[1],
-            srcSize: Vector2.all(32),
+            srcSize: Vector2.all(assetSet.playerSourceCellSize),
           );
           final poopSheet = SpriteSheet(
             image: loaded[2],
-            srcSize: Vector2.all(24),
+            srcSize: Vector2.all(assetSet.poopSourceCellSize),
           );
           final dustSheet = SpriteSheet(
             image: loaded[3],
-            srcSize: Vector2.all(16),
+            srcSize: Vector2.all(assetSet.dustSourceCellSize),
           );
           _poopSprites = _spritesFrom2x2(poopSheet);
+          if (assetSet.edgeToEdge) {
+            final impactSheet = SpriteSheet(
+              image: loaded[6],
+              srcSize: Vector2.all(64),
+            );
+            _poopImpactSprites = _spritesFrom2x2(impactSheet);
+          }
           _player.setSprites(
             idleFrames: _spritesFrom2x2(idleSheet),
             walkFrames: _spritesFrom2x2(runSheet),
             dustFrames: _spritesFrom2x2(dustSheet),
           );
           ground.setSprites(
-            background: Sprite(loaded[4]),
+            background: assetSet.renderBackgroundInWorld
+                ? Sprite(loaded[4])
+                : null,
             ground: Sprite(loaded[5]),
           );
         });
@@ -122,6 +232,14 @@ class StarDodgeGame extends FlameGame
     if (countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
       _publishHud(force: true);
+    }
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    if (isLoaded) {
+      _configureViewport(size);
     }
   }
 
@@ -155,13 +273,15 @@ class StarDodgeGame extends FlameGame
     _spawnElapsed += dt;
     _recalculateScore();
 
-    final interval = StarDodgeRules.spawnInterval(progress);
+    final interval = assetSet.edgeToEdge
+        ? StarDodgeRules.dungDodgeV2SpawnInterval(_playingElapsed)
+        : StarDodgeRules.spawnInterval(progress);
     while (_spawnElapsed >= interval) {
       _spawnElapsed -= interval;
       _spawnFallingObject();
     }
 
-    _checkCollisions();
+    _checkCollisionsAndGroundImpacts();
 
     final durationSeconds = gameDuration.inMicroseconds / 1000000;
     if (_playingElapsed >= durationSeconds) {
@@ -176,7 +296,9 @@ class StarDodgeGame extends FlameGame
     final x = _snapToArtGrid(
       24 + (_random.nextDouble() * (logicalSize.x - 48)),
     );
-    final baseSpeed = StarDodgeRules.fallingSpeed(progress);
+    final baseSpeed = assetSet.edgeToEdge
+        ? StarDodgeRules.dungDodgeV2FallingSpeed(_playingElapsed)
+        : StarDodgeRules.fallingSpeed(progress);
     final speed = baseSpeed * (0.88 + (_random.nextDouble() * 0.3));
 
     world.add(
@@ -188,19 +310,41 @@ class StarDodgeGame extends FlameGame
     );
   }
 
-  void _checkCollisions() {
+  void _checkCollisionsAndGroundImpacts() {
     final objects = world.children
         .whereType<_FallingObjectComponent>()
         .toList();
     for (final object in objects) {
-      if (object.isRemoving || !object.collidesWith(_player)) {
+      if (object.isRemoving) {
         continue;
       }
 
-      object.removeFromParent();
-      _collisions = 1;
-      _finishGame();
-      return;
+      if (object.collidesWith(_player)) {
+        object.removeFromParent();
+        _collisions = 1;
+        _finishGame();
+        return;
+      }
+
+      if (assetSet.edgeToEdge &&
+          hasReachedGround(
+            centerY: object.position.y,
+            objectHeight: object.size.y,
+            groundY: groundY,
+          )) {
+        object.removeFromParent();
+        if (_poopImpactSprites.isNotEmpty) {
+          world.add(
+            _PoopImpactComponent(
+              position: Vector2(object.position.x, groundY),
+              sprites: _poopImpactSprites,
+            ),
+          );
+        }
+      } else if (!assetSet.edgeToEdge &&
+          object.position.y - object.size.y / 2 > logicalSize.y) {
+        object.removeFromParent();
+      }
     }
   }
 
@@ -268,7 +412,7 @@ class StarDodgeGame extends FlameGame
       phase: _phase,
       score: _score,
       elapsedSeconds: _playingElapsed.floor(),
-      remainingSeconds: remaining,
+      remainingSeconds: assetSet.edgeToEdge ? null : remaining,
       countdownNumber: countdown,
     );
   }
@@ -276,33 +420,80 @@ class StarDodgeGame extends FlameGame
   @override
   void onDragStart(DragStartEvent event) {
     super.onDragStart(event);
-    _movePlayerTo(event.canvasPosition);
+    if (_phase != MiniGamePhase.playing) return;
+    final viewportPosition = camera.viewport.globalToLocal(
+      event.canvasPosition,
+    );
+    _beginRelativeDrag(viewportPosition.x);
   }
 
   @override
   void onDragUpdate(DragUpdateEvent event) {
-    _movePlayerTo(event.canvasEndPosition);
+    if (_phase != MiniGamePhase.playing) return;
+    final viewportPosition = camera.viewport.globalToLocal(
+      event.canvasEndPosition,
+    );
+    _updateRelativeDrag(viewportPosition.x);
   }
 
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
+    _resetRelativeDrag();
     _player.stopMoving();
   }
 
   @override
   void onDragCancel(DragCancelEvent event) {
     super.onDragCancel(event);
+    _resetRelativeDrag();
     _player.stopMoving();
   }
 
-  void _movePlayerTo(Vector2 canvasPosition) {
-    if (_phase != MiniGamePhase.playing) {
+  void _beginRelativeDrag(double logicalX) {
+    _lastDragX = logicalX;
+    _pendingDragDistance = 0;
+    _dragActivated = false;
+  }
+
+  void _updateRelativeDrag(double logicalX) {
+    final previousX = _lastDragX;
+    _lastDragX = logicalX;
+    if (previousX == null) {
+      _beginRelativeDrag(logicalX);
       return;
     }
-    final viewportPosition = camera.viewport.globalToLocal(canvasPosition);
-    _player.setTargetX(viewportPosition.x);
+
+    final deltaX = logicalX - previousX;
+    if (!_dragActivated) {
+      _pendingDragDistance += deltaX;
+      if (_pendingDragDistance.abs() < dragActivationDistance) {
+        return;
+      }
+      _dragActivated = true;
+      _player.moveBy(_pendingDragDistance);
+      _pendingDragDistance = 0;
+      return;
+    }
+    _player.moveBy(deltaX);
   }
+
+  void _resetRelativeDrag() {
+    _lastDragX = null;
+    _pendingDragDistance = 0;
+    _dragActivated = false;
+  }
+
+  @visibleForTesting
+  double get playerXForTesting => _player.position.x;
+
+  @visibleForTesting
+  void beginRelativeDragForTesting(double logicalX) =>
+      _beginRelativeDrag(logicalX);
+
+  @visibleForTesting
+  void updateRelativeDragForTesting(double logicalX) =>
+      _updateRelativeDrag(logicalX);
 
   @override
   void disposeController() => hud.dispose();
@@ -316,16 +507,22 @@ List<Sprite> _spritesFrom2x2(SpriteSheet sheet) => [
 ];
 
 class _PlayerComponent extends PositionComponent {
-  _PlayerComponent({required Vector2 position})
-    : _preciseX = position.x,
-      super(
-        position: position,
-        size: Vector2.all(64),
-        anchor: Anchor.center,
-        priority: 10,
-      );
+  _PlayerComponent({
+    required Vector2 position,
+    required double displaySize,
+    required this.edgePadding,
+    required this.collisionRadius,
+  }) : _preciseX = position.x,
+       super(
+         position: position,
+         size: Vector2.all(displaySize),
+         anchor: Anchor.center,
+         priority: 10,
+       );
 
   static const _moveSpeed = 355.0;
+  final double edgePadding;
+  final double collisionRadius;
   final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
   var _idleSprites = <Sprite>[];
   var _walkSprites = <Sprite>[];
@@ -339,8 +536,6 @@ class _PlayerComponent extends PositionComponent {
   var _facing = 1.0;
   var _isWalking = false;
 
-  double get collisionRadius => 18;
-
   void setSprites({
     required List<Sprite> idleFrames,
     required List<Sprite> walkFrames,
@@ -352,10 +547,16 @@ class _PlayerComponent extends PositionComponent {
   }
 
   void setTargetX(double x) {
-    final clamped = x
-        .clamp(size.x / 2 + 8, StarDodgeGame.logicalSize.x - size.x / 2 - 8)
-        .toDouble();
+    final bounds = StarDodgeGame.playerHorizontalBounds(
+      displaySize: size.x,
+      edgePadding: edgePadding,
+    );
+    final clamped = x.clamp(bounds.minimum, bounds.maximum).toDouble();
     _targetX = _snapToArtGrid(clamped);
+  }
+
+  void moveBy(double deltaX) {
+    setTargetX((_targetX ?? _preciseX) + deltaX);
   }
 
   void stopMoving() {
@@ -407,7 +608,7 @@ class _PlayerComponent extends PositionComponent {
         _DustPuffComponent(
           position: Vector2(
             _snapToArtGrid(position.x - (_facing * 15)),
-            _snapToArtGrid(position.y + 28),
+            _snapToArtGrid(position.y + size.y / 2 - 4),
           ),
           direction: _facing,
           sprites: _dustSprites,
@@ -427,10 +628,10 @@ class _PlayerComponent extends PositionComponent {
   @override
   void render(Canvas canvas) {
     final sprite = _isWalking && _walkSprites.isNotEmpty
-        ? _walkSprites[(_walkElapsed / 0.10).floor() % _walkSprites.length]
+        ? _walkSprites[(_walkElapsed / 0.15).floor() % _walkSprites.length]
         : _idleSprites.isEmpty
         ? null
-        : _idleSprites[(_idleElapsed / 0.18).floor() % _idleSprites.length];
+        : _idleSprites[(_idleElapsed / 0.28).floor() % _idleSprites.length];
     sprite?.render(canvas, size: size, overridePaint: _spritePaint);
   }
 }
@@ -501,9 +702,6 @@ class _FallingObjectComponent extends PositionComponent {
     _preciseY += speed * dt;
     _animationElapsed += dt;
     position.y = _snapToArtGrid(_preciseY);
-    if (position.y - 24 > StarDodgeGame.logicalSize.y) {
-      removeFromParent();
-    }
   }
 
   bool collidesWith(_PlayerComponent player) {
@@ -522,14 +720,51 @@ class _FallingObjectComponent extends PositionComponent {
   }
 }
 
+class _PoopImpactComponent extends PositionComponent {
+  _PoopImpactComponent({required Vector2 position, required this.sprites})
+    : super(
+        position: position,
+        size: Vector2.all(64),
+        anchor: Anchor.bottomCenter,
+        priority: 7,
+      );
+
+  final List<Sprite> sprites;
+  final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
+  var _elapsed = 0.0;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _elapsed += dt;
+    if (_elapsed >= 0.3) {
+      removeFromParent();
+    }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    if (sprites.isEmpty) return;
+    final index = ((_elapsed / 0.075).floor()).clamp(0, sprites.length - 1);
+    sprites[index].render(canvas, size: size, overridePaint: _spritePaint);
+  }
+}
+
 class _GroundComponent extends PositionComponent {
-  _GroundComponent({required super.size}) : super(priority: -10);
+  _GroundComponent({
+    required super.size,
+    required this.usesOverscanArt,
+    required this.groundY,
+  }) : super(priority: -10);
 
   final Paint _pixelPaint = Paint()..filterQuality = FilterQuality.none;
+  final bool usesOverscanArt;
+  final double groundY;
   Sprite? _background;
   Sprite? _ground;
 
-  void setSprites({required Sprite background, required Sprite ground}) {
+  void setSprites({required Sprite? background, required Sprite ground}) {
     _background = background;
     _ground = ground;
   }
@@ -539,13 +774,18 @@ class _GroundComponent extends PositionComponent {
     super.render(canvas);
     _background?.render(
       canvas,
-      size: StarDodgeGame.logicalSize,
+      position: usesOverscanArt
+          ? Vector2(0, -StarDodgeGame.overscanTop)
+          : Vector2.zero(),
+      size: usesOverscanArt
+          ? StarDodgeGame.overscanSize
+          : StarDodgeGame.logicalSize,
       overridePaint: _pixelPaint,
     );
     _ground?.render(
       canvas,
-      position: Vector2(0, 544),
-      size: Vector2(360, 96),
+      position: Vector2(0, groundY),
+      size: Vector2(360, usesOverscanArt ? 208 : 96),
       overridePaint: _pixelPaint,
     );
   }

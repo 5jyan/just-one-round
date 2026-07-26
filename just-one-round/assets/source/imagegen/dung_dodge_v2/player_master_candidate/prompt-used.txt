@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: one production candidate master sprite for a 2D mobile dodging game
+Input images: Image 1 is only the benchmark for selective abstraction, simple readable silhouette, and very low semantic detail. Images 2 and 3 are only the environment reference for palette harmony, dark-plum outline weight, intentional pixel-cluster density, and the bright prehistoric ugly-cute mood.
+Primary request: Create exactly one single full-body baby dinosaur character sprite, facing left, in a worried awkward idle/run-ready pose as if hurriedly trying to dodge falling poop.
+Subject: ugly-cute baby dinosaur; oversized simple head, plump pear-shaped body, short splayed legs, one tiny useless arm, short stubby tail, only two or three small back bumps. Head tips slightly upward as if watching danger overhead. Panic is communicated mainly by hunched silhouette and clumsy body pose, not a detailed face.
+Style/medium: project-native hand-authored pixel art with deliberate square pixel clusters; designed to become a 32x32 transparent source sprite and display at 64x64 with nearest-neighbor scaling. Preserve a strong readable silhouette at tiny size. This is not a detailed pixel-styled illustration.
+Color palette: maximum 6 flat colors total: deep plum outline, sour lime-green body, one optional darker green, pale cream for belly/eye/tiny tooth, tomato-orange back bumps, and one mouth color if needed. Harmonize with Images 2 and 3.
+Facial detail: one small cream eye block with a one-pixel dark pupil looking upward; a tiny 2–3 pixel mouth; at most one tiny tooth. No eyebrow, no tongue, no cheek, no nostril.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background, uniformly filled edge to edge.
+Composition: exactly one character only, centered with generous padding, entire body visible, feet on one common baseline, no cropping.
+Constraints: use chunky intentional clusters equivalent to 1-pixel source decisions; flat fills only; crisp hard edges; no antialiasing; no gradient; no lighting; no highlights; no texture; no skin spots; no scales; no body decorations; no individual fingers or toe detail; no motion lines; no ground; no shadow; no props; no text; no UI; no sprite sheet; no grid; no extra poses; no additional character; no watermark. Do not use #FF00FF anywhere in the dinosaur.

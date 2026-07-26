@@ -1,0 +1,8 @@
+Create a final 360×960 vertical pixel-art background for 똥피하기2.
+Render the background at world y=-160. The separate ground starts at source y=752 / world y=592.
+Draw continuous yellow-green grass from the distant scenery down past source y=752. Do not draw underground soil in the background. Place the horizon and lower side scenery around source y=560 so the runtime-visible grassy playfield is approximately 192 pixels deep or more.
+Keep the central 55% open and low contrast.
+Use individually authored clouds with different silhouettes, widths, lobe counts, and spacing. Mix flat streaks, tall cauliflower shapes, asymmetric wind-swept shapes, tiny wisps, and medium irregular clouds. Do not mirror or resize one template.
+Draw one approximately 56×32 runtime-pixel pterosaur near source y=285. Remove every horn and head crest. Give it a smooth rounded skull, oversized head, short crooked orange beak, uneven wide eyes, dumpy torso, tiny dangling feet, uneven wings, and a mildly strained ugly-cute flying pose. Keep one small distant pterosaur.
+Match the project's chunky 2×2 logical-pixel cluster language, palette, outlines, and detail density.
+No flat padding, repeated rows, cloud wallpaper, stretching, blur, text, UI, player, poop, borders, black bars, or watermark.

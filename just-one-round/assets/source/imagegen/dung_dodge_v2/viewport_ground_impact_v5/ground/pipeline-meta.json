@@ -1,0 +1,9 @@
+{
+  "pipeline": "built-in-imagegen-plus-deterministic-crop-and-resize",
+  "raw": "raw-ground.png",
+  "runtime_path": "assets/images/dung_dodge_v2/ground_strip.png",
+  "runtime_size": [360, 208],
+  "runtime_world_rect": [0, 592, 360, 800],
+  "collision_contact_y": 592,
+  "runtime_filter": "nearest-neighbor"
+}

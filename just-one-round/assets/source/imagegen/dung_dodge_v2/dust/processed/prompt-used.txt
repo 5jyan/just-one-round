@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: raw 4-frame ground dust effect sprite sheet for Dung Dodge 2
+Input image: Image 1 locks the bright tacky prehistoric palette, deliberate high-density pixel clusters, and ugly-cute handmade mood.
+Primary request: one compact continuous four-frame dust puff animation in an exact 2×2 grid, read top-left, top-right, bottom-left, bottom-right. Frame 1 tiny mustard-brown ground poof, frame 2 awkward lopsided expansion, frame 3 widest cocoa-and-cream pixel cloud, frame 4 a few collapsing crumbs fading near the ground. The effect should feel deliberately clumsy and satisfying.
+Style/medium: premium high-density pixel art, crisp hard-edged square pixels, deliberate clusters, no smoothing; mustard dust, cocoa shadow, warm cream highlight, a restrained faded-violet accent, deep-plum outline pixels.
+Anchor: use one shared horizontal ground-contact baseline at 72% of every cell height; all motion expands above this line; fixed effect center and consistent scale; no baked ground plate.
+Composition: exactly 2 rows × 2 columns of equal invisible cells; effect stays in central 65%; generous padding; all particles remain tightly grouped and inside each cell.
+Background: 100% solid flat #FF00FF only, no gradient or texture.
+Constraints: no text, no labels, no UI, no borders, no cell separators, no guides, no ground tile, no cast shadow, no dinosaur, no poop, no watermark; exactly four frames.

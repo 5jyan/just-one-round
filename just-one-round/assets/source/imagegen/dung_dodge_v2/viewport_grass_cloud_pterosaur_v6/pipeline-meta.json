@@ -1,0 +1,13 @@
+{
+  "pipeline": "built-in-imagegen-reference-generation-plus-deterministic-resize",
+  "raw": "raw-background.png",
+  "runtime_path": "assets/images/dung_dodge_v2/background_map.png",
+  "runtime_size": [360, 960],
+  "runtime_world_rect": [0, -160, 360, 800],
+  "ground_overlay_source_y": 752,
+  "ground_overlay_world_y": 592,
+  "target_horizon_source_y": 560,
+  "minimum_visible_grass_depth": 192,
+  "runtime_filter": "nearest-neighbor",
+  "preserved_runtime_behavior": true
+}

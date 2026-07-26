@@ -1,0 +1,16 @@
+Create a production 2D pixel-art RUN animation sheet for this exact baby dinosaur character.
+
+Image 1 is the exact character identity and art reference. Preserve its teal-blue body, mustard bill and feet, peach throat patch, dark plum outline, square pixel-cluster style, sleepy worried eyes, proportions, markings, left-facing side view, and ugly-cute personality.
+Image 2 defines the strict 2x2 cell layout, consistent camera distance, average character scale, centerline, and safe padding. Keep the same standing-equivalent anatomy scale in all cells, but allow the clearly different running poses described below. Do not reproduce guides, labels, boxes, or separators.
+
+Exactly 4 equal invisible cells in a strict 2x2 grid, read top-left, top-right, bottom-left, bottom-right:
+1. LEFT-FOOT CONTACT: left foot clearly extended forward and planted, right foot clearly behind, torso leaning slightly forward, body at normal height.
+2. COMPRESSION/PUSH: planted left leg bent, body lowered only about 1–2 final sprite pixels, right foot lifted clearly off the ground and passing forward; tiny arms make a restrained opposite swing.
+3. RIGHT-FOOT CONTACT: right foot clearly extended forward and planted, left foot clearly behind, torso still slightly forward, body returns to normal height.
+4. PASSING/LIFT: planted right leg pushes, left foot lifted clearly off the ground and passing forward, body raised only about 1 final sprite pixel, ready to loop to frame 1.
+
+The stride must be unmistakably readable at 64x64: the forward and rear feet should differ horizontally by about 6–8 final sprite pixels in contact frames, and the passing foot should lift about 3–4 final sprite pixels. Both legs and both feet must remain recognizable and must not merge into one shape. This is a real controlled run, not a nearly static shuffle.
+
+Motion limits: no exaggerated hopping, no deep squat, no wild full-body bounce, no huge squash-and-stretch, no head whipping, no bill flapping, no frantic arm flailing, no large tail wag, and no whole-character travel across a cell. Head and bill stay visually steady with at most 1 final pixel of vertical change. Tail counterbalances subtly with at most 2 final pixels of movement. The character stays awkward and heavy while clearly running.
+
+Background must be perfectly flat solid #FF00FF in every cell. No gradients, texture, shadows, floor, labels, text, borders, frame dividers, guide marks, detached effects, dust, poop, watermark, or extra objects. Entire character fully contained in every cell with generous magenta margin. Crisp native pixel art only, no smoothing or painterly detail.

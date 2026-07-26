@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "baby_duck_player",
+  "processing": {
+    "cell_size": 64,
+    "fit_scale": 0.78,
+    "trim_border": 4,
+    "edge_clean_depth": 3,
+    "align": "feet",
+    "shared_scale": false,
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "component_padding": 0,
+    "min_component_area": 1,
+    "edge_touch_margin": 0
+  },
+  "output_origin": [
+    32.0,
+    57
+  ],
+  "reference": {
+    "target": "player",
+    "mode": "idle",
+    "rows": 1,
+    "cols": 1,
+    "body_scale_mean": 0.33436960770694746,
+    "body_scale_cv": 0.0,
+    "anchor_y_mean": 0.7431781701444623
+  },
+  "qc": {
+    "max_body_scale_drift": 0.1
+  }
+}

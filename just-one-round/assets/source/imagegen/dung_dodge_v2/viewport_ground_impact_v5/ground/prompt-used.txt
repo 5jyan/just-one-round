@@ -1,0 +1,4 @@
+Create one opaque 45:26 wide pixel-art ground cutaway strip for 똥피하기2, corresponding to 360×208 runtime pixels.
+Match the accepted prehistoric background's grass, soil, roots, fossils, rocks, bones, sprouts, palette, lighting, and 2×2 logical-pixel cluster language.
+Place a thin continuous collision-bearing grass lip at the very top and fill the remaining height with genuinely authored underground detail.
+No sky, field, player, poop, pterosaur, UI, text, border, transparency, black bars, perspective tilt, stretching, duplicated rows, or flat filler.

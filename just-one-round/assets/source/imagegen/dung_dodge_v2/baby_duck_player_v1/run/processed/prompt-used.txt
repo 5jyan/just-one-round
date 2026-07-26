@@ -1,0 +1,14 @@
+Create a production 2D pixel-art WALK animation sheet for this exact baby dinosaur character.
+
+Image 1 is the exact character identity and art reference. Preserve its teal-blue body, mustard bill and feet, peach throat patch, dark plum outline, square pixel-cluster style, sleepy worried eyes, proportions, markings, left-facing side view, and neutral ugly-cute personality.
+Image 2 is a scale-and-root template made from the same accepted character. Preserve Image 2's exact 2x2 cell locations, fixed camera distance, standing-equivalent anatomical scale, body-root position, shared grounded foot-contact line, centerline, and padding. Change only the small controlled walking poses in each slot. Do not reproduce visible boxes, labels, guides, or separators.
+
+Exactly 4 equal invisible cells in a strict 2x2 grid, read top-left, top-right, bottom-left, bottom-right:
+1. compact neutral contact pose, both feet close to the baseline.
+2. left foot makes one very small forward step while the right foot stays planted; body stays upright.
+3. compact neutral passing/contact pose, both feet close to the baseline.
+4. right foot makes one very small forward step while the left foot stays planted; body stays upright, ready to loop.
+
+This is a slow restrained shuffle, not a run. Movement energy comes only from tiny alternating foot positions. Keep the pelvis, torso, head, bill, eyes, arms, and tail almost fixed. Body-root height is identical across frames. Any foot lift is extremely small. No vertical bob, no bounce, no hopping, no deep crouch, no lunging, no squash-and-stretch, no head bob, no bill movement, no arm flapping, no tail wag, no side-to-side whole-body translation, no dramatic stride, and no pose zoom. The visible silhouette and occupied size remain nearly identical across all frames.
+
+Background must be perfectly flat solid #FF00FF in every cell. No gradients, texture, shadows, floor, labels, text, borders, frame dividers, guide marks, detached effects, dust, poop, watermark, or extra objects. Entire character fully contained in every cell with generous magenta margin. Crisp native pixel art only, no smoothing or painterly detail.

@@ -1,0 +1,14 @@
+Create a production 2D pixel-art IDLE animation sheet for this exact baby dinosaur character.
+
+Image 1 is the exact character identity and art reference. Preserve its teal-blue body, mustard bill and feet, peach throat patch, dark plum outline, square pixel-cluster style, sleepy worried eyes, proportions, markings, left-facing side view, and neutral ugly-cute personality.
+Image 2 is a scale-and-root template made from the same accepted character. Preserve Image 2's exact 2x2 cell locations, fixed camera distance, standing-equivalent anatomical scale, body-root position, grounded foot-contact line, centerline, and padding. Change only the tiny idle motion in each slot. Do not reproduce visible boxes, labels, guides, or separators.
+
+Exactly 4 equal invisible cells in a strict 2x2 grid, read top-left, top-right, bottom-left, bottom-right:
+1. exact neutral reference stance.
+2. almost imperceptible slow inhale: only the peach chest expands a tiny amount; feet, pelvis, head, bill, arms, and tail stay fixed.
+3. one slow blink: eyelids closed; the entire body remains in the exact neutral position.
+4. eyes open again in the exact neutral stance, ready to loop to frame 1.
+
+The character must look calm and heavy, not energetic. Both feet remain planted on one identical baseline in every frame. Pelvis and body root never move. No vertical bob, no crouch, no bounce, no squash-and-stretch, no head bob, no bill movement, no arm flapping, no tail wag, no side-to-side translation, and no pose zoom. The visible silhouette and occupied size stay nearly identical across all frames.
+
+Background must be perfectly flat solid #FF00FF in every cell. No gradients, texture, shadows, floor, labels, text, borders, frame dividers, guide marks, detached effects, dust, poop, watermark, or extra objects. Entire character fully contained in every cell with generous magenta margin. Crisp native pixel art only, no smoothing or painterly detail.

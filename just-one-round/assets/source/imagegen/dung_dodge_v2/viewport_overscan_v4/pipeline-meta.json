@@ -1,0 +1,25 @@
+{
+  "pipeline": "built-in-imagegen-plus-deterministic-postprocess",
+  "source": "raw-background.png",
+  "runtime_background": {
+    "path": "assets/images/dung_dodge_v2/background_map.png",
+    "size": [360, 800],
+    "mode": "RGB"
+  },
+  "runtime_ground": {
+    "path": "assets/images/dung_dodge_v2/ground_strip.png",
+    "crop": [0, 624, 360, 800],
+    "size": [360, 176],
+    "mode": "RGBA"
+  },
+  "gameplay_safe_core": {
+    "world_rect": [0, 0, 360, 640],
+    "ground_contact_y": 544
+  },
+  "authored_overscan": {
+    "top": 80,
+    "bottom": 80,
+    "background_world_y": -80
+  },
+  "runtime_filter": "nearest-neighbor"
+}
