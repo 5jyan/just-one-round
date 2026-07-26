@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: one modular pixel-art terrain block for a side-view mobile gravity-switch game
+Primary request: Create exactly ONE square 1x1 compressed junk-block module, designed as the master unit for a modular scrap-pile terrain system. It must look intentionally good when identical copies touch on any of the four sides.
+Style reference: Match the attached game's ugly-cute, low-detail pixel-art language and muted sickly palette; use the references only for palette, pixel density, and world mood, not their layout.
+View: perfectly straight-on orthographic front view, no perspective, no visible top plane.
+Tile design: a solid square block with perfectly straight square boundaries. Use a standardized dark deep-plum 3-pixel-equivalent joining rail on ALL four edges, with the same simple connector rhythm on opposite edges, so adjacent copies form a deliberate compact seam rather than a broken picture. Keep all four corners compact and structurally identical. The center is one chunky crushed olive-green metal container/plate with a very simple ugly-cute two-eye face, surrounded by only a few large readable scrap shapes, bolts, and dents. Low detail, bold clusters, readable at final 48x48.
+Pixel density: authored as coarse true pixel art suitable for reduction to 48x48; large deliberate pixel clusters, limited palette, hard edges, no antialiasing, no gradients, no tiny visual noise.
+Palette: deep plum, bruised violet, muted olive, sour-lime highlight used sparingly, dirty cream, one tiny tomato-orange accent.
+Scene/backdrop: center the complete square tile on a perfectly flat solid #FF00FF chroma-key background with generous padding.
+Constraints: the square must be completely filled and opaque inside its boundary; no holes; no irregular silhouette; no part touches the canvas edge; no labels, no text, no watermark, no frame outside the tile.
+Avoid: dirt, soil, grass, vines, rocks, wallpaper-like symmetry, kaleidoscope patterns, realistic rendering, high detail, smooth shading, perspective, floor plane, cast shadow, glow, neon frame.

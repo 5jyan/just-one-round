@@ -1,0 +1,11 @@
+Create a corrected second pass of the exact same lime one-eyed magnetic mite in the reference. Preserve the character identity, face, palette, magnetic nubs, pixel-art style, and 2x2 frame order. The reference is close, but correct its proportions and animation consistency.
+
+Critical silhouette contract: the two TOP-ROW grounded frames must have almost the same outer body silhouette and volume. Both must be compact, plump potato-beans, never flat. At final 48×48 resolution, EACH top-row complete silhouette including nubs must be about 31–33 pixels wide and 28–30 pixels tall. Frame 2 is NOT a squash pose: keep its body height within one pixel of frame 1 and express wobble only through a tiny lean, eye/pupil shift, mouth change, and one-pixel nub movement. Do not compress the torso.
+
+Bottom-left airborne stretch must be about 23–26 pixels wide and 33–35 pixels tall, with a thick rounded torso rather than a thin column. Bottom-right airborne squash must be about 28–30 pixels wide and 28–30 pixels tall. Preserve the same perceived body mass and eye scale across all four frames.
+
+Exact 2 columns × 2 rows, equal invisible cells. Frame order: grounded wobble A; grounded wobble B with same body size; airborne vertical stretch; airborne compact round pose. Same camera distance and stable center/root. Full silhouette within central 65–70% with magenta margin on every side. Nothing crosses a cell boundary. No detached effects.
+
+Crisp deliberate native-48×48 modern pixel art. About 8 flat colors: sour lime, bright lime, olive shadow, cream eye, deep plum outline/pupil/mouth, plum edge, orange-red nub, dark nub shade. One-pixel outline at final size, deliberate 1–3 pixel clusters. No gradients, antialiasing, dithering, texture noise, realistic detail, blur, glossy rendering, or shadow.
+
+Background exactly solid flat #FF00FF magenta, fully opaque. No transparency, grid lines, borders, labels, text, UI, scenery, floor, shadows, or extra objects. Exactly four sprites.

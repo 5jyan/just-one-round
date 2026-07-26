@@ -1,0 +1,32 @@
+{
+  "runtime_asset": "assets/images/gravity_switch_v2/player_magnet_mite_sheet.png",
+  "source_sheet": "assets/source/imagegen/gravity_switch_ugly_cute_v1/player_hd_v2/raw/player-magnet-mite-sheet.png",
+  "processed_sheet": "assets/source/imagegen/gravity_switch_ugly_cute_v1/player_hd_v2/processed/player-magnet-mite-sheet.png",
+  "layout": {
+    "rows": 2,
+    "columns": 2,
+    "frame_width": 48,
+    "frame_height": 48,
+    "sheet_width": 96,
+    "sheet_height": 96
+  },
+  "palette": {
+    "opaque_colors": 8,
+    "transparent_colors": 1,
+    "partial_alpha_pixels": 0
+  },
+  "processor_qc": {
+    "empty_frames": 0,
+    "source_edge_touch_frames": 0,
+    "output_edge_touch_frames": 0,
+    "paste_clamped_frames": 0,
+    "body_scale_cv": 0.04699655738721864
+  },
+  "runtime": {
+    "display_width": 48,
+    "display_height": 48,
+    "filter_quality": "none",
+    "simulator": "iPhone 17 / iOS 26.5",
+    "visual_result": "pass"
+  }
+}

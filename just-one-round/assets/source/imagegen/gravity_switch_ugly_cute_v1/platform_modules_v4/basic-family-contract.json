@@ -1,0 +1,234 @@
+{
+  "cellPixels": 48,
+  "assetRole": "opaque collision-ground modules; no separate fill layer",
+  "family": "quiet dark ImageGen base modules",
+  "preservesExistingV3": true,
+  "creativeSourcePolicy": "each non-master asset has its own built-in ImageGen source; no procedurally drawn interiors",
+  "allowedPostprocess": [
+    "chroma removal",
+    "alpha-bounds crop",
+    "resize to exact whole-cell dimensions",
+    "five-color palette quantization",
+    "three-pixel connector normalization from approved master"
+  ],
+  "placementRulesForRuntime": [
+    "place a module only when its complete cell footprint fits",
+    "never clip or crop a module",
+    "fall back to a smaller fitting module",
+    "avoid edge-adjacent repetition of the same asset id when alternatives fit"
+  ],
+  "palette": [
+    [
+      31,
+      18,
+      36,
+      255
+    ],
+    [
+      44,
+      27,
+      48,
+      255
+    ],
+    [
+      59,
+      37,
+      62,
+      255
+    ],
+    [
+      77,
+      49,
+      77,
+      255
+    ],
+    [
+      79,
+      84,
+      34,
+      255
+    ]
+  ],
+  "assets": [
+    {
+      "name": "scrap_basic_1x1_01",
+      "units": [
+        1,
+        1
+      ],
+      "pixels": [
+        48,
+        48
+      ],
+      "provenance": "approved imagegen master"
+    },
+    {
+      "name": "scrap_basic_1x1_02",
+      "units": [
+        1,
+        1
+      ],
+      "pixels": [
+        48,
+        48
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_1x1_03",
+      "units": [
+        1,
+        1
+      ],
+      "pixels": [
+        48,
+        48
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_1x1_04",
+      "units": [
+        1,
+        1
+      ],
+      "pixels": [
+        48,
+        48
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_1x2_01",
+      "units": [
+        1,
+        2
+      ],
+      "pixels": [
+        48,
+        96
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_1x2_02",
+      "units": [
+        1,
+        2
+      ],
+      "pixels": [
+        48,
+        96
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_2x1_01",
+      "units": [
+        2,
+        1
+      ],
+      "pixels": [
+        96,
+        48
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_2x1_02",
+      "units": [
+        2,
+        1
+      ],
+      "pixels": [
+        96,
+        48
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_2x2_01",
+      "units": [
+        2,
+        2
+      ],
+      "pixels": [
+        96,
+        96
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_2x2_02",
+      "units": [
+        2,
+        2
+      ],
+      "pixels": [
+        96,
+        96
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_3x1_01",
+      "units": [
+        3,
+        1
+      ],
+      "pixels": [
+        144,
+        48
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_3x1_02",
+      "units": [
+        3,
+        1
+      ],
+      "pixels": [
+        144,
+        48
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_1x3_01",
+      "units": [
+        1,
+        3
+      ],
+      "pixels": [
+        48,
+        144
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_1x3_02",
+      "units": [
+        1,
+        3
+      ],
+      "pixels": [
+        48,
+        144
+      ],
+      "provenance": "individual imagegen source"
+    },
+    {
+      "name": "scrap_basic_3x2_01",
+      "units": [
+        3,
+        2
+      ],
+      "pixels": [
+        144,
+        96
+      ],
+      "provenance": "individual imagegen source"
+    }
+  ]
+}

@@ -11,6 +11,8 @@ import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_map_layout.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_motion.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
+import 'package:just_one_round/features/games/gravity_switch/domain/terrain_asset_usage_balancer.dart';
+import 'package:just_one_round/features/games/gravity_switch/domain/terrain_block_cache.dart';
 
 enum GravitySurface { ceiling, floor }
 
@@ -35,8 +37,10 @@ class GravitySwitchGame extends FlameGame
        );
 
   static final logicalSize = Vector2(360, 640);
+  static const maxVisibleHeight = 784.0;
   static const playerX = 92.0;
   static const playerSize = 48.0;
+  static const playerContactHalfHeight = 15.0;
 
   final Duration countdownDuration;
   final ValueChanged<GameResult> onFinished;
@@ -49,8 +53,8 @@ class GravitySwitchGame extends FlameGame
   FlameGame get flameGame => this;
 
   late final _PrismRunner _player;
-  late final Sprite _platformSurface;
-  late final Sprite _platformFill;
+  late final List<_TerrainModuleAsset> _terrainAssets;
+  late final _TerrainRenderer _terrainRenderer;
   late final List<Sprite> _landingSprites;
   late final GravityMapLayout _map;
   final List<_MazeColumn> _columns = [];
@@ -61,25 +65,44 @@ class GravitySwitchGame extends FlameGame
   var _score = 0;
   var _distance = 0;
   var _lastDisplayedSecond = -1;
+  var _nextTerrainColumnIndex = 0;
   String? _lastPatternId;
   var _hasFinished = false;
 
   @override
   Color backgroundColor() => const Color(0xFF020617);
 
+  static Vector2 viewportResolutionForCanvas(Vector2 canvasSize) {
+    if (canvasSize.x <= 0 || canvasSize.y <= 0) {
+      return logicalSize.clone();
+    }
+    final visibleHeight = (canvasSize.y * logicalSize.x / canvasSize.x).clamp(
+      logicalSize.y,
+      maxVisibleHeight,
+    );
+    return Vector2(logicalSize.x, visibleHeight);
+  }
+
+  void _configureViewport(Vector2 canvasSize) {
+    camera.viewport = FixedResolutionViewport(
+      resolution: viewportResolutionForCanvas(canvasSize),
+    );
+    // Keep the original 360×640 gameplay and collision core centered. Taller
+    // screens reveal visual-only wall overscan above and below that core.
+    camera.viewfinder.position = logicalSize / 2;
+  }
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewport = FixedResolutionViewport(resolution: logicalSize);
-    camera.viewfinder.position = logicalSize / 2;
+    _configureViewport(canvasSize);
     _map = await GravityMapLayout.load();
 
     final loaded = await images.loadAll([
       'gravity_switch_v2/space_background.png',
-      'gravity_switch_v2/player_sheet.png',
-      'gravity_switch_v2/platform_surface.png',
-      'gravity_switch_v2/platform_fill.png',
+      'gravity_switch_v2/player_magnet_mite_sheet_v3.png',
       'gravity_switch_v2/landing_impact_sheet.png',
+      ..._terrainModuleSpecs.map((spec) => spec.runtimePath),
     ]);
     await world.add(
       SpriteComponent(
@@ -89,14 +112,27 @@ class GravitySwitchGame extends FlameGame
       ),
     );
 
-    final playerSheet = SpriteSheet(image: loaded[1], srcSize: Vector2.all(24));
-    _platformSurface = Sprite(loaded[2]);
-    _platformFill = Sprite(loaded[3]);
+    final playerSheet = SpriteSheet(image: loaded[1], srcSize: Vector2.all(48));
     _landingSprites = _spritesFrom2x2(
-      SpriteSheet(image: loaded[4], srcSize: Vector2.all(16)),
+      SpriteSheet(image: loaded[2], srcSize: Vector2.all(16)),
     );
+    _terrainAssets = [
+      for (var index = 0; index < _terrainModuleSpecs.length; index++)
+        _TerrainModuleAsset(
+          spec: _terrainModuleSpecs[index],
+          sprite: Sprite(loaded[index + 3]),
+        ),
+    ];
+    _terrainRenderer = _TerrainRenderer(
+      columns: _columns,
+      assets: _terrainAssets,
+    );
+    await world.add(_terrainRenderer);
     _player = _PrismRunner(
-      position: Vector2(playerX, _map.initialProfile.floorTop - playerSize / 2),
+      position: Vector2(
+        playerX,
+        _map.initialProfile.floorTop - playerContactHalfHeight,
+      ),
       sprites: _spritesFrom2x2(playerSheet),
       onLanded: _showLandingImpact,
     );
@@ -112,6 +148,14 @@ class GravitySwitchGame extends FlameGame
     if (countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
       _publishHud(force: true);
+    }
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    if (isLoaded) {
+      _configureViewport(size);
     }
   }
 
@@ -149,9 +193,28 @@ class GravitySwitchGame extends FlameGame
     _playingElapsed += dt;
     _score = (_playingElapsed * 1000).floor();
     final speed = GravitySwitchRules.scrollSpeed(_playingElapsed);
+    _scrollTerrain(speed * dt);
 
+    final support = _supportAtPlayer();
+    if (support != null) {
+      _player.updateSurface(
+        dt,
+        floorTop: support.floorTop,
+        ceilingBottom: support.ceilingBottom,
+      );
+    }
+    for (final column in _columns) {
+      if (column.collidesWith(_player)) {
+        _finish();
+        return;
+      }
+    }
+    _publishHud();
+  }
+
+  void _scrollTerrain(double distance) {
     for (final column in List<_MazeColumn>.of(_columns)) {
-      column.position.x -= speed * dt;
+      column.position.x -= distance;
       if (!column.wasPassed && column.position.x + _map.columnWidth < playerX) {
         column.wasPassed = true;
         _distance += 1;
@@ -169,22 +232,6 @@ class GravitySwitchGame extends FlameGame
           : _columns.last.position.x + _map.columnWidth;
       _appendColumn(x);
     }
-
-    final support = _supportAtPlayer();
-    if (support != null) {
-      _player.updateSurface(
-        dt,
-        floorTop: support.floorTop,
-        ceilingBottom: support.ceilingBottom,
-      );
-    }
-    for (final column in _columns) {
-      if (column.collidesWith(_player)) {
-        _finish();
-        return;
-      }
-    }
-    _publishHud();
   }
 
   ({double floorTop, double ceilingBottom})? _supportAtPlayer() {
@@ -211,10 +258,10 @@ class GravitySwitchGame extends FlameGame
       ceilingBottom: profile.ceilingBottom,
       columnWidth: _map.columnWidth,
       position: Vector2(x, 0),
-      surface: _platformSurface,
-      fill: _platformFill,
+      terrainIndex: _nextTerrainColumnIndex++,
     );
     _columns.add(column);
+    _terrainRenderer.syncCompletedBlocks();
     world.add(column);
   }
 
@@ -225,14 +272,14 @@ class GravitySwitchGame extends FlameGame
 
   void _queueNextPattern() {
     final available = _map.patterns
-        .where((pattern) => pattern.unlockAfterSeconds <= _playingElapsed)
+        .where((pattern) => pattern.isAvailableAt(_playingElapsed))
         .toList(growable: false);
     var next = available[_random.nextInt(available.length)];
     if (available.length > 1 && next.id == _lastPatternId) {
       next = available[(available.indexOf(next) + 1) % available.length];
     }
-    _lastPatternId = next.id;
     _patternQueue.addAll(next.columns);
+    _lastPatternId = next.id;
   }
 
   @override
@@ -350,8 +397,8 @@ class _PrismRunner extends PositionComponent {
     final wasAttached = _isAttached;
     final direction = surface == GravitySurface.floor ? 1.0 : -1.0;
     final targetY = surface == GravitySurface.floor
-        ? floorTop - size.y / 2
-        : ceilingBottom + size.y / 2;
+        ? floorTop - GravitySwitchGame.playerContactHalfHeight
+        : ceilingBottom + GravitySwitchGame.playerContactHalfHeight;
     final motion = GravityMotion.step(
       y: position.y,
       verticalVelocity: _verticalVelocity,
@@ -432,8 +479,7 @@ class _MazeColumn extends PositionComponent {
     required this.floorTop,
     required this.ceilingBottom,
     required this.columnWidth,
-    required this.surface,
-    required this.fill,
+    required this.terrainIndex,
     required super.position,
   }) : super(
          size: Vector2(columnWidth, GravitySwitchGame.logicalSize.y),
@@ -443,9 +489,7 @@ class _MazeColumn extends PositionComponent {
   final double floorTop;
   final double ceilingBottom;
   final double columnWidth;
-  final Sprite surface;
-  final Sprite fill;
-  final Paint _pixelPaint = Paint()..filterQuality = FilterQuality.none;
+  final int terrainIndex;
   bool wasPassed = false;
 
   bool collidesWith(_PrismRunner player) {
@@ -461,55 +505,326 @@ class _MazeColumn extends PositionComponent {
     return floorRect.overlaps(player.hitbox) ||
         ceilingRect.overlaps(player.hitbox);
   }
+}
+
+class _TerrainModuleSpec {
+  const _TerrainModuleSpec(
+    this.name,
+    this.unitsWide,
+    this.unitsHigh, {
+    required this.family,
+  });
+
+  final String name;
+  final int unitsWide;
+  final int unitsHigh;
+  final String family;
+
+  String get runtimePath =>
+      'gravity_switch_v2/platform_modules_$family/$name.png';
+}
+
+const _terrainModuleSpecs = [
+  _TerrainModuleSpec('scrap_basic_1x1_01', 1, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_1x1_02', 1, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_1x1_03', 1, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_1x1_04', 1, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_1x2_01', 1, 2, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_1x2_02', 1, 2, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_2x1_01', 2, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_2x1_02', 2, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_2x2_01', 2, 2, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_2x2_02', 2, 2, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_3x1_01', 3, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_3x1_02', 3, 1, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_1x3_01', 1, 3, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_1x3_02', 1, 3, family: 'v4'),
+  _TerrainModuleSpec('scrap_basic_3x2_01', 3, 2, family: 'v4'),
+  _TerrainModuleSpec('scrap_module_1x1_01', 1, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_1x1_02', 1, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_1x1_03', 1, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_1x1_04', 1, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_1x2_01', 1, 2, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_1x2_02', 1, 2, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_2x1_01', 2, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_2x1_02', 2, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_2x2_01', 2, 2, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_2x2_02', 2, 2, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_3x1_01', 3, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_3x1_02', 3, 1, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_1x3_01', 1, 3, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_1x3_02', 1, 3, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_3x2_01', 3, 2, family: 'v3'),
+  _TerrainModuleSpec('scrap_module_2x3_01', 2, 3, family: 'v3'),
+];
+
+class _TerrainModuleAsset {
+  const _TerrainModuleAsset({required this.spec, required this.sprite});
+
+  final _TerrainModuleSpec spec;
+  final Sprite sprite;
+}
+
+class _TerrainPlacement {
+  const _TerrainPlacement({
+    required this.asset,
+    required this.column,
+    required this.row,
+  });
+
+  final _TerrainModuleAsset asset;
+  final int column;
+  final int row;
+}
+
+class _TerrainBlockLayout {
+  const _TerrainBlockLayout({required this.ceiling, required this.floor});
+
+  final List<_TerrainPlacement> ceiling;
+  final List<_TerrainPlacement> floor;
+}
+
+class _TerrainRenderer extends Component {
+  _TerrainRenderer({required this.columns, required this.assets})
+    : super(priority: 5);
+
+  static const _cell = 48.0;
+  static const _gridOriginY = 128.0;
+  // Covers y=-112..752, including the maximum responsive viewport
+  // y=-72..712 with 40 logical pixels of visual-only margin on both sides.
+  static const _minimumRow = -5;
+  static const _maximumRow = 12;
+  static const blockWidth = 3;
+
+  final List<_MazeColumn> columns;
+  final List<_TerrainModuleAsset> assets;
+  final Paint _pixelPaint = Paint()..filterQuality = FilterQuality.none;
+  late final TerrainBlockCache<_TerrainBlockLayout> _completedLayouts =
+      TerrainBlockCache(blockWidth: blockWidth);
+  final TerrainAssetUsageBalancer _usageBalancer = TerrainAssetUsageBalancer();
+
+  void syncCompletedBlocks() {
+    final blocks = _groupColumns();
+    for (final entry in blocks.entries) {
+      _completedLayouts.freezeIfComplete(
+        blockIndex: entry.key,
+        columnIndexes: entry.value.map((column) => column.terrainIndex),
+        build: () => _buildLayout(entry.key, entry.value),
+      );
+    }
+  }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    _drawPlatform(
-      canvas,
-      Rect.fromLTWH(0, floorTop, size.x, size.y - floorTop),
-    );
-    _drawPlatform(
-      canvas,
-      Rect.fromLTWH(0, 0, size.x, ceilingBottom),
-      ceiling: true,
-    );
+    syncCompletedBlocks();
+    final blocks = _groupColumns();
+    _completedLayouts.retainBlocks(blocks.keys);
+    final blockIndexes = blocks.keys.toList()..sort();
+    for (final blockIndex in blockIndexes) {
+      final block = blocks[blockIndex]!
+        ..sort(
+          (left, right) => left.terrainIndex.compareTo(right.terrainIndex),
+        );
+      final layout = _completedLayouts[blockIndex];
+      if (layout == null) continue;
+      final blockStart = blockIndex * blockWidth;
+      final anchorColumn = block.first;
+      final blockX =
+          anchorColumn.position.x -
+          ((anchorColumn.terrainIndex - blockStart) * _cell);
+      _renderPlacements(canvas, layout.ceiling, blockX: blockX, ceiling: true);
+      _renderPlacements(canvas, layout.floor, blockX: blockX, ceiling: false);
+    }
   }
 
-  void _drawPlatform(Canvas canvas, Rect bounds, {bool ceiling = false}) {
-    if (bounds.isEmpty) return;
-    canvas.save();
-    canvas.clipRect(bounds);
-    for (var x = bounds.left; x < bounds.right; x += 24) {
-      for (var y = bounds.top; y < bounds.bottom; y += 24) {
-        fill.render(
+  Map<int, List<_MazeColumn>> _groupColumns() {
+    final blocks = <int, List<_MazeColumn>>{};
+    for (final column in columns) {
+      blocks
+          .putIfAbsent(column.terrainIndex ~/ blockWidth, () => [])
+          .add(column);
+    }
+    return blocks;
+  }
+
+  _TerrainBlockLayout _buildLayout(int blockIndex, List<_MazeColumn> block) =>
+      _TerrainBlockLayout(
+        ceiling: _pack(blockIndex, block, ceiling: true),
+        floor: _pack(blockIndex, block, ceiling: false),
+      );
+
+  void _renderPlacements(
+    Canvas canvas,
+    List<_TerrainPlacement> placements, {
+    required double blockX,
+    required bool ceiling,
+  }) {
+    for (final placement in placements) {
+      final asset = placement.asset;
+      final width = asset.spec.unitsWide * _cell;
+      final height = asset.spec.unitsHigh * _cell;
+      final x = blockX + placement.column * _cell;
+      final y = _gridOriginY + placement.row * _cell;
+      if (ceiling) {
+        canvas.save();
+        canvas.translate(x, y + height);
+        canvas.scale(1, -1);
+        asset.sprite.render(
+          canvas,
+          size: Vector2(width, height),
+          overridePaint: _pixelPaint,
+        );
+        canvas.restore();
+      } else {
+        asset.sprite.render(
           canvas,
           position: Vector2(x, y),
-          size: Vector2(24, 24),
+          size: Vector2(width, height),
           overridePaint: _pixelPaint,
         );
       }
     }
+  }
 
-    if (ceiling) {
-      canvas.save();
-      canvas.translate(0, bounds.bottom);
-      canvas.scale(1, -1);
-      surface.render(
-        canvas,
-        position: Vector2(0, 0),
-        size: Vector2(48, 12),
-        overridePaint: _pixelPaint,
-      );
-      canvas.restore();
-    } else {
-      surface.render(
-        canvas,
-        position: Vector2(0, bounds.top),
-        size: Vector2(48, 12),
-        overridePaint: _pixelPaint,
-      );
+  List<_TerrainPlacement> _pack(
+    int blockIndex,
+    List<_MazeColumn> block, {
+    required bool ceiling,
+  }) {
+    const rowCount = _maximumRow - _minimumRow + 1;
+    final occupied = List.generate(
+      blockWidth,
+      (_) => List.filled(rowCount, false),
+    );
+    final blockStart = blockIndex * blockWidth;
+    final profiles = {
+      for (final profile in block) profile.terrainIndex - blockStart: profile,
+    };
+    for (var column = 0; column < blockWidth; column++) {
+      final profile = profiles[column];
+      if (profile == null) continue;
+      for (var row = _minimumRow; row <= _maximumRow; row++) {
+        final top = _gridOriginY + row * _cell;
+        final bottom = top + _cell;
+        occupied[column][row - _minimumRow] = ceiling
+            ? bottom <= profile.ceilingBottom
+            : top >= profile.floorTop;
+      }
     }
-    canvas.restore();
+
+    final used = List.generate(
+      blockWidth,
+      (_) => List<String?>.filled(rowCount, null),
+    );
+    final placements = <_TerrainPlacement>[];
+    final rowOrder = [
+      for (var row = _minimumRow; row <= _maximumRow; row++) row,
+    ];
+
+    for (final row in rowOrder) {
+      for (var column = 0; column < blockWidth; column++) {
+        final rowIndex = row - _minimumRow;
+        if (!occupied[column][rowIndex] || used[column][rowIndex] != null) {
+          continue;
+        }
+        final fitting = assets.where((asset) {
+          final spec = asset.spec;
+          if (column + spec.unitsWide > blockWidth ||
+              row + spec.unitsHigh - 1 > _maximumRow) {
+            return false;
+          }
+          for (var dx = 0; dx < spec.unitsWide; dx++) {
+            for (var dy = 0; dy < spec.unitsHigh; dy++) {
+              final targetRow = row + dy - _minimumRow;
+              if (!occupied[column + dx][targetRow] ||
+                  used[column + dx][targetRow] != null) {
+                return false;
+              }
+            }
+          }
+          return true;
+        }).toList();
+        final nonTouching = fitting
+            .where((asset) => !_touchesSameAsset(used, row, column, asset.spec))
+            .toList();
+        final candidates = nonTouching.isEmpty ? fitting : nonTouching;
+        final family = _usageBalancer.chooseFamily(
+          candidates.map((asset) => asset.spec.family),
+        );
+        final familyCandidates = candidates
+            .where((asset) => asset.spec.family == family)
+            .toList();
+        final chosenName = _usageBalancer.chooseLeastUsedAsset(
+          assetNames: familyCandidates.map((asset) => asset.spec.name),
+          stableValue: _stableValue(blockIndex, row, column, family, ceiling),
+        );
+        final chosen = familyCandidates.firstWhere(
+          (asset) => asset.spec.name == chosenName,
+        );
+        _usageBalancer.record(
+          family: chosen.spec.family,
+          assetName: chosen.spec.name,
+        );
+        for (var dx = 0; dx < chosen.spec.unitsWide; dx++) {
+          for (var dy = 0; dy < chosen.spec.unitsHigh; dy++) {
+            used[column + dx][row + dy - _minimumRow] = chosen.spec.name;
+          }
+        }
+        placements.add(
+          _TerrainPlacement(asset: chosen, column: column, row: row),
+        );
+      }
+    }
+    return placements;
+  }
+
+  bool _touchesSameAsset(
+    List<List<String?>> used,
+    int row,
+    int column,
+    _TerrainModuleSpec spec,
+  ) {
+    for (var dx = 0; dx < spec.unitsWide; dx++) {
+      for (var dy = 0; dy < spec.unitsHigh; dy++) {
+        final x = column + dx;
+        final y = row + dy - _minimumRow;
+        for (final offset in const [
+          (dx: -1, dy: 0),
+          (dx: 1, dy: 0),
+          (dx: 0, dy: -1),
+          (dx: 0, dy: 1),
+        ]) {
+          final neighborX = x + offset.dx;
+          final neighborY = y + offset.dy;
+          if (neighborX < 0 ||
+              neighborX >= used.length ||
+              neighborY < 0 ||
+              neighborY >= used[neighborX].length) {
+            continue;
+          }
+          if (used[neighborX][neighborY] == spec.name) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  int _stableValue(
+    int blockIndex,
+    int row,
+    int column,
+    String name,
+    bool ceiling,
+  ) {
+    var value =
+        blockIndex * 73856093 ^
+        row * 19349663 ^
+        column * 83492791 ^
+        (ceiling ? 0x5F356495 : 0x2C9277B5);
+    for (final codeUnit in name.codeUnits) {
+      value = ((value * 31) ^ codeUnit) & 0x7FFFFFFF;
+    }
+    return value;
   }
 }

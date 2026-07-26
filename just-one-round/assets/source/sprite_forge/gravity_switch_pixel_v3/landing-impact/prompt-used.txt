@@ -1,0 +1,5 @@
+Use case: stylized-concept
+Asset type: 2D mobile game landing impact FX sprite sheet
+Primary request: An original magnetic landing burst in an exact 2x2 grid: contact flash, expanding arcs, peak pulse, and fading pixels.
+Style: project-native hard-edged pixel art using mint, cyan, pale yellow, and navy on solid #FF00FF.
+Constraints: fixed contact baseline, compact containment, no character, platform, baked ground, text, UI, blur, or frame borders.

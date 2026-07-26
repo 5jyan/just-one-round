@@ -1,0 +1,32 @@
+{
+  "status": "integrated-and-simulator-validated",
+  "runtimeIntegrated": true,
+  "mapUnit": [48, 48],
+  "view": "straight-on orthographic",
+  "style": "low-detail ugly-cute compressed scrap pixel art",
+  "joinContract": {
+    "edgeBandPixels": 3,
+    "outermostPixels": "solid deep plum",
+    "oppositeEdges": "same connector family",
+    "alphaInsideRectangle": "fully opaque",
+    "perspective": "none",
+    "soilOrGrass": "none"
+  },
+  "plannedFamily": [
+    {"units": [1, 1], "variants": 4},
+    {"units": [1, 2], "variants": 2},
+    {"units": [2, 1], "variants": 2},
+    {"units": [2, 2], "variants": 2},
+    {"units": [3, 1], "variants": 2},
+    {"units": [1, 3], "variants": 2}
+  ],
+  "completedFamily": {
+    "assetCount": 16,
+    "newlyGeneratedCount": 15,
+    "masterFile": "unit_1x1_01/processed/scrap_module_1x1_01.png",
+    "processedDirectory": "processed",
+    "runtimeAtlas": "../../../../images/gravity_switch_v2/platform_modules_atlas.png",
+    "previewSheet": "previews/all_modules_sheet_2x.png",
+    "mixedJoinTest": "previews/mixed_join_test_2x.png"
+  }
+}

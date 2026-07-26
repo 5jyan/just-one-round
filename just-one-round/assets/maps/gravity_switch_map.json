@@ -1,45 +1,63 @@
 {
-  "version": 4,
+  "version": 10,
   "cellSize": 48,
   "baseCeilingHeight": 128,
   "baseFloorHeight": 128,
   "initialColumnCount": 12,
   "patterns": [
     {
-      "id": "floor_stairs",
-      "description": "바닥 계단",
+      "id": "large_m",
+      "description": "큰 M자",
       "unlockAfterSeconds": 0,
-      "mapFile": "patterns/floor_stairs.map"
+      "mapFile": "patterns/large_m.map"
     },
     {
-      "id": "ceiling_stairs",
-      "description": "천장 계단",
+      "id": "missile",
+      "description": "미사일",
       "unlockAfterSeconds": 0,
-      "mapFile": "patterns/ceiling_stairs.map"
+      "mapFile": "patterns/missile.map"
     },
     {
-      "id": "alternating_mounds",
-      "description": "바닥과 천장 둔덕",
+      "id": "small_m_easy",
+      "description": "쉬운 작은 M자",
       "unlockAfterSeconds": 0,
-      "mapFile": "patterns/alternating_mounds.map"
+      "mapFile": "patterns/small_m_easy.map"
     },
     {
-      "id": "corridor_down_up",
-      "description": "통로가 아래로 갔다 위로 복귀",
+      "id": "small_m_hard",
+      "description": "어려운 작은 M자",
+      "unlockAfterSeconds": 30,
+      "mapFile": "patterns/small_m_hard.map"
+    },
+    {
+      "id": "snake",
+      "description": "뱀",
       "unlockAfterSeconds": 0,
-      "mapFile": "patterns/corridor_down_up.map"
+      "mapFile": "patterns/snake.map"
     },
     {
-      "id": "corridor_up_down",
-      "description": "통로가 위로 갔다 아래로 복귀",
-      "unlockAfterSeconds": 12,
-      "mapFile": "patterns/corridor_up_down.map"
+      "id": "tick_easy",
+      "description": "쉬운 틱",
+      "unlockAfterSeconds": 0,
+      "mapFile": "patterns/tick_easy.map"
     },
     {
-      "id": "double_stairs",
-      "description": "후반용 바닥/천장 이중 계단",
-      "unlockAfterSeconds": 12,
-      "mapFile": "patterns/double_stairs.map"
+      "id": "tick_hard",
+      "description": "어려운 틱",
+      "unlockAfterSeconds": 30,
+      "mapFile": "patterns/tick_hard.map"
+    },
+    {
+      "id": "v_easy",
+      "description": "쉬운 V자 협곡",
+      "unlockAfterSeconds": 0,
+      "mapFile": "patterns/v_easy.map"
+    },
+    {
+      "id": "v_hard",
+      "description": "어려운 V자 협곡",
+      "unlockAfterSeconds": 30,
+      "mapFile": "patterns/v_hard.map"
     }
   ]
 }

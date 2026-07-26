@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: one collision-aligned horizontal magnetic contact rail, 48x12 runtime strip
+Input images: Image 1 locks the broken scrapyard palette and material language. Image 2 locks simplified pixel density and player readability.
+Primary request: Create one long straight dented scrap-metal contact rail that sits only on the playable horizontal surface of a compressed junk wall. A thin continuous sour-lime magnetic line marks the exact collision boundary along the very top edge. Beneath it is a compact deep-plum metal lip with three large uneven plates, two dirty-cream bolts, and one tiny tomato-orange warning chip.
+Style/medium: project-native hand-authored pixel art designed to downsample into 48x12. Broad flat shapes, intentional 2-pixel-scale clusters, maximum 7 opaque colors, dark-plum outline. Ugly-cute and worn, not sleek.
+Composition: one isolated horizontal strip about 4:1 aspect ratio on a perfectly uniform #FF00FF background. The top contact line is perfectly straight from left edge to right edge. Left and right edges continue seamlessly. All visible art stays at or below the contact line; nothing protrudes upward into the safe gameplay corridor.
+Constraints: no grass, soil, rocks, dirt, vertical side coating, tall wall, character, scenery, detached debris, shadow, glow, gradient, blur, antialiasing, text, UI, or watermark. Do not use #FF00FF in the rail.

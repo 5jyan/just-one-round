@@ -1,0 +1,5 @@
+Use case: stylized-concept
+Asset type: repeatable side-view platform surface strip
+Primary request: An original horizontally tileable dark navy industrial ledge with a mint magnetic rail and yellow warning bolts.
+Style: project-native hard-edged pixel art on solid #FF00FF.
+Constraints: one isolated horizontal strip, no perspective, text, UI, character, particles, or shadows.

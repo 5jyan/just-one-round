@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: one modular pixel-art terrain block for a side-view mobile gravity-switch game
+Primary request: Create exactly ONE dark basic 1x1 junk-ground module. This is a quiet filler block, not a hero prop and not a character.
+Reference role: Use the attached 1x1 tile ONLY for its coarse pixel density, square proportions, dark-plum outline thickness, and four-edge connector rhythm. Do not copy its green face, central object, or busy detail.
+View: perfectly straight-on orthographic front view, no perspective and no visible top plane.
+Design: a solid square made mostly from dark deep-plum and near-black violet compacted metal. About 85 percent should read as calm dark mass. Add only two or three broad low-contrast metal plate shapes, four simple recessed bolts, one short shallow seam, and at most one tiny muted-olive rust stain. No focal object. No face. No appliance. No pipe network. No gauge. No symbol.
+Pixel density: very low-detail true pixel art intended for final 48x48. Large deliberate pixel clusters, hard edges, 4 to 5 dark colors maximum, no tiny noise.
+Join contract: perfectly straight square boundary, standardized three-pixel-equivalent dark joining rail on all four edges, compatible opposite edges, completely opaque inside the square.
+Backdrop: center the complete tile on a perfectly flat solid #FF00FF chroma-key background with generous padding.
+Constraints: no text, no watermark, no transparency inside the tile, no irregular outer silhouette.
+Avoid: bright lime areas, cream highlights, orange accents, central character, cute face, detailed machinery, dirt, grass, rocks, glow, gradients, antialiasing, cast shadow, perspective, decorative frame outside the tile.

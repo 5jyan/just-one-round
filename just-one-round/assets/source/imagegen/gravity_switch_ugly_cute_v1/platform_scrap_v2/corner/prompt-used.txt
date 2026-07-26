@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: one compact outer corner connector for a collision-aligned junk platform, 12x12 runtime tile
+Input images: Image 1 locks the horizontal magnetic contact rail. Image 2 locks the dedicated vertical compressed-junk end-cap.
+Primary request: Create one floor top-right outer corner where a horizontal magnetic rail coming from the left ends cleanly and a dense junk wall continues downward on the left side of the open corridor. The open gameplay area is above and right. The thin sour-lime magnetic line exists only along the horizontal top edge and stops exactly at the corner. The vertical right edge is deep-plum compressed junk with no lime coating. Use one oversized crooked bolt or crushed-can fragment to make the junction feel intentionally built from junk.
+Style/medium: project-native hand-authored pixel art designed to downsample into 12x12. Broad simple pixel clusters, maximum 7 flat opaque colors, strong dark-plum outline, ugly-cute worn scrap.
+Composition: one isolated square corner on a perfectly uniform #FF00FF background. The wall mass fully occupies the lower-left portion. The exact top and right collision boundaries are clear and meet at one clean 90-degree corner. All art stays inside the collision block and never protrudes into the open area above or right.
+Constraints: no grass, no lime vertical stripe, no soil, rock, bricks, dirt, character, scenery, detached debris, shadow, gradient, blur, antialiasing, text, UI, or watermark. Do not use #FF00FF in the corner.

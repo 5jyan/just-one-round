@@ -1,0 +1,5 @@
+Use case: stylized-concept
+Asset type: full-screen mobile game background
+Primary request: An original portrait pixel-art sci-fi city and space-station corridor with a clear central gameplay lane.
+Style: project-native hard-edged pixel art, limited navy/indigo/teal/violet palette.
+Constraints: opaque, no text, UI, characters, hazards, or baked platform geometry.

@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: one dedicated repeatable vertical exposed end-cap for a compressed junk gameplay wall, 12x48 runtime strip
+Input images: Image 1 locks the dense compressed-junk shapes and palette. Image 2 locks the metal lip material but its lime horizontal contact rail must not appear on this vertical side.
+Primary request: Create one narrow vertical cut edge of a tightly compressed junk wall. The wall mass is on the left and the open gameplay corridor is on the right. Along the exact right boundary, use one continuous dark-plum silhouette made from large interlocked scrap profiles: half a wheel, bent pipe, dented plate edge, crushed can, and two big bolts. It must read as a dense solid wall with no holes and no loose parts.
+Style/medium: project-native hand-authored pixel art designed to downsample into 12x48. Broad simple clusters, maximum 7 flat opaque colors, thick dark-plum outline, ugly-cute worn junk, low semantic detail.
+Composition: one isolated vertical strip about 1:4 aspect ratio on a perfectly uniform #FF00FF background. Top and bottom must continue seamlessly when repeated. The exact outer collision boundary is a clear continuous vertical line on the right. All art stays on or left of that line and never protrudes into the open corridor.
+Palette: deep plum and bruised violet dominant, muted olive, dirty cream, small tomato-orange accents. No sour-lime coating or grass-like rim on the vertical face.
+Constraints: no transparent holes inside the wall silhouette, no horizontal rail, no grass, soil, rock, bricks, dirt, character, background, detached debris, shadow, gradient, blur, antialiasing, text, UI, or watermark. Do not use #FF00FF in the end-cap.

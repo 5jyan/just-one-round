@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: one dense repeatable 48x48 gameplay wall-fill tile
+Input images: Image 1 locks the broken gravity scrapyard world, palette, and ugly-cute junk material. Image 2 locks the deliberately simplified pixel density and flat-color economy. Do not include the player.
+Primary request: Create one solid block of tightly compressed junk for the interior of floor and ceiling collision columns. The entire square is packed edge-to-edge with a few large readable scrap shapes: one bent pipe, one dented plate, one partial wheel, one crushed can, and two oversized bolts. All pieces overlap and compress into one visually solid mass with no open holes or background showing through.
+Style/medium: project-native hand-authored pixel art designed to downsample into one 48x48 tile. Broad shapes, thick deep-plum outlines, intentional 2-pixel-scale clusters, maximum 8 flat opaque colors. Ugly-cute, lopsided, worn, but not detailed.
+Palette: deep plum, dark and bruised violet, muted olive, dirty cream, small tomato-orange accents, very restrained sour lime. Lower contrast than the player and contact rail.
+Composition: square tile filling the full canvas edge to edge. Keep large shapes crossing the edges so repetition feels like one continuous compacted junk wall. Every edge must remain visually dense. No special top, bottom, left, or right border.
+Constraints: opaque; no empty background; no magenta; no transparency; no gradient; no lighting; no blur; no antialiasing; no tiny dot texture; no checker pattern; no grass, soil, rock, bricks, dirt, platform rail, character, text, UI, or watermark.

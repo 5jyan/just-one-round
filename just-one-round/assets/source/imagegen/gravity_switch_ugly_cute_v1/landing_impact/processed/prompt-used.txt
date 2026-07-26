@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: 2D mobile game landing-impact animation sheet, exactly 2 columns by 2 rows, four equal invisible cells
+Input images: Image 1 locks the magnet-mite character palette and flat low-detail pixel language. Image 2 locks the magnetic platform contact colors.
+Primary request: Create one compact ugly-cute magnetic landing pulse sequence with no character and no platform baked into it.
+Frame order: top-left tiny contact squish, top-right short sideways magnetic ripple, bottom-left widest crooked pulse with two chunky sparks, bottom-right collapsing two-pixel crumbs. One continuous impact sequence.
+Style/medium: project-native hand-authored pixel art intended for 16x16 source cells and 48x48 nearest-neighbor display. Maximum 6 flat opaque colors: sour lime, dirty cream, tomato orange, dusty turquoise, deep plum. Strong simple shapes, deliberate pixel clusters, no gradient, no glow blur, no antialiasing, no semitransparency.
+Layout: exactly four equal invisible cells in a 2x2 grid. Every frame uses one shared horizontal contact baseline at 78% of cell height. Keep all pixels in the central 65% with magenta margin on all sides. Nothing touches or crosses cell edges. No visible cell borders, guides, labels, or separators.
+Backdrop: perfectly uniform flat solid #FF00FF chroma-key background edge to edge. Do not use #FF00FF in the effect.
+Constraints: no character, no platform, no floor plate, no shadow, no large explosion, no detached far-away particles, no text, no UI, no watermark.

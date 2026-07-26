@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: one seamless square repeat tile for the solid interior of a gravity-game platform
+Input images: Image 1 locks the ugly-cute broken scrapyard palette. Image 2 locks the matching dented deep-plum metal material and sour-lime accent language.
+Primary request: Create one square seamless tile of chunky dented scrap-metal interior. Broad deep-plum plates with a few large crooked seams, one or two oversized bolt heads, and very sparse muted olive grime. It fills large floor and ceiling blocks behind the separate magnetic surface strip.
+Style/medium: project-native hand-authored pixel art designed for a 24x24 runtime tile, using intentional 2-pixel-scale clusters, maximum 6 flat opaque colors, crisp hard edges, no gradient, no lighting, no texture noise, no antialiasing, no semitransparency.
+Composition: one square tile filling the full canvas edge to edge. All four edges must repeat seamlessly. No border and no special top/bottom edge because the separate surface strip supplies the contact line.
+Constraints: no magenta background, no transparency, no lime contact rail, no character, no face, no scenery, no debris outside the tile, no text, no UI, no watermark.

@@ -1,0 +1,5 @@
+Use case: stylized-concept
+Asset type: side-view mobile game player animation sprite sheet
+Primary request: An original compact gravity runner robot in an exact 2x2 grid of four run/flip frames, readable at 32x32 pixels.
+Style: project-native hard-edged pixel art, limited navy/mint/yellow palette, solid #FF00FF background.
+Constraints: identical scale and identity across frames, exact grid, full containment, no text, UI, shadows, scenery, or detached effects.

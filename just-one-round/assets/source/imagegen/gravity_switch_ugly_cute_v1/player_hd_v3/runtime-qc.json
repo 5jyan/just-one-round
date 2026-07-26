@@ -1,0 +1,36 @@
+{
+  "runtime_asset": "assets/images/gravity_switch_v2/player_magnet_mite_sheet_v3.png",
+  "accepted_source": "assets/source/imagegen/gravity_switch_ugly_cute_v1/player_hd_v3/raw/player-magnet-mite-sheet-v3.png",
+  "accepted_processed": "assets/source/imagegen/gravity_switch_ugly_cute_v1/player_hd_v3/processed_v3/player-magnet-mite-sheet.png",
+  "layout": {
+    "rows": 2,
+    "columns": 2,
+    "frame_width": 48,
+    "frame_height": 48,
+    "sheet_width": 96,
+    "sheet_height": 96
+  },
+  "frame_bounds": [
+    [7, 9, 40, 38],
+    [7, 9, 40, 38],
+    [13, 7, 35, 40],
+    [7, 8, 40, 40]
+  ],
+  "palette": {
+    "opaque_colors": 8,
+    "transparent_colors": 1,
+    "partial_alpha_pixels": 0
+  },
+  "contact": {
+    "visual_grounded_half_height": 14.5,
+    "runtime_contact_half_height": 15.0,
+    "hitbox_width": 26,
+    "hitbox_height": 26
+  },
+  "processor_qc": {
+    "empty_frames": 0,
+    "source_edge_touch_frames": 0,
+    "output_edge_touch_frames": 0,
+    "paste_clamped_frames": 0
+  }
+}

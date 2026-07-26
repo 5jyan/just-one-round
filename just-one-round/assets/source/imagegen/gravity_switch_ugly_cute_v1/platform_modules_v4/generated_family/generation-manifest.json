@@ -1,0 +1,114 @@
+{
+  "tool": "built-in ImageGen",
+  "masterReference": "../../basic_1x1_01/processed/scrap_basic_1x1_01.png",
+  "background": "#FF00FF",
+  "sharedPromptContract": {
+    "useCase": "stylized-concept",
+    "assetType": "pixel-art collision-ground module",
+    "style": "deep-plum nighty ugly-cute pixel art matching the approved 1x1 master",
+    "construction": "one complete continuous module, broad asymmetric plates, broken seams, sparse recessed bolts and dents",
+    "detail": "quiet low-contrast base terrain with at most one muted olive grime mark",
+    "avoid": "repeated square halves, face, character, machinery, pipe, gauge, emblem, text, bright accents, glow, perspective, focal prop",
+    "output": "complete orthographic silhouette, generous padding, flat uniform #FF00FF background, crisp hard pixel clusters, no antialiasing"
+  },
+  "sources": [
+    {
+      "asset": "scrap_basic_1x1_02",
+      "raw": "raw/scrap_basic_1x1_02.png",
+      "callFile": "call_5DvyEjfDzRnWtgE42co3GXma.png",
+      "requestedUnits": [1, 1],
+      "variation": "asymmetric broad plates, shallow seam, sparse bolts"
+    },
+    {
+      "asset": "scrap_basic_1x1_03",
+      "raw": "raw/scrap_basic_1x1_03.png",
+      "callFile": "call_CMr1bKbQ9w9UZOOBpuv1fZZT.png",
+      "requestedUnits": [1, 1],
+      "variation": "broad inset plate and short broken seam"
+    },
+    {
+      "asset": "scrap_basic_1x1_04",
+      "raw": "raw/scrap_basic_1x1_04.png",
+      "callFile": "call_VlFUCXZdRaEDkwoUhWdG0okd.png",
+      "requestedUnits": [1, 1],
+      "variation": "two short offset plate seams"
+    },
+    {
+      "asset": "scrap_basic_1x2_01",
+      "raw": "raw/scrap_basic_1x2_01.png",
+      "callFile": "call_gxFNCePTat88edPK683YE4Xf.png",
+      "requestedUnits": [1, 2],
+      "variation": "two broad mismatched plates and broken vertical seam"
+    },
+    {
+      "asset": "scrap_basic_1x2_02",
+      "raw": "raw/scrap_basic_1x2_02.png",
+      "callFile": "call_ZK8n2N58z49NAh2MDhic03jT.png",
+      "requestedUnits": [1, 2],
+      "variation": "three irregular plate areas and crooked interrupted seam"
+    },
+    {
+      "asset": "scrap_basic_2x1_01",
+      "raw": "raw/scrap_basic_2x1_01.png",
+      "callFile": "call_icjf6auTz792121B3DQ7m06W.png",
+      "requestedUnits": [2, 1],
+      "variation": "broad offset plates and broken horizontal seam"
+    },
+    {
+      "asset": "scrap_basic_2x1_02",
+      "raw": "raw/scrap_basic_2x1_02.png",
+      "callFile": "call_TB644Bi6TBCh9YF63kadSBX3.png",
+      "requestedUnits": [2, 1],
+      "variation": "calm central plate with two smaller edge plates"
+    },
+    {
+      "asset": "scrap_basic_2x2_01",
+      "raw": "raw/scrap_basic_2x2_01.png",
+      "callFile": "call_3kqMFU9yS0Uzco7rpu7DsYmU.png",
+      "requestedUnits": [2, 2],
+      "variation": "large mismatched plate fields crossing cell boundaries"
+    },
+    {
+      "asset": "scrap_basic_2x2_02",
+      "raw": "raw/scrap_basic_2x2_02.png",
+      "callFile": "call_wm2X5jdrW1WnHAuQqrrhTP0K.png",
+      "requestedUnits": [2, 2],
+      "variation": "dominant calm plate with asymmetric overlapping plates"
+    },
+    {
+      "asset": "scrap_basic_3x1_01",
+      "raw": "raw/scrap_basic_3x1_01.png",
+      "callFile": "call_y09hvgaKVGrTs3aVt8iprKQi.png",
+      "requestedUnits": [3, 1],
+      "variation": "long continuous plate fields and interrupted seam"
+    },
+    {
+      "asset": "scrap_basic_3x1_02",
+      "raw": "raw/scrap_basic_3x1_02.png",
+      "callFile": "call_Rwb1R5nISGGMuoP3k1pJirbX.png",
+      "requestedUnits": [3, 1],
+      "variation": "large calm central plate and asymmetric end plates"
+    },
+    {
+      "asset": "scrap_basic_1x3_01",
+      "raw": "raw/scrap_basic_1x3_01.png",
+      "callFile": "call_wlZpMpSg3V6GsCzNKa37vA0e.png",
+      "requestedUnits": [1, 3],
+      "variation": "continuous tall plate fields and long broken seam"
+    },
+    {
+      "asset": "scrap_basic_1x3_02",
+      "raw": "raw/scrap_basic_1x3_02.png",
+      "callFile": "call_j7ucr0JUu2lfvZEfNRsr7pDP.png",
+      "requestedUnits": [1, 3],
+      "variation": "calm central plate with asymmetric top and bottom plates"
+    },
+    {
+      "asset": "scrap_basic_3x2_01",
+      "raw": "raw/scrap_basic_3x2_01.png",
+      "callFile": "call_wIsUlNpgxnmiHJqjJPZ4VG8o.png",
+      "requestedUnits": [3, 2],
+      "variation": "broad asymmetric plate fields crossing all implied cells"
+    }
+  ]
+}

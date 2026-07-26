@@ -22,6 +22,13 @@ class GravityMapPattern {
   final String id;
   final double unlockAfterSeconds;
   final List<GravityMapProfile> columns;
+
+  bool isAvailableAt(double elapsedSeconds) {
+    final tokens = id.split('_');
+    if (tokens.contains('easy') && elapsedSeconds >= 30) return false;
+    if (tokens.contains('hard') && elapsedSeconds < 30) return false;
+    return unlockAfterSeconds <= elapsedSeconds;
+  }
 }
 
 class GravityMapLayout {
@@ -127,10 +134,7 @@ class GravityMapLayout {
 
     return GravityMapLayout(
       columnWidth: cellSize,
-      initialProfile: GravityMapProfile(
-        floorTop: baseCeilingHeight + (gridHeight! * cellSize),
-        ceilingBottom: baseCeilingHeight,
-      ),
+      initialProfile: patterns.first.columns.first,
       initialColumnCount: initialColumnCount,
       patterns: patterns,
     );

@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: one repeatable side-view gameplay platform surface strip
+Input images: Image 1 locks the new broken gravity scrapyard palette and material language. Image 2 locks selective abstraction, flat colors, dark-plum outline, and low semantic detail only.
+Primary request: Create one isolated horizontally tileable magnetic ledge surface for the ugly-cute gravity scrapyard. It is a dented deep-plum scrap-metal lip with a continuous sour-lime magnetic contact band, a few large crooked cream teeth/bolts, and at most two restrained tomato-orange accents. The contact edge must be perfectly clear and continuous across the full width so the player visibly lands on it.
+Style/medium: project-native hand-authored pixel art designed for a 48x12 runtime strip. Use intentional 2-pixel-scale clusters, broad flat shapes, maximum 7 opaque colors, crisp hard edges, no gradient, no texture noise, no antialiasing, no semitransparency.
+Composition: exactly one long horizontal strip centered on the canvas, about 4:1 width-to-height. Left and right edges must continue seamlessly when repeated. Straight horizontal gameplay contact line; no perspective and no end caps.
+Backdrop: perfectly uniform flat solid #FF00FF chroma-key background. Do not use #FF00FF in the strip.
+Constraints: no character, no background scenery, no floor block, no tall wall, no detached debris, no shadow, no glow, no text, no UI, no watermark.

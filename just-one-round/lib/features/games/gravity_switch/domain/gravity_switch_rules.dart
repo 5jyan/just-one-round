@@ -6,9 +6,13 @@ abstract final class GravitySwitchRules {
   static const gravityAcceleration = 5200.0;
   static const maxVerticalSpeed = 1400.0;
   static const surfaceSnapTolerance = 10.0;
+  static const initialScrollSpeed = 160.0;
+  static const accelerationPerSecond = 1.5;
 
-  static double scrollSpeed(double elapsedSeconds) =>
-      min(360, 108 + (1.9 * elapsedSeconds));
+  static double scrollSpeed(double elapsedSeconds) => min(
+    360,
+    initialScrollSpeed + (accelerationPerSecond * max(0, elapsedSeconds)),
+  );
 
   static int safeColumnCount(double elapsedSeconds) =>
       max(1, 4 - (elapsedSeconds / 20).floor());
@@ -21,4 +25,7 @@ abstract final class GravitySwitchRules {
 
   static String formatSurvival(int milliseconds) =>
       '${(milliseconds / 1000).toStringAsFixed(2)}초';
+
+  static String formatHudTime(int milliseconds) =>
+      (milliseconds / 1000).toStringAsFixed(2);
 }

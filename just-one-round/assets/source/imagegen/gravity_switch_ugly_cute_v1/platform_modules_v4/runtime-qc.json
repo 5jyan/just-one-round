@@ -1,0 +1,27 @@
+{
+  "runtimeAssets": [
+    "assets/images/gravity_switch_v2/platform_modules_v3/",
+    "assets/images/gravity_switch_v2/platform_modules_v4/"
+  ],
+  "assetCount": 31,
+  "cellPixels": 48,
+  "renderer": "whole-footprint 3-column occupancy-grid packing",
+  "separateSurfaceLayer": false,
+  "placementChecks": {
+    "largeModulesRequireCompleteFootprint": true,
+    "fallbackToSmallerModules": true,
+    "sameAssetAdjacencySuppression": true,
+    "v4BaseWeighting": true,
+    "v3AccentQuota": "at most one per surface block; alternating normally, both surfaces every third block",
+    "ceilingVerticalMirror": true,
+    "nearestNeighborFiltering": true
+  },
+  "verification": {
+    "assetQc": "PASS",
+    "flutterTest": "PASS: 31 asset dimensions + mixed Flame runtime",
+    "flutterAnalyze": "tool failure: analysis-server LSP JSON parse crash before diagnostics",
+    "iosSimulator": "PASS: iPhone 17, iOS 26.5",
+    "runtimeExceptions": "none observed",
+    "screenshot": "artifacts/gravity_switch/gravity_switch_v3_increased_simulator.png"
+  }
+}

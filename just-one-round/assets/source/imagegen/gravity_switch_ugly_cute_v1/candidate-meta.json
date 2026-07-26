@@ -1,0 +1,61 @@
+{
+  "status": "preview_candidate_not_integrated",
+  "concept": "ugly-cute broken gravity scrapyard with a one-eyed magnet mite",
+  "master_style_reference": "assets/source/imagegen/dung_dodge_v2/player_master_candidate/player-master-candidate-32.png",
+  "outputs": {
+    "background": {
+      "path": "candidate/space_background.png",
+      "size": [180, 320],
+      "display_size": [360, 640],
+      "opaque_palette_colors": 9
+    },
+    "player": {
+      "path": "candidate/player_sheet.png",
+      "size": [48, 48],
+      "cell_size": [24, 24],
+      "display_size": [48, 48],
+      "layout": "2x2: attached A, attached B, airborne stretch, airborne squash",
+      "opaque_palette_colors": 6
+    },
+    "platform_surface": {
+      "path": "candidate/platform_surface.png",
+      "size": [48, 12],
+      "horizontally_seamless": true,
+      "opaque_palette_colors": 5
+    },
+    "platform_fill": {
+      "path": "candidate/platform_fill.png",
+      "size": [24, 24],
+      "horizontally_seamless": true,
+      "vertically_seamless": true,
+      "opaque_palette_colors": 3
+    },
+    "platform_side_caps": {
+      "left_path": "candidate/platform_side_left.png",
+      "right_path": "candidate/platform_side_right.png",
+      "size": [12, 48],
+      "vertically_seamless": true,
+      "source": "deterministic rotations of the accepted platform surface",
+      "placement": "all exposed vertical step faces"
+    },
+    "landing_impact": {
+      "path": "candidate/landing_impact_sheet.png",
+      "size": [32, 32],
+      "cell_size": [16, 16],
+      "layout": "2x2 contact-to-collapse sequence"
+    }
+  },
+  "qc": {
+    "player_frames": 4,
+    "player_empty_frames": 0,
+    "player_edge_touch_frames": 0,
+    "player_paste_clamped_frames": 0,
+    "landing_impact_frames": 4,
+    "landing_impact_empty_frames_after_flattening": 0,
+    "platform_fill_visible": true,
+    "horizontal_and_vertical_exposed_edges_capped": true,
+    "alpha_values": [0, 255],
+    "preview": "previews/gravity-switch-concept-screen.png"
+  },
+  "runtime_changes": []
+}

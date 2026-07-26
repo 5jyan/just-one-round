@@ -1,0 +1,11 @@
+Make a final corrected 2x2 pixel-art sheet of the exact same lime one-eyed magnetic mite shown in the reference. Preserve the top-row character identity and successful plump proportions. Keep the same face, eye, palette, four orange magnetic nubs, deep-plum outline, ugly-cute nervous personality, camera distance, and native-48×48 pixel-art style.
+
+Top row: retain the successful compact plump potato-bean shape. Frame 1 and frame 2 must remain nearly identical in body mass and size, approximately 31–33 pixels wide and 29–31 pixels tall at final 48×48 delivery size. Wobble via eye/pupil, mouth, and nub movement only; do not flatten or stretch the torso.
+
+Critical correction for bottom-left: the airborne vertical pose in the reference is too skinny. Make it a THICK upright potato, not a narrow column. It must retain the same body mass, eye size, outline weight, and limb/nub thickness as the grounded poses. At final size it must be approximately 23–25 pixels wide and 33–35 pixels tall. Its torso must remain rounded and visibly thick from top to bottom. Bottom-right must be a compact round pose approximately 29–31 pixels wide and 29–31 pixels tall.
+
+Exact equal 2 columns × 2 rows. Frame order: grounded wobble A; grounded wobble B same body size; thick upright airborne stretch; compact round airborne pose. Stable visual center/root. Entire silhouette stays inside central 65–70% of every cell with clear magenta margin. Nothing crosses cells. No detached effects.
+
+Crisp deliberate modern pixel art intended for 48×48 source cells. About 8 flat colors, one-pixel final outline, deliberate 1–3 pixel clusters. No gradients, antialiasing, dithering, blur, texture noise, glossy rendering, realistic details, or shadows.
+
+Solid fully opaque #FF00FF magenta background. No transparency, dividers, grid lines, borders, labels, text, UI, scenery, floor, shadow, or extra objects. Exactly four sprites.

@@ -1,0 +1,27 @@
+{
+  "result": "pass",
+  "assetCount": 16,
+  "uniquePixelHashes": 16,
+  "checks": {
+    "exactDimensions": "pass",
+    "fullyOpaqueRectangles": "pass",
+    "fixedNineColorPalette": "pass",
+    "magentaContamination": "none",
+    "connectorCompatibilityEvery48Pixels": "pass",
+    "nativeResolutionVisualReview": "pass",
+    "nearestNeighborEnlargedReview": "pass",
+    "mixedGeometryJoinReview": "pass",
+    "internalUnitGridOnMultiCellModules": "none added",
+    "flutterAssetLoadAndFlameRenderTest": "pass",
+    "fullFlutterTestSuite": "70 tests passed",
+    "iosSimulatorStartupAndVisualReview": "pass"
+  },
+  "runtimeValidation": {
+    "device": "iPhone 17 simulator, iOS 26.5",
+    "runtimeAtlas": "assets/images/gravity_switch_v2/platform_modules_atlas.png",
+    "capture": "artifacts/gravity_switch/gravity_switch_modules_simulator.png"
+  },
+  "knownExceptions": [
+    "flutter analyze could not complete because the local analysis server returned truncated LSP JSON twice; compilation and all 70 Flutter tests passed."
+  ]
+}

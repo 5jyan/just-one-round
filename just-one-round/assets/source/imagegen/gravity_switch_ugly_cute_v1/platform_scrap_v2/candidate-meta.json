@@ -1,0 +1,35 @@
+{
+  "status": "preview-candidate-not-integrated",
+  "concept": "compressed ugly-cute junk walls with a magnetic contact rail",
+  "runtimeFilesChanged": false,
+  "assetContract": {
+    "fillVariants": {
+      "count": 16,
+      "pattern": "scrap_fill_0.png through scrap_fill_15.png",
+      "size": [48, 48],
+      "alpha": "opaque"
+    },
+    "horizontalContactSurface": {
+      "file": "contact_surface.png",
+      "size": [48, 12],
+      "limePlacement": "horizontal contact edge only"
+    },
+    "verticalSides": {
+      "files": ["scrap_side_left.png", "scrap_side_right.png"],
+      "size": [12, 48],
+      "limeCoating": false
+    },
+    "corners": {
+      "count": 8,
+      "size": [12, 12]
+    }
+  },
+  "visualChecks": {
+    "collisionRectClipping": "pass",
+    "transparentGapsInsideFill": "pass",
+    "limeOnVerticalExposedSides": "none",
+    "nativeScalePreview": "360x640",
+    "nearestNeighborReviewPreview": "720x1280"
+  },
+  "integrationNote": "Runtime integration will require deterministic selection among the 16 fill variants."
+}
