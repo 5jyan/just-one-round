@@ -1,0 +1,12 @@
+Use case: logo-brand
+Asset type: 1024×1024 mobile app icon concept for the Korean casual minigame app “딱한판만”
+Input images: Image 1 is concept-only reference for the central winning number 1; Image 2 and Image 3 are house-style references for chunky deliberate pixel clusters, dark outlines, limited shading, and slightly awkward ugly-cute personality. Do not copy their subjects, scenery, layout, or palettes.
+Primary request: Create a chunky numeral “1” as a tiny ugly-cute mascot. Give it two short mismatched feet, two dot eyes with a blank overconfident expression, and one small crooked crown. The numeral must remain unmistakably readable.
+Scene/backdrop: Full-bleed flat warm butter-yellow square background, no rounded-corner frame.
+Style/medium: Authentic low-resolution 32×32-era pixel-art logo, hard square pixel clusters, intentionally awkward and dopey but endearing, very low detail, no antialiasing.
+Composition/framing: Straight-on centered mascot occupying about 65% of the canvas, crown within safe margin, instantly readable at 48×48.
+Color palette: Sky-blue body, butter-yellow background, deep navy outline, white eyes, tiny coral crown accent; maximum 7 main colors.
+Lighting/mood: Cheerfully foolish “number one” confidence.
+Text (verbatim): “1”
+Constraints: Only the numeral-shaped mascot; full square opaque artwork; strong silhouette; very sparse face; chunky outline.
+Avoid: Any other letters or numbers, Korean text, gradients, complex limbs, hands, realistic anatomy, excessive cuteness, glossy 3D rendering, tiny details, smooth vector curves, rounded app-icon mask, border frame, watermark, arcade button, trophy, coin, joystick lever.

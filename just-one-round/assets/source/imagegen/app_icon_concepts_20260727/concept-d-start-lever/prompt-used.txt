@@ -1,0 +1,12 @@
+Use case: logo-brand
+Asset type: 1024×1024 mobile app icon concept for the Korean casual minigame app “딱한판만”
+Input images: Image 1 is concept-only reference for the “number 1 rising from a game control base” composition; Image 2 and Image 3 are house-style references for chunky deliberate pixel clusters, dark outlines, limited shading, and slightly awkward ugly-cute personality. Do not copy their subjects, scenery, layout, or palettes.
+Primary request: Create a toy-like arcade start lever where the vertical stick and blocky top form the numeral “1”, rising from one low chunky base. The lever leans very slightly, like it is trying too hard to stand straight.
+Scene/backdrop: Full-bleed flat dark violet square background with no additional objects and no rounded-corner frame.
+Style/medium: Authentic low-resolution 32×32-era pixel-art logo, hard square pixel clusters, deliberately awkward proportions, very low detail, no antialiasing.
+Composition/framing: Straight-on centered lever occupying about 67% of the canvas, generous safe margin, instantly readable at 48×48.
+Color palette: Acid lime lever, warm ivory highlight, dark violet background, near-black purple outline, small lavender base accent; maximum 6 main colors.
+Lighting/mood: Odd, playful, tactile arcade toy.
+Text (verbatim): “1”
+Constraints: The lever silhouette clearly reads as 1; full square opaque artwork; strong dark outline; simple low base; no separate label.
+Avoid: Any other letters or numbers, Korean text, gradients, realistic plastic, shiny 3D rendering, tiny screws, smooth vector curves, rounded app-icon mask, border frame, watermark, arcade push button, trophy, coin, crown, face, characters.

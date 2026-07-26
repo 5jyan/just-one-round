@@ -1,0 +1,12 @@
+Use case: logo-brand
+Asset type: 1024×1024 mobile app icon concept for the Korean casual minigame app “딱한판만”
+Input images: Image 1 is concept-only reference for the central “one winning round” symbol; Image 2 and Image 3 are house-style references for chunky deliberate pixel clusters, dark outlines, limited shading, and slightly awkward ugly-cute personality. Do not copy their subjects, scenery, layout, or palettes.
+Primary request: Create a simple pixel-art trophy whose entire chunky, slightly crooked silhouette also reads as the numeral “1”. It has one tiny off-center handle and a clumsy little pedestal, charming rather than prestigious.
+Scene/backdrop: Full-bleed flat pale mint square background with two small blocky confetti squares, no rounded-corner frame.
+Style/medium: Authentic low-resolution 32×32-era pixel-art logo, hard square pixel clusters, deliberately imperfect symmetry, very low detail, no antialiasing.
+Composition/framing: Straight-on centered trophy occupying about 66% of the canvas, generous safe margin, instantly readable at 48×48.
+Color palette: Tangerine orange trophy, pale mint background, charcoal outline, cream highlight; maximum 6 main colors.
+Lighting/mood: One compact upper-left highlight, cheerful awkward victory.
+Text (verbatim): “1”
+Constraints: The object silhouette itself must clearly read as 1; no separate printed numeral needed except a minimal single-pixel highlight; full square opaque artwork; strong dark outline.
+Avoid: Any other letters or numbers, Korean text, gradients, polished gold, realistic metal, tiny ornaments, smooth vector curves, rounded app-icon mask, border frame, watermark, arcade button, coin, joystick lever, crown, face, human or animal.

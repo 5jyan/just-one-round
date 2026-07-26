@@ -1,0 +1,193 @@
+{
+  "selected_variant": "01-current-brand",
+  "master": "assets/source/brand/ttak-logo-20260727/ttak-01-current-brand.png",
+  "master_sha256": "a4bd7acac0b6ea38400d7452f0f16c307bb1cfe3c8a33f9266390e84ee933b92",
+  "resampling": "Pillow LANCZOS from the approved 1024×1024 master",
+  "background": "#101827",
+  "fill": "#FFF4D6",
+  "shadow": "#B87714",
+  "ios_file_count": 15,
+  "android_file_count": 5,
+  "outputs": [
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png",
+      "size": [
+        40,
+        40
+      ],
+      "mode": "RGB",
+      "sha256": "9b9640c8e0ef04e56fb4821cdac2b7ee877bd3370e3b8b7835ae45aa0b758738"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png",
+      "size": [
+        60,
+        60
+      ],
+      "mode": "RGB",
+      "sha256": "6549619895fea1d921fc8ebcbe51a147b9ba4d8952d090edf1078416cd9dc07c"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png",
+      "size": [
+        29,
+        29
+      ],
+      "mode": "RGB",
+      "sha256": "1d73318eb3186371682bd8c3de58bec1e9401811fd65794dc7b160a35d928907"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png",
+      "size": [
+        58,
+        58
+      ],
+      "mode": "RGB",
+      "sha256": "d56f1310e7d6cc3598b9854fba05403405b79483b9435763e6646c1d8cb58d7d"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png",
+      "size": [
+        87,
+        87
+      ],
+      "mode": "RGB",
+      "sha256": "94fd488d226581bef239e57c14fc2232e87f2c8bf20496b6c7d8248d902b88d2"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png",
+      "size": [
+        80,
+        80
+      ],
+      "mode": "RGB",
+      "sha256": "e9cc6bd66c0efb06e1cd409042fbb615fa322c4ed368a8110fcce3330e2fc75b"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png",
+      "size": [
+        120,
+        120
+      ],
+      "mode": "RGB",
+      "sha256": "d4138033f98b1706e422d604af27d0658627540ff4f2532b70c6b6ffefcadd2e"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png",
+      "size": [
+        120,
+        120
+      ],
+      "mode": "RGB",
+      "sha256": "d4138033f98b1706e422d604af27d0658627540ff4f2532b70c6b6ffefcadd2e"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png",
+      "size": [
+        180,
+        180
+      ],
+      "mode": "RGB",
+      "sha256": "72b1159d77212946c4438ccd25425ada5dc90cb34916114a1279f656e4424a1d"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png",
+      "size": [
+        20,
+        20
+      ],
+      "mode": "RGB",
+      "sha256": "19c8b5826c12ae29c936b2147274f502dd378bec33c4701463b460fa7546433a"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png",
+      "size": [
+        40,
+        40
+      ],
+      "mode": "RGB",
+      "sha256": "9b9640c8e0ef04e56fb4821cdac2b7ee877bd3370e3b8b7835ae45aa0b758738"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png",
+      "size": [
+        76,
+        76
+      ],
+      "mode": "RGB",
+      "sha256": "aa1058c92bcb736be0a7c1c6b5e7d5222b23198d209cbc826c4011aab298678b"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png",
+      "size": [
+        152,
+        152
+      ],
+      "mode": "RGB",
+      "sha256": "bcd5c24a7092291c2207e4f79455979f6d7f93927c160f4353a16b33500b0039"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png",
+      "size": [
+        167,
+        167
+      ],
+      "mode": "RGB",
+      "sha256": "64092837e192f27559106b46dabd503dfc988e56a64e2c3fc496206f73ce638c"
+    },
+    {
+      "path": "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB",
+      "sha256": "a4bd7acac0b6ea38400d7452f0f16c307bb1cfe3c8a33f9266390e84ee933b92"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGB",
+      "sha256": "eefdf4dd5089ba741c0a0f07cf50f4eeeef64db59db878887fe45a630d168bd2"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "size": [
+        72,
+        72
+      ],
+      "mode": "RGB",
+      "sha256": "cf816d24c5ccae0f3f809bf5152a33726f5c09e9dfdff0d1c650752d41436397"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "size": [
+        96,
+        96
+      ],
+      "mode": "RGB",
+      "sha256": "0c0fa10242bb7b15a62d27e961fb0c89bc8a6cf1bfde034d29ac8e870c081584"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "size": [
+        144,
+        144
+      ],
+      "mode": "RGB",
+      "sha256": "859fda2c3b90c63096b6e087b017d9505b8929a6d09160794781ba32948098fb"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "size": [
+        192,
+        192
+      ],
+      "mode": "RGB",
+      "sha256": "2e96ae353745ef618785e6948acf980aaa90ee4bb7a2dc1d8356bd04407843f6"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "asset_family": "ttak-logo",
+  "method": "deterministic font rendering; no generative image model",
+  "master_reference": "lib/app/startup_intro.dart",
+  "font": "assets/fonts/Galmuri11-Bold.ttf",
+  "font_license": "SIL Open Font License 1.1",
+  "text": "딱",
+  "canvas": [
+    1024,
+    1024
+  ],
+  "font_size": 704,
+  "letter_spacing": -56,
+  "shadow_offset": [
+    29,
+    41
+  ],
+  "optical_offset": [
+    30,
+    0
+  ],
+  "output_mode": "RGB, opaque, square corners",
+  "variants": [
+    {
+      "id": "01-current-brand",
+      "name_ko": "현재 브랜드",
+      "background": "#101827",
+      "fill": "#FFF4D6",
+      "shadow": "#B87714"
+    },
+    {
+      "id": "02-signal-yellow",
+      "name_ko": "시그널 옐로",
+      "background": "#101827",
+      "fill": "#FFD23F",
+      "shadow": "#B87714"
+    },
+    {
+      "id": "03-punch-coral",
+      "name_ko": "펀치 코랄",
+      "background": "#101827",
+      "fill": "#FF6B6B",
+      "shadow": "#A83F50"
+    },
+    {
+      "id": "04-game-mint",
+      "name_ko": "게임 민트",
+      "background": "#09101D",
+      "fill": "#54D6A1",
+      "shadow": "#218260"
+    },
+    {
+      "id": "05-neon-arcade",
+      "name_ko": "네온 아케이드",
+      "background": "#2B163E",
+      "fill": "#55DDF5",
+      "shadow": "#D84B9E"
+    },
+    {
+      "id": "06-paper-ink",
+      "name_ko": "페이퍼 잉크",
+      "background": "#FFF4D6",
+      "fill": "#101827",
+      "shadow": "#FF6B6B"
+    }
+  ]
+}

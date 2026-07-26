@@ -41,6 +41,9 @@ node_modules/
 /artifacts/
 /tmp/
 
+# Deployed legal/support site is maintained as its own Git repository.
+/legal-site/
+
 # Unused local pixel-art prototypes
 /assets/images/dinosaur_side_left_*.png
 /assets/images/dodge_brown_*.png

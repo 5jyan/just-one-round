@@ -1,0 +1,12 @@
+Use case: logo-brand
+Asset type: 1024×1024 mobile app icon concept for the Korean casual minigame app “딱한판만”
+Input images: Image 1 is concept-only reference for the central number 1; Image 2 and Image 3 are house-style references for chunky deliberate pixel clusters, dark outlines, limited shading, and slightly awkward ugly-cute personality. Do not copy their subjects, scenery, layout, or palettes.
+Primary request: Create one oversized retro arcade token with a bold raised pixel numeral “1” in its center. Make the token subtly dented and slightly off-round, with one four-point pixel sparkle.
+Scene/backdrop: Full-bleed flat midnight navy square background, no rounded-corner frame.
+Style/medium: Authentic low-resolution 32×32-era pixel-art logo, hard square pixel clusters, deliberately imperfect geometry, very low detail, no antialiasing.
+Composition/framing: Near-front view, centered token occupying about 70% of the canvas, one small sparkle at upper right, generous safe margin, instantly readable at 48×48.
+Color palette: Electric cyan token, hot pink rim accent, midnight navy background, near-black outline, pale cyan highlight; maximum 7 main colors.
+Lighting/mood: Neon arcade energy without glow blur.
+Text (verbatim): “1”
+Constraints: Only the numeral 1; full square opaque artwork; strong silhouette; chunky dark outline; no thin radial texture.
+Avoid: Any other letters or numbers, Korean text, gradients, glow blur, realistic metallic rendering, tiny inscriptions, smooth vector curves, rounded app-icon mask, border frame, watermark, arcade button, trophy, joystick lever, crown, characters.

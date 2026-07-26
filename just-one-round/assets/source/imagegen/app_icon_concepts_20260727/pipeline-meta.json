@@ -1,0 +1,52 @@
+{
+  "pipeline": "built-in-imagegen-plus-deterministic-pixel-postprocess",
+  "logical_size": [
+    32,
+    32
+  ],
+  "master_size": [
+    1024,
+    1024
+  ],
+  "palette_colors": 12,
+  "downsample_filter": "Pillow BOX",
+  "upscale_filter": "Pillow NEAREST",
+  "alpha": false,
+  "concepts": {
+    "concept-a-red-button": {
+      "generated_source": "/Users/saulpark/.codex/generated_images/019f9ef9-07f1-70f2-bb91-1d0e670a88eb/call_KBmte3JKPnzvhGgxnyWH465g.png",
+      "raw_copy": "concept-a-red-button/raw-output.png",
+      "logical_output": "concept-a-red-button/icon-32.png",
+      "master_output": "concept-a-red-button/icon-1024.png",
+      "prompt": "concept-a-red-button/prompt-used.txt"
+    },
+    "concept-b-trophy-one": {
+      "generated_source": "/Users/saulpark/.codex/generated_images/019f9ef9-07f1-70f2-bb91-1d0e670a88eb/call_9VVXF6DEAw6nnBqslv1MJ1R3.png",
+      "raw_copy": "concept-b-trophy-one/raw-output.png",
+      "logical_output": "concept-b-trophy-one/icon-32.png",
+      "master_output": "concept-b-trophy-one/icon-1024.png",
+      "prompt": "concept-b-trophy-one/prompt-used.txt"
+    },
+    "concept-c-one-coin": {
+      "generated_source": "/Users/saulpark/.codex/generated_images/019f9ef9-07f1-70f2-bb91-1d0e670a88eb/call_Sfi5MLCuVuGUe1oDllayJwtV.png",
+      "raw_copy": "concept-c-one-coin/raw-output.png",
+      "logical_output": "concept-c-one-coin/icon-32.png",
+      "master_output": "concept-c-one-coin/icon-1024.png",
+      "prompt": "concept-c-one-coin/prompt-used.txt"
+    },
+    "concept-d-start-lever": {
+      "generated_source": "/Users/saulpark/.codex/generated_images/019f9ef9-07f1-70f2-bb91-1d0e670a88eb/call_Sh7yzA9QNy0UEWxHgEgZ2giB.png",
+      "raw_copy": "concept-d-start-lever/raw-output.png",
+      "logical_output": "concept-d-start-lever/icon-32.png",
+      "master_output": "concept-d-start-lever/icon-1024.png",
+      "prompt": "concept-d-start-lever/prompt-used.txt"
+    },
+    "concept-e-crowned-one": {
+      "generated_source": "/Users/saulpark/.codex/generated_images/019f9ef9-07f1-70f2-bb91-1d0e670a88eb/call_zuvkI7oLh6R4LiZKR4D1sw5F.png",
+      "raw_copy": "concept-e-crowned-one/raw-output.png",
+      "logical_output": "concept-e-crowned-one/icon-32.png",
+      "master_output": "concept-e-crowned-one/icon-1024.png",
+      "prompt": "concept-e-crowned-one/prompt-used.txt"
+    }
+  }
+}
