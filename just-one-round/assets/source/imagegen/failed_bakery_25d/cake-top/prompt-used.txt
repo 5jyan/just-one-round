@@ -1,0 +1,5 @@
+Use the accepted Failed Bakery bread art as the exact style master for palette, ugly-cute facial humor, dark navy pixel outlines, hard pixel clusters, and handmade bakery materials.
+
+Create exactly 6 seamless square top-surface cake material tiles in an invisible 2-row by 3-column grid on a solid #FF00FF background. They are flat orthographic top-down textures for later mapping onto isometric cake prisms: no perspective, side faces, complete cakes, plates, shadows, labels, text, UI, visible grid, or separators.
+
+Reading order: crooked whipped cream; burnt chocolate; butter sponge with failed horse icing; cream with accidental chocolate moustache; strawberry-milk frosting with one lonely strawberry; stale vanilla with crooked halo and droopy wing icing. Keep decoration sparse and central and the outer 20% mostly repeatable. Crisp project-native pixel art, hard clusters, no blur, antialiasing, gradients, or painterly texture.

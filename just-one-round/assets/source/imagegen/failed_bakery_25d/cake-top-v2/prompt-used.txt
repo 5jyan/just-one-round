@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: raw pixel-art material atlas for the Failed Bakery mobile stacking game
+Input images: the existing bakery background is the exact master reference for palette, pixel density, dark navy outlines, lighting, handmade ugly-cute mood, and high three-quarter world; the v1 cake atlas is identity/reference only for flavor order.
+
+Create exactly six square, seamless cake top-surface material tiles in an invisible 2-row by 3-column grid on a perfectly flat solid #FF00FF chroma-key background. These are source textures for a strict 2:1 isometric cake-prism renderer and will be downsampled to exactly 40×40 pixels per cell.
+
+Reading order: crooked whipped cream vanilla; burnt chocolate; butter sponge with a tiny failed horse icing mark; cream with accidental chocolate moustache; strawberry-milk frosting with one lonely strawberry; stale vanilla with a crooked halo and droopy wing icing.
+
+Every cell has identical square bounds and scale. Keep the outer 15% simple and repeatable, with sparse centered decoration. Use crisp deliberately low-resolution pixel art, large hard clusters, a limited palette, and consistent upper-left warm lighting.
+
+No labels, text, visible grid lines, side faces, complete cakes, plates, perspective, cast shadows, antialiasing, blur, gradients, painterly texture, glossy 3D rendering, or watermarks. The background must remain uniform #FF00FF and magenta must not appear in the cake art.

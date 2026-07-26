@@ -1,0 +1,5 @@
+Use the accepted cake-top atlas as the exact identity, palette, pixel-density, outline, and material reference.
+
+Create exactly 6 front/side cake-layer texture strips in an invisible 3-row by 2-column grid on a solid #FF00FF background. Each strip is low, wide, front-facing, equally sized, fully contained, repeatable through the middle, and simple at both horizontal ends. No perspective, top faces, complete cakes, plates, shadows, crumbs, labels, text, UI, visible grid, or separators.
+
+Reading order matches the top atlas: whipped cream and vanilla sponge with mismatched face; burnt chocolate with sleepy face; yellow sponge with failed horse; vanilla with moustache smear; strawberry cream with lonely strawberry and blank face; stale vanilla with halo, droopy wings, and deadpan face. Crisp project-native pixel art with hard clusters and no blur, antialiasing, gradients, or painterly texture.

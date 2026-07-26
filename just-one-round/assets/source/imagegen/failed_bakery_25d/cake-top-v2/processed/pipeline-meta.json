@@ -1,0 +1,109 @@
+{
+  "input": "assets/source/imagegen/failed_bakery_25d/cake-top-v2/raw/raw-atlas.png",
+  "rows": 2,
+  "columns": 3,
+  "cell_size": [
+    40,
+    40
+  ],
+  "chroma_key": "#FF00FF",
+  "resample": "nearest-neighbor",
+  "frames": [
+    {
+      "name": "cake-top-1.png",
+      "source_size": [
+        512,
+        512
+      ],
+      "crop_size": [
+        331,
+        337
+      ],
+      "output_size": [
+        40,
+        40
+      ],
+      "opaque": true
+    },
+    {
+      "name": "cake-top-2.png",
+      "source_size": [
+        512,
+        512
+      ],
+      "crop_size": [
+        387,
+        337
+      ],
+      "output_size": [
+        40,
+        40
+      ],
+      "opaque": true
+    },
+    {
+      "name": "cake-top-3.png",
+      "source_size": [
+        512,
+        512
+      ],
+      "crop_size": [
+        331,
+        337
+      ],
+      "output_size": [
+        40,
+        40
+      ],
+      "opaque": true
+    },
+    {
+      "name": "cake-top-4.png",
+      "source_size": [
+        512,
+        512
+      ],
+      "crop_size": [
+        331,
+        342
+      ],
+      "output_size": [
+        40,
+        40
+      ],
+      "opaque": true
+    },
+    {
+      "name": "cake-top-5.png",
+      "source_size": [
+        512,
+        512
+      ],
+      "crop_size": [
+        387,
+        342
+      ],
+      "output_size": [
+        40,
+        40
+      ],
+      "opaque": true
+    },
+    {
+      "name": "cake-top-6.png",
+      "source_size": [
+        512,
+        512
+      ],
+      "crop_size": [
+        330,
+        342
+      ],
+      "output_size": [
+        40,
+        40
+      ],
+      "opaque": true
+    }
+  ]
+}

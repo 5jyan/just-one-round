@@ -37,6 +37,16 @@ node_modules/
 /build/
 /coverage/
 
+# Local captures, generated previews, and temporary environments
+/artifacts/
+/tmp/
+
+# Unused local pixel-art prototypes
+/assets/images/dinosaur_side_left_*.png
+/assets/images/dodge_brown_*.png
+/assets/images/player_dino_idle_32*.png
+/assets/images/reference_pixel_*.png
+
 # Symbolication related
 app.*.symbols
 

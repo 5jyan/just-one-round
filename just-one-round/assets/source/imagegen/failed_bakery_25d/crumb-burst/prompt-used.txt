@@ -1,0 +1,5 @@
+Use the accepted cake materials as the exact palette, pixel-density, and bakery-material reference.
+
+Create a compact perfect-placement crumb and cream effect in an exact invisible 2-row by 2-column grid on solid #FF00FF. Frame order: tiny contact pop; small cream-and-crumb burst; widest peak with crooked butter sparkle and pink droplets; compact fade. Keep one fixed center and horizontal contact baseline. Fill only the central 45-55% of each cell with generous margin.
+
+No cake, plate, floor, shadow, character, text, UI, label, visible grid, border, or separator. Crisp project-native pixel art with hard clusters and no blur, antialiasing, gradients, glow haze, or painterly rendering.
