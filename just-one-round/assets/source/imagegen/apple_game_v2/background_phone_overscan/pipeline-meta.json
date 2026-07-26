@@ -1,0 +1,50 @@
+{
+  "raw": "/Users/saulpark/Documents/딱한판만/just-one-round/assets/source/imagegen/apple_game_v2/background_phone_overscan/raw-background.png",
+  "runtime": "/Users/saulpark/Documents/딱한판만/just-one-round/assets/images/apple_game_v2/apple_game_background.png",
+  "rawSize": [
+    803,
+    1959
+  ],
+  "sourceCrop": [
+    0,
+    113,
+    803,
+    1845
+  ],
+  "runtimeSize": [
+    408,
+    880
+  ],
+  "sampling": "nearest-neighbor",
+  "worldRect": [
+    -24,
+    -80,
+    384,
+    800
+  ],
+  "gameplaySafeCore": [
+    0,
+    0,
+    360,
+    720
+  ],
+  "maximumTargetViewport": [
+    0,
+    -60,
+    360,
+    780
+  ],
+  "cameraCenter": [
+    180,
+    360
+  ],
+  "supportedPortraitAspectRatios": [
+    "16:9",
+    "21:9"
+  ],
+  "scopeExceptions": [
+    "foldable unfolded displays",
+    "flip cover displays",
+    "tablets"
+  ]
+}

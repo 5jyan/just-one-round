@@ -1,0 +1,29 @@
+Create one production raw sprite sheet for Apple Game 2: a coherent
+three-tier combo-burst impact animation family that visually matches the
+supplied existing apple pop sheet.
+
+Exact invisible grid: 3 rows × 4 columns, equal cells, read left-to-right.
+Row 1 is the 3-apples combo: compact but clearly stronger ruby-red and
+warm-gold circular burst. Row 2 is the 4-apples combo: broader ruby/coral burst
+with a cyan moonlit rim, more amber juice sparks, and several green leaf
+fragments. Row 3 is the 5-or-more-apples finisher: the fullest celebratory
+red-gold-cyan starburst with chunky leaf fragments and a strong circular crown
+silhouette, still fully contained.
+
+In every row, column 1 = tight ignition, column 2 = expansion, column 3 = peak
+burst, column 4 = fading twinkles and collapsing motes. Keep the exact common
+effect center fixed in every cell. All frames use the same camera distance and
+deliberate crisp pixel-cluster scale; intensity increases by subject occupancy
+and fragment count, not by finer pixels. Each effect fits fully inside the
+central 70% to 78% of its cell, with generous magenta padding on all four
+sides. Detached sparks and leaf pieces remain tightly grouped and never cross
+a cell edge.
+
+Project-native premium pixel art, hard square edges, deliberate approximately
+2-logical-pixel clusters, midnight-navy accents, ruby red, hot coral, warm
+amber, restrained cyan and leaf green. Background must be 100% solid flat
+#FF00FF only, with no gradient or texture.
+
+Exactly 12 frames. No text, digits, combo labels, UI, apples remaining whole,
+borders, cell separators, guide marks, ground, cast shadows, glow outside the
+contained effect, logos, or watermark.

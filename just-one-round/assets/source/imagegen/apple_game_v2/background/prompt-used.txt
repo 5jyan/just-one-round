@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: production mobile game background for Apple Game 2, portrait 360×720 runtime canvas
+Primary request: create a bright midnight arcade orchard in high-density crisp pixel art, visually matching the polished neon pixel density and deliberate pixel clusters of the two NUMBER RUSH reference images just shown, but with an original apple-orchard identity instead of an arcade cabinet.
+Scene/backdrop: a lush apple orchard at deep indigo night, dense leafy canopy around the outer edges, small red apples and warm golden fireflies among leaves, faint moonlit rows of trees receding behind the play area, soft cyan and violet night accents, warm red/orange apple accents.
+Composition/framing: portrait 1:2 layout; the center must stay calm, dark, and low-contrast so an 8×14 apple grid remains perfectly readable; richer foliage and detail may frame the top, sides, and bottom corners; no literal picture frame, no arcade cabinet frame, no plaques, no panels.
+Style/medium: premium high-density pixel art, crisp square pixels, deliberate clusters, controlled dithering, 32-bit-era arcade richness, no painterly blur, no vector smoothness.
+Lighting/mood: cheerful nocturnal orchard, moonlit cyan rim light with restrained magenta neon accents and warm fruit highlights.
+Color palette: midnight navy, deep violet, cyan moonlight, leaf greens, apple red, warm amber.
+Constraints: background art only; no text, no numbers, no logos, no UI, no buttons, no badges, no borders, no frame, no watermark; do not place large bright objects in the central board area; edge-to-edge scene suitable for deterministic center crop and nearest-neighbor resize to 360×720.

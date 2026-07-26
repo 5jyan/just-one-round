@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: raw 4-frame pixel-art impact animation for Apple Game 2
+Input images: Image 1 locks the premium neon pixel-art quality and punchy electric/pixel-burst effect language; Image 2 indicates the existing compact apple-pop gameplay role and timing. Create a new orchard-themed effect, not UI and not a frame.
+Primary request: one continuous four-frame apple pop / juicy sparkle burst animation in an exact 2×2 grid, read top-left, top-right, bottom-left, bottom-right. Frame 1: tight red-gold ignition star with two tiny green leaf pixels. Frame 2: compact expanding red/coral pixel burst. Frame 3: peak circular burst with cyan moonlit rim, amber juice sparks, and a few green leaf fragments. Frame 4: small fading twinkles and collapsing pixel motes. The effect must feel crisp, celebratory, and tactile when an apple is removed.
+Style/medium: premium high-density pixel art, crisp hard-edged square pixels, deliberate clusters, dark navy accents, ruby red, hot coral, warm amber, restrained cyan and magenta highlights.
+Composition/framing: exactly 2 rows × 2 columns of equal invisible cells; common effect center fixed at the exact center of every cell; consistent camera/scale; each frame fits inside the central 70% with generous margin; no pixel or spark crosses a cell boundary.
+Background: 100% solid flat #FF00FF only, no gradient or texture.
+Constraints: no apples remaining as whole objects, no text, no digits, no labels, no UI, no borders, no cell separators, no guides, no badges, no frames, no ground plate, no cast shadow, no glow outside the contained effect, no watermark; exactly four animation frames.

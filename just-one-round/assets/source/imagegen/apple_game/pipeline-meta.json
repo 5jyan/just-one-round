@@ -1,0 +1,24 @@
+{
+  "pipeline": "built-in image generation plus chroma-key removal and deterministic nearest-neighbor processing",
+  "game": "apple_game",
+  "approved_contract": {
+    "view": "front-facing portrait grid",
+    "board": "7 columns x 11 rows",
+    "apple_source_cell": "48x48",
+    "apple_atlas": "3x3, values 1-9 in row-major order",
+    "anchor": "center",
+    "runtime_filter": "nearest-neighbor / FilterQuality.none",
+    "number_rendering": "runtime Galmuri11-Bold overlay"
+  },
+  "raw_sources": {
+    "apple_faces": "apple-faces-raw.png",
+    "background": "background-raw.png",
+    "ui_pack": "ui-pack-raw.png",
+    "pop_effect": "pop-effect-raw.png"
+  },
+  "processing": {
+    "chroma_key": "auto border sample near #FF00FF, soft matte, despill",
+    "resampling": "nearest-neighbor",
+    "runtime_outputs": "assets/images/apple_game"
+  }
+}

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flame/camera.dart';
@@ -6,9 +7,59 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/apple_game/domain/apple_game_rules.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
+
+class AppleGameAssetSet {
+  const AppleGameAssetSet({
+    required this.directory,
+    required this.appleSourceCellSize,
+    required this.popSourceCellSize,
+    required this.appleDisplaySize,
+    required this.numberFontSize,
+    required this.numberShadowOffset,
+    required this.numberVerticalOffset,
+    required this.phoneOverscan,
+    this.comboSourceCellSize,
+    this.numberLineHeight,
+  });
+
+  static const classic = AppleGameAssetSet(
+    directory: 'apple_game',
+    appleSourceCellSize: 48,
+    popSourceCellSize: 48,
+    appleDisplaySize: 40,
+    numberFontSize: 22,
+    numberShadowOffset: 2,
+    numberVerticalOffset: -1,
+    phoneOverscan: false,
+  );
+  static const midnightOrchard = AppleGameAssetSet(
+    directory: 'apple_game_v2',
+    appleSourceCellSize: 42,
+    popSourceCellSize: 40,
+    appleDisplaySize: 42,
+    numberFontSize: 18,
+    numberShadowOffset: 1,
+    numberVerticalOffset: 4,
+    phoneOverscan: true,
+    comboSourceCellSize: 32,
+    numberLineHeight: 1,
+  );
+
+  final String directory;
+  final double appleSourceCellSize;
+  final double popSourceCellSize;
+  final double appleDisplaySize;
+  final double numberFontSize;
+  final double numberShadowOffset;
+  final double numberVerticalOffset;
+  final bool phoneOverscan;
+  final double? comboSourceCellSize;
+  final double? numberLineHeight;
+}
 
 class AppleGame extends FlameGame
     with DragCallbacks
@@ -17,6 +68,7 @@ class AppleGame extends FlameGame
     required this.onFinished,
     this.gameDuration = const Duration(seconds: 120),
     this.countdownDuration = const Duration(seconds: 3),
+    this.assetSet = AppleGameAssetSet.classic,
     Random? random,
   }) : _random = random ?? Random(),
        hud = ValueNotifier(
@@ -32,9 +84,29 @@ class AppleGame extends FlameGame
        );
 
   static final logicalSize = Vector2(360, 720);
+  static final phoneBackgroundSize = Vector2(408, 880);
+  static final phoneBackgroundPosition = Vector2(-24, -80);
+  static const maxPhoneVisibleHeight = 840.0;
+  static const comboEffectFrameCount = 4;
+  static const timedDropRemainingSeconds = [60, 50, 40, 30, 20, 10];
+
+  static int? comboEffectTierForOrdinal(int ordinal) {
+    if (ordinal < 2) return null;
+    return min(ordinal - 2, 2);
+  }
+
+  static double? comboEffectDisplaySizeForOrdinal(int ordinal) {
+    return switch (comboEffectTierForOrdinal(ordinal)) {
+      0 => 64,
+      1 => 96,
+      2 => 128,
+      _ => null,
+    };
+  }
 
   final Duration gameDuration;
   final Duration countdownDuration;
+  final AppleGameAssetSet assetSet;
   final ValueChanged<GameResult> onFinished;
   final Random _random;
 
@@ -52,48 +124,102 @@ class AppleGame extends FlameGame
   var _lastPublishedSecond = -1;
   var _lastPublishedScore = -1;
   var _hasFinished = false;
+  var _nextTimedDropIndex = 0;
 
   @override
   Color backgroundColor() => const Color(0xFF011B19);
 
+  static Vector2 viewportResolutionForCanvas(Vector2 canvasSize) {
+    if (canvasSize.x <= 0 || canvasSize.y <= 0) {
+      return logicalSize.clone();
+    }
+    final canvasAspectRatio = canvasSize.y / canvasSize.x;
+    if (canvasAspectRatio < logicalSize.y / logicalSize.x) {
+      final visibleWidth = (logicalSize.y / canvasAspectRatio).clamp(
+        logicalSize.x,
+        phoneBackgroundSize.x,
+      );
+      return Vector2(visibleWidth, logicalSize.y);
+    }
+    final visibleHeight = (logicalSize.x * canvasAspectRatio).clamp(
+      logicalSize.y,
+      maxPhoneVisibleHeight,
+    );
+    return Vector2(logicalSize.x, visibleHeight);
+  }
+
+  void _configureViewport(Vector2 canvasSize) {
+    final resolution = assetSet.phoneOverscan
+        ? viewportResolutionForCanvas(canvasSize)
+        : logicalSize.clone();
+    camera.viewport = FixedResolutionViewport(resolution: resolution);
+    camera.viewfinder.position = logicalSize / 2;
+  }
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    camera.viewport = FixedResolutionViewport(resolution: logicalSize);
-    camera.viewfinder.position = logicalSize / 2;
+    _configureViewport(canvasSize);
 
+    final comboSourceCellSize = assetSet.comboSourceCellSize;
     final loaded = await images.loadAll([
-      'apple_game/apple_game_background.png',
-      'apple_game/apple_faces_atlas.png',
-      'apple_game/apple_pop_sheet.png',
+      '${assetSet.directory}/apple_game_background.png',
+      '${assetSet.directory}/apple_faces_atlas.png',
+      '${assetSet.directory}/apple_pop_sheet.png',
+      if (comboSourceCellSize != null)
+        '${assetSet.directory}/apple_combo_burst_sheet.png',
     ]);
 
     await world.add(
       SpriteComponent(
         sprite: Sprite(loaded[0]),
-        size: logicalSize.clone(),
+        position: assetSet.phoneOverscan
+            ? phoneBackgroundPosition.clone()
+            : Vector2.zero(),
+        size: assetSet.phoneOverscan
+            ? phoneBackgroundSize.clone()
+            : logicalSize.clone(),
         priority: -20,
       ),
     );
 
-    final appleSheet = SpriteSheet(image: loaded[1], srcSize: Vector2.all(48));
+    final appleSheet = SpriteSheet(
+      image: loaded[1],
+      srcSize: Vector2.all(assetSet.appleSourceCellSize),
+    );
     final apples = <Sprite>[];
     for (var row = 0; row < 3; row++) {
       for (var column = 0; column < 3; column++) {
         apples.add(appleSheet.getSprite(row, column));
       }
     }
-    final popSheet = SpriteSheet(image: loaded[2], srcSize: Vector2.all(48));
+    final popSheet = SpriteSheet(
+      image: loaded[2],
+      srcSize: Vector2.all(assetSet.popSourceCellSize),
+    );
     final popSprites = List.generate(
       4,
       (index) => popSheet.getSprite(0, index),
       growable: false,
     );
+    final comboSprites = comboSourceCellSize == null
+        ? null
+        : SpriteSheet(
+            image: loaded[3],
+            srcSize: Vector2.all(comboSourceCellSize),
+          );
 
     _board = _AppleBoardComponent(
       board: AppleGameRules.createBoard(_random),
       appleSprites: apples,
       popSprites: popSprites,
+      comboSprites: comboSprites,
+      appleSize: assetSet.appleDisplaySize,
+      numberFontSize: assetSet.numberFontSize,
+      numberShadowOffset: assetSet.numberShadowOffset,
+      numberVerticalOffset: assetSet.numberVerticalOffset,
+      numberLineHeight: assetSet.numberLineHeight,
+      random: _random,
       onRemoved: _handleRemoved,
     );
     await world.add(_board);
@@ -101,6 +227,14 @@ class AppleGame extends FlameGame
     if (countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
       _publishHud(force: true);
+    }
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    if (isLoaded) {
+      _configureViewport(size);
     }
   }
 
@@ -125,6 +259,7 @@ class AppleGame extends FlameGame
         if (_playingElapsed >= seconds) {
           _finishGame();
         } else {
+          _requestDueTimedAppleDrops(seconds - _playingElapsed);
           _publishHud();
         }
       case MiniGamePhase.finished:
@@ -132,10 +267,55 @@ class AppleGame extends FlameGame
     }
   }
 
+  void _requestDueTimedAppleDrops(double remainingSeconds) {
+    if (assetSet.comboSourceCellSize == null) return;
+    while (_nextTimedDropIndex < timedDropRemainingSeconds.length &&
+        remainingSeconds <= timedDropRemainingSeconds[_nextTimedDropIndex]) {
+      _board.requestMostFrequentAppleDrop();
+      _nextTimedDropIndex++;
+    }
+  }
+
   void _handleRemoved(int count) {
     if (_phase != MiniGamePhase.playing || count <= 0) return;
+    unawaited(
+      assetSet.comboSourceCellSize == null
+          ? _playClassicApplePopHaptic(count)
+          : _playEscalatingApplePopHaptic(count),
+    );
     _score += count;
     _publishHud(force: true);
+  }
+
+  Future<void> _playClassicApplePopHaptic(int count) async {
+    await HapticFeedback.heavyImpact();
+    for (var pulse = 1; pulse < count; pulse++) {
+      await Future<void>.delayed(const Duration(milliseconds: 65));
+      await HapticFeedback.mediumImpact();
+    }
+  }
+
+  Future<void> _playEscalatingApplePopHaptic(int count) async {
+    for (var pulse = 0; pulse < count; pulse++) {
+      if (pulse > 0) {
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+      }
+      if (pulse == 0) {
+        await HapticFeedback.lightImpact();
+      } else if (pulse == 1) {
+        await HapticFeedback.mediumImpact();
+      } else {
+        await HapticFeedback.heavyImpact();
+        if (pulse >= 3) {
+          unawaited(
+            Future<void>.delayed(
+              const Duration(milliseconds: 45),
+              HapticFeedback.heavyImpact,
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -165,7 +345,7 @@ class AppleGame extends FlameGame
   }
 
   Vector2 _viewportPosition(Vector2 canvasPosition) =>
-      camera.viewport.globalToLocal(canvasPosition);
+      camera.globalToLocal(canvasPosition);
 
   void _finishGame() {
     if (_hasFinished) return;
@@ -238,6 +418,13 @@ class _AppleBoardComponent extends PositionComponent {
     required this.board,
     required this.appleSprites,
     required this.popSprites,
+    required this.comboSprites,
+    required this.appleSize,
+    required this.numberFontSize,
+    required this.numberShadowOffset,
+    required this.numberVerticalOffset,
+    required this.numberLineHeight,
+    required this.random,
     required this.onRemoved,
   }) : super(
          position: Vector2(_boardLeft, _boardTop),
@@ -246,18 +433,25 @@ class _AppleBoardComponent extends PositionComponent {
        );
 
   static const _boardLeft = 10.0;
-  static const _boardTop = 64.0;
+  static const _boardTop = 96.0;
   static const _cellSize = 42.0;
-  static const _appleSize = 40.0;
   static const _innerPadding = 2.0;
   static const _boardWidth =
       AppleGameRules.columnCount * _cellSize + _innerPadding * 2;
   static const _boardHeight =
       AppleGameRules.rowCount * _cellSize + _innerPadding * 2;
+  static const _sequentialRemovalInterval = 0.15;
 
   final List<List<int?>> board;
   final List<Sprite> appleSprites;
   final List<Sprite> popSprites;
+  final SpriteSheet? comboSprites;
+  final double appleSize;
+  final double numberFontSize;
+  final double numberShadowOffset;
+  final double numberVerticalOffset;
+  final double? numberLineHeight;
+  final Random random;
   final ValueChanged<int> onRemoved;
   final Paint _spritePaint = Paint()
     ..filterQuality = FilterQuality.none
@@ -275,8 +469,13 @@ class _AppleBoardComponent extends PositionComponent {
   AppleCellRange? _selection;
   int? _startRow;
   int? _startColumn;
+  List<(int, int)>? _pendingRemovalCells;
+  var _nextRemovalIndex = 0;
+  var _sequentialRemovalElapsed = 0.0;
+  var _pendingTimedDropCount = 0;
 
   void beginSelection(Vector2 viewportPosition) {
+    if (_pendingRemovalCells != null) return;
     final cell = _cellAt(viewportPosition);
     if (cell == null) {
       cancelSelection();
@@ -293,6 +492,7 @@ class _AppleBoardComponent extends PositionComponent {
   }
 
   void updateSelection(Vector2 viewportPosition) {
+    if (_pendingRemovalCells != null) return;
     final startRow = _startRow;
     final startColumn = _startColumn;
     if (startRow == null || startColumn == null) return;
@@ -313,31 +513,32 @@ class _AppleBoardComponent extends PositionComponent {
   }
 
   void commitSelection() {
+    if (_pendingRemovalCells != null) return;
     final selection = _selection;
     if (selection == null) return;
-    final removedCells = <(int, int)>[];
-    if (AppleGameRules.selectionSum(board, selection) ==
+    if (AppleGameRules.selectionSum(board, selection) !=
         AppleGameRules.targetSum) {
-      for (var row = selection.top; row <= selection.bottom; row++) {
-        for (var column = selection.left; column <= selection.right; column++) {
-          if (board[row][column] != null) removedCells.add((row, column));
-        }
-      }
+      cancelSelection();
+      return;
     }
-    final removed = AppleGameRules.removeSelection(board, selection);
-    if (removed > 0) {
+    final removedCells = AppleGameRules.orderedSelectedCells(board, selection);
+    if (removedCells.isEmpty) {
+      cancelSelection();
+      return;
+    }
+
+    if (comboSprites == null) {
+      AppleGameRules.removeSelection(board, selection);
       for (final cell in removedCells) {
-        parent?.add(
-          _ApplePopComponent(
-            position: Vector2(
-              position.x + _innerPadding + (cell.$2 + 0.5) * _cellSize,
-              position.y + _innerPadding + (cell.$1 + 0.5) * _cellSize,
-            ),
-            sprites: popSprites,
-          ),
-        );
+        _spawnPop(cell, ordinal: 1);
       }
-      onRemoved(removed);
+      onRemoved(removedCells.length);
+    } else {
+      _pendingRemovalCells = removedCells;
+      _nextRemovalIndex = 0;
+      _sequentialRemovalElapsed = 0;
+      onRemoved(removedCells.length);
+      _removeNextSequentialApple();
     }
     cancelSelection();
   }
@@ -346,6 +547,99 @@ class _AppleBoardComponent extends PositionComponent {
     _startRow = null;
     _startColumn = null;
     _selection = null;
+    _tryProcessTimedAppleDrop();
+  }
+
+  void requestMostFrequentAppleDrop() {
+    _pendingTimedDropCount++;
+    _tryProcessTimedAppleDrop();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (_pendingRemovalCells == null) return;
+    _sequentialRemovalElapsed += dt;
+    while (_pendingRemovalCells != null &&
+        _sequentialRemovalElapsed >= _sequentialRemovalInterval) {
+      _sequentialRemovalElapsed -= _sequentialRemovalInterval;
+      _removeNextSequentialApple();
+    }
+  }
+
+  void _removeNextSequentialApple() {
+    final cells = _pendingRemovalCells;
+    if (cells == null) return;
+    final cell = cells[_nextRemovalIndex];
+    board[cell.$1][cell.$2] = null;
+    _spawnPop(cell, ordinal: _nextRemovalIndex + 1);
+    _nextRemovalIndex++;
+    if (_nextRemovalIndex >= cells.length) {
+      _pendingRemovalCells = null;
+      _nextRemovalIndex = 0;
+      _sequentialRemovalElapsed = 0;
+      _tryProcessTimedAppleDrop();
+    }
+  }
+
+  void _spawnPop((int, int) cell, {required int ordinal}) {
+    final cellCenter = Vector2(
+      position.x + _innerPadding + (cell.$2 + 0.5) * _cellSize,
+      position.y + _innerPadding + (cell.$1 + 0.5) * _cellSize,
+    );
+    parent?.add(_ApplePopComponent(position: cellCenter, sprites: popSprites));
+    final comboTier = AppleGame.comboEffectTierForOrdinal(ordinal);
+    final comboDisplaySize = AppleGame.comboEffectDisplaySizeForOrdinal(
+      ordinal,
+    );
+    final comboSheet = comboSprites;
+    if (comboTier == null || comboDisplaySize == null || comboSheet == null) {
+      return;
+    }
+    parent?.add(
+      _AppleComboBurstComponent(
+        position: cellCenter,
+        displaySize: comboDisplaySize,
+        sprites: List.generate(
+          AppleGame.comboEffectFrameCount,
+          (column) => comboSheet.getSprite(comboTier, column),
+          growable: false,
+        ),
+      ),
+    );
+  }
+
+  void _tryProcessTimedAppleDrop() {
+    if (_pendingTimedDropCount <= 0 ||
+        _selection != null ||
+        _pendingRemovalCells != null) {
+      return;
+    }
+    final candidates = AppleGameRules.mostFrequentAppleCells(board);
+    if (candidates.isEmpty) {
+      _pendingTimedDropCount = 0;
+      return;
+    }
+    _pendingTimedDropCount--;
+    final cell = candidates[random.nextInt(candidates.length)];
+    final value = board[cell.$1][cell.$2];
+    if (value == null) return;
+    board[cell.$1][cell.$2] = null;
+    parent?.add(
+      _FallingAppleComponent(
+        position: Vector2(
+          position.x + _innerPadding + (cell.$2 + 0.5) * _cellSize,
+          position.y + _innerPadding + (cell.$1 + 0.5) * _cellSize,
+        ),
+        sprite: appleSprites[value - 1],
+        value: value,
+        appleSize: appleSize,
+        numberFontSize: numberFontSize,
+        numberShadowOffset: numberShadowOffset,
+        numberVerticalOffset: numberVerticalOffset,
+        numberLineHeight: numberLineHeight,
+      ),
+    );
   }
 
   (int, int)? _cellAt(Vector2 viewportPosition) {
@@ -373,8 +667,8 @@ class _AppleBoardComponent extends PositionComponent {
         );
         appleSprites[value - 1].render(
           canvas,
-          position: topLeft + Vector2.all((_cellSize - _appleSize) / 2),
-          size: Vector2.all(_appleSize),
+          position: topLeft + Vector2.all((_cellSize - appleSize) / 2),
+          size: Vector2.all(appleSize),
           overridePaint: _spritePaint,
         );
         _drawNumber(canvas, value, topLeft);
@@ -399,16 +693,29 @@ class _AppleBoardComponent extends PositionComponent {
     final painter = TextPainter(
       text: TextSpan(
         text: '$value',
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'Galmuri',
-          fontSize: 22,
+          fontSize: numberFontSize,
+          height: numberLineHeight,
           fontWeight: FontWeight.w700,
-          color: Color(0xFFFFF3C4),
+          color: const Color(0xFFFFF3C4),
           shadows: [
-            Shadow(color: Color(0xFF591F2C), offset: Offset(2, 0)),
-            Shadow(color: Color(0xFF591F2C), offset: Offset(-2, 0)),
-            Shadow(color: Color(0xFF591F2C), offset: Offset(0, 2)),
-            Shadow(color: Color(0xFF591F2C), offset: Offset(0, -2)),
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(numberShadowOffset, 0),
+            ),
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(-numberShadowOffset, 0),
+            ),
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(0, numberShadowOffset),
+            ),
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(0, -numberShadowOffset),
+            ),
           ],
         ),
       ),
@@ -418,7 +725,8 @@ class _AppleBoardComponent extends PositionComponent {
       canvas,
       Offset(
         (topLeft.x + (_cellSize - painter.width) / 2).roundToDouble(),
-        (topLeft.y + (_cellSize - painter.height) / 2 - 1).roundToDouble(),
+        (topLeft.y + (_cellSize - painter.height) / 2 + numberVerticalOffset)
+            .roundToDouble(),
       ),
     );
   }
@@ -479,6 +787,128 @@ class _ApplePopComponent extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
     final index = min(sprites.length - 1, (_elapsed / 0.08).floor());
+    sprites[index].render(canvas, size: size, overridePaint: _paint);
+  }
+}
+
+class _FallingAppleComponent extends PositionComponent {
+  _FallingAppleComponent({
+    required super.position,
+    required this.sprite,
+    required this.value,
+    required this.appleSize,
+    required this.numberFontSize,
+    required this.numberShadowOffset,
+    required this.numberVerticalOffset,
+    required this.numberLineHeight,
+  }) : super(size: Vector2.all(42), anchor: Anchor.center, priority: 25);
+
+  static const _gravity = 1100.0;
+  static const _cleanupY = 780.0;
+
+  final Sprite sprite;
+  final int value;
+  final double appleSize;
+  final double numberFontSize;
+  final double numberShadowOffset;
+  final double numberVerticalOffset;
+  final double? numberLineHeight;
+  final Paint _paint = Paint()
+    ..filterQuality = FilterQuality.none
+    ..isAntiAlias = false;
+  var _velocityY = 80.0;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    final nextY = position.y + _velocityY * dt + (_gravity * dt * dt / 2);
+    position.y = (nextY / 2).round() * 2;
+    _velocityY += _gravity * dt;
+    if (position.y - size.y / 2 > _cleanupY) removeFromParent();
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    sprite.render(
+      canvas,
+      position: Vector2.all((size.x - appleSize) / 2),
+      size: Vector2.all(appleSize),
+      overridePaint: _paint,
+    );
+    final painter = TextPainter(
+      text: TextSpan(
+        text: '$value',
+        style: TextStyle(
+          fontFamily: 'Galmuri',
+          fontSize: numberFontSize,
+          height: numberLineHeight,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFFFFF3C4),
+          shadows: [
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(numberShadowOffset, 0),
+            ),
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(-numberShadowOffset, 0),
+            ),
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(0, numberShadowOffset),
+            ),
+            Shadow(
+              color: const Color(0xFF591F2C),
+              offset: Offset(0, -numberShadowOffset),
+            ),
+          ],
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    painter.paint(
+      canvas,
+      Offset(
+        ((size.x - painter.width) / 2).roundToDouble(),
+        ((size.y - painter.height) / 2 + numberVerticalOffset).roundToDouble(),
+      ),
+    );
+  }
+}
+
+class _AppleComboBurstComponent extends PositionComponent {
+  _AppleComboBurstComponent({
+    required super.position,
+    required this.sprites,
+    required double displaySize,
+  }) : super(
+         size: Vector2.all(displaySize),
+         anchor: Anchor.center,
+         priority: 40,
+       );
+
+  static const _frameDuration = 0.07;
+
+  final List<Sprite> sprites;
+  final Paint _paint = Paint()
+    ..filterQuality = FilterQuality.none
+    ..isAntiAlias = false;
+  var _elapsed = 0.0;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _elapsed += dt;
+    if (_elapsed >= sprites.length * _frameDuration) {
+      removeFromParent();
+    }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    final index = min(sprites.length - 1, (_elapsed / _frameDuration).floor());
     sprites[index].render(canvas, size: size, overridePaint: _paint);
   }
 }

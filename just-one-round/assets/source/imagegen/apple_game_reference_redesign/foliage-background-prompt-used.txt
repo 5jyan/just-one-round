@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: portrait pixel-art background source for the existing mobile apple puzzle
+Input image: style and pixel-density reference only. Lock its chunky low-resolution pixel scale, clustered blocky leaf language, dark blue-green underlayer, bright green leaf patches, and restrained brown branch glimpses. Do not copy its exact arrangement.
+Primary request: create a new 9:16 portrait forest-canopy background completely filled edge-to-edge with dense blocky foliage in the same very low-resolution game-art language as the reference
+Composition/framing: evenly packed leaf clusters across the whole portrait; no empty space; the center should remain slightly darker and lower contrast so red apples and cream numbers stay readable; one or two subtle dark-brown branch curves may appear underneath the leaves like the reference, never dominating
+Style/medium: deliberately coarse pixel art with large square pixels and simple leaf clumps, approximately 4–6 source pixels per visible cluster when downsampled to 180x320; limited palette; no fine veins or realistic individual leaves
+Color palette: deep navy-green shadow, dark teal, forest green, vivid but restrained leaf green, very limited brown branch accents
+Constraints: no apples, fruit, flowers, trunks, sky, ground, wall, furniture, pots, insects, text, UI, frame, border, watermark, smooth gradients, antialiasing, or photorealism
+Avoid: detailed realistic leaf carpet, high-density illustration, tiny leaf veins, wallpaper symmetry, bright center hotspots, painterly blur

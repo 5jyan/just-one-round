@@ -73,6 +73,55 @@ abstract final class AppleGameRules {
     return count;
   }
 
+  static List<(int, int)> orderedSelectedCells(
+    List<List<int?>> board,
+    AppleCellRange range,
+  ) {
+    final rowStep = range.endRow >= range.startRow ? 1 : -1;
+    final columnStep = range.endColumn >= range.startColumn ? 1 : -1;
+    final cells = <(int, int)>[];
+
+    for (
+      var row = range.startRow;
+      row != range.endRow + rowStep;
+      row += rowStep
+    ) {
+      for (
+        var column = range.startColumn;
+        column != range.endColumn + columnStep;
+        column += columnStep
+      ) {
+        if (board[row][column] != null) cells.add((row, column));
+      }
+    }
+    return cells;
+  }
+
+  static List<(int, int)> mostFrequentAppleCells(List<List<int?>> board) {
+    final counts = <int, int>{};
+    for (final row in board) {
+      for (final value in row) {
+        if (value != null) counts[value] = (counts[value] ?? 0) + 1;
+      }
+    }
+    if (counts.isEmpty) return const [];
+
+    final highestCount = counts.values.reduce(max);
+    final mostFrequentValues = counts.entries
+        .where((entry) => entry.value == highestCount)
+        .map((entry) => entry.key)
+        .toSet();
+    final cells = <(int, int)>[];
+    for (var row = 0; row < board.length; row++) {
+      for (var column = 0; column < board[row].length; column++) {
+        if (mostFrequentValues.contains(board[row][column])) {
+          cells.add((row, column));
+        }
+      }
+    }
+    return cells;
+  }
+
   static int removeSelection(List<List<int?>> board, AppleCellRange range) {
     if (selectionSum(board, range) != targetSum) return 0;
     final removed = selectedAppleCount(board, range);

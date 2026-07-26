@@ -1,0 +1,63 @@
+{
+  "asset_family": "apple_game_v2",
+  "style": "high-density midnight orchard pixel art",
+  "reference_role": {
+    "apple_game_v1": "gameplay silhouette and active-asset contract",
+    "number_rush_references": "pixel density, crisp cluster, and neon accent quality"
+  },
+  "runtime": {
+    "background": {
+      "path": "assets/images/apple_game_v2/apple_game_background.png",
+      "size": [408, 880],
+      "method": "image_gen vertical outpaint, nearest-neighbor crop and downsample"
+    },
+    "apple_atlas": {
+      "path": "assets/images/apple_game_v2/apple_faces_atlas.png",
+      "size": [126, 126],
+      "layout": "3x3, values 1 through 9 row-major",
+      "cell_size": [42, 42],
+      "display_size": [42, 42],
+      "mean_subject_height": 35.44,
+      "number_font_size": 18,
+      "number_alignment": "red-fruit visual center, 4px below geometric cell center, with 1px four-direction shadow",
+      "method": "image_gen solid-magenta raw sheet, generate2dsprite 42px reprocessing with fit_scale 0.88 and strict QC"
+    },
+    "pop_sheet": {
+      "path": "assets/images/apple_game_v2/apple_pop_sheet.png",
+      "size": [160, 40],
+      "layout": "4 frames horizontal",
+      "cell_size": [40, 40],
+      "frame_duration_ms": 80,
+      "method": "image_gen 2x2 solid-magenta raw sheet, generate2dsprite chroma cleanup and strict QC, deterministic row-strip assembly"
+    },
+    "combo_burst_sheet": {
+      "path": "assets/images/apple_game_v2/apple_combo_burst_sheet.png",
+      "size": [128, 96],
+      "layout": "3 intensity rows x 4 animation columns",
+      "cell_size": [32, 32],
+      "display_size": [64, 64],
+      "frame_duration_ms": 70,
+      "tiers": {
+        "row_0": "3 apples",
+        "row_1": "4 apples",
+        "row_2": "5 or more apples"
+      },
+      "method": "image_gen solid-magenta raw sheet, generate2dsprite chroma cleanup and strict output QC"
+    }
+  },
+  "qc": {
+    "empty_frames": 0,
+    "source_edge_touch_frames": "combo sheet has 6 reviewed detached-spark contacts; accepted with no output edge contact",
+    "output_edge_touch_frames": 0,
+    "paste_clamped_frames": 0,
+    "filtering": "nearest-neighbor / anti-alias disabled",
+    "excluded_assets": ["frames", "badges", "panels"]
+  },
+  "validation": {
+    "visual_review": "passed at native size and in iPhone 17 simulator; larger apples remain separated and labels stay centered inside the apple body",
+    "runtime_asset_load": "passed for classic and midnightOrchard asset sets",
+    "interaction_smoke_test": "passed; a 9+1 drag removed two apples and updated score to 2",
+    "flutter_test": "passed",
+    "flutter_analyze": "passed"
+  }
+}

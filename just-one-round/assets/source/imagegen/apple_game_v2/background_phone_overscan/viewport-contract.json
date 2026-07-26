@@ -1,0 +1,39 @@
+{
+  "authored_canvas": {
+    "world_rect": [-24, -80, 384, 800]
+  },
+  "gameplay_safe_core": {
+    "world_rect": [0, 0, 360, 720]
+  },
+  "camera_center": [180, 360],
+  "layers": [
+    {
+      "name": "midnight_orchard_background",
+      "world_rect": [-24, -80, 384, 800],
+      "color": "#041638"
+    },
+    {
+      "name": "apple_board",
+      "world_rect": [10, 96, 350, 688],
+      "color": "#132959"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "short_phone_16_9",
+      "size": [405, 720]
+    },
+    {
+      "name": "canonical_phone_18_9",
+      "size": [360, 720]
+    },
+    {
+      "name": "iphone_17",
+      "size": [360, 780.46]
+    },
+    {
+      "name": "tall_phone_21_9",
+      "size": [360, 840]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: raw pixel-art game sprite atlas for Apple Game 2
+Input images: Image 1 locks the simple red-apple silhouette and top leaf orientation of the existing playable apple; Images 2 and 3 lock the polished high-density neon pixel-art quality, crisp square clusters, dark outline language, and cyan/magenta/amber highlight richness. Do not reproduce any UI frame, labels, numbers, or text from Images 2 and 3.
+Primary request: exactly nine variants of the same small red apple sprite in an exact 3×3 grid, read left-to-right then top-to-bottom as runtime values 1 through 9. Variants may have tiny natural differences in red highlight, leaf tilt, or one-pixel shine, but must remain equally sized and instantly read as the same apple item. No faces and no printed numbers.
+View: front-facing 2D game icon with a subtly visible apple top, consistent camera and scale.
+Style/medium: premium high-density pixel art, crisp hard-edged square pixels, deliberate clusters, dark navy-purple 2–3 pixel outline, ruby-red body, warm coral highlight, tiny golden specular pixel, small deep-green leaf with cyan moonlit rim.
+Composition/framing: exactly 3 rows and 3 columns of equal invisible cells; one centered complete apple per cell; same bounding-box scale in every cell; each apple occupies about 70% of its cell; generous flat-magenta margin on all four sides; nothing crosses a cell boundary.
+Background: 100% solid flat #FF00FF only, no gradient, texture, shadow, glow, or pattern.
+Constraints: exactly 9 apples and no other objects; no text, no digits, no labels, no UI, no borders, no cell separators, no guides, no badges, no frames, no watermark; no cast shadows; no detached sparkles; all pixels sharp and unsmoothed.

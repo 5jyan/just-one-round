@@ -1,0 +1,19 @@
+Edit and vertically outpaint the supplied production pixel-art game background
+into a substantially taller portrait canvas for modern phones. Preserve the
+existing midnight orchard identity, palette, moonlit lighting, crisp deliberate
+2-logical-pixel cluster language, centered calm dark gameplay lane, and
+recognizable overall composition.
+
+The original supplied image represents the central 360×720 gameplay-safe
+region. Add genuine newly drawn environment beyond it: approximately 80 logical
+pixels of extra upper orchard sky/canopy above and approximately 80 logical
+pixels of extra lower grass, small flowers, fallen apples, and orchard-floor
+foliage below, yielding an authored composition equivalent to 360×880.
+
+Do not stretch, blur, mirror, repeat edge rows, duplicate motifs, or add
+flat-color padding. Keep the entire central gameplay lane broad, dark,
+low-contrast, and uncluttered from y≈64 through y≈656 of the original safe
+region. Maintain varied organic foliage and firefly spacing with no wallpaper
+repetition. No text, numbers, UI, borders, frames, characters, logos, or
+watermark. Crisp high-quality pixel art, deliberate clusters, no painterly
+smoothing. Output one seamless full background only.

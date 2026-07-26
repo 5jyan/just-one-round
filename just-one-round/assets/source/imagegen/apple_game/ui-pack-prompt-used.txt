@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: production source sheet of pixel-art UI decorations for a portrait mobile apple puzzle game
+Primary request: create exactly four separate front-facing UI assets arranged in an exact 2 columns by 2 rows grid. Top-left: an empty tall rounded-rectangle burgundy plastic puzzle-board frame with a completely open solid-magenta interior, chunky scuffed gold corner accents, no internal grid. Top-right: an empty tacky arched title plaque in red plastic with dull-gold trim and an open plain center, no writing. Bottom-left: a small old-fashioned kitchen timer badge with an empty dark display area, no digits. Bottom-right: a red rubber success stamp/seal icon with an empty cream center, no symbol or writing.
+Style/medium: crisp handcrafted low-resolution pixel art, deliberately tacky Korean retro beauty-salon / old kitchen aesthetic, chunky deliberate clusters, no antialiasing, matching palette and lighting
+Composition/framing: exact 2x2 grid with equal square cells; each asset centered, isolated, fully contained with generous padding; no overlap
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background, including the open interior of the board frame
+Color palette: burgundy #7B352D and #591F2C, dull gold #E6B94E, cream #FFF3C4, dusty pink #B96C76
+Constraints: no text, no letters, no numbers, no apples, no labels, no guide lines, no cell separators, no cast shadows, no floor, no reflections, background must be uniformly #FF00FF, do not use #FF00FF in the assets, no watermark
+Avoid: modern minimalist UI, smooth vector gradients, 3D rendering, photorealism, clipped assets

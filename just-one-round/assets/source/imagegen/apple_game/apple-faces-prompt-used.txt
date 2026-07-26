@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: production source sheet for a mobile 2D pixel-art apple puzzle game
+Primary request: create exactly nine distinct red apple sprites arranged in an exact 3 columns by 3 rows grid, read left-to-right and top-to-bottom. Each sprite is a front-facing lumpy asymmetrical apple with a tiny brown stem, awkward bright-green leaf, exaggerated white shine, dark burgundy two-pixel-style outline, and a subtly odd but lovable Korean internet ugly-cute / intentionally tacky expression. Expression order: 1 thin long eyes with excessive lashes; 2 aggrieved slanted eyebrows; 3 awkward wink; 4 tiny moustache; 5 heavy pink blush; 6 unfocused dreamy eyes; 7 one raised eyebrow; 8 one small buck tooth; 9 one dangling hair strand.
+Style/medium: crisp handcrafted low-resolution pixel art, chunky deliberate clusters, no antialiasing, consistent sprite scale and palette, mobile-game readability
+Composition/framing: exact 3x3 grid, each apple centered inside an equal square cell, identical body scale, generous padding, nothing touches cell edges
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background
+Color palette: apple #E94A4E and #8D2439, outline #591F2C, shine #FFF2DA, leaf #72A83D, brown stem
+Constraints: no digits, no letters, no labels, no borders, no guide lines, no cell separators, no cast shadows, no ground plane, no extra objects, all nine apples fully visible and separate, background must be one uniform #FF00FF with no texture or lighting variation, do not use #FF00FF in any apple, no watermark
+Avoid: smooth vector art, gradients outside pixel clusters, painterly texture, 3D rendering, duplicated expressions, clipped sprites
