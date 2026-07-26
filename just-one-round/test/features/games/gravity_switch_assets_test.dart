@@ -21,6 +21,43 @@ void main() {
     expect((frame.image.width, frame.image.height), (96, 96));
   });
 
+  test('자석 진드기 GAME OVER 에셋이 투명 48픽셀 단일 프레임이다', () async {
+    final data = await rootBundle.load(
+      'assets/images/gravity_switch_v2/player_game_over.png',
+    );
+    final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    addTearDown(codec.dispose);
+    final frame = await codec.getNextFrame();
+    addTearDown(frame.image.dispose);
+
+    expect((frame.image.width, frame.image.height), (48, 48));
+  });
+
+  test('메인과 설명서 캡처는 실제 런타임의 다중 프레임 애니메이션이다', () async {
+    const captures = {
+      'gravity_runtime_main.webp': (360, 462),
+      'gravity_runtime_control.webp': (360, 268),
+      'gravity_runtime_obstacle.webp': (360, 268),
+      'gravity_runtime_hard.webp': (360, 268),
+      'gravity_runtime_collision.webp': (360, 268),
+    };
+    for (final entry in captures.entries) {
+      final data = await rootBundle.load(
+        'assets/images/gravity_switch_v2/${entry.key}',
+      );
+      final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      addTearDown(codec.dispose);
+      expect(codec.frameCount, greaterThan(1), reason: entry.key);
+      final frame = await codec.getNextFrame();
+      addTearDown(frame.image.dispose);
+      expect(
+        (frame.image.width, frame.image.height),
+        entry.value,
+        reason: entry.key,
+      );
+    }
+  });
+
   test('v3와 v4 고철 모듈 31개가 온전한 48픽셀 셀 크기로 포함된다', () async {
     const v4Specs = {
       'scrap_basic_1x1_01': (1, 1),

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_screen.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
+import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
+import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
+import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 
 void main() {
@@ -28,14 +33,93 @@ void main() {
       ),
     );
 
-    await tester.pump(const Duration(milliseconds: 16));
-    await tester.pump(const Duration(milliseconds: 16));
-    await tester.pump(const Duration(milliseconds: 300));
+    await _pumpUntilFound(tester, find.byKey(const Key('game-end-title')));
+
+    final titleElement = tester.element(
+      find.byKey(const Key('game-end-title')),
+    );
+    final titleCenter = tester.getCenter(
+      find.byKey(const Key('game-end-title')),
+    );
+    final backdropSize = tester.getSize(
+      find.byKey(const Key('game-end-backdrop')),
+    );
+    expect(find.byKey(const Key('game-end-title')), findsOneWidget);
+    expect(find.text('TIME UP!'), findsNWidgets(2));
+    expect(find.text('한 판 종료!'), findsNothing);
+
+    await tester.pump(
+      gameEndTransitionDuration + const Duration(milliseconds: 100),
+    );
     await tester.pump();
+
+    final panelStart = tester.getTopLeft(find.byKey(const Key('result-panel')));
+    await tester.pump(gameEndResultRevealDuration);
 
     expect(find.text('한 판 종료!'), findsOneWidget);
     expect(find.byKey(const Key('final-score')), findsOneWidget);
     expect(find.text('홈으로'), findsOneWidget);
+    expect(find.byKey(const Key('game-end-title')), findsOneWidget);
+    expect(
+      identical(
+        titleElement,
+        tester.element(find.byKey(const Key('game-end-title'))),
+      ),
+      isTrue,
+    );
+    expect(
+      tester.getCenter(find.byKey(const Key('game-end-title'))),
+      titleCenter,
+    );
+    expect(
+      tester.getSize(find.byKey(const Key('game-end-backdrop'))),
+      backdropSize,
+    );
+    expect(
+      titleCenter.dy,
+      lessThan(tester.getTopLeft(find.text('한 판 종료!')).dy),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const Key('result-panel'))).dy,
+      lessThan(panelStart.dy),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const Key('result-panel'))).dy,
+      lessThan(180),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const Key('result-panel'))).dy -
+          tester.getBottomLeft(find.byKey(const Key('game-end-title'))).dy,
+      greaterThan(16),
+    );
+  });
+
+  testWidgets('공통 종료 연출 중에도 완료 기록은 즉시 제출한다', (tester) async {
+    final repository = _CompletedScoreRepository();
+    const attempt = PlayAttempt(
+      id: 'attempt-transition-submit',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            gameDuration: Duration(milliseconds: 100),
+            countdownDuration: Duration.zero,
+          ),
+        ),
+      ),
+    );
+
+    await _pumpUntilFound(tester, find.byKey(const Key('game-end-title')));
+
+    expect(find.byKey(const Key('game-end-title')), findsOneWidget);
+    expect(repository.submittedAttemptId, 'attempt-transition-submit');
+    expect(find.byKey(const Key('final-score')), findsNothing);
   });
 
   testWidgets('게임 ID가 중력 스위치면 전용 게임과 HUD를 실행한다', (tester) async {
@@ -119,6 +203,66 @@ void main() {
     expect(repository.expiredAttemptIds, ['attempt-1']);
   });
 
+  testWidgets('게임에서 홈으로 돌아오면 오늘 플레이 상태를 다시 불러온다', (tester) async {
+    final repository = _HomeRefreshRepository();
+    final container = ProviderContainer(
+      overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(todayStateProvider.future);
+    expect(repository.fetchTodayCalls, 1);
+
+    const attempt = PlayAttempt(
+      id: 'attempt-home-refresh',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+    );
+    final router = GoRouter(
+      initialLocation: '/play',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => Consumer(
+            builder: (context, ref, child) {
+              final today = ref.watch(todayStateProvider);
+              return Material(
+                child: Center(
+                  child: today.when(
+                    data: (state) =>
+                        Text(state.canClaimDaily ? 'available' : 'exhausted'),
+                    error: (error, stackTrace) => const Text('error'),
+                    loading: () => const Text('loading'),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        GoRoute(
+          path: '/play',
+          builder: (context, state) => const GameScreen(attempt: attempt),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('게임 나가기'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('exhausted'), findsOneWidget);
+    expect(repository.fetchTodayCalls, 2);
+  });
+
   testWidgets('첫 정상 완료 후 닉네임 입력창을 자동으로 보여준다', (tester) async {
     final repository = _NicknameRepository();
     const attempt = PlayAttempt(
@@ -185,6 +329,15 @@ void main() {
   });
 }
 
+Future<void> _pumpUntilFound(WidgetTester tester, Finder finder) async {
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 100)),
+  );
+  for (var i = 0; i < 40 && finder.evaluate().isEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
+
 class _RecordingRepository implements DailyGameRepository {
   final expiredAttemptIds = <String>[];
 
@@ -194,10 +347,16 @@ class _RecordingRepository implements DailyGameRepository {
   }
 
   @override
-  Future<PlayAttempt> claimDailyAttempt() => throw UnimplementedError();
+  Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate) =>
+      throw UnimplementedError();
 
   @override
-  Future<PlayAttempt> claimRewardedAttempt() => throw UnimplementedError();
+  Future<RewardedAdSession> prepareRewardedAd(DateTime expectedPlayDate) =>
+      throw UnimplementedError();
+
+  @override
+  Future<PlayAttempt> claimRewardedAttempt(String rewardSessionId) =>
+      throw UnimplementedError();
 
   @override
   Future<TodayState> fetchToday() => throw UnimplementedError();
@@ -206,11 +365,31 @@ class _RecordingRepository implements DailyGameRepository {
   Future<List<PlayHistoryEntry>> fetchHistory() => throw UnimplementedError();
 
   @override
+  Future<PreviousDailyResult?> fetchUnseenPreviousDailyResult() =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> acknowledgePreviousDailyResult(
+    DateTime playDate,
+    String gameId,
+  ) => throw UnimplementedError();
+
+  @override
   Future<List<DeveloperGame>> fetchDeveloperGames() =>
       throw UnimplementedError();
 
   @override
-  Future<void> enableTestMode() => throw UnimplementedError();
+  Future<void> reportNickname(String userId) => throw UnimplementedError();
+
+  @override
+  Future<void> blockUser(String userId) => throw UnimplementedError();
+
+  @override
+  Future<void> deleteAccount() => throw UnimplementedError();
+
+  @override
+  Future<TesterActivationResult> activateTestMode(String pin) =>
+      throw UnimplementedError();
 
   @override
   Future<void> resetDeveloperDailyProgress() => throw UnimplementedError();
@@ -226,21 +405,50 @@ class _RecordingRepository implements DailyGameRepository {
   Future<DailyRankResult?> retryPendingScore() => throw UnimplementedError();
 
   @override
-  Future<DailyRankResult> fetchFilteredRank({
-    int? birthDecade,
-    ProfileGender? gender,
-  }) => throw UnimplementedError();
+  Future<DailyRankResult> fetchDailyRank() => throw UnimplementedError();
 
   @override
-  Future<UserProfile> setNickname(String nickname) =>
-      throw UnimplementedError();
+  Future<void> setNickname(String nickname) => throw UnimplementedError();
+}
+
+class _HomeRefreshRepository extends _RecordingRepository {
+  var fetchTodayCalls = 0;
+  var expired = false;
 
   @override
-  Future<UserProfile> updateDemographics({
-    required int? birthYear,
-    required int? birthMonth,
-    required ProfileGender? gender,
-  }) => throw UnimplementedError();
+  Future<TodayState> fetchToday() async {
+    fetchTodayCalls++;
+    return TodayState(
+      playDate: DateTime(2026, 7, 26),
+      game: const TodayGame(
+        id: 'dung_dodge_v2',
+        version: 1,
+        displayName: '똥피하기',
+        description: '테스트',
+        durationSeconds: 300,
+      ),
+      attempts: expired
+          ? const [
+              PlayAttempt(
+                id: 'attempt-home-refresh',
+                ordinal: 1,
+                status: 'expired',
+                grantType: 'daily',
+              ),
+            ]
+          : const [],
+      adAttemptAvailable: false,
+      testMode: false,
+      result: null,
+      nickname: null,
+    );
+  }
+
+  @override
+  Future<void> expireAttempt(String attemptId) async {
+    expired = true;
+    await super.expireAttempt(attemptId);
+  }
 }
 
 class _NicknameRepository extends _RecordingRepository {
@@ -262,21 +470,12 @@ class _NicknameRepository extends _RecordingRepository {
   }
 
   @override
-  Future<UserProfile> setNickname(String nickname) async {
+  Future<void> setNickname(String nickname) async {
     savedNickname = nickname;
-    return UserProfile(
-      nickname: nickname,
-      birthYear: null,
-      birthMonth: null,
-      gender: null,
-    );
   }
 
   @override
-  Future<DailyRankResult> fetchFilteredRank({
-    int? birthDecade,
-    ProfileGender? gender,
-  }) async {
+  Future<DailyRankResult> fetchDailyRank() async {
     return DailyRankResult(
       score: 600,
       rank: 1,

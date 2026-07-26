@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
@@ -25,8 +26,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: NearbyRanking(result: result)),
+      const ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(body: NearbyRanking(result: result)),
+        ),
       ),
     );
 
@@ -34,6 +37,6 @@ void main() {
     expect(find.text('별하나'), findsOneWidget);
     expect(find.text('별둘'), findsOneWidget);
     expect(find.byKey(const Key('my-nearby-rank')), findsOneWidget);
-    expect(find.byKey(const Key('npc-rank-badge')), findsOneWidget);
+    expect(find.text('NPC'), findsNothing);
   });
 }

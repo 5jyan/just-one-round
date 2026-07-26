@@ -25,15 +25,23 @@ import UIKit
       binaryMessenger: registrar.messenger()
     )
     environmentChannel?.setMethodCallHandler { call, result in
-      guard call.method == "isIosSimulator" else {
-        result(FlutterMethodNotImplemented)
-        return
-      }
+      switch call.method {
+      case "isIosSimulator":
 #if targetEnvironment(simulator)
-      result(true)
+        result(true)
 #else
-      result(false)
+        result(false)
 #endif
+      case "getAppBuildInfo":
+        let info = Bundle.main.infoDictionary
+        result([
+          "version": info?["CFBundleShortVersionString"] as? String ?? "1.0.0",
+          "build_number": info?["CFBundleVersion"] as? String ?? "1",
+          "platform": "ios",
+        ])
+      default:
+        result(FlutterMethodNotImplemented)
+      }
     }
   }
 }

@@ -47,6 +47,7 @@ class PlayAttempt {
     required this.status,
     required this.grantType,
     this.gameId,
+    this.gameVersion,
   });
 
   factory PlayAttempt.fromJson(Map<String, dynamic> json) => PlayAttempt(
@@ -55,6 +56,7 @@ class PlayAttempt {
     status: json['status'] as String,
     grantType: json['grant_type'] as String,
     gameId: json['game_id'] as String?,
+    gameVersion: (json['game_version'] as num?)?.toInt(),
   );
 
   final String id;
@@ -62,46 +64,49 @@ class PlayAttempt {
   final String status;
   final String grantType;
   final String? gameId;
+  final int? gameVersion;
 }
 
-enum ProfileGender {
-  male('male', '남성'),
-  female('female', '여성');
-
-  const ProfileGender(this.value, this.label);
-
-  final String value;
-  final String label;
-
-  static ProfileGender? fromValue(String? value) {
-    for (final gender in values) {
-      if (gender.value == value) return gender;
-    }
-    return null;
-  }
-}
-
-class UserProfile {
-  const UserProfile({
-    required this.nickname,
-    required this.birthYear,
-    required this.birthMonth,
-    required this.gender,
+class ClientCompatibility {
+  const ClientCompatibility({
+    required this.currentBuild,
+    required this.minimumSupportedBuild,
+    required this.updateRequired,
+    this.storeUrl,
+    this.reason,
   });
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-    nickname: json['nickname'] as String?,
-    birthYear: (json['birth_year'] as num?)?.toInt(),
-    birthMonth: (json['birth_month'] as num?)?.toInt(),
-    gender: ProfileGender.fromValue(json['gender'] as String?),
-  );
+  const ClientCompatibility.supported()
+    : currentBuild = 1,
+      minimumSupportedBuild = 1,
+      updateRequired = false,
+      storeUrl = null,
+      reason = null;
 
-  final String? nickname;
-  final int? birthYear;
-  final int? birthMonth;
-  final ProfileGender? gender;
+  factory ClientCompatibility.fromJson(Map<String, dynamic> json) =>
+      ClientCompatibility(
+        currentBuild: (json['current_build'] as num?)?.toInt() ?? 1,
+        minimumSupportedBuild:
+            (json['minimum_supported_build'] as num?)?.toInt() ?? 1,
+        updateRequired: json['update_required'] as bool? ?? false,
+        storeUrl: json['store_url'] as String?,
+        reason: json['reason'] as String?,
+      );
 
-  int? get birthDecade => birthYear == null ? null : (birthYear! ~/ 10) * 10;
+  final int currentBuild;
+  final int minimumSupportedBuild;
+  final bool updateRequired;
+  final String? storeUrl;
+  final String? reason;
+
+  ClientCompatibility requiringUpdate({required String reason}) =>
+      ClientCompatibility(
+        currentBuild: currentBuild,
+        minimumSupportedBuild: minimumSupportedBuild,
+        updateRequired: true,
+        storeUrl: storeUrl,
+        reason: reason,
+      );
 }
 
 class NearbyRank {
@@ -110,6 +115,7 @@ class NearbyRank {
     required this.nickname,
     required this.score,
     required this.isMe,
+    this.userId,
     this.isNpc = false,
   });
 
@@ -118,6 +124,7 @@ class NearbyRank {
     nickname: json['nickname'] as String,
     score: (json['score'] as num).toInt(),
     isMe: json['is_me'] as bool,
+    userId: json['user_id'] as String?,
     isNpc: json['is_npc'] as bool? ?? false,
   );
 
@@ -125,6 +132,7 @@ class NearbyRank {
   final String nickname;
   final int score;
   final bool isMe;
+  final String? userId;
   final bool isNpc;
 }
 
@@ -174,7 +182,8 @@ class TodayState {
     required this.adAttemptAvailable,
     required this.testMode,
     required this.result,
-    required this.profile,
+    required this.nickname,
+    this.compatibility = const ClientCompatibility.supported(),
   });
 
   factory TodayState.fromJson(Map<String, dynamic> json) {
@@ -183,7 +192,6 @@ class TodayState {
         .toList(growable: false);
     final gameJson = json['game'] as Map<String, dynamic>?;
     final resultJson = json['result'] as Map<String, dynamic>?;
-    final profileJson = json['profile'] as Map<String, dynamic>?;
     return TodayState(
       playDate: DateTime.parse(json['play_date'] as String),
       game: gameJson == null ? null : TodayGame.fromJson(gameJson),
@@ -191,14 +199,9 @@ class TodayState {
       adAttemptAvailable: json['ad_attempt_available'] as bool? ?? false,
       testMode: json['test_mode'] as bool? ?? false,
       result: resultJson == null ? null : DailyRankResult.fromJson(resultJson),
-      profile: profileJson == null
-          ? const UserProfile(
-              nickname: null,
-              birthYear: null,
-              birthMonth: null,
-              gender: null,
-            )
-          : UserProfile.fromJson(profileJson),
+      nickname:
+          json['nickname'] as String? ??
+          (json['profile'] as Map<String, dynamic>?)?['nickname'] as String?,
     );
   }
 
@@ -208,11 +211,24 @@ class TodayState {
   final bool adAttemptAvailable;
   final bool testMode;
   final DailyRankResult? result;
-  final UserProfile profile;
+  final String? nickname;
+  final ClientCompatibility compatibility;
 
+  bool get requiresUpdate => compatibility.updateRequired;
   bool get canClaimDaily => testMode || attempts.isEmpty;
   bool get hasPlayed => result?.score != null;
   bool get isExhausted =>
       (!testMode && attempts.length >= 2) ||
       (attempts.isNotEmpty && !adAttemptAvailable && !canClaimDaily);
+
+  TodayState withCompatibility(ClientCompatibility value) => TodayState(
+    playDate: playDate,
+    game: game,
+    attempts: attempts,
+    adAttemptAvailable: adAttemptAvailable,
+    testMode: testMode,
+    result: result,
+    nickname: nickname,
+    compatibility: value,
+  );
 }

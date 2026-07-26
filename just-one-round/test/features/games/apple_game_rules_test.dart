@@ -90,29 +90,37 @@ void main() {
     );
   });
 
-  test('가장 많이 남은 숫자들의 모든 사과를 낙하 후보로 고른다', () {
-    final board = _emptyBoard();
-    board[0][0] = 2;
-    board[0][1] = 2;
-    board[1][0] = 7;
-    board[1][1] = 7;
-    board[2][0] = 4;
+  test('생성된 보드는 합이 10의 배수이며 충분한 시작 조합을 가진다', () {
+    for (var seed = 0; seed < 100; seed++) {
+      final board = AppleGameRules.createBoard(Random(seed));
 
-    expect(AppleGameRules.mostFrequentAppleCells(board), [
-      (0, 0),
-      (0, 1),
-      (1, 0),
-      (1, 1),
-    ]);
+      expect(board, hasLength(AppleGameRules.rowCount));
+      expect(
+        board.every((row) => row.length == AppleGameRules.columnCount),
+        isTrue,
+      );
+      expect(board.expand((row) => row), everyElement(inInclusiveRange(1, 9)));
+      expect(
+        board.expand((row) => row).fold<int>(0, (sum, value) => sum + value!) %
+            AppleGameRules.targetSum,
+        0,
+      );
+      expect(
+        AppleGameRules.countAvailableMoves(board, stopAfter: 12),
+        greaterThanOrEqualTo(12),
+      );
+    }
   });
 
-  test('생성된 보드는 올바른 크기와 충분한 시작 조합을 가진다', () {
-    final board = AppleGameRules.createBoard(Random(7));
+  test('랜덤 후보가 조건을 충족하지 못해도 보정된 대체 보드를 만든다', () {
+    final board = AppleGameRules.createBoard(_AlwaysNineRandom());
+    final values = board.expand((row) => row);
 
-    expect(board, hasLength(AppleGameRules.rowCount));
+    expect(values, everyElement(inInclusiveRange(1, 9)));
     expect(
-      board.every((row) => row.length == AppleGameRules.columnCount),
-      isTrue,
+      values.fold<int>(0, (sum, value) => sum + value!) %
+          AppleGameRules.targetSum,
+      0,
     );
     expect(
       AppleGameRules.countAvailableMoves(board, stopAfter: 12),
@@ -120,23 +128,7 @@ void main() {
     );
   });
 
-  testWidgets('런타임 에셋을 불러와 게임 화면을 구성한다', (tester) async {
-    final game = AppleGame(
-      gameDuration: const Duration(seconds: 60),
-      countdownDuration: Duration.zero,
-      random: Random(3),
-      onFinished: (_) {},
-    );
-
-    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
-    await tester.pump(const Duration(milliseconds: 500));
-
-    expect(tester.takeException(), isNull);
-    game.pauseEngine();
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
-
-  testWidgets('사과게임 2의 42픽셀 에셋으로 게임 화면을 구성한다', (tester) async {
+  testWidgets('사과게임의 42픽셀 에셋으로 게임 화면을 구성한다', (tester) async {
     final game = AppleGame(
       gameDuration: const Duration(seconds: 60),
       countdownDuration: Duration.zero,
@@ -156,7 +148,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  test('사과게임 2의 일반 폰 뷰포트가 배경 오버스캔 안에서 반응한다', () {
+  test('사과게임의 일반 폰 뷰포트가 배경 오버스캔 안에서 반응한다', () {
     expect(
       AppleGame.viewportResolutionForCanvas(Vector2(360, 640)),
       closeToVector(Vector2(405, 720)),
@@ -184,10 +176,6 @@ void main() {
     expect(AppleGame.comboEffectDisplaySizeForOrdinal(4), 128);
     expect(AppleGame.comboEffectDisplaySizeForOrdinal(12), 128);
   });
-
-  test('남은 60초부터 10초 간격으로 자동 낙하한다', () {
-    expect(AppleGame.timedDropRemainingSeconds, [60, 50, 40, 30, 20, 10]);
-  });
 }
 
 Matcher closeToVector(Vector2 expected) => predicate<Vector2>(
@@ -201,3 +189,14 @@ List<List<int?>> _emptyBoard() => List.generate(
   AppleGameRules.rowCount,
   (_) => List<int?>.filled(AppleGameRules.columnCount, null),
 );
+
+final class _AlwaysNineRandom implements Random {
+  @override
+  bool nextBool() => true;
+
+  @override
+  double nextDouble() => 1;
+
+  @override
+  int nextInt(int max) => max - 1;
+}

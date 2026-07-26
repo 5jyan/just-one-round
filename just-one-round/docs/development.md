@@ -27,6 +27,12 @@ flutter run -d <android-emulator-id> \
 
 실기기는 Mac의 같은 Wi-Fi LAN 주소를 `SUPABASE_URL`로 지정한다. 운영 빌드에서는 반드시 Supabase Cloud의 HTTPS 주소와 publishable key를 지정한다.
 
+별도 값을 전달하지 않은 디버그 빌드는 로컬 Supabase를 사용하고, 릴리스
+빌드는 운영 프로젝트 `https://yvowpyeoaexdrycgtyri.supabase.co`와 코드에
+포함된 공개 publishable key를 자동 사용한다. 필요하면 기존
+`SUPABASE_URL`/`SUPABASE_ANON_KEY` dart-define으로 어느 빌드에서든 덮어쓸 수
+있다.
+
 ## iOS Simulator
 
 ```sh
@@ -57,6 +63,22 @@ npm run supabase:start
 ### 날짜 변경 일정 검증
 
 `daily_games`에 없는 미래 날짜를 대상으로 `ensure_daily_game`을 호출하면 활성 게임 하나가 배정된다. 같은 날짜를 다시 호출해도 동일한 `game_id`, `game_version`이 반환되어야 한다.
+
+일일 게임은 한국 시간 오전 6시에 변경된다. `current_play_date`는 오전
+`05:59:59`까지 전날을, `06:00:00`부터 당일을 반환해야 한다.
+전날 점수 제출은 오전 6시 10분에 마감되고, 이후
+`get_unseen_previous_daily_result`가 NPC 포함 최종 결과를 한 번 반환해야 한다.
+
+```bash
+docker exec -i supabase_db_just-one-round psql -U postgres -d postgres \
+  -c "select public.current_play_date('2026-07-26 20:59:59+00'), public.current_play_date('2026-07-26 21:00:00+00');"
+```
+
+### 실제 기기 테스트 모드
+
+설정 화면 아래의 앱 버전을 4초 안에 7회 누르면 테스터 PIN 입력창이 열린다.
+PIN은 `activate_test_mode` RPC에서만 검증하며 앱에는 저장하지 않는다. 잘못된
+PIN을 5회 입력하면 해당 계정의 인증이 15분간 잠긴다.
 
 ```sh
 docker exec supabase_db_just-one-round psql -U postgres -d postgres \

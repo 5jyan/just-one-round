@@ -11,6 +11,7 @@ void main() {
         starsCollected: 3,
         collisions: 2,
         duration: Duration(seconds: 60),
+        endType: GameEndType.gameOver,
       ),
     );
 
@@ -49,6 +50,27 @@ void main() {
     });
 
     expect(result, 'ranked');
+    expect(store.value, isNull);
+  });
+
+  test('제출 마감이 지난 결과는 더 이상 재시도하지 않는다', () async {
+    final store = _MemoryPendingScoreStore();
+    final retry = PendingScoreRetryService<String>(store);
+    const submission = PendingScoreSubmission(
+      attemptId: 'attempt-expired',
+      rawScore: 800,
+      starsCollected: 3,
+      collisions: 2,
+      durationMs: 60000,
+    );
+    await store.save(submission);
+
+    final result = await retry.retry(
+      (_) async => throw StateError('score submission window closed'),
+      discardWhen: (error) => error.toString().contains('window closed'),
+    );
+
+    expect(result, isNull);
     expect(store.value, isNull);
   });
 }

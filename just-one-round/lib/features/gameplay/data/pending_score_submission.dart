@@ -71,15 +71,19 @@ class PendingScoreRetryService<T> {
   }
 
   Future<T?> retry(
-    Future<T> Function(PendingScoreSubmission submission) send,
-  ) async {
+    Future<T> Function(PendingScoreSubmission submission) send, {
+    bool Function(Object error)? discardWhen,
+  }) async {
     final submission = await _store.load();
     if (submission == null) return null;
     try {
       final result = await send(submission);
       await _store.clear();
       return result;
-    } catch (_) {
+    } catch (error) {
+      if (discardWhen?.call(error) ?? false) {
+        await _store.clear();
+      }
       return null;
     }
   }

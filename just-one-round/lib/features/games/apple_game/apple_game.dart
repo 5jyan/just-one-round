@@ -26,16 +26,6 @@ class AppleGameAssetSet {
     this.numberLineHeight,
   });
 
-  static const classic = AppleGameAssetSet(
-    directory: 'apple_game',
-    appleSourceCellSize: 48,
-    popSourceCellSize: 48,
-    appleDisplaySize: 40,
-    numberFontSize: 22,
-    numberShadowOffset: 2,
-    numberVerticalOffset: -1,
-    phoneOverscan: false,
-  );
   static const midnightOrchard = AppleGameAssetSet(
     directory: 'apple_game_v2',
     appleSourceCellSize: 42,
@@ -68,7 +58,7 @@ class AppleGame extends FlameGame
     required this.onFinished,
     this.gameDuration = const Duration(seconds: 120),
     this.countdownDuration = const Duration(seconds: 3),
-    this.assetSet = AppleGameAssetSet.classic,
+    this.assetSet = AppleGameAssetSet.midnightOrchard,
     Random? random,
   }) : _random = random ?? Random(),
        hud = ValueNotifier(
@@ -88,7 +78,6 @@ class AppleGame extends FlameGame
   static final phoneBackgroundPosition = Vector2(-24, -80);
   static const maxPhoneVisibleHeight = 840.0;
   static const comboEffectFrameCount = 4;
-  static const timedDropRemainingSeconds = [60, 50, 40, 30, 20, 10];
 
   static int? comboEffectTierForOrdinal(int ordinal) {
     if (ordinal < 2) return null;
@@ -124,7 +113,6 @@ class AppleGame extends FlameGame
   var _lastPublishedSecond = -1;
   var _lastPublishedScore = -1;
   var _hasFinished = false;
-  var _nextTimedDropIndex = 0;
 
   @override
   Color backgroundColor() => const Color(0xFF011B19);
@@ -219,7 +207,6 @@ class AppleGame extends FlameGame
       numberShadowOffset: assetSet.numberShadowOffset,
       numberVerticalOffset: assetSet.numberVerticalOffset,
       numberLineHeight: assetSet.numberLineHeight,
-      random: _random,
       onRemoved: _handleRemoved,
     );
     await world.add(_board);
@@ -259,20 +246,10 @@ class AppleGame extends FlameGame
         if (_playingElapsed >= seconds) {
           _finishGame();
         } else {
-          _requestDueTimedAppleDrops(seconds - _playingElapsed);
           _publishHud();
         }
       case MiniGamePhase.finished:
         return;
-    }
-  }
-
-  void _requestDueTimedAppleDrops(double remainingSeconds) {
-    if (assetSet.comboSourceCellSize == null) return;
-    while (_nextTimedDropIndex < timedDropRemainingSeconds.length &&
-        remainingSeconds <= timedDropRemainingSeconds[_nextTimedDropIndex]) {
-      _board.requestMostFrequentAppleDrop();
-      _nextTimedDropIndex++;
     }
   }
 
@@ -365,6 +342,7 @@ class AppleGame extends FlameGame
             gameDuration.inMilliseconds,
           ),
         ),
+        endType: GameEndType.timeUp,
       ),
     );
   }
@@ -424,7 +402,6 @@ class _AppleBoardComponent extends PositionComponent {
     required this.numberShadowOffset,
     required this.numberVerticalOffset,
     required this.numberLineHeight,
-    required this.random,
     required this.onRemoved,
   }) : super(
          position: Vector2(_boardLeft, _boardTop),
@@ -451,7 +428,6 @@ class _AppleBoardComponent extends PositionComponent {
   final double numberShadowOffset;
   final double numberVerticalOffset;
   final double? numberLineHeight;
-  final Random random;
   final ValueChanged<int> onRemoved;
   final Paint _spritePaint = Paint()
     ..filterQuality = FilterQuality.none
@@ -472,7 +448,6 @@ class _AppleBoardComponent extends PositionComponent {
   List<(int, int)>? _pendingRemovalCells;
   var _nextRemovalIndex = 0;
   var _sequentialRemovalElapsed = 0.0;
-  var _pendingTimedDropCount = 0;
 
   void beginSelection(Vector2 viewportPosition) {
     if (_pendingRemovalCells != null) return;
@@ -547,12 +522,6 @@ class _AppleBoardComponent extends PositionComponent {
     _startRow = null;
     _startColumn = null;
     _selection = null;
-    _tryProcessTimedAppleDrop();
-  }
-
-  void requestMostFrequentAppleDrop() {
-    _pendingTimedDropCount++;
-    _tryProcessTimedAppleDrop();
   }
 
   @override
@@ -578,7 +547,6 @@ class _AppleBoardComponent extends PositionComponent {
       _pendingRemovalCells = null;
       _nextRemovalIndex = 0;
       _sequentialRemovalElapsed = 0;
-      _tryProcessTimedAppleDrop();
     }
   }
 
@@ -605,39 +573,6 @@ class _AppleBoardComponent extends PositionComponent {
           (column) => comboSheet.getSprite(comboTier, column),
           growable: false,
         ),
-      ),
-    );
-  }
-
-  void _tryProcessTimedAppleDrop() {
-    if (_pendingTimedDropCount <= 0 ||
-        _selection != null ||
-        _pendingRemovalCells != null) {
-      return;
-    }
-    final candidates = AppleGameRules.mostFrequentAppleCells(board);
-    if (candidates.isEmpty) {
-      _pendingTimedDropCount = 0;
-      return;
-    }
-    _pendingTimedDropCount--;
-    final cell = candidates[random.nextInt(candidates.length)];
-    final value = board[cell.$1][cell.$2];
-    if (value == null) return;
-    board[cell.$1][cell.$2] = null;
-    parent?.add(
-      _FallingAppleComponent(
-        position: Vector2(
-          position.x + _innerPadding + (cell.$2 + 0.5) * _cellSize,
-          position.y + _innerPadding + (cell.$1 + 0.5) * _cellSize,
-        ),
-        sprite: appleSprites[value - 1],
-        value: value,
-        appleSize: appleSize,
-        numberFontSize: numberFontSize,
-        numberShadowOffset: numberShadowOffset,
-        numberVerticalOffset: numberVerticalOffset,
-        numberLineHeight: numberLineHeight,
       ),
     );
   }
@@ -788,92 +723,6 @@ class _ApplePopComponent extends PositionComponent {
     super.render(canvas);
     final index = min(sprites.length - 1, (_elapsed / 0.08).floor());
     sprites[index].render(canvas, size: size, overridePaint: _paint);
-  }
-}
-
-class _FallingAppleComponent extends PositionComponent {
-  _FallingAppleComponent({
-    required super.position,
-    required this.sprite,
-    required this.value,
-    required this.appleSize,
-    required this.numberFontSize,
-    required this.numberShadowOffset,
-    required this.numberVerticalOffset,
-    required this.numberLineHeight,
-  }) : super(size: Vector2.all(42), anchor: Anchor.center, priority: 25);
-
-  static const _gravity = 1100.0;
-  static const _cleanupY = 780.0;
-
-  final Sprite sprite;
-  final int value;
-  final double appleSize;
-  final double numberFontSize;
-  final double numberShadowOffset;
-  final double numberVerticalOffset;
-  final double? numberLineHeight;
-  final Paint _paint = Paint()
-    ..filterQuality = FilterQuality.none
-    ..isAntiAlias = false;
-  var _velocityY = 80.0;
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-    final nextY = position.y + _velocityY * dt + (_gravity * dt * dt / 2);
-    position.y = (nextY / 2).round() * 2;
-    _velocityY += _gravity * dt;
-    if (position.y - size.y / 2 > _cleanupY) removeFromParent();
-  }
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    sprite.render(
-      canvas,
-      position: Vector2.all((size.x - appleSize) / 2),
-      size: Vector2.all(appleSize),
-      overridePaint: _paint,
-    );
-    final painter = TextPainter(
-      text: TextSpan(
-        text: '$value',
-        style: TextStyle(
-          fontFamily: 'Galmuri',
-          fontSize: numberFontSize,
-          height: numberLineHeight,
-          fontWeight: FontWeight.w700,
-          color: const Color(0xFFFFF3C4),
-          shadows: [
-            Shadow(
-              color: const Color(0xFF591F2C),
-              offset: Offset(numberShadowOffset, 0),
-            ),
-            Shadow(
-              color: const Color(0xFF591F2C),
-              offset: Offset(-numberShadowOffset, 0),
-            ),
-            Shadow(
-              color: const Color(0xFF591F2C),
-              offset: Offset(0, numberShadowOffset),
-            ),
-            Shadow(
-              color: const Color(0xFF591F2C),
-              offset: Offset(0, -numberShadowOffset),
-            ),
-          ],
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    painter.paint(
-      canvas,
-      Offset(
-        ((size.x - painter.width) / 2).roundToDouble(),
-        ((size.y - painter.height) / 2 + numberVerticalOffset).roundToDouble(),
-      ),
-    );
   }
 }
 

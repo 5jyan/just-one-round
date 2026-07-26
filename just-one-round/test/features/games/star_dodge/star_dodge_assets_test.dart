@@ -5,12 +5,13 @@ import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/star_dodge/star_dodge_game.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('똥피하기 2 런타임 에셋 크기가 계약과 일치한다', () async {
+  test('똥피하기 런타임 에셋 크기가 계약과 일치한다', () async {
     const contract = {
       'assets/images/dung_dodge_v2/background_map.png': (360, 960),
       'assets/images/dung_dodge_v2/ground_strip.png': (360, 208),
@@ -19,6 +20,7 @@ void main() {
       'assets/images/dung_dodge_v2/poop_fall_sheet.png': (96, 96),
       'assets/images/dung_dodge_v2/dust_sheet.png': (32, 32),
       'assets/images/dung_dodge_v2/poop_impact_sheet.png': (128, 128),
+      'assets/images/dung_dodge_v2/player_game_over.png': (64, 64),
       'assets/images/dung_dodge_v2/home_gameplay_hero.png': (1206, 1546),
     };
 
@@ -62,7 +64,7 @@ void main() {
     );
   });
 
-  test('똥피하기 2 캐릭터는 가독성을 위해 64픽셀로 표시한다', () {
+  test('똥피하기 캐릭터는 가독성을 위해 64픽셀로 표시한다', () {
     expect(StarDodgeGame.uglyCutePlayerSize, 64);
     expect(
       StarDodgeGame.uglyCutePlayerSize / StarDodgeGame.classicPlayerSize,
@@ -70,7 +72,7 @@ void main() {
     );
   });
 
-  test('똥피하기 2 캐릭터는 잘리지 않는 범위에서 양끝까지 이동한다', () {
+  test('똥피하기 캐릭터는 잘리지 않는 범위에서 양끝까지 이동한다', () {
     final bounds = StarDodgeGame.playerHorizontalBounds(
       displaySize: StarDodgeGame.uglyCutePlayerSize,
       edgePadding: 0,
@@ -80,7 +82,7 @@ void main() {
     expect(bounds.maximum, 328);
   });
 
-  testWidgets('똥피하기 2 에셋으로 실제 Flame 화면을 구성한다', (tester) async {
+  testWidgets('똥피하기 에셋으로 실제 Flame 화면을 구성한다', (tester) async {
     final game = StarDodgeGame(
       gameDuration: const Duration(seconds: 60),
       countdownDuration: Duration.zero,
@@ -95,6 +97,30 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(game.hud.value.remainingSeconds, isNull);
     game.pauseEngine();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('플레이어 충돌 순간 실제 캐릭터가 KO 포즈로 교체된다', (tester) async {
+    GameResult? result;
+    final game = StarDodgeGame(
+      gameDuration: const Duration(minutes: 5),
+      countdownDuration: Duration.zero,
+      assetSet: StarDodgeAssetSet.uglyCute,
+      random: Random(4),
+      onFinished: (value) => result = value,
+    );
+
+    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+    await tester.pump();
+    await tester.runAsync(() => game.loaded);
+    await tester.pump();
+
+    expect(game.isShowingGameOverPoseForTesting, isFalse);
+    game.handlePlayerCollisionForTesting();
+    await tester.pump();
+
+    expect(game.isShowingGameOverPoseForTesting, isTrue);
+    expect(result?.collisions, 1);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 

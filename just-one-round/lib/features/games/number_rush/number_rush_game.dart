@@ -74,7 +74,6 @@ class NumberRushGame extends FlameGame
         priority: -20,
       ),
     );
-
     final tiles = NumberRushRules.shuffledTiles(_random);
     _board = _NumberRushBoard(
       tiles: tiles,
@@ -170,6 +169,7 @@ class NumberRushGame extends FlameGame
           starsCollected: 0,
           collisions: timedOut ? 1 : 0,
           duration: Duration(milliseconds: elapsedMs),
+          endType: timedOut ? GameEndType.timeUp : GameEndType.clear,
         ),
       );
     });
@@ -483,8 +483,8 @@ class _NumberRushBoard extends PositionComponent {
   void _renderTopPanel(Canvas canvas) {
     _drawText(
       canvas,
-      'NUMBER RUSH',
-      const Offset(203, 38),
+      'TAP 50',
+      const Offset(180, 38),
       fontSize: 19,
       color: const Color(0xFF39F3FF),
       anchor: _TextAnchor.topCenter,
@@ -693,7 +693,7 @@ class _NumberRushBoard extends PositionComponent {
       _finalElapsedMs == null
           ? 'TAP FAST · BEAT YOUR BEST'
           : _timedOut
-          ? 'LIMIT 120.00'
+          ? 'LIMIT ${NumberRushRules.formatElapsedMs((_finalElapsedMs ?? 0)).replaceAll('초', '')}'
           : 'NEW RECORD?',
       const Offset(180, 512),
       fontSize: 8,

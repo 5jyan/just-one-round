@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
@@ -38,6 +39,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   late final MiniGameController _game;
   late final DailyGameRepository _repository;
   GameResult? _result;
+  GameResult? _pendingResult;
   DailyRankResult? _rankResult;
   Object? _submitError;
   var _isSubmitting = false;
@@ -51,21 +53,45 @@ class _GameScreenState extends ConsumerState<GameScreen>
     super.initState();
     _repository = ref.read(dailyGameRepositoryProvider);
     WidgetsBinding.instance.addObserver(this);
-    _definition = GameRegistry.forId(widget.attempt?.gameId);
+    _definition = GameRegistry.forId(widget.attempt?.gameId ?? 'dung_dodge_v2');
     _game = _definition.create(
       gameDuration: widget.gameDuration ?? _definition.defaultDuration,
       countdownDuration: widget.countdownDuration,
-      onFinished: (result) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          _result = result;
-          _hasEnded = true;
-        });
-        unawaited(_submitResult(result));
-      },
+      onFinished: _handleFinished,
     );
+  }
+
+  void _handleFinished(GameResult result) {
+    if (!mounted || _hasEnded) return;
+    setState(() {
+      _pendingResult = result;
+      _hasEnded = true;
+    });
+    unawaited(_submitResult(result));
+  }
+
+  void _revealResult() {
+    final result = _pendingResult;
+    if (!mounted || result == null) return;
+    setState(() {
+      _result = result;
+      _pendingResult = null;
+    });
+    _maybePromptForNickname();
+  }
+
+  void _maybePromptForNickname() {
+    final rank = _rankResult;
+    if (_result == null ||
+        rank == null ||
+        rank.nickname != null ||
+        _nicknamePromptShown) {
+      return;
+    }
+    _nicknamePromptShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_chooseNickname());
+    });
   }
 
   Future<void> _chooseNickname() async {
@@ -74,7 +100,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     setState(() => _isSavingNickname = true);
     try {
       await _repository.setNickname(nickname);
-      final rank = await _repository.fetchFilteredRank();
+      final rank = await _repository.fetchDailyRank();
       if (!mounted) return;
       setState(() => _rankResult = rank);
     } catch (error) {
@@ -95,12 +121,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       final rank = await _repository.submitScore(attempt.id, result);
       if (!mounted) return;
       setState(() => _rankResult = rank);
-      if (rank.nickname == null && !_nicknamePromptShown) {
-        _nicknamePromptShown = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) unawaited(_chooseNickname());
-        });
-      }
+      _maybePromptForNickname();
     } catch (error) {
       if (!mounted) return;
       setState(() => _submitError = error);
@@ -131,7 +152,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   void _leaveGame() {
     _interruptAttempt();
-    _returnHome(context);
+    _returnHome();
+  }
+
+  void _returnHome() {
+    ref.invalidate(todayStateProvider);
+    context.go('/');
   }
 
   @override
@@ -177,21 +203,30 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     icon: const Icon(Icons.close, color: AppColors.text),
                   ),
                 ),
-                if (_wasInterrupted) const _InterruptedOverlay(),
-                if (_result case final result?)
-                  _ResultOverlay(
-                    result: result,
-                    definition: _definition,
-                    rankResult: _rankResult,
-                    isSubmitting: _isSubmitting,
-                    submitError: _submitError,
-                    isSavingNickname: _isSavingNickname,
-                    onChooseNickname: _chooseNickname,
-                    onRetrySubmit: () => _submitResult(result),
-                  ),
+                if (_wasInterrupted) _InterruptedOverlay(onHome: _returnHome),
               ],
             ),
           ),
+          if (_pendingResult != null || _result != null)
+            GameEndTransition(
+              key: const Key('game-end-scene'),
+              endType: (_pendingResult ?? _result)!.endType,
+              onCompleted: _revealResult,
+              resultPanel: switch (_result) {
+                final result? => _ResultPanel(
+                  result: result,
+                  definition: _definition,
+                  rankResult: _rankResult,
+                  isSubmitting: _isSubmitting,
+                  submitError: _submitError,
+                  isSavingNickname: _isSavingNickname,
+                  onChooseNickname: _chooseNickname,
+                  onRetrySubmit: () => _submitResult(result),
+                  onHome: _returnHome,
+                ),
+                null => null,
+              },
+            ),
         ],
       ),
     );
@@ -639,8 +674,8 @@ class _HudValue extends StatelessWidget {
   }
 }
 
-class _ResultOverlay extends StatelessWidget {
-  const _ResultOverlay({
+class _ResultPanel extends StatelessWidget {
+  const _ResultPanel({
     required this.result,
     required this.definition,
     required this.rankResult,
@@ -649,6 +684,7 @@ class _ResultOverlay extends StatelessWidget {
     required this.isSavingNickname,
     required this.onChooseNickname,
     required this.onRetrySubmit,
+    required this.onHome,
   });
 
   final GameResult result;
@@ -659,134 +695,117 @@ class _ResultOverlay extends StatelessWidget {
   final bool isSavingNickname;
   final VoidCallback onChooseNickname;
   final VoidCallback onRetrySubmit;
+  final VoidCallback onHome;
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppColors.backgroundDeep.withValues(alpha: 0.88),
-      child: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 360),
-            child: PixelPanel(
-              padding: const EdgeInsets.all(28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    '한 판 종료!',
-                    style: TextStyle(
-                      fontFamily: 'Galmuri',
-                      color: AppColors.primary,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                    ),
+    return PixelPanel(
+      key: const Key('result-panel'),
+      padding: const EdgeInsets.all(28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '한 판 종료!',
+            style: TextStyle(
+              fontFamily: 'Galmuri',
+              color: AppColors.primary,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            definition.formatScore(result.score),
+            key: const Key('final-score'),
+            style: const TextStyle(
+              fontFamily: 'Galmuri',
+              color: AppColors.text,
+              fontSize: 48,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            definition.scoreLabel,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.6,
+            ),
+          ),
+          const SizedBox(height: 24),
+          _ResultStat(label: '기록 단위', value: definition.resultUnitLabel),
+          const SizedBox(height: 24),
+          if (isSubmitting)
+            const Text('오늘 순위를 계산하고 있어요...')
+          else if (rankResult case final rank?)
+            Column(
+              children: [
+                Text(
+                  '${rank.rank}등 / ${rank.participants}명'
+                  '${rank.participants >= 10 ? ' · 상위 ${rank.topPercent}%' : ''}',
+                  key: const Key('daily-rank'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.reward,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    definition.formatScore(result.score),
-                    key: const Key('final-score'),
-                    style: const TextStyle(
-                      fontFamily: 'Galmuri',
-                      color: AppColors.text,
-                      fontSize: 48,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    definition.scoreLabel,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.6,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _ResultStat(
-                    label: '기록 단위',
-                    value: definition.resultUnitLabel,
-                  ),
-                  const SizedBox(height: 24),
-                  if (isSubmitting)
-                    const Text('오늘 순위를 계산하고 있어요...')
-                  else if (rankResult case final rank?)
-                    Column(
-                      children: [
-                        Text(
-                          '${rank.rank}등 / ${rank.participants}명'
-                          '${rank.participants >= 10 ? ' · 상위 ${rank.topPercent}%' : ''}',
-                          key: const Key('daily-rank'),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.reward,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        if (rank.nickname == null)
-                          SizedBox(
-                            width: double.infinity,
-                            child: PixelButton(
-                              label: isSavingNickname
-                                  ? '저장 중...'
-                                  : '닉네임 정하고 랭킹 보기',
-                              icon: Icons.edit_outlined,
-                              onPressed: isSavingNickname
-                                  ? null
-                                  : onChooseNickname,
-                            ),
-                          )
-                        else
-                          NearbyRanking(
-                            result: rank,
-                            formatScore: definition.formatScore,
-                          ),
-                      ],
-                    )
-                  else if (submitError != null)
-                    Column(
-                      children: [
-                        const Text(
-                          '점수를 기기에 보관했어요. 서버가 복구되면 자동 전송됩니다.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.danger,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        PixelButton(
-                          label: '지금 다시 전송',
-                          icon: Icons.refresh,
-                          onPressed: onRetrySubmit,
-                        ),
-                      ],
-                    ),
-                  const SizedBox(height: 24),
+                ),
+                const SizedBox(height: 14),
+                if (rank.nickname == null)
                   SizedBox(
                     width: double.infinity,
                     child: PixelButton(
-                      label: '홈으로',
-                      icon: Icons.home_outlined,
-                      onPressed: () => _returnHome(context),
+                      label: isSavingNickname ? '저장 중...' : '닉네임 정하고 랭킹 보기',
+                      icon: Icons.edit_outlined,
+                      onPressed: isSavingNickname ? null : onChooseNickname,
                     ),
+                  )
+                else
+                  NearbyRanking(
+                    result: rank,
+                    formatScore: definition.formatScore,
                   ),
-                ],
-              ),
+              ],
+            )
+          else if (submitError != null)
+            Column(
+              children: [
+                const Text(
+                  '점수를 기기에 보관했어요. 서버가 복구되면 자동 전송됩니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.danger, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                PixelButton(
+                  label: '지금 다시 전송',
+                  icon: Icons.refresh,
+                  onPressed: onRetrySubmit,
+                ),
+              ],
+            ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: PixelButton(
+              label: '홈으로',
+              icon: Icons.home_outlined,
+              onPressed: onHome,
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
 class _InterruptedOverlay extends StatelessWidget {
-  const _InterruptedOverlay();
+  const _InterruptedOverlay({required this.onHome});
+
+  final VoidCallback onHome;
 
   @override
   Widget build(BuildContext context) {
@@ -833,7 +852,7 @@ class _InterruptedOverlay extends StatelessWidget {
                     child: PixelButton(
                       label: '홈으로',
                       icon: Icons.home_outlined,
-                      onPressed: () => _returnHome(context),
+                      onPressed: onHome,
                     ),
                   ),
                 ],
@@ -848,10 +867,6 @@ class _InterruptedOverlay extends StatelessWidget {
 
 bool shouldInterruptGame(AppLifecycleState state) {
   return state != AppLifecycleState.resumed;
-}
-
-void _returnHome(BuildContext context) {
-  context.go('/');
 }
 
 class _ResultStat extends StatelessWidget {

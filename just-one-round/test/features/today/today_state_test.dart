@@ -2,22 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 
 void main() {
-  test('성별은 남성, 여성 값만 지원한다', () {
-    expect(ProfileGender.values, [ProfileGender.male, ProfileGender.female]);
-    expect(ProfileGender.fromValue('prefer_not_to_say'), isNull);
-    expect(ProfileGender.fromValue('non_binary'), isNull);
-  });
-
-  test('프로필과 주변 랭킹 응답을 파싱한다', () {
+  test('닉네임과 주변 랭킹 응답을 파싱한다', () {
     final state = TodayState.fromJson({
       'play_date': '2026-07-22',
       'game': null,
-      'profile': {
-        'nickname': '별하나',
-        'birth_year': 2003,
-        'birth_month': 7,
-        'gender': 'female',
-      },
+      'nickname': '별하나',
       'attempts': <dynamic>[],
       'ad_attempt_available': false,
       'result': {
@@ -34,11 +23,7 @@ void main() {
       },
     });
 
-    expect(state.profile.nickname, '별하나');
-    expect(state.profile.birthDecade, 2000);
-    expect(state.profile.birthYear, 2003);
-    expect(state.profile.birthMonth, 7);
-    expect(state.profile.gender, ProfileGender.female);
+    expect(state.nickname, '별하나');
     expect(state.result?.nearby, hasLength(3));
     expect(state.result?.nearby[1].isMe, isTrue);
   });

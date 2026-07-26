@@ -56,6 +56,7 @@ class FailedBakeryGame extends FlameGame
   var _finishStarted = false;
   var _resultSent = false;
   var _missed = false;
+  var _endType = GameEndType.gameOver;
   var _score = 0;
   var _perfectCombo = 0;
   var _perfectTotal = 0;
@@ -134,7 +135,7 @@ class FailedBakeryGame extends FlameGame
         _tower.moveActive(dt);
         if (_playingElapsed >=
             gameDuration.inMicroseconds / Duration.microsecondsPerSecond) {
-          _startFinish(missed: false);
+          _startFinish(endType: GameEndType.timeUp);
         } else {
           _publishHud();
         }
@@ -153,7 +154,7 @@ class FailedBakeryGame extends FlameGame
     if (placement == null) {
       _perfectCombo = 0;
       _setBakerReaction(3, duration: 1);
-      _startFinish(missed: true);
+      _startFinish(endType: GameEndType.gameOver);
       return;
     }
 
@@ -179,20 +180,21 @@ class FailedBakeryGame extends FlameGame
 
     _tower.setLayerCount(_score);
     if (_score >= FailedBakeryRules.maximumLayers) {
-      _startFinish(missed: false);
+      _startFinish(endType: GameEndType.clear);
       return;
     }
     _tower.spawnNext();
     _publishHud(force: true);
   }
 
-  void _startFinish({required bool missed}) {
+  void _startFinish({required GameEndType endType}) {
     if (_finishStarted) return;
     _finishStarted = true;
-    _missed = missed;
+    _endType = endType;
+    _missed = endType == GameEndType.gameOver;
     _phase = MiniGamePhase.finished;
-    if (missed) _tower.dropActive();
-    _finishDelay = missed ? 0.72 : 0.25;
+    if (_missed) _tower.dropActive();
+    _finishDelay = _missed ? 0.72 : 0.25;
     _publishHud(force: true);
   }
 
@@ -211,6 +213,7 @@ class FailedBakeryGame extends FlameGame
             gameDuration.inMilliseconds,
           ),
         ),
+        endType: _endType,
       ),
     );
   }

@@ -10,9 +10,13 @@ void main() {
     final effects = _pngSize(
       File('assets/images/number_rush/arcade_fx_sheet.png'),
     );
+    final homeHero = _pngSize(
+      File('assets/images/number_rush/home_gameplay_hero.png'),
+    );
 
     expect(buttons, (56 * 3, 56 * 2));
     expect(effects, (64 * 4, 64 * 2));
+    expect(homeHero, (1206, 1546));
   });
 }
 

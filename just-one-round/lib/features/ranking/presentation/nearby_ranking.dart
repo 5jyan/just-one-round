@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
+import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 
-class NearbyRanking extends StatelessWidget {
+class NearbyRanking extends ConsumerWidget {
   const NearbyRanking({
     required this.result,
     this.formatScore = StarDodgeRules.formatSurvival,
@@ -15,7 +17,7 @@ class NearbyRanking extends StatelessWidget {
   final String Function(int score) formatScore;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (result.nearby.isEmpty) return const SizedBox.shrink();
     return PixelPanel(
       padding: const EdgeInsets.all(14),
@@ -53,38 +55,10 @@ class NearbyRanking extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            item.nickname,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                        if (item.isNpc) ...[
-                          const SizedBox(width: 5),
-                          Container(
-                            key: const Key('npc-rank-badge'),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.textMuted),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            child: const Text(
-                              'NPC',
-                              style: TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 8,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                    child: Text(
+                      item.nickname,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
                   Text(
@@ -95,6 +69,22 @@ class NearbyRanking extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (!item.isMe && !item.isNpc && item.userId != null)
+                    PopupMenuButton<_NearbyModerationAction>(
+                      tooltip: '사용자 신고 또는 차단',
+                      onSelected: (action) =>
+                          _moderate(context, ref, item, action),
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(
+                          value: _NearbyModerationAction.report,
+                          child: Text('닉네임 신고'),
+                        ),
+                        PopupMenuItem(
+                          value: _NearbyModerationAction.block,
+                          child: Text('사용자 차단'),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -102,4 +92,42 @@ class NearbyRanking extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _moderate(
+    BuildContext context,
+    WidgetRef ref,
+    NearbyRank item,
+    _NearbyModerationAction action,
+  ) async {
+    final userId = item.userId;
+    if (userId == null) return;
+    try {
+      final repository = ref.read(dailyGameRepositoryProvider);
+      if (action == _NearbyModerationAction.report) {
+        await repository.reportNickname(userId);
+      } else {
+        await repository.blockUser(userId);
+      }
+      ref.invalidate(todayStateProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              action == _NearbyModerationAction.report
+                  ? '닉네임을 신고했어요.'
+                  : '이 사용자의 닉네임을 숨겼어요.',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('처리하지 못했어요.')));
+      }
+    }
+  }
 }
+
+enum _NearbyModerationAction { report, block }

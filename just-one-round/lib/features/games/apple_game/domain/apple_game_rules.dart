@@ -27,15 +27,22 @@ abstract final class AppleGameRules {
 
   static List<List<int?>> createBoard(Random random) {
     for (var attempt = 0; attempt < 100; attempt++) {
+      var sum = 0;
       final board = List.generate(
         rowCount,
-        (_) => List<int?>.generate(
-          columnCount,
-          (_) => 1 + random.nextInt(9),
-          growable: false,
-        ),
+        (row) => List<int?>.generate(columnCount, (column) {
+          if (row == rowCount - 1 && column == columnCount - 1) {
+            return 1;
+          }
+          final value = 1 + random.nextInt(9);
+          sum += value;
+          return value;
+        }, growable: false),
         growable: false,
       );
+      final balancingValue = targetSum - (sum % targetSum);
+      if (balancingValue == targetSum) continue;
+      board[rowCount - 1][columnCount - 1] = balancingValue;
       if (countAvailableMoves(board, stopAfter: 12) >= 12) return board;
     }
 
@@ -50,6 +57,21 @@ abstract final class AppleGameRules {
     );
     fallback[0][0] = 4;
     fallback[0][1] = 6;
+    var sumWithoutLast = 0;
+    for (var row = 0; row < rowCount; row++) {
+      for (var column = 0; column < columnCount; column++) {
+        if (row == rowCount - 1 && column == columnCount - 1) continue;
+        sumWithoutLast += fallback[row][column]!;
+      }
+    }
+    var balancingValue = targetSum - (sumWithoutLast % targetSum);
+    if (balancingValue == targetSum) {
+      final previousValue = fallback[0][2]!;
+      fallback[0][2] = previousValue == 9 ? 8 : previousValue + 1;
+      sumWithoutLast += fallback[0][2]! - previousValue;
+      balancingValue = targetSum - (sumWithoutLast % targetSum);
+    }
+    fallback[rowCount - 1][columnCount - 1] = balancingValue;
     return fallback;
   }
 
@@ -92,31 +114,6 @@ abstract final class AppleGameRules {
         column += columnStep
       ) {
         if (board[row][column] != null) cells.add((row, column));
-      }
-    }
-    return cells;
-  }
-
-  static List<(int, int)> mostFrequentAppleCells(List<List<int?>> board) {
-    final counts = <int, int>{};
-    for (final row in board) {
-      for (final value in row) {
-        if (value != null) counts[value] = (counts[value] ?? 0) + 1;
-      }
-    }
-    if (counts.isEmpty) return const [];
-
-    final highestCount = counts.values.reduce(max);
-    final mostFrequentValues = counts.entries
-        .where((entry) => entry.value == highestCount)
-        .map((entry) => entry.key)
-        .toSet();
-    final cells = <(int, int)>[];
-    for (var row = 0; row < board.length; row++) {
-      for (var column = 0; column < board[row].length; column++) {
-        if (mostFrequentValues.contains(board[row][column])) {
-          cells.add((row, column));
-        }
       }
     }
     return cells;

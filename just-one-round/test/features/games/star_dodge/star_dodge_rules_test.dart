@@ -26,7 +26,7 @@ void main() {
       expect(StarDodgeRules.fallingSpeed(10), StarDodgeRules.fallingSpeed(1));
     });
 
-    test('똥피하기 2는 5분까지 승인된 난이도로 계속 상승한다', () {
+    test('똥피하기는 5분까지 승인된 난이도로 계속 상승한다', () {
       const expectedMilestones = [
         (seconds: 0.0, interval: 0.62, speed: 170.0),
         (seconds: 60.0, interval: 0.38, speed: 297.5),
@@ -48,7 +48,7 @@ void main() {
       }
     });
 
-    test('똥피하기 2 난이도는 5분 이후 승인된 최댓값으로 제한한다', () {
+    test('똥피하기 난이도는 5분 이후 승인된 최댓값으로 제한한다', () {
       expect(
         StarDodgeRules.dungDodgeV2SpawnInterval(600),
         closeTo(0.08, 0.00001),

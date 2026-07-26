@@ -16,12 +16,27 @@ import 'package:just_one_round/features/games/gravity_switch/domain/terrain_bloc
 
 enum GravitySurface { ceiling, floor }
 
+class GravitySwitchCaptureConfig {
+  const GravitySwitchCaptureConfig({
+    this.patternIds = const [],
+    this.tapAtSeconds = const [],
+    this.initialElapsedSeconds = 0,
+    this.initialSafeColumnCount,
+  });
+
+  final List<String> patternIds;
+  final List<double> tapAtSeconds;
+  final double initialElapsedSeconds;
+  final int? initialSafeColumnCount;
+}
+
 class GravitySwitchGame extends FlameGame
     with TapCallbacks
     implements MiniGameController {
   GravitySwitchGame({
     required this.onFinished,
     this.countdownDuration = const Duration(seconds: 3),
+    this.captureConfig,
     Random? random,
   }) : _random = random ?? Random(),
        hud = ValueNotifier(
@@ -43,6 +58,7 @@ class GravitySwitchGame extends FlameGame
   static const playerContactHalfHeight = 15.0;
 
   final Duration countdownDuration;
+  final GravitySwitchCaptureConfig? captureConfig;
   final ValueChanged<GameResult> onFinished;
   final Random _random;
 
@@ -68,6 +84,8 @@ class GravitySwitchGame extends FlameGame
   var _nextTerrainColumnIndex = 0;
   String? _lastPatternId;
   var _hasFinished = false;
+  var _nextCapturePatternIndex = 0;
+  var _nextCaptureTapIndex = 0;
 
   @override
   Color backgroundColor() => const Color(0xFF020617);
@@ -97,10 +115,12 @@ class GravitySwitchGame extends FlameGame
     await super.onLoad();
     _configureViewport(canvasSize);
     _map = await GravityMapLayout.load();
+    _playingElapsed = captureConfig?.initialElapsedSeconds ?? 0;
 
     final loaded = await images.loadAll([
       'gravity_switch_v2/space_background.png',
       'gravity_switch_v2/player_magnet_mite_sheet_v3.png',
+      'gravity_switch_v2/player_game_over.png',
       'gravity_switch_v2/landing_impact_sheet.png',
       ..._terrainModuleSpecs.map((spec) => spec.runtimePath),
     ]);
@@ -114,13 +134,13 @@ class GravitySwitchGame extends FlameGame
 
     final playerSheet = SpriteSheet(image: loaded[1], srcSize: Vector2.all(48));
     _landingSprites = _spritesFrom2x2(
-      SpriteSheet(image: loaded[2], srcSize: Vector2.all(16)),
+      SpriteSheet(image: loaded[3], srcSize: Vector2.all(16)),
     );
     _terrainAssets = [
       for (var index = 0; index < _terrainModuleSpecs.length; index++)
         _TerrainModuleAsset(
           spec: _terrainModuleSpecs[index],
-          sprite: Sprite(loaded[index + 3]),
+          sprite: Sprite(loaded[index + 4]),
         ),
     ];
     _terrainRenderer = _TerrainRenderer(
@@ -134,10 +154,13 @@ class GravitySwitchGame extends FlameGame
         _map.initialProfile.floorTop - playerContactHalfHeight,
       ),
       sprites: _spritesFrom2x2(playerSheet),
+      gameOverSprite: Sprite(loaded[2]),
       onLanded: _showLandingImpact,
     );
 
-    for (var index = 0; index < _map.initialColumnCount; index++) {
+    final initialColumnCount =
+        captureConfig?.initialSafeColumnCount ?? _map.initialColumnCount;
+    for (var index = 0; index < initialColumnCount; index++) {
       _appendColumn(
         -_map.columnWidth + (index * _map.columnWidth),
         forceSafe: true,
@@ -191,10 +214,20 @@ class GravitySwitchGame extends FlameGame
 
   void _updatePlaying(double dt) {
     _playingElapsed += dt;
+    final scriptedTaps = captureConfig?.tapAtSeconds ?? const <double>[];
+    while (_nextCaptureTapIndex < scriptedTaps.length &&
+        _playingElapsed >= scriptedTaps[_nextCaptureTapIndex]) {
+      _player.switchGravity();
+      _nextCaptureTapIndex += 1;
+    }
     _score = (_playingElapsed * 1000).floor();
     final speed = GravitySwitchRules.scrollSpeed(_playingElapsed);
     _scrollTerrain(speed * dt);
 
+    if (_columns.any((column) => column.collidesWith(_player))) {
+      _finish();
+      return;
+    }
     final support = _supportAtPlayer();
     if (support != null) {
       _player.updateSurface(
@@ -271,6 +304,22 @@ class GravitySwitchGame extends FlameGame
   }
 
   void _queueNextPattern() {
+    final capturePatternIds = captureConfig?.patternIds ?? const <String>[];
+    if (capturePatternIds.isNotEmpty) {
+      final patternId =
+          capturePatternIds[_nextCapturePatternIndex %
+              capturePatternIds.length];
+      _nextCapturePatternIndex += 1;
+      final pattern = _map.patterns.firstWhere(
+        (candidate) => candidate.id == patternId,
+        orElse: () => throw StateError(
+          'Unknown Gravity Switch capture pattern "$patternId".',
+        ),
+      );
+      _patternQueue.addAll(pattern.columns);
+      _lastPatternId = pattern.id;
+      return;
+    }
     final available = _map.patterns
         .where((pattern) => pattern.isAvailableAt(_playingElapsed))
         .toList(growable: false);
@@ -292,6 +341,7 @@ class GravitySwitchGame extends FlameGame
     if (_hasFinished) return;
     _hasFinished = true;
     _phase = MiniGamePhase.finished;
+    _player.showGameOver();
     _publishHud(force: true);
     pauseEngine();
     onFinished(
@@ -300,6 +350,7 @@ class GravitySwitchGame extends FlameGame
         starsCollected: 0,
         collisions: 1,
         duration: Duration(milliseconds: _score),
+        endType: GameEndType.gameOver,
       ),
     );
   }
@@ -359,6 +410,7 @@ class _PrismRunner extends PositionComponent {
   _PrismRunner({
     required super.position,
     required this.sprites,
+    required this.gameOverSprite,
     required this.onLanded,
   }) : super(
          size: Vector2.all(GravitySwitchGame.playerSize),
@@ -367,6 +419,7 @@ class _PrismRunner extends PositionComponent {
        );
 
   final List<Sprite> sprites;
+  final Sprite gameOverSprite;
   final void Function(GravitySurface surface, Vector2 position) onLanded;
   final Paint _spritePaint = Paint()..filterQuality = FilterQuality.none;
   final GravitySwitchGate _switchGate = GravitySwitchGate();
@@ -374,6 +427,7 @@ class _PrismRunner extends PositionComponent {
   var _animationElapsed = 0.0;
   var _verticalVelocity = 0.0;
   var _isAttached = true;
+  var _isGameOver = false;
 
   Rect get hitbox => Rect.fromCenter(
     center: Offset(position.x, position.y),
@@ -386,6 +440,10 @@ class _PrismRunner extends PositionComponent {
     surface = _opposite(surface);
     _verticalVelocity = 0;
     _isAttached = false;
+  }
+
+  void showGameOver() {
+    _isGameOver = true;
   }
 
   void updateSurface(
@@ -428,6 +486,10 @@ class _PrismRunner extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    if (_isGameOver) {
+      gameOverSprite.render(canvas, size: size, overridePaint: _spritePaint);
+      return;
+    }
     if (sprites.isEmpty) return;
     final index = _isAttached
         ? (_animationElapsed / 0.09).floor() % 2

@@ -24,15 +24,6 @@ class StarDodgeAssetSet {
     required this.edgeToEdge,
   });
 
-  static const classic = StarDodgeAssetSet(
-    directory: 'dodge_v2',
-    playerSourceCellSize: 32,
-    poopSourceCellSize: 24,
-    dustSourceCellSize: 16,
-    renderBackgroundInWorld: true,
-    edgeToEdge: false,
-  );
-
   static const uglyCute = StarDodgeAssetSet(
     directory: 'dung_dodge_v2',
     playerSourceCellSize: 64,
@@ -57,7 +48,7 @@ class StarDodgeGame extends FlameGame
     required this.onFinished,
     this.gameDuration = const Duration(seconds: 60),
     this.countdownDuration = const Duration(seconds: 3),
-    this.assetSet = StarDodgeAssetSet.classic,
+    this.assetSet = StarDodgeAssetSet.uglyCute,
     Random? random,
   }) : _random = random ?? Random(),
        hud = ValueNotifier(
@@ -180,54 +171,50 @@ class StarDodgeGame extends FlameGame
       collisionRadius: assetSet.edgeToEdge ? 16 : 18,
     );
     await world.add(_player);
-    images
-        .loadAll([
-          '${assetSet.directory}/player_idle_sheet.png',
-          '${assetSet.directory}/player_run_sheet.png',
-          '${assetSet.directory}/poop_fall_sheet.png',
-          '${assetSet.directory}/dust_sheet.png',
-          '${assetSet.directory}/background_map.png',
-          '${assetSet.directory}/ground_strip.png',
-          if (assetSet.edgeToEdge)
-            '${assetSet.directory}/poop_impact_sheet.png',
-        ])
-        .then((loaded) {
-          final idleSheet = SpriteSheet(
-            image: loaded[0],
-            srcSize: Vector2.all(assetSet.playerSourceCellSize),
-          );
-          final runSheet = SpriteSheet(
-            image: loaded[1],
-            srcSize: Vector2.all(assetSet.playerSourceCellSize),
-          );
-          final poopSheet = SpriteSheet(
-            image: loaded[2],
-            srcSize: Vector2.all(assetSet.poopSourceCellSize),
-          );
-          final dustSheet = SpriteSheet(
-            image: loaded[3],
-            srcSize: Vector2.all(assetSet.dustSourceCellSize),
-          );
-          _poopSprites = _spritesFrom2x2(poopSheet);
-          if (assetSet.edgeToEdge) {
-            final impactSheet = SpriteSheet(
-              image: loaded[6],
-              srcSize: Vector2.all(64),
-            );
-            _poopImpactSprites = _spritesFrom2x2(impactSheet);
-          }
-          _player.setSprites(
-            idleFrames: _spritesFrom2x2(idleSheet),
-            walkFrames: _spritesFrom2x2(runSheet),
-            dustFrames: _spritesFrom2x2(dustSheet),
-          );
-          ground.setSprites(
-            background: assetSet.renderBackgroundInWorld
-                ? Sprite(loaded[4])
-                : null,
-            ground: Sprite(loaded[5]),
-          );
-        });
+    final loaded = await images.loadAll([
+      '${assetSet.directory}/player_idle_sheet.png',
+      '${assetSet.directory}/player_run_sheet.png',
+      '${assetSet.directory}/poop_fall_sheet.png',
+      '${assetSet.directory}/dust_sheet.png',
+      '${assetSet.directory}/background_map.png',
+      '${assetSet.directory}/ground_strip.png',
+      if (assetSet.edgeToEdge) '${assetSet.directory}/poop_impact_sheet.png',
+      if (assetSet.edgeToEdge) '${assetSet.directory}/player_game_over.png',
+    ]);
+    final idleSheet = SpriteSheet(
+      image: loaded[0],
+      srcSize: Vector2.all(assetSet.playerSourceCellSize),
+    );
+    final runSheet = SpriteSheet(
+      image: loaded[1],
+      srcSize: Vector2.all(assetSet.playerSourceCellSize),
+    );
+    final poopSheet = SpriteSheet(
+      image: loaded[2],
+      srcSize: Vector2.all(assetSet.poopSourceCellSize),
+    );
+    final dustSheet = SpriteSheet(
+      image: loaded[3],
+      srcSize: Vector2.all(assetSet.dustSourceCellSize),
+    );
+    _poopSprites = _spritesFrom2x2(poopSheet);
+    if (assetSet.edgeToEdge) {
+      final impactSheet = SpriteSheet(
+        image: loaded[6],
+        srcSize: Vector2.all(64),
+      );
+      _poopImpactSprites = _spritesFrom2x2(impactSheet);
+    }
+    _player.setSprites(
+      idleFrames: _spritesFrom2x2(idleSheet),
+      walkFrames: _spritesFrom2x2(runSheet),
+      dustFrames: _spritesFrom2x2(dustSheet),
+      gameOverSprite: assetSet.edgeToEdge ? Sprite(loaded[7]) : null,
+    );
+    ground.setSprites(
+      background: assetSet.renderBackgroundInWorld ? Sprite(loaded[4]) : null,
+      ground: Sprite(loaded[5]),
+    );
 
     if (countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
@@ -321,8 +308,7 @@ class StarDodgeGame extends FlameGame
 
       if (object.collidesWith(_player)) {
         object.removeFromParent();
-        _collisions = 1;
-        _finishGame();
+        _handlePlayerCollision();
         return;
       }
 
@@ -348,6 +334,12 @@ class StarDodgeGame extends FlameGame
     }
   }
 
+  void _handlePlayerCollision() {
+    _collisions = 1;
+    _player.showGameOverPose();
+    _finishGame();
+  }
+
   void _finishGame() {
     if (_hasFinished) {
       return;
@@ -368,6 +360,7 @@ class StarDodgeGame extends FlameGame
         // transport value in integer milliseconds as well, so the value shown
         // by the client and the value ranked by the server cannot diverge.
         duration: Duration(milliseconds: _score),
+        endType: _collisions > 0 ? GameEndType.gameOver : GameEndType.timeUp,
       ),
     );
   }
@@ -495,6 +488,12 @@ class StarDodgeGame extends FlameGame
   void updateRelativeDragForTesting(double logicalX) =>
       _updateRelativeDrag(logicalX);
 
+  @visibleForTesting
+  bool get isShowingGameOverPoseForTesting => _player.isShowingGameOverPose;
+
+  @visibleForTesting
+  void handlePlayerCollisionForTesting() => _handlePlayerCollision();
+
   @override
   void disposeController() => hud.dispose();
 }
@@ -527,6 +526,7 @@ class _PlayerComponent extends PositionComponent {
   var _idleSprites = <Sprite>[];
   var _walkSprites = <Sprite>[];
   var _dustSprites = <Sprite>[];
+  Sprite? _gameOverSprite;
   double? _targetX;
   double _preciseX;
   var _velocityX = 0.0;
@@ -535,15 +535,26 @@ class _PlayerComponent extends PositionComponent {
   var _dustElapsed = 0.0;
   var _facing = 1.0;
   var _isWalking = false;
+  var _isShowingGameOverPose = false;
+
+  bool get isShowingGameOverPose => _isShowingGameOverPose;
 
   void setSprites({
     required List<Sprite> idleFrames,
     required List<Sprite> walkFrames,
     required List<Sprite> dustFrames,
+    required Sprite? gameOverSprite,
   }) {
     _idleSprites = idleFrames;
     _walkSprites = walkFrames;
     _dustSprites = dustFrames;
+    _gameOverSprite = gameOverSprite;
+  }
+
+  void showGameOverPose() {
+    stopMoving();
+    _isShowingGameOverPose = _gameOverSprite != null;
+    scale.x = 1;
   }
 
   void setTargetX(double x) {
@@ -627,6 +638,10 @@ class _PlayerComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    if (_isShowingGameOverPose) {
+      _gameOverSprite?.render(canvas, size: size, overridePaint: _spritePaint);
+      return;
+    }
     final sprite = _isWalking && _walkSprites.isNotEmpty
         ? _walkSprites[(_walkElapsed / 0.15).floor() % _walkSprites.length]
         : _idleSprites.isEmpty

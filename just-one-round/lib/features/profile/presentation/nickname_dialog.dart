@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/features/profile/domain/nickname_policy.dart';
 
 Future<String?> showNicknameDialog(
   BuildContext context, {
@@ -54,11 +55,7 @@ class _NicknameDialogState extends State<_NicknameDialog> {
             hintText: '2~12자로 입력하세요',
             border: OutlineInputBorder(),
           ),
-          validator: (value) {
-            final length = value?.trim().characters.length ?? 0;
-            if (length < 2 || length > 12) return '2~12자로 입력해 주세요.';
-            return null;
-          },
+          validator: NicknamePolicy.validate,
           onFieldSubmitted: (_) => _submit(),
         ),
       ),
