@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: full-screen production pixel-art arcade cabinet body overlay for a 360×640 portrait mobile game
+Primary request: turn Number Rush from floating rectangular panels into one unmistakable physical coin-operated arcade machine.
+References: the user-provided UI sheet locks futuristic neon construction; the first integrated Number Rush screenshot supplies gameplay geometry and palette.
+Subject: one connected heavy cabinet with projecting marquee hood, broad side pillars, recessed display cavities, a forward control-deck ledge, speaker grilles, coin slot, coin return, status lamps, seams, bolts, sturdy base, and lower coin door.
+Style: crisp 16-bit pixel art, effective 2×2 logical-pixel clusters, worn dark navy metal, cyan left rim, magenta right rim, tiny amber indicators, explicitly not ugly-cute.
+Background and openings: perfectly flat solid #00FF00 chroma key outside the cabinet and inside open content wells.
+Constraints: no text, numbers, logos, gameplay buttons, characters, faces, floating panels, thin picture-frame-only border, tilt, blur, or smoothing.

@@ -1,0 +1,359 @@
+{
+  "cabinet_body": {
+    "path": "assets/images/number_rush/arcade_cabinet_body.png",
+    "source": "cabinet/cabinet-alpha.png",
+    "source_size": [
+      941,
+      1672
+    ],
+    "runtime_size": [
+      360,
+      640
+    ],
+    "role": "non-interactive body layer behind the fixed gameplay UI"
+  },
+  "button_sheet": {
+    "path": "assets/images/number_rush/number_button_states.png",
+    "layout": "2 rows x 3 columns",
+    "cell": [
+      56,
+      56
+    ],
+    "order": [
+      "idle",
+      "correct_pressed",
+      "cleared",
+      "wrong",
+      "target_25",
+      "completion"
+    ],
+    "frames": [
+      {
+        "index": 0,
+        "source_cell": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "source_subject_bounds": [
+          134,
+          110,
+          469,
+          432
+        ],
+        "runtime_rect": [
+          0,
+          0,
+          56,
+          56
+        ]
+      },
+      {
+        "index": 1,
+        "source_cell": [
+          512,
+          0,
+          1024,
+          512
+        ],
+        "source_subject_bounds": [
+          96,
+          110,
+          420,
+          432
+        ],
+        "runtime_rect": [
+          56,
+          0,
+          56,
+          56
+        ]
+      },
+      {
+        "index": 2,
+        "source_cell": [
+          1024,
+          0,
+          1536,
+          512
+        ],
+        "source_subject_bounds": [
+          51,
+          110,
+          368,
+          432
+        ],
+        "runtime_rect": [
+          112,
+          0,
+          56,
+          56
+        ]
+      },
+      {
+        "index": 3,
+        "source_cell": [
+          0,
+          512,
+          512,
+          1024
+        ],
+        "source_subject_bounds": [
+          135,
+          61,
+          467,
+          381
+        ],
+        "runtime_rect": [
+          0,
+          56,
+          56,
+          56
+        ]
+      },
+      {
+        "index": 4,
+        "source_cell": [
+          512,
+          512,
+          1024,
+          1024
+        ],
+        "source_subject_bounds": [
+          93,
+          59,
+          419,
+          381
+        ],
+        "runtime_rect": [
+          56,
+          56,
+          56,
+          56
+        ]
+      },
+      {
+        "index": 5,
+        "source_cell": [
+          1024,
+          512,
+          1536,
+          1024
+        ],
+        "source_subject_bounds": [
+          49,
+          61,
+          372,
+          381
+        ],
+        "runtime_rect": [
+          112,
+          56,
+          56,
+          56
+        ]
+      }
+    ]
+  },
+  "fx_sheet": {
+    "path": "assets/images/number_rush/arcade_fx_sheet.png",
+    "layout": "2 rows x 4 columns",
+    "cell": [
+      64,
+      64
+    ],
+    "order": [
+      "spark",
+      "compact_burst",
+      "thin_ring",
+      "large_ring",
+      "wrong_crackle",
+      "amber_star",
+      "completion_burst",
+      "fading_particles"
+    ],
+    "frames": [
+      {
+        "index": 0,
+        "source_cell": [
+          0,
+          0,
+          384,
+          512
+        ],
+        "source_subject_bounds": [
+          136,
+          217,
+          279,
+          348
+        ],
+        "runtime_rect": [
+          0,
+          0,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 1,
+        "source_cell": [
+          384,
+          0,
+          768,
+          512
+        ],
+        "source_subject_bounds": [
+          76,
+          169,
+          280,
+          390
+        ],
+        "runtime_rect": [
+          64,
+          0,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 2,
+        "source_cell": [
+          768,
+          0,
+          1152,
+          512
+        ],
+        "source_subject_bounds": [
+          31,
+          157,
+          384,
+          404
+        ],
+        "runtime_rect": [
+          128,
+          0,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 3,
+        "source_cell": [
+          1152,
+          0,
+          1536,
+          512
+        ],
+        "source_subject_bounds": [
+          0,
+          115,
+          311,
+          443
+        ],
+        "runtime_rect": [
+          192,
+          0,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 4,
+        "source_cell": [
+          0,
+          512,
+          384,
+          1024
+        ],
+        "source_subject_bounds": [
+          91,
+          69,
+          339,
+          329
+        ],
+        "runtime_rect": [
+          0,
+          64,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 5,
+        "source_cell": [
+          384,
+          512,
+          768,
+          1024
+        ],
+        "source_subject_bounds": [
+          50,
+          56,
+          307,
+          349
+        ],
+        "runtime_rect": [
+          64,
+          64,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 6,
+        "source_cell": [
+          768,
+          512,
+          1152,
+          1024
+        ],
+        "source_subject_bounds": [
+          0,
+          42,
+          308,
+          360
+        ],
+        "runtime_rect": [
+          128,
+          64,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 7,
+        "source_cell": [
+          1152,
+          512,
+          1536,
+          1024
+        ],
+        "source_subject_bounds": [
+          5,
+          64,
+          300,
+          342
+        ],
+        "runtime_rect": [
+          192,
+          64,
+          64,
+          64
+        ]
+      }
+    ]
+  },
+  "rendering": {
+    "filter": "nearest-neighbor",
+    "logical_art_pixel": "approximately 2x2",
+    "button_display_size": [
+      56,
+      56
+    ],
+    "fx_default_display_size": [
+      64,
+      64
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: raw pixel-art sprite sheet for 2D mobile game arcade number buttons and tap feedback
+Primary request: create an exact 2-row by 4-column sprite sheet, eight equal square cells, showing one identical square arcade push-button across interaction states. Do not put any numeral or text on the buttons; numbers will be rendered separately at runtime.
+Frame order, left to right:
+Top row: 1) idle dark navy button with cyan edge, 2) hovered/next-target button with gentle amber-cyan glow, 3) correct press button visibly depressed with bright white-cyan center flash, 4) correct release button rebounding with a cyan circular energy ring.
+Bottom row: 5) wrong press button with a brief magenta-red edge pulse, 6) small cyan pixel sparks around an otherwise empty center, 7) expanding cyan-magenta pixel ring effect with empty center, 8) larger completion burst made of cyan, magenta and tiny amber square particles.
+Style/medium: crisp deliberate 16-bit pixel art, chunky pixel clusters, limited palette, game-ready, no smoothing, no soft glow gradients.
+Geometry: straight-on view, near-square button with subtly clipped corners, thick dark outline, identical button scale and alignment in frames 1 through 5. Each subject centered with generous padding and nothing touching a cell edge.
+Color palette: near-black #071426, navy #0B2340, cyan #36E7F2, magenta #F04FC7, amber #FFD45A, white-cyan highlight.
+Background: perfectly flat solid #FF00FF chroma-key background across the entire image, uniform with no shadows, gradients, texture, reflections, guide marks, borders, dividers, or lighting variation. Do not use #FF00FF in any sprite; wrong-state red must be visibly redder and darker than the key color.
+Constraints: exact 2x4 grid, no cell separators, no labels, no numbers, no letters, no watermark, no cast shadows, no perspective tilt, no blur, no anti-aliasing, no UI mockup, no extra objects.

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: exact 2×4 raw pixel-art electric FX sheet
+Frame order: spark, compact burst, thin ring, large ring; wrong crackle, amber star, completion burst, fading particles.
+Style: crisp cyan, magenta, red, amber, and white 16-bit pixel clusters with rare single-pixel sparks.
+Background: perfectly flat solid #00FF00 chroma key.
+Constraints: centered, fully contained, no buttons, text, icons, dividers, smoke, blur, or smoothing.

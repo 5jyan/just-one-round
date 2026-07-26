@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: production-ready pixel-art overlay for a 360×640 portrait mobile number-tapping game
+Primary request: create a front-facing futuristic arcade cabinet UI shell that makes the whole phone gameplay area feel like a compact coin-operated arcade machine.
+References: the user-provided UI sheet locks the cabinet construction language; the existing Number Rush background locks palette and nighttime mood.
+Style: crisp deliberate 16-bit pixel art with effective 2×2 logical-pixel clusters, dark navy metal, cyan left light, magenta right light, tiny amber accents, explicitly not ugly-cute.
+Composition: top marquee shell, two instrument panels, central board bezel, and bottom speaker deck. Keep gameplay interiors empty and the top-left close-button region quiet.
+Background: perfectly flat solid #00FF00 chroma key.
+Constraints: no text, numbers, logos, characters, joysticks, tilt, blur, or smoothing.

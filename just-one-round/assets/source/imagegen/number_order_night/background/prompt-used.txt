@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: 2D mobile game background master for a portrait speed-tapping minigame
+Primary request: create a polished pixel-art background for a Korean indie mobile game themed as a late-night retro arcade, viewed straight-on, with a large clear central play area for a 5 by 5 number-button board.
+Scene/backdrop: dark midnight arcade interior, shadowy rows of cabinets at the far sides, subtle CRT glow, hanging cables and tiny indicator lights, a dark navy wall behind the center, slight reflective floor near the bottom.
+Style/medium: crisp deliberate 16-bit pixel art, coherent pixel clusters, limited palette, no smoothing, no painterly texture, same professional game-ready quality as modern indie pixel art.
+Composition/framing: portrait 9:16. Keep the central 78% of the image visually quiet and dark so 25 bright buttons remain readable. Decorative arcade cabinets only along the left and right edges and a small amount at top and bottom. No perspective-distorted play board; background only.
+Lighting/mood: unmistakably late night, moody navy and near-black base, cyan and magenta neon rim lights, sparse warm yellow indicator dots, strong contrast but not visually busy.
+Color palette: #071426, #0B2340, #15375A, cyan #36E7F2, magenta #F04FC7, small amber #FFD45A.
+Constraints: no people, no characters, no logos, no readable words, no numbers, no watermark, no UI buttons, no grid, no central frame, no blur, no anti-aliased vector look. Must tile visually cleanly behind a game board and preserve generous dark negative space in the center.
