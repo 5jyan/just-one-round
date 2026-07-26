@@ -16,6 +16,7 @@ void main() {
     expect(state.testMode, isTrue);
     expect(state.profile.nickname, 'tester');
     expect(state.canClaimDaily, isTrue);
+    expect(state.result?.leaders, hasLength(8));
   });
 
   test('시뮬레이터에서 선택한 게임 ID를 플레이 시도에 전달한다', () async {
@@ -35,8 +36,32 @@ void main() {
     final attempt = await repository.claimDailyAttempt();
 
     expect(state.game?.displayName, '넘버 러시');
-    expect(state.game?.durationSeconds, 120);
+    expect(state.game?.durationSeconds, 180);
     expect(attempt.gameId, 'number_rush');
+  });
+
+  test('시뮬레이터 개발자 메뉴에서 사과게임 2를 선택할 수 있다', () async {
+    final repository = PreviewDailyGameRepository(testMode: true);
+
+    await repository.setDeveloperGame('apple_game_v2');
+    final state = await repository.fetchToday();
+    final attempt = await repository.claimDailyAttempt();
+
+    expect(state.game?.displayName, '사과게임 2');
+    expect(state.game?.durationSeconds, 120);
+    expect(attempt.gameId, 'apple_game_v2');
+  });
+
+  test('시뮬레이터 개발자 메뉴에서 똥피하기 2를 선택할 수 있다', () async {
+    final repository = PreviewDailyGameRepository(testMode: true);
+
+    await repository.setDeveloperGame('dung_dodge_v2');
+    final state = await repository.fetchToday();
+    final attempt = await repository.claimDailyAttempt();
+
+    expect(state.game?.displayName, '똥피하기 2');
+    expect(state.game?.durationSeconds, 300);
+    expect(attempt.gameId, 'dung_dodge_v2');
   });
 
   testWidgets('오늘의 게임과 플레이 기회를 보여준다', (tester) async {
@@ -44,10 +69,91 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.text('딱한판만'), findsOneWidget);
-    expect(find.text('별빛 피하기'), findsOneWidget);
-    expect(find.text('오늘의 한 판 시작'), findsOneWidget);
-    expect(find.text('아직 플레이하지 않았어요 · 기회 1회'), findsOneWidget);
+    expect(find.text('오늘의 게임'), findsOneWidget);
+    expect(find.text('똥피하기 2'), findsOneWidget);
+    expect(find.textContaining('오늘 24명 도전 중'), findsOneWidget);
+    expect(find.textContaining('오늘의 한 판 시작'), findsOneWidget);
+    expect(find.byKey(const Key('game-guide-button')), findsOneWidget);
+    expect(find.byKey(const Key('ranking-button')), findsOneWidget);
+  });
+
+  testWidgets('게임 설명은 다섯 페이지를 옆으로 넘기며 안내한다', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
+    await tester.pumpAndSettle();
+
+    final guideButton = find.byKey(const Key('game-guide-button'));
+    await tester.ensureVisible(guideButton);
+    await tester.pump();
+    await tester.tap(guideButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('HOW TO PLAY · 1/5'), findsOneWidget);
+    expect(find.text('누른 채로 좌우로 드래그'), findsOneWidget);
+    expect(find.textContaining('가볍게 터치만 하면 움직이지 않아요'), findsOneWidget);
+    expect(find.text('이전'), findsOneWidget);
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.byKey(const Key('guide-previous-button')),
+          )
+          .onPressed,
+      isNull,
+    );
+
+    for (final expectedTitle in [
+      '떨어지는 똥 사이로 피하기',
+      '시간이 갈수록 더 어려워져요',
+      '한 번 부딪히면 즉시 종료',
+      '최대한 오래 살아남으세요',
+    ]) {
+      await tester.tap(find.byKey(const Key('guide-next-button')));
+      await tester.pumpAndSettle();
+      expect(find.text(expectedTitle), findsOneWidget);
+    }
+
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.byKey(const Key('guide-previous-button')),
+          )
+          .onPressed,
+      isNotNull,
+    );
+    expect(find.textContaining('최대 5분 동안'), findsOneWidget);
+    expect(find.text('설명 끝'), findsOneWidget);
+  });
+
+  testWidgets('랭킹 버튼은 오늘 상위 기록을 연다', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
+    await tester.pumpAndSettle();
+
+    final rankingButton = find.byKey(const Key('ranking-button'));
+    await tester.ensureVisible(rankingButton);
+    await tester.pump();
+    await tester.tap(rankingButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('DAILY LEADERBOARD'), findsOneWidget);
+    expect(find.text('24명'), findsOneWidget);
+    expect(find.text('작은공룡'), findsOneWidget);
+    expect(find.text('5.39초'), findsWidgets);
+    expect(find.text('전체'), findsNothing);
+    expect(find.text('전체 랭킹'), findsOneWidget);
+    expect(find.text('내 주변 랭킹'), findsNothing);
+    expect(find.byKey(const Key('overall-leaderboard')), findsOneWidget);
+    expect(find.byKey(const Key('nearby-leaderboard')), findsNothing);
+    expect(find.byKey(const Key('leaderboard-gap')), findsOneWidget);
+    await tester.drag(
+      find.byKey(const Key('overall-leaderboard')),
+      const Offset(0, -220),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('my-leaderboard-rank')), findsOneWidget);
+    expect(find.byKey(const Key('my-rank-badge')), findsOneWidget);
+    expect(find.text('tester'), findsWidgets);
+    expect(find.text('말랑주먹'), findsOneWidget);
+    expect(find.text('느린번개'), findsOneWidget);
+    expect(find.text('8등'), findsOneWidget);
   });
 
   testWidgets('시작 버튼으로 게임 화면에 진입한다', (tester) async {
@@ -82,7 +188,7 @@ void main() {
     await tester.pumpAndSettle();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
 
-    expect(find.text('딱한판만'), findsOneWidget);
+    expect(find.text('오늘의 게임'), findsOneWidget);
     expect(find.text('SURVIVE'), findsNothing);
     expect(find.text('기회 받는 중...'), findsNothing);
   });
@@ -96,8 +202,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('딱한판만'), findsOneWidget);
-    expect(find.text('오늘의 한 판 시작'), findsOneWidget);
+    expect(find.text('오늘의 게임'), findsOneWidget);
+    expect(find.textContaining('오늘의 한 판 시작'), findsOneWidget);
     expect(find.text('SURVIVE'), findsNothing);
   });
 
@@ -111,6 +217,26 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('developer-mode-menu')), findsNothing);
+  });
+
+  testWidgets('설정 버튼을 5초 안에 10번 누르면 테스터 계정이 된다', (tester) async {
+    final repository = _ActivatableRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(home: TodayScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (var tap = 0; tap < 10; tap++) {
+      await tester.tap(find.byTooltip('설정'));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(repository.enableCalls, 1);
+    expect(find.text('테스터 계정이 활성화됐어요.'), findsOneWidget);
   });
 
   testWidgets('테스트 계정은 개발자 모드에서 오늘 횟수를 초기화한다', (tester) async {
@@ -136,6 +262,16 @@ void main() {
 
     expect(repository.resetCalls, 1);
   });
+}
+
+class _ActivatableRepository extends PreviewDailyGameRepository {
+  var enableCalls = 0;
+
+  @override
+  Future<void> enableTestMode() async {
+    enableCalls++;
+    await super.enableTestMode();
+  }
 }
 
 class _TestAccountRepository extends PreviewDailyGameRepository {

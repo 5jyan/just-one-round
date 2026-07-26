@@ -60,7 +60,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 32));
 
     expect(find.text('탭해서 중력을 뒤집고 반대편으로 이동하세요'), findsOneWidget);
-    expect(find.byKey(const Key('gravity-distance-score')), findsOneWidget);
+    expect(find.byKey(const Key('gravity-survival-time')), findsOneWidget);
+    expect(find.text('0.00'), findsOneWidget);
+    expect(find.text('0.00초'), findsNothing);
     expect(find.text('TIME'), findsNothing);
   });
 
@@ -206,6 +208,9 @@ class _RecordingRepository implements DailyGameRepository {
   @override
   Future<List<DeveloperGame>> fetchDeveloperGames() =>
       throw UnimplementedError();
+
+  @override
+  Future<void> enableTestMode() => throw UnimplementedError();
 
   @override
   Future<void> resetDeveloperDailyProgress() => throw UnimplementedError();

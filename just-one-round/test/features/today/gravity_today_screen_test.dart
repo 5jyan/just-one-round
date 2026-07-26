@@ -6,7 +6,7 @@ import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
 
 void main() {
-  testWidgets('중력 스위치는 홈에서 제한 없음으로 표시한다', (tester) async {
+  testWidgets('중력 스위치 설명서에 시간 제한 없음을 표시한다', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -18,7 +18,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('그래비티 스위치'), findsOneWidget);
-    expect(find.text('제한 없음'), findsOneWidget);
     expect(
       find.byWidgetPredicate(
         (widget) =>
@@ -30,6 +29,14 @@ void main() {
       ),
       findsAtLeastNWidgets(2),
     );
+
+    final guideButton = find.byKey(const Key('game-guide-button'));
+    await tester.ensureVisible(guideButton);
+    await tester.pump();
+    await tester.tap(guideButton);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('시간 제한 없이'), findsOneWidget);
   });
 }
 

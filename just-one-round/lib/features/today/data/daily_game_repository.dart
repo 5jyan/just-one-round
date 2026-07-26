@@ -24,6 +24,7 @@ abstract interface class DailyGameRepository {
   });
   Future<List<PlayHistoryEntry>> fetchHistory();
   Future<List<DeveloperGame>> fetchDeveloperGames();
+  Future<void> enableTestMode();
   Future<void> resetDeveloperDailyProgress();
   Future<void> setDeveloperGame(String gameId);
 }
@@ -213,6 +214,12 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
   }
 
   @override
+  Future<void> enableTestMode() async {
+    await _ensureSignedIn();
+    await _client.rpc('enable_my_test_account');
+  }
+
+  @override
   Future<void> resetDeveloperDailyProgress() async {
     await _ensureSignedIn();
     await _client.rpc('reset_developer_daily_progress');
@@ -237,14 +244,16 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
 class PreviewDailyGameRepository implements DailyGameRepository {
   PreviewDailyGameRepository({this.testMode = false});
 
-  final bool testMode;
-  String _selectedGameId = 'star_dodge';
+  bool testMode;
+  String _selectedGameId = 'dung_dodge_v2';
 
   static const _games = [
     DeveloperGame(id: 'star_dodge', version: 1, displayName: '별빛 피하기'),
+    DeveloperGame(id: 'dung_dodge_v2', version: 1, displayName: '똥피하기 2'),
     DeveloperGame(id: 'gravity_switch', version: 1, displayName: '그래비티 스위치'),
     DeveloperGame(id: 'failed_bakery', version: 1, displayName: '대충 케이크'),
     DeveloperGame(id: 'apple_game', version: 1, displayName: '사과게임'),
+    DeveloperGame(id: 'apple_game_v2', version: 1, displayName: '사과게임 2'),
     DeveloperGame(id: 'number_rush', version: 1, displayName: '넘버 러시'),
   ];
 
@@ -256,12 +265,81 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     adAttemptAvailable: false,
     testMode: testMode,
     result: const DailyRankResult(
-      score: null,
-      rank: null,
-      participants: 0,
-      topPercent: null,
-      nickname: null,
-      nearby: [],
+      score: 2978,
+      rank: 8,
+      participants: 24,
+      topPercent: 34,
+      nickname: 'tester',
+      bestScore: 5387,
+      nearby: [
+        NearbyRank(
+          rank: 7,
+          nickname: '말랑주먹',
+          score: 3146,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: true),
+        NearbyRank(
+          rank: 9,
+          nickname: '느린번개',
+          score: 2811,
+          isMe: false,
+          isNpc: true,
+        ),
+      ],
+      leaders: [
+        NearbyRank(
+          rank: 1,
+          nickname: '작은공룡',
+          score: 5387,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(
+          rank: 2,
+          nickname: '졸린감자',
+          score: 4729,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(
+          rank: 3,
+          nickname: '한번만더',
+          score: 4312,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(
+          rank: 4,
+          nickname: '공룡발자국',
+          score: 3895,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(
+          rank: 5,
+          nickname: '퇴근요정',
+          score: 3514,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(
+          rank: 6,
+          nickname: '새벽질주',
+          score: 3328,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(
+          rank: 7,
+          nickname: '말랑주먹',
+          score: 3146,
+          isMe: false,
+          isNpc: true,
+        ),
+        NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: false),
+      ],
     ),
     profile: UserProfile(
       nickname: testMode ? 'tester' : null,
@@ -326,10 +404,34 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   }) async => const DailyRankResult(
     score: null,
     rank: null,
-    participants: 0,
+    participants: 24,
     topPercent: null,
     nickname: null,
+    bestScore: 5387,
     nearby: [],
+    leaders: [
+      NearbyRank(
+        rank: 1,
+        nickname: '작은공룡',
+        score: 5387,
+        isMe: false,
+        isNpc: true,
+      ),
+      NearbyRank(
+        rank: 2,
+        nickname: '졸린감자',
+        score: 4729,
+        isMe: false,
+        isNpc: true,
+      ),
+      NearbyRank(
+        rank: 3,
+        nickname: '한번만더',
+        score: 4312,
+        isMe: false,
+        isNpc: true,
+      ),
+    ],
   );
 
   @override
@@ -337,6 +439,11 @@ class PreviewDailyGameRepository implements DailyGameRepository {
 
   @override
   Future<List<DeveloperGame>> fetchDeveloperGames() async => _games;
+
+  @override
+  Future<void> enableTestMode() async {
+    testMode = true;
+  }
 
   @override
   Future<void> resetDeveloperDailyProgress() async {}
@@ -357,6 +464,13 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   );
 
   TodayGame _previewGame(String gameId) => switch (gameId) {
+    'dung_dodge_v2' => const TodayGame(
+      id: 'dung_dodge_v2',
+      version: 1,
+      displayName: '똥피하기 2',
+      description: '좌우로 움직여 떨어지는 똥을 피하세요.',
+      durationSeconds: 300,
+    ),
     'gravity_switch' => const TodayGame(
       id: 'gravity_switch',
       version: 1,
@@ -378,12 +492,19 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       description: '드래그한 사과 숫자의 합을 10으로 만들어 최대한 많이 지우세요.',
       durationSeconds: 120,
     ),
+    'apple_game_v2' => const TodayGame(
+      id: 'apple_game_v2',
+      version: 1,
+      displayName: '사과게임 2',
+      description: '달빛 과수원에서 사과 숫자의 합을 10으로 만들어 최대한 많이 지우세요.',
+      durationSeconds: 120,
+    ),
     'number_rush' => const TodayGame(
       id: 'number_rush',
       version: 1,
       displayName: '넘버 러시',
-      description: '흩어진 숫자를 1부터 25까지 순서대로 최대한 빠르게 터치하세요.',
-      durationSeconds: 120,
+      description: '숫자를 1부터 50까지 순서대로 최대한 빠르게 터치하세요.',
+      durationSeconds: 180,
     ),
     _ => const TodayGame(
       id: 'star_dodge',

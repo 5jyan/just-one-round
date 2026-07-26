@@ -8,6 +8,7 @@ import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
+import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
@@ -152,41 +153,46 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDeep,
-      body: SafeArea(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            GameWidget(game: _game.flameGame),
-            _GameHud(game: _game, definition: _definition),
-            Positioned(
-              left: 8,
-              top: 8,
-              child: IconButton(
-                tooltip: '게임 나가기',
-                onPressed: _leaveGame,
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.backgroundDeep.withValues(
-                    alpha: 0.75,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          GameWidget(game: _game.flameGame),
+          SafeArea(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                _GameHud(game: _game, definition: _definition),
+                Positioned(
+                  left: 8,
+                  top: 8,
+                  child: IconButton(
+                    tooltip: '게임 나가기',
+                    onPressed: _leaveGame,
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.backgroundDeep.withValues(
+                        alpha: 0.75,
+                      ),
+                      side: const BorderSide(color: AppColors.border, width: 2),
+                    ),
+                    icon: const Icon(Icons.close, color: AppColors.text),
                   ),
-                  side: const BorderSide(color: AppColors.border, width: 2),
                 ),
-                icon: const Icon(Icons.close, color: AppColors.text),
-              ),
+                if (_wasInterrupted) const _InterruptedOverlay(),
+                if (_result case final result?)
+                  _ResultOverlay(
+                    result: result,
+                    definition: _definition,
+                    rankResult: _rankResult,
+                    isSubmitting: _isSubmitting,
+                    submitError: _submitError,
+                    isSavingNickname: _isSavingNickname,
+                    onChooseNickname: _chooseNickname,
+                    onRetrySubmit: () => _submitResult(result),
+                  ),
+              ],
             ),
-            if (_wasInterrupted) const _InterruptedOverlay(),
-            if (_result case final result?)
-              _ResultOverlay(
-                result: result,
-                definition: _definition,
-                rankResult: _rankResult,
-                isSubmitting: _isSubmitting,
-                submitError: _submitError,
-                isSavingNickname: _isSavingNickname,
-                onChooseNickname: _chooseNickname,
-                onRetrySubmit: () => _submitResult(result),
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -523,13 +529,13 @@ class _GravitySwitchHud extends StatelessWidget {
             right: 0,
             top: 18,
             child: Text(
-              '${state.distance}',
-              key: const Key('gravity-distance-score'),
+              GravitySwitchRules.formatHudTime(state.score),
+              key: const Key('gravity-survival-time'),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: 'Galmuri',
                 color: Colors.white,
-                fontSize: 42,
+                fontSize: 36,
                 fontWeight: FontWeight.w700,
                 shadows: [
                   Shadow(color: Color(0x99000000), offset: Offset(3, 3)),

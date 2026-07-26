@@ -136,6 +136,8 @@ class DailyRankResult {
     required this.topPercent,
     required this.nickname,
     required this.nearby,
+    this.bestScore,
+    this.leaders = const [],
   });
 
   factory DailyRankResult.fromJson(Map<String, dynamic> json) =>
@@ -145,7 +147,11 @@ class DailyRankResult {
         participants: (json['participants'] as num?)?.toInt() ?? 0,
         topPercent: (json['top_percent'] as num?)?.toInt(),
         nickname: json['nickname'] as String?,
+        bestScore: (json['best_score'] as num?)?.toInt(),
         nearby: (json['nearby'] as List<dynamic>? ?? const [])
+            .map((item) => NearbyRank.fromJson(item as Map<String, dynamic>))
+            .toList(growable: false),
+        leaders: (json['leaders'] as List<dynamic>? ?? const [])
             .map((item) => NearbyRank.fromJson(item as Map<String, dynamic>))
             .toList(growable: false),
       );
@@ -155,7 +161,9 @@ class DailyRankResult {
   final int participants;
   final int? topPercent;
   final String? nickname;
+  final int? bestScore;
   final List<NearbyRank> nearby;
+  final List<NearbyRank> leaders;
 }
 
 class TodayState {

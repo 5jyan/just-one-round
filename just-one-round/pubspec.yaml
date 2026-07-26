@@ -72,9 +72,13 @@ flutter:
     - assets/images/pixel_cloud_small_uniform.png
     - assets/images/pixel_ground_uniform.png
     - assets/images/dodge_v2/
+    - assets/images/dung_dodge_v2/
     - assets/images/gravity_switch_v2/
+    - assets/images/gravity_switch_v2/platform_modules_v3/
+    - assets/images/gravity_switch_v2/platform_modules_v4/
     - assets/images/failed_bakery_25d/
     - assets/images/apple_game/
+    - assets/images/apple_game_v2/
     - assets/images/number_rush/
     - assets/maps/
     - assets/maps/patterns/

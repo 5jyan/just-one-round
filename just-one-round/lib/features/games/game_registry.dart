@@ -31,6 +31,25 @@ abstract final class GameRegistry {
       scoreLabel: 'SURVIVAL TIME',
       formatScore: StarDodgeRules.formatSurvival,
     ),
+    'dung_dodge_v2': MiniGameDefinition(
+      id: 'dung_dodge_v2',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required onFinished,
+          }) => StarDodgeGame(
+            gameDuration: gameDuration,
+            countdownDuration: countdownDuration,
+            assetSet: StarDodgeAssetSet.uglyCute,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '화면을 좌우로 드래그하세요',
+      playingInstruction: '떨어지는 똥을 피하세요! · 충돌하면 종료',
+      scoreLabel: 'SURVIVAL TIME',
+      formatScore: StarDodgeRules.formatSurvival,
+      defaultDuration: const Duration(minutes: 5),
+    ),
     'gravity_switch': MiniGameDefinition(
       id: 'gravity_switch',
       create:
@@ -87,6 +106,27 @@ abstract final class GameRegistry {
       hudStyle: MiniGameHudStyle.appleGame,
       resultUnitLabel: '제거한 사과',
     ),
+    'apple_game_v2': MiniGameDefinition(
+      id: 'apple_game_v2',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required onFinished,
+          }) => AppleGame(
+            gameDuration: gameDuration,
+            countdownDuration: countdownDuration,
+            assetSet: AppleGameAssetSet.midnightOrchard,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '드래그한 사과 숫자의 합을 10으로 만드세요',
+      playingInstruction: '합이 10이면 제거 · 많이 묶을수록 고득점!',
+      scoreLabel: 'APPLES',
+      formatScore: AppleGameRules.formatApples,
+      defaultDuration: const Duration(seconds: 120),
+      hudStyle: MiniGameHudStyle.appleGame,
+      resultUnitLabel: '제거한 사과',
+    ),
     'number_rush': MiniGameDefinition(
       id: 'number_rush',
       create:
@@ -99,13 +139,13 @@ abstract final class GameRegistry {
             maxDuration: gameDuration,
             onFinished: onFinished,
           ),
-      countdownInstruction: '1부터 25까지 순서대로 터치하세요',
+      countdownInstruction: '1부터 50까지 순서대로 터치하세요',
       playingInstruction: '틀려도 멈추지 않아요 · 최대한 빠르게!',
       scoreLabel: 'CLEAR TIME',
       formatScore: NumberRushRules.formatRankingScore,
-      defaultDuration: const Duration(minutes: 2),
+      defaultDuration: const Duration(minutes: 3),
       hudStyle: MiniGameHudStyle.numberRush,
-      resultUnitLabel: '기록 시간 · 최대 2분',
+      resultUnitLabel: '기록 시간 · 최대 3분',
     ),
   };
 

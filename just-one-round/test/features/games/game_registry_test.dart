@@ -14,6 +14,15 @@ void main() {
     expect(GameRegistry.forId('unknown').id, GameRegistry.fallbackGameId);
   });
 
+  test('똥피하기 2는 기존 생존 규칙을 그대로 사용한다', () {
+    final definition = GameRegistry.forId('dung_dodge_v2');
+
+    expect(definition.id, 'dung_dodge_v2');
+    expect(definition.scoreLabel, 'SURVIVAL TIME');
+    expect(definition.formatScore(12345), '12.35초');
+    expect(definition.defaultDuration, const Duration(minutes: 5));
+  });
+
   test('중력 스위치 게임을 선택한다', () {
     final definition = GameRegistry.forId('gravity_switch');
 
@@ -40,6 +49,17 @@ void main() {
     expect(definition.defaultDuration, const Duration(seconds: 120));
   });
 
+  test('사과게임 2는 기존 규칙과 별도 에셋 세트를 사용한다', () {
+    final definition = GameRegistry.forId('apple_game_v2');
+
+    expect(definition.id, 'apple_game_v2');
+    expect(definition.scoreLabel, 'APPLES');
+    expect(definition.formatScore(42), '42개');
+    expect(definition.countdownInstruction, contains('합을 10'));
+    expect(definition.defaultDuration, const Duration(seconds: 120));
+    expect(definition.hudStyle, MiniGameHudStyle.appleGame);
+  });
+
   test('넘버 러시는 완주 시간을 소수점 둘째 자리로 표시한다', () {
     final definition = GameRegistry.forId('number_rush');
 
@@ -47,7 +67,7 @@ void main() {
     expect(definition.scoreLabel, 'CLEAR TIME');
     expect(definition.formatScore(3590123), '9.88초');
     expect(definition.hudStyle, MiniGameHudStyle.numberRush);
-    expect(definition.countdownInstruction, contains('1부터 25'));
-    expect(definition.defaultDuration, const Duration(minutes: 2));
+    expect(definition.countdownInstruction, contains('1부터 50'));
+    expect(definition.defaultDuration, const Duration(minutes: 3));
   });
 }
