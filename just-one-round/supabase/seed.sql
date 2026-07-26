@@ -72,8 +72,8 @@ insert into public.games (
 
 insert into public.daily_games (play_date, game_id, game_version)
 values (
-  (now() at time zone 'Asia/Seoul')::date,
-  'dung_dodge',
+  public.current_play_date(),
+  'dung_dodge_v2',
   1
 )
 on conflict (play_date) do update set

@@ -382,6 +382,16 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
+[functions.admob-reward-callback]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/admob-reward-callback/index.ts"
+
+[functions.delete-account]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/delete-account/index.ts"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
