@@ -43,7 +43,7 @@ insert into public.games (
 ) values (
   'gravity_switch',
   1,
-  '그래비티 스위치',
+  '중력 스위치',
   '탭으로 중력을 뒤집어 위아래로 이어지는 입체 기둥 미로를 돌파하세요.',
   180
 ) on conflict (id) do update set

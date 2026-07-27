@@ -199,7 +199,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, '확인'));
     await tester.pumpAndSettle();
 
-    expect(find.text('그래비티 스위치'), findsOneWidget);
+    expect(find.text('중력 스위치'), findsOneWidget);
     expect(find.text('SURVIVE'), findsNothing);
   });
 
@@ -391,7 +391,7 @@ class _DailyResetRepository extends PreviewDailyGameRepository {
     return _state(
       playDate: fetchCalls == 1 ? DateTime(2026, 7, 26) : DateTime(2026, 7, 27),
       gameId: fetchCalls == 1 ? 'dung_dodge_v2' : 'gravity_switch',
-      displayName: fetchCalls == 1 ? '똥 피하기' : '그래비티 스위치',
+      displayName: fetchCalls == 1 ? '똥 피하기' : '중력 스위치',
     );
   }
 
@@ -483,7 +483,7 @@ class _PreviousResultRepository extends PreviewDailyGameRepository {
     game: const TodayGame(
       id: 'gravity_switch',
       version: 1,
-      displayName: '그래비티 스위치',
+      displayName: '중력 스위치',
       description: '테스트',
       durationSeconds: 180,
     ),

@@ -223,7 +223,7 @@ def make_page_2() -> Image.Image:
     )
     cards = [
         game_preview("apple-home.png", "사과게임", "#ff4f4f"),
-        game_preview("gravity-home.png", "그래비티 스위치", "#8de04f"),
+        game_preview("gravity-home.png", "중력 스위치", "#8de04f"),
         game_preview("dung-home.png", "똥피하기", "#27cfda"),
         game_preview("tap50-home.png", "탭50", "#ee43cb"),
     ]

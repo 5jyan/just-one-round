@@ -367,7 +367,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
 
   static const _games = [
     DeveloperGame(id: 'dung_dodge_v2', version: 1, displayName: '똥피하기'),
-    DeveloperGame(id: 'gravity_switch', version: 1, displayName: '그래비티 스위치'),
+    DeveloperGame(id: 'gravity_switch', version: 1, displayName: '중력 스위치'),
     DeveloperGame(id: 'apple_game_v2', version: 1, displayName: '사과게임'),
     DeveloperGame(id: 'number_rush', version: 1, displayName: '탭50'),
   ];
@@ -575,7 +575,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     'gravity_switch' => const TodayGame(
       id: 'gravity_switch',
       version: 1,
-      displayName: '그래비티 스위치',
+      displayName: '중력 스위치',
       description: '탭으로 중력을 뒤집어 위아래로 이어지는 입체 기둥 미로를 돌파하세요.',
       durationSeconds: 180,
     ),
