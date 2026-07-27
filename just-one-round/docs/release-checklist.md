@@ -49,6 +49,9 @@
 - [x] 설정의 버전 7회 터치와 서버 PIN 검증을 통과한 계정만 테스트 모드 활성화
 - [x] iOS 릴리즈 설정에서 개발용 로컬 네트워크 권한 제거
 - [x] Android 릴리즈에서 디버그 키 사용 제거
+- [x] 서버 최소 지원 빌드와 앱 강제 업데이트 화면 연결
+- [x] 실제 iOS App Store 상품 URL
+  `https://apps.apple.com/app/id6794861323`을 강제 업데이트 설정에 입력
 
 ## 출시 직전 검증
 
@@ -64,6 +67,31 @@
 - [ ] 개인정보 선택 메뉴가 필요한 지역에서 Google UMP 화면 확인
 - [ ] 공개 법적 문서 URL이 앱과 스토어 등록정보에서 모두 열리는지 확인
 - [ ] 신고 큐 운영 담당자와 확인 주기 지정
+
+## 새 게임 출시 순서
+
+새 게임을 포함한 앱 빌드가 스토어에 공개되기 전에는 해당 게임을 오늘의
+게임 로테이션에 넣지 않는다.
+
+1. 새 게임 행의 `minimum_app_build`를 해당 게임이 처음 포함된 앱 빌드
+   번호로 설정한다.
+2. iOS·Android 업데이트가 스토어에서 실제로 설치 가능한지 확인한다.
+3. `app_runtime_config`의 스토어 URL을 실제 상품 페이지로 확인한다.
+4. `minimum_supported_build`를 새 빌드 번호로 올린다.
+5. 새 게임을 `is_active = true`로 전환한다.
+
+```sql
+update public.games
+set minimum_app_build = 2, is_active = true
+where id = 'new_game_id';
+
+update public.app_runtime_config
+set minimum_supported_build = 2
+where id;
+```
+
+`minimum_supported_build`를 먼저 올리면 스토어 업데이트가 아직 보이지 않는
+사용자가 플레이할 수 없으므로 반드시 스토어 공개 확인 뒤 실행한다.
 
 ## 권장 검토
 

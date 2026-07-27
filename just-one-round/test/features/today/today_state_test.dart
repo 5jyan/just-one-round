@@ -35,8 +35,24 @@ void main() {
       'status': 'issued',
       'grant_type': 'daily',
       'game_id': 'gravity_switch',
+      'game_version': 2,
     });
 
     expect(attempt.gameId, 'gravity_switch');
+    expect(attempt.gameVersion, 2);
+  });
+
+  test('클라이언트 최소 빌드 응답을 파싱한다', () {
+    final compatibility = ClientCompatibility.fromJson({
+      'current_build': 1,
+      'minimum_supported_build': 2,
+      'update_required': true,
+      'store_url': 'https://example.com/store',
+    });
+
+    expect(compatibility.updateRequired, isTrue);
+    expect(compatibility.currentBuild, 1);
+    expect(compatibility.minimumSupportedBuild, 2);
+    expect(compatibility.storeUrl, 'https://example.com/store');
   });
 }

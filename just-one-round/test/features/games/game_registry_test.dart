@@ -47,6 +47,12 @@ void main() {
     }
   });
 
+  test('게임 ID와 버전을 함께 검사한다', () {
+    expect(GameRegistry.supports('number_rush', 1), isTrue);
+    expect(GameRegistry.supports('number_rush', 2), isFalse);
+    expect(GameRegistry.supports('future_game', 1), isFalse);
+  });
+
   test('비운 게임의 과거 기록 형식은 유지한다', () {
     expect(GameRegistry.formatScore('failed_bakery', 27), '27층');
     expect(GameRegistry.formatScore('apple_game', 42), '42개');

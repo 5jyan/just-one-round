@@ -1,5 +1,7 @@
 package com.justoneround.app
 
+import android.content.pm.PackageManager
+import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -15,13 +17,24 @@ class MainActivity : FlutterActivity() {
         ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "isIosSimulator" -> result.success(false)
-                "getAppBuildInfo" -> result.success(
-                    mapOf(
-                        "version" to BuildConfig.VERSION_NAME,
-                        "build_number" to BuildConfig.VERSION_CODE.toString(),
-                        "platform" to "android",
-                    ),
-                )
+                "getAppBuildInfo" -> {
+                    val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        packageManager.getPackageInfo(
+                            packageName,
+                            PackageManager.PackageInfoFlags.of(0),
+                        )
+                    } else {
+                        @Suppress("DEPRECATION")
+                        packageManager.getPackageInfo(packageName, 0)
+                    }
+                    result.success(
+                        mapOf(
+                            "version" to (packageInfo.versionName ?: "1.0.0"),
+                            "build_number" to packageInfo.longVersionCode.toString(),
+                            "platform" to "android",
+                        ),
+                    )
+                }
                 else -> result.notImplemented()
             }
         }

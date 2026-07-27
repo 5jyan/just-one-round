@@ -11,7 +11,7 @@ add column android_store_url text;
 update public.app_runtime_config
 set
   ios_store_url =
-    'https://apps.apple.com/kr/search?term=%EB%94%B1%ED%95%9C%ED%8C%90%EB%A7%8C',
+    'https://apps.apple.com/app/id6794861323',
   android_store_url =
     'https://play.google.com/store/apps/details?id=com.justoneround.app'
 where id;

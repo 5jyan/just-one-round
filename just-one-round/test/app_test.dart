@@ -81,6 +81,31 @@ void main() {
     expect(find.byKey(const Key('ranking-button')), findsOneWidget);
   });
 
+  testWidgets('지원하지 않는 빌드는 업데이트 화면에서 플레이를 차단한다', (tester) async {
+    final repository = PreviewDailyGameRepository(
+      compatibility: const ClientCompatibility(
+        currentBuild: 1,
+        minimumSupportedBuild: 2,
+        updateRequired: true,
+        storeUrl: 'https://example.com/store',
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const JustOneRoundApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('required-update-screen')), findsOneWidget);
+    expect(find.byKey(const Key('required-update-button')), findsOneWidget);
+    expect(find.text('앱 업데이트가 필요해요'), findsOneWidget);
+    expect(find.text('딱 한 판만!'), findsNothing);
+    expect(find.byKey(const Key('game-guide-button')), findsNothing);
+  });
+
   testWidgets('게임 설명은 다섯 페이지를 옆으로 넘기며 안내한다', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
     await tester.pumpAndSettle();

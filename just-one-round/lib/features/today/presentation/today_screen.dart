@@ -559,6 +559,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       ref.invalidate(todayStateProvider);
     } catch (error) {
       if (!mounted) return;
+      if (_isAppUpdateRequiredError(error)) {
+        ref.invalidate(todayStateProvider);
+        _showMessage('새 버전이 필요해요. 업데이트 화면을 불러올게요.');
+        return;
+      }
       if (_isDailyGameChangedError(error)) {
         await _showDailyGameChangedDialog();
         return;
@@ -633,6 +638,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       error is PostgrestException &&
       (error.message.contains('daily game changed') ||
           error.message.contains('reward session not found'));
+
+  bool _isAppUpdateRequiredError(Object error) =>
+      error is AppUpdateRequiredException ||
+      (error is PostgrestException &&
+          error.message.contains('app update required'));
 
   void _showMessage(String message) {
     if (!mounted) return;
@@ -804,127 +814,135 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                   ),
                 ),
               ),
-              data: (state) => Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(18, 10, 18, 32),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _Header(
-                          isSaving:
-                              _isSavingProfile || _isRunningDeveloperAction,
-                          onHistory: () => context.push('/history'),
-                          onSettings: () => _handleSettingsTap(state),
-                        ),
-                        const SizedBox(height: 12),
-                        _GamePreview(gameId: state.game?.id),
-                        const SizedBox(height: 18),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                state.game?.displayName ?? '오늘의 게임 준비 중',
-                                style: Theme.of(context).textTheme.titleLarge,
+              data: (state) => state.requiresUpdate
+                  ? _RequiredUpdateView(
+                      compatibility: state.compatibility,
+                      onRetry: () => ref.invalidate(todayStateProvider),
+                    )
+                  : Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 32),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 480),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _Header(
+                                isSaving:
+                                    _isSavingProfile ||
+                                    _isRunningDeveloperAction,
+                                onHistory: () => context.push('/history'),
+                                onSettings: () => _handleSettingsTap(state),
                               ),
-                            ),
-                            if (state.testMode)
-                              const _StatusBadge(label: 'TEST MODE'),
-                          ],
-                        ),
-                        const SizedBox(height: 9),
-                        _TodaySummary(
-                          gameId: state.game?.id,
-                          result: state.result,
-                        ),
-                        if (state.result?.score case final score?) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            '내 기록 ${GameRegistry.formatScore(state.game?.id, score)}'
-                            '${state.result?.rank == null ? '' : ' · ${state.result!.rank}등'}',
-                            style: const TextStyle(
-                              color: AppColors.reward,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 18),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _HomeActionButton(
-                                key: const Key('game-guide-button'),
-                                label: '게임 설명',
-                                icon: Icons.menu_book_outlined,
-                                onPressed: () => _showGuide(state),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _HomeActionButton(
-                                key: const Key('ranking-button'),
-                                label: '오늘의 랭킹',
-                                icon: Icons.emoji_events_outlined,
-                                onPressed: () => _showRanking(state),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 18),
-                        if (state.canClaimDaily)
-                          PixelButton(
-                            label: _isClaiming
-                                ? GamePresentationRegistry.forId(
-                                    state.game?.id,
-                                  ).loadingLabel
-                                : '딱 한 판만!',
-                            icon: Icons.play_arrow_rounded,
-                            onPressed: _isClaiming
-                                ? null
-                                : () => _start(
-                                    rewarded: false,
-                                    displayedState: state,
+                              const SizedBox(height: 12),
+                              _GamePreview(gameId: state.game?.id),
+                              const SizedBox(height: 18),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      state.game?.displayName ?? '오늘의 게임 준비 중',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleLarge,
+                                    ),
                                   ),
-                          )
-                        else if (state.adAttemptAvailable)
-                          PixelButton(
-                            label: _rewardedButtonLabel(state),
-                            icon: Icons.ondemand_video_outlined,
-                            onPressed:
-                                _isClaiming ||
-                                    _rewardedAdStatus ==
-                                        RewardedAdStatus.disabled ||
-                                    _rewardedAdStatus ==
-                                        RewardedAdStatus.loading
-                                ? null
-                                : () => _start(
-                                    rewarded: true,
-                                    displayedState: state,
+                                  if (state.testMode)
+                                    const _StatusBadge(label: 'TEST MODE'),
+                                ],
+                              ),
+                              const SizedBox(height: 9),
+                              _TodaySummary(
+                                gameId: state.game?.id,
+                                result: state.result,
+                              ),
+                              if (state.result?.score case final score?) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  '내 기록 ${GameRegistry.formatScore(state.game?.id, score)}'
+                                  '${state.result?.rank == null ? '' : ' · ${state.result!.rank}등'}',
+                                  style: const TextStyle(
+                                    color: AppColors.reward,
+                                    fontWeight: FontWeight.w900,
                                   ),
-                          )
-                        else
-                          const PixelButton(
-                            label: '오늘의 플레이 완료',
-                            icon: Icons.check_rounded,
-                            onPressed: null,
-                          ),
-                        const SizedBox(height: 14),
-                        Text(
-                          _statusText(state),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                                ),
+                              ],
+                              const SizedBox(height: 18),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _HomeActionButton(
+                                      key: const Key('game-guide-button'),
+                                      label: '게임 설명',
+                                      icon: Icons.menu_book_outlined,
+                                      onPressed: () => _showGuide(state),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: _HomeActionButton(
+                                      key: const Key('ranking-button'),
+                                      label: '오늘의 랭킹',
+                                      icon: Icons.emoji_events_outlined,
+                                      onPressed: () => _showRanking(state),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 18),
+                              if (state.canClaimDaily)
+                                PixelButton(
+                                  label: _isClaiming
+                                      ? GamePresentationRegistry.forId(
+                                          state.game?.id,
+                                        ).loadingLabel
+                                      : '딱 한 판만!',
+                                  icon: Icons.play_arrow_rounded,
+                                  onPressed: _isClaiming
+                                      ? null
+                                      : () => _start(
+                                          rewarded: false,
+                                          displayedState: state,
+                                        ),
+                                )
+                              else if (state.adAttemptAvailable)
+                                PixelButton(
+                                  label: _rewardedButtonLabel(state),
+                                  icon: Icons.ondemand_video_outlined,
+                                  onPressed:
+                                      _isClaiming ||
+                                          _rewardedAdStatus ==
+                                              RewardedAdStatus.disabled ||
+                                          _rewardedAdStatus ==
+                                              RewardedAdStatus.loading
+                                      ? null
+                                      : () => _start(
+                                          rewarded: true,
+                                          displayedState: state,
+                                        ),
+                                )
+                              else
+                                const PixelButton(
+                                  label: '오늘의 플레이 완료',
+                                  icon: Icons.check_rounded,
+                                  onPressed: null,
+                                ),
+                              const SizedBox(height: 14),
+                              Text(
+                                _statusText(state),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppColors.textMuted,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
           ],
         ),
@@ -959,6 +977,96 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';
     return '중단된 게임은 다시 시작할 수 없어요';
   }
+}
+
+class _RequiredUpdateView extends StatelessWidget {
+  const _RequiredUpdateView({
+    required this.compatibility,
+    required this.onRetry,
+  });
+
+  final ClientCompatibility compatibility;
+  final VoidCallback onRetry;
+
+  Future<void> _openStore(BuildContext context) async {
+    final rawUrl = compatibility.storeUrl;
+    final uri = rawUrl == null ? null : Uri.tryParse(rawUrl);
+    if (uri != null &&
+        await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      return;
+    }
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('스토어를 열지 못했어요. 잠시 후 다시 시도해 주세요.')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(
+    key: const Key('required-update-screen'),
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: PixelPanel(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.system_update_alt_rounded,
+                color: AppColors.primary,
+                size: 56,
+              ),
+              const SizedBox(height: 18),
+              Text(
+                compatibility.reason == 'unsupported_game'
+                    ? '새 게임 업데이트가 필요해요'
+                    : '앱 업데이트가 필요해요',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.text,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                '오늘의 게임을 안전하게 플레이하려면 최신 버전으로 업데이트해 주세요.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textMuted,
+                  height: 1.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '현재 빌드 ${compatibility.currentBuild}'
+                ' · 필요 빌드 ${compatibility.minimumSupportedBuild}',
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 11,
+                ),
+              ),
+              const SizedBox(height: 22),
+              PixelButton(
+                key: const Key('required-update-button'),
+                label: '스토어에서 업데이트',
+                icon: Icons.open_in_new_rounded,
+                onPressed: () => _openStore(context),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                key: const Key('required-update-retry'),
+                onPressed: onRetry,
+                child: const Text('업데이트 확인'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 enum _PreviousResultAction { history, close }
