@@ -12,6 +12,8 @@ abstract interface class RewardedAdService {
 
   Future<void> preload();
 
+  Future<bool> isPrivacyOptionsRequired();
+
   Future<bool> showPrivacyOptions();
 
   Future<RewardedAdOutcome> show({
@@ -39,6 +41,9 @@ class DisabledRewardedAdService implements RewardedAdService {
 
   @override
   Future<void> preload() async {}
+
+  @override
+  Future<bool> isPrivacyOptionsRequired() async => false;
 
   @override
   Future<bool> showPrivacyOptions() async => false;
@@ -75,6 +80,9 @@ class FakeRewardedAdService implements RewardedAdService {
   Future<void> preload() async {
     _status.value = RewardedAdStatus.ready;
   }
+
+  @override
+  Future<bool> isPrivacyOptionsRequired() async => false;
 
   @override
   Future<bool> showPrivacyOptions() async => false;

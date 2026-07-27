@@ -7,6 +7,7 @@ import 'package:just_one_round/features/today/domain/previous_daily_result.dart'
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
+import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
 
 void main() {
@@ -268,7 +269,7 @@ void main() {
     expect(find.text('SURVIVE'), findsNothing);
   });
 
-  testWidgets('일반 계정 설정에는 개발자 모드가 보이지 않는다', (tester) async {
+  testWidgets('일반 계정 설정은 필요한 정책만 표시한다', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(child: MaterialApp(home: TodayScreen())),
     );
@@ -278,6 +279,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('developer-mode-menu')), findsNothing);
+    expect(find.text('커뮤니티 운영정책'), findsOneWidget);
+    expect(find.text('광고 개인정보 선택'), findsNothing);
+  });
+
+  testWidgets('UMP가 요구하는 지역에서만 광고 개인정보 선택을 표시한다', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          rewardedAdServiceProvider.overrideWithValue(
+            _PrivacyRequiredAdService(),
+          ),
+        ],
+        child: const MaterialApp(home: TodayScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('설정'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('광고 개인정보 선택'), findsOneWidget);
   });
 
   testWidgets('앱 버전을 7번 누르고 PIN을 입력하면 테스트 모드가 활성화된다', (tester) async {
@@ -341,6 +363,11 @@ void main() {
 
     expect(repository.resetCalls, 1);
   });
+}
+
+class _PrivacyRequiredAdService extends FakeRewardedAdService {
+  @override
+  Future<bool> isPrivacyOptionsRequired() async => true;
 }
 
 class _TestAccountRepository extends PreviewDailyGameRepository {

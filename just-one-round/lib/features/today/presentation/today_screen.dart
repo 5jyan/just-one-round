@@ -291,6 +291,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   Future<void> _openSettings(TodayState state) async {
+    final showAdPrivacy = await _rewardedAdService.isPrivacyOptionsRequired();
+    if (!mounted) return;
     final action = await showDialog<_SettingsAction>(
       context: context,
       builder: (context) => SimpleDialog(
@@ -327,14 +329,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
               title: Text('커뮤니티 운영정책'),
             ),
           ),
-          SimpleDialogOption(
-            onPressed: () =>
-                Navigator.of(context).pop(_SettingsAction.adPrivacy),
-            child: const ListTile(
-              leading: Icon(Icons.ads_click_outlined, color: AppColors.text),
-              title: Text('광고 개인정보 선택'),
+          if (showAdPrivacy)
+            SimpleDialogOption(
+              onPressed: () =>
+                  Navigator.of(context).pop(_SettingsAction.adPrivacy),
+              child: const ListTile(
+                leading: Icon(Icons.ads_click_outlined, color: AppColors.text),
+                title: Text('광고 개인정보 선택'),
+              ),
             ),
-          ),
           SimpleDialogOption(
             onPressed: () => Navigator.of(context).pop(_SettingsAction.delete),
             child: const ListTile(

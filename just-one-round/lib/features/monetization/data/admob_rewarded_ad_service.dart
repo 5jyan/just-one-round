@@ -190,11 +190,16 @@ class AdMobRewardedAdService implements RewardedAdService {
   }
 
   @override
-  Future<bool> showPrivacyOptions() async {
+  Future<bool> isPrivacyOptionsRequired() async {
     await initialize();
     final requirement = await ConsentInformation.instance
         .getPrivacyOptionsRequirementStatus();
-    if (requirement != PrivacyOptionsRequirementStatus.required) return false;
+    return requirement == PrivacyOptionsRequirementStatus.required;
+  }
+
+  @override
+  Future<bool> showPrivacyOptions() async {
+    if (!await isPrivacyOptionsRequired()) return false;
     final completed = Completer<void>();
     ConsentForm.showPrivacyOptionsForm((_) => completed.complete());
     await completed.future;
