@@ -25,8 +25,12 @@ class GravityMapPattern {
 
   bool isAvailableAt(double elapsedSeconds) {
     final tokens = id.split('_');
-    if (tokens.contains('easy') && elapsedSeconds >= 30) return false;
-    if (tokens.contains('hard') && elapsedSeconds < 30) return false;
+    if (tokens.contains('easy') && elapsedSeconds >= 45) return false;
+    if (tokens.contains('medium') &&
+        (elapsedSeconds < 45 || elapsedSeconds >= 90)) {
+      return false;
+    }
+    if (tokens.contains('hard') && elapsedSeconds < 90) return false;
     return unlockAfterSeconds <= elapsedSeconds;
   }
 }

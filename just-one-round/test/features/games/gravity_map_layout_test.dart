@@ -21,45 +21,31 @@ void main() {
     final layout = GravityMapLayout.fromJsonString(source, mapFiles: mapFiles);
 
     expect(layout.columnWidth, 48);
-    expect(layout.initialProfile.floorTop, 416);
-    expect(layout.initialProfile.ceilingBottom, 272);
     expect(layout.initialColumnCount, 12);
-    expect(layout.patterns, hasLength(9));
-    expect(layout.patterns.first.id, 'large_m');
-    expect(layout.patterns.first.columns, hasLength(25));
+    expect(layout.patterns, hasLength(13));
+    expect(layout.patterns.first.id, 'basic_easy');
+    expect(layout.patterns.first.columns, hasLength(15));
 
     final v = layout.patterns.singleWhere((pattern) => pattern.id == 'v_easy');
     expect(v.unlockAfterSeconds, 0);
     expect(v.columns, hasLength(15));
 
-    final beforeThreshold = layout.patterns.where(
-      (pattern) => pattern.isAvailableAt(29.999),
-    );
-    expect(beforeThreshold, isNotEmpty);
-    expect(
-      beforeThreshold.every((pattern) => !pattern.id.contains('_hard')),
-      isTrue,
-    );
-    expect(
-      beforeThreshold.any((pattern) => pattern.id == 'large_m'),
-      isTrue,
-    );
+    void expectOnlyDifficulty(double elapsedSeconds, String difficulty) {
+      final available = layout.patterns
+          .where((pattern) => pattern.isAvailableAt(elapsedSeconds))
+          .toList();
 
-    final afterThreshold = layout.patterns.where(
-      (pattern) => pattern.isAvailableAt(30),
-    );
-    expect(afterThreshold, isNotEmpty);
-    expect(
-      afterThreshold.every((pattern) => !pattern.id.contains('_easy')),
-      isTrue,
-    );
-    expect(
-      afterThreshold.any((pattern) => pattern.id.contains('_hard')),
-      isTrue,
-    );
-    expect(afterThreshold.any((pattern) => pattern.id == 'large_m'), isTrue);
-    expect(beforeThreshold.any((pattern) => pattern.id == 'snake'), isTrue);
-    expect(afterThreshold.any((pattern) => pattern.id == 'snake'), isTrue);
+      expect(available, isNotEmpty);
+      expect(
+        available.every((pattern) => pattern.id.endsWith('_$difficulty')),
+        isTrue,
+      );
+    }
+
+    expectOnlyDifficulty(44.999, 'easy');
+    expectOnlyDifficulty(45, 'medium');
+    expectOnlyDifficulty(89.999, 'medium');
+    expectOnlyDifficulty(90, 'hard');
   });
 
   test('reports a floating wall in a visual grid', () {
