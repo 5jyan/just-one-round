@@ -9,17 +9,17 @@
   ],
   "crop": {
     "x": 0,
-    "y": 360,
+    "y": 240,
     "width": 1206,
-    "height": 1546
+    "height": 1666
   },
-  "processing": "lossless gameplay crop containing the live TIME/NEXT HUD and complete 5x5 board; no generative edits",
+  "processing": "runtime gameplay crop containing the live TIME/NEXT HUD and complete 5x5 board, uniformly scaled into the fixed home card so the upper and lower cabinet edges remain visible; the captured close-control overlap is restored from the cabinet's symmetric clean corner",
   "capture_note": "Live TAP 50 board using the original procedural cabinet; the complete 5x5 board remains mechanically plausible.",
   "art_contract": {
     "home_aspect_ratio": 0.78,
-    "content_occupancy": "edge-to-edge gameplay hero",
+    "content_occupancy": "uniformly scaled gameplay hero with narrow side insets",
     "filter_quality": "nearest-neighbor / none",
     "safe_core": "TIME, NEXT, and the complete 5x5 board",
-    "viewport_crop": "fixed approved portrait crop"
+    "viewport_crop": "fixed portrait crop with complete cabinet screen edges"
   }
 }

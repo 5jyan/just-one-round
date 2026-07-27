@@ -127,13 +127,18 @@ def add_collision_result(frames: List[Image.Image]) -> List[Image.Image]:
     return result
 
 
-def save_animation(name: str, frames: List[Image.Image]) -> None:
+def save_animation(
+    name: str,
+    frames: List[Image.Image],
+    *,
+    duration_ms: int = FRAME_DURATION_MS,
+) -> None:
     output = RUNTIME_ROOT / name
     frames[0].save(
         output,
         save_all=True,
         append_images=frames[1:],
-        duration=FRAME_DURATION_MS,
+        duration=duration_ms,
         loop=0,
         lossless=True,
         quality=100,
@@ -153,6 +158,11 @@ def main() -> None:
     save_animation(
         "gravity_runtime_main.webp",
         add_loop_fade(add_main_hud(crop_frames(control, MAIN_CROP))),
+    )
+    save_animation(
+        "gravity_runtime_tap.webp",
+        add_loop_fade(crop_frames(control[6:35], GUIDE_CROP), count=2),
+        duration_ms=75,
     )
     save_animation(
         "gravity_runtime_control.webp",

@@ -6,7 +6,7 @@ import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
 
 void main() {
-  testWidgets('그래비티 스위치 메인 애니메이션은 TIME과 함께 반복한다', (tester) async {
+  testWidgets('중력 스위치 메인 애니메이션은 TIME과 함께 반복한다', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -17,7 +17,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('그래비티 스위치'), findsOneWidget);
+    expect(find.text('중력 스위치'), findsOneWidget);
     expect(find.byKey(const Key('gravity-home-animation')), findsOneWidget);
     expect(
       find.byWidgetPredicate(
@@ -50,7 +50,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('그래비티 스위치 설명서는 실제 규칙과 KO GAME OVER를 네 페이지로 안내한다', (tester) async {
+  testWidgets('중력 스위치 설명서는 실제 규칙과 KO GAME OVER를 네 페이지로 안내한다', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -79,7 +79,7 @@ void main() {
             widget is Image &&
             widget.image is AssetImage &&
             (widget.image as AssetImage).assetName.endsWith(
-              'gravity_switch_v2/gravity_runtime_control.webp',
+              'gravity_switch_v2/gravity_runtime_tap.webp',
             ),
       ),
       findsOneWidget,
@@ -97,6 +97,17 @@ void main() {
     expect(find.textContaining('고철 벽이 캐릭터 옆을 지나갑니다'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('gravity-runtime-obstacle')),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image &&
+            widget.image is AssetImage &&
+            (widget.image as AssetImage).assetName.endsWith(
+              'gravity_switch_v2/gravity_runtime_control.webp',
+            ),
+      ),
       findsOneWidget,
     );
 
@@ -124,7 +135,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('그래비티 스위치 설명서는 짧은 화면에서도 모든 페이지가 잘리지 않는다', (tester) async {
+  testWidgets('중력 스위치 설명서는 짧은 화면에서도 모든 페이지가 잘리지 않는다', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 700));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -160,7 +171,7 @@ class _GravityRepository extends PreviewDailyGameRepository {
     game: const TodayGame(
       id: 'gravity_switch',
       version: 1,
-      displayName: '그래비티 스위치',
+      displayName: '중력 스위치',
       description: '입체 기둥 미로를 돌파하세요.',
       durationSeconds: 180,
     ),

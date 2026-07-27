@@ -36,6 +36,7 @@ void main() {
   test('메인과 설명서 캡처는 실제 런타임의 다중 프레임 애니메이션이다', () async {
     const captures = {
       'gravity_runtime_main.webp': (360, 462),
+      'gravity_runtime_tap.webp': (360, 268),
       'gravity_runtime_control.webp': (360, 268),
       'gravity_runtime_obstacle.webp': (360, 268),
       'gravity_runtime_hard.webp': (360, 268),

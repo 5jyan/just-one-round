@@ -2955,16 +2955,16 @@ class _NumberRushHomePreviewState extends State<_NumberRushHomePreview> {
         builder: (context, constraints) {
           final width = constraints.maxWidth;
           final height = constraints.maxHeight;
-          final tileSize = width * (56 / 360);
+          final tileSize = width * 0.1444;
           return Stack(
             key: const Key('number-rush-home-tap-animation'),
             fit: StackFit.expand,
             children: [
               Positioned(
-                left: width * 0.22,
-                top: height * 0.13,
-                width: width * 0.18,
-                height: height * 0.08,
+                left: width * 0.2398,
+                top: height * 0.1927,
+                width: width * 0.167,
+                height: height * 0.0743,
                 child: ColoredBox(
                   color: const Color(0xFF020715),
                   child: Center(
@@ -2984,29 +2984,29 @@ class _NumberRushHomePreviewState extends State<_NumberRushHomePreview> {
               _NumberRushHomeTapTile(
                 number: 1,
                 frame: firstFrame,
-                left: width * (27 / 360),
-                top: height * 0.542,
+                left: width * 0.1053,
+                top: height * 0.575,
                 size: tileSize,
               ),
               _NumberRushHomeTapTile(
                 number: 2,
                 frame: secondFrame,
-                left: width * (27 / 360),
-                top: height * 0.411,
+                left: width * 0.1053,
+                top: height * 0.4534,
                 size: tileSize,
               ),
               _NumberRushHomeTapTile(
                 number: 3,
                 frame: thirdFrame,
-                left: width * (147 / 360),
-                top: height * 0.411,
+                left: width * 0.4145,
+                top: height * 0.4534,
                 size: tileSize,
               ),
               Positioned(
-                left: width * 0.65,
-                top: height * 0.13,
-                width: width * 0.09,
-                height: height * 0.08,
+                left: width * 0.6388,
+                top: height * 0.1927,
+                width: width * 0.0835,
+                height: height * 0.0743,
                 child: ColoredBox(
                   color: const Color(0xFF020715),
                   child: Center(
@@ -4273,10 +4273,10 @@ class _GravityRuntimeGuide extends StatelessWidget {
     }
 
     final assetPath = switch (mode) {
-      _GravityGuideMode.control || _GravityGuideMode.landing =>
+      _GravityGuideMode.control =>
+        'assets/images/gravity_switch_v2/gravity_runtime_tap.webp',
+      _GravityGuideMode.landing || _GravityGuideMode.obstacle =>
         'assets/images/gravity_switch_v2/gravity_runtime_control.webp',
-      _GravityGuideMode.obstacle =>
-        'assets/images/gravity_switch_v2/gravity_runtime_obstacle.webp',
       _GravityGuideMode.collision =>
         'assets/images/gravity_switch_v2/gravity_runtime_collision.webp',
       _GravityGuideMode.difficulty => throw StateError(
@@ -4297,7 +4297,7 @@ class _GravityRuntimeGuide extends StatelessWidget {
           const Positioned(
             left: 116,
             top: 112,
-            child: _GravityTapCue(label: 'TAP'),
+            child: _GravityTapCue(label: 'TAP ↑↓'),
           ),
         if (mode == _GravityGuideMode.landing)
           const Positioned(
