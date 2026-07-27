@@ -285,7 +285,14 @@ void main() {
     );
     await tester.pump();
 
-    await tester.tap(find.byTooltip('게임 나가기'));
+    final exitButton = find.byKey(const Key('game-exit-button'));
+    await tester.tap(exitButton);
+    await tester.pump();
+
+    expect(find.text('exhausted'), findsNothing);
+    expect(repository.fetchTodayCalls, 1);
+
+    await tester.longPress(exitButton);
     await tester.pumpAndSettle();
 
     expect(find.text('exhausted'), findsOneWidget);

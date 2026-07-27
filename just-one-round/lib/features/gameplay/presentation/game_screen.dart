@@ -190,17 +190,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 Positioned(
                   left: 8,
                   top: 8,
-                  child: IconButton(
-                    tooltip: '게임 나가기',
-                    onPressed: _leaveGame,
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.backgroundDeep.withValues(
-                        alpha: 0.75,
-                      ),
-                      side: const BorderSide(color: AppColors.border, width: 2),
-                    ),
-                    icon: const Icon(Icons.close, color: AppColors.text),
-                  ),
+                  child: _GameExitButton(onExit: _leaveGame),
                 ),
                 if (_wasInterrupted) _InterruptedOverlay(onHome: _returnHome),
               ],
@@ -227,6 +217,86 @@ class _GameScreenState extends ConsumerState<GameScreen>
               },
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _GameExitButton extends StatelessWidget {
+  const _GameExitButton({required this.onExit});
+
+  final VoidCallback onExit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: '길게 눌러 게임 나가기',
+      triggerMode: TooltipTriggerMode.tap,
+      child: Semantics(
+        button: true,
+        label: '길게 눌러 게임 나가기',
+        child: GestureDetector(
+          key: const Key('game-exit-button'),
+          behavior: HitTestBehavior.opaque,
+          onLongPress: onExit,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              boxShadow: [
+                BoxShadow(color: Color(0xFF7D3038), offset: Offset(0, 4)),
+              ],
+            ),
+            child: ClipPath(
+              clipper: const PixelCornerClipper(corner: 6),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundDeep.withValues(alpha: 0.9),
+                  border: Border.all(color: AppColors.danger, width: 2),
+                ),
+                child: const SizedBox(
+                  width: 72,
+                  height: 42,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.door_back_door_outlined,
+                        color: AppColors.danger,
+                        size: 19,
+                      ),
+                      SizedBox(width: 5),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'HOLD',
+                            style: TextStyle(
+                              fontFamily: 'Galmuri',
+                              color: AppColors.textMuted,
+                              fontSize: 7,
+                              fontWeight: FontWeight.w900,
+                              height: 1,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'EXIT',
+                            style: TextStyle(
+                              fontFamily: 'Galmuri',
+                              color: AppColors.text,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              height: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
