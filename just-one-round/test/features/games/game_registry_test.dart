@@ -22,7 +22,9 @@ void main() {
     expect(definition.id, 'dung_dodge_v2');
     expect(definition.scoreLabel, 'SURVIVAL TIME');
     expect(definition.formatScore(12345), '12.35초');
+    expect(definition.formatHudScore(12345), '12.35');
     expect(definition.defaultDuration, const Duration(minutes: 5));
+    expect(definition.hudStyle.name, 'survivalTime');
   });
 
   test('중력 스위치 게임을 선택한다', () {
@@ -30,6 +32,8 @@ void main() {
 
     expect(definition.id, 'gravity_switch');
     expect(definition.countdownInstruction, contains('중력'));
+    expect(definition.formatHudScore(12345), '12.35');
+    expect(definition.hudStyle.name, 'survivalTime');
   });
 
   test('비운 게임 ID는 더 이상 실행하지 않는다', () {

@@ -5,6 +5,7 @@ void main() {
   group('StarDodgeRules', () {
     test('생존 시간을 0.01초 단위로 표시한다', () {
       expect(StarDodgeRules.formatSurvival(12345), '12.35초');
+      expect(StarDodgeRules.formatHudTime(12345), '12.35');
     });
 
     test('시간이 지날수록 생성 간격은 짧고 낙하 속도는 빨라진다', () {

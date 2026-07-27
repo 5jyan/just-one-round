@@ -28,7 +28,9 @@ abstract final class GameRegistry {
       playingInstruction: '떨어지는 똥을 피하세요! · 충돌하면 종료',
       scoreLabel: 'SURVIVAL TIME',
       formatScore: StarDodgeRules.formatSurvival,
+      hudScoreFormatter: StarDodgeRules.formatHudTime,
       defaultDuration: const Duration(minutes: 5),
+      hudStyle: MiniGameHudStyle.survivalTime,
     ),
     'gravity_switch': MiniGameDefinition(
       id: 'gravity_switch',
@@ -45,7 +47,8 @@ abstract final class GameRegistry {
       playingInstruction: '돌출 기둥이 오기 전에 중력을 뒤집으세요!',
       scoreLabel: 'SURVIVAL TIME',
       formatScore: GravitySwitchRules.formatSurvival,
-      hudStyle: MiniGameHudStyle.gravitySwitch,
+      hudScoreFormatter: GravitySwitchRules.formatHudTime,
+      hudStyle: MiniGameHudStyle.survivalTime,
     ),
     'apple_game_v2': MiniGameDefinition(
       id: 'apple_game_v2',

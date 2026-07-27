@@ -6,7 +6,7 @@ enum MiniGamePhase { countdown, playing, finished }
 
 enum MiniGameHudStyle {
   standard,
-  gravitySwitch,
+  survivalTime,
   failedBakery,
   appleGame,
   numberRush,
@@ -57,6 +57,7 @@ class MiniGameDefinition {
     required this.playingInstruction,
     required this.scoreLabel,
     required this.formatScore,
+    this.hudScoreFormatter,
     this.defaultDuration = const Duration(seconds: 60),
     this.hudStyle = MiniGameHudStyle.standard,
     this.resultUnitLabel = '0.01초',
@@ -68,7 +69,10 @@ class MiniGameDefinition {
   final String playingInstruction;
   final String scoreLabel;
   final String Function(int score) formatScore;
+  final String Function(int score)? hudScoreFormatter;
   final Duration defaultDuration;
   final MiniGameHudStyle hudStyle;
   final String resultUnitLabel;
+
+  String formatHudScore(int score) => (hudScoreFormatter ?? formatScore)(score);
 }

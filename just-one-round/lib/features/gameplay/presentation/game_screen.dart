@@ -9,7 +9,6 @@ import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
-import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
@@ -244,8 +243,8 @@ class _GameHud extends StatelessWidget {
     return ValueListenableBuilder<MiniGameHudState>(
       valueListenable: game.hud,
       builder: (context, state, child) {
-        if (definition.hudStyle == MiniGameHudStyle.gravitySwitch) {
-          return _GravitySwitchHud(state: state, definition: definition);
+        if (definition.hudStyle == MiniGameHudStyle.survivalTime) {
+          return _SurvivalTimeHud(state: state, definition: definition);
         }
         if (definition.hudStyle == MiniGameHudStyle.failedBakery) {
           return _FailedBakeryHud(state: state, definition: definition);
@@ -547,8 +546,8 @@ class _FailedBakeryHud extends StatelessWidget {
   }
 }
 
-class _GravitySwitchHud extends StatelessWidget {
-  const _GravitySwitchHud({required this.state, required this.definition});
+class _SurvivalTimeHud extends StatelessWidget {
+  const _SurvivalTimeHud({required this.state, required this.definition});
 
   final MiniGameHudState state;
   final MiniGameDefinition definition;
@@ -562,20 +561,34 @@ class _GravitySwitchHud extends StatelessWidget {
           Positioned(
             left: 0,
             right: 0,
-            top: 18,
-            child: Text(
-              GravitySwitchRules.formatHudTime(state.score),
-              key: const Key('gravity-survival-time'),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontFamily: 'Galmuri',
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.w700,
-                shadows: [
-                  Shadow(color: Color(0x99000000), offset: Offset(3, 3)),
-                ],
-              ),
+            top: 12,
+            child: Column(
+              children: [
+                const Text(
+                  'TIME',
+                  style: TextStyle(
+                    color: Color(0xCCFFFFFF),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  definition.formatHudScore(state.score),
+                  key: const Key('survival-time'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'Galmuri',
+                    color: Colors.white,
+                    fontSize: 36,
+                    fontWeight: FontWeight.w700,
+                    shadows: [
+                      Shadow(color: Color(0x99000000), offset: Offset(3, 3)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           if (state.phase == MiniGamePhase.countdown)

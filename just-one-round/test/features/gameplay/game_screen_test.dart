@@ -144,10 +144,39 @@ void main() {
     await tester.pump(const Duration(milliseconds: 32));
 
     expect(find.text('탭해서 중력을 뒤집고 반대편으로 이동하세요'), findsOneWidget);
-    expect(find.byKey(const Key('gravity-survival-time')), findsOneWidget);
+    expect(find.byKey(const Key('survival-time')), findsOneWidget);
     expect(find.text('0.00'), findsOneWidget);
     expect(find.text('0.00초'), findsNothing);
-    expect(find.text('TIME'), findsNothing);
+    expect(find.text('TIME'), findsOneWidget);
+    expect(find.text('SURVIVE'), findsNothing);
+  });
+
+  testWidgets('똥피하기는 생존 시간을 한 번만 표시한다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'attempt-dung-dodge-hud',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+      gameId: 'dung_dodge_v2',
+    );
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            countdownDuration: Duration(seconds: 3),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(milliseconds: 32));
+
+    expect(find.byKey(const Key('survival-time')), findsOneWidget);
+    expect(find.text('TIME'), findsOneWidget);
+    expect(find.text('0.00'), findsOneWidget);
+    expect(find.text('0.00초'), findsNothing);
+    expect(find.text('SURVIVE'), findsNothing);
   });
 
   testWidgets('똥피하기 생존 시간을 ms 단위로 서버에 제출한다', (tester) async {
