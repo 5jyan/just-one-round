@@ -1,0 +1,17 @@
+GENERATION MASTER — the high-resolution sheet is retained as the creative
+source. Runtime frames are preserved at 224×224 and displayed at 56×56 by
+tool/process_number_rush_arcade_v2_assets.py.
+
+Use case: stylized-concept
+Asset type: two-frame pixel-art arcade cabinet EXIT button sprite sheet
+Primary request: create one chunky square mechanical EXIT button in two states, idle on the left and pressed/illuminated on the right, matching the referenced TAP 50 neon arcade cabinet and number-button assets.
+Input images: arcade_background.png and arcade_cabinet_body.png are palette, material, outline, lighting, and pixel-density references only.
+Scene/backdrop: perfectly flat solid #00FF00 chroma-key background.
+Subject: a dark navy square arcade push button with clipped pixel corners, a thick cyan metal rim, tiny magenta highlights, and the word "EXIT" centered on the face. The pressed state must keep identical geometry and alignment while the cyan rim shifts toward hot magenta illumination.
+Style/medium: deliberately chunky 1990s arcade pixel art, effective 2×2 logical-pixel clusters, low detail density, crisp hard edges, slightly awkward industrial construction, no smooth vector curves.
+Composition/framing: exact 2-column by 1-row sheet; one complete centered button per equal square cell; generous equal padding; identical size, center, silhouette, camera, and perspective in both cells; no cell dividers.
+Lighting/mood: dark cyber-arcade machine hardware, restrained neon edge light.
+Color palette: near-black navy body, cyan primary rim, small magenta accents, pale cyan lettering; pressed frame uses hot magenta rim light. Do not use #00FF00 or green inside either sprite.
+Text (verbatim): "EXIT", spelled E-X-I-T once on each button, centered and fully legible in a compact pixel font.
+Constraints: the background must be one uniform #00FF00 with no shadows, gradients, texture, reflections, floor plane, or lighting variation; keep both sprites fully separated from the background with crisp edges; no cast shadow, no contact shadow, no reflection, no watermark.
+Avoid: extra labels, icons, arrows, joysticks, coins, hands, screws outside the button, frame borders, guide marks, cell separators, blur, antialiasing, gradients, glossy 3D rendering, perspective mismatch, cropped pixels, duplicated or missing letters.

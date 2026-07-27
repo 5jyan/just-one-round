@@ -9,6 +9,9 @@ arcade-cabinet asset contract.
   deck, coin door, and base. The normalized body is used behind gameplay.
 - `buttons/`: six generated button states, normalized into the runtime atlas.
 - `fx/`: eight generated electric effects, normalized into the runtime atlas.
+- `exit_button/`: generated two-state cabinet EXIT button preserved as
+  `224×224` runtime masters and displayed at `56×56` at logical position
+  `(33, 523)`.
 - `pipeline-meta.json`: source bounds, runtime rectangles, frame order, and
   display contract.
 

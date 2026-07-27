@@ -73,6 +73,66 @@ def _normalize_sheet(
     return frames
 
 
+def _normalize_exit_buttons() -> list[dict[str, object]]:
+    source_path = SOURCE / "exit_button/sheet-alpha.png"
+    source = Image.open(source_path).convert("RGBA")
+    source_cell_width = source.width // 2
+    frame_names = ("idle", "pressed")
+    frames: list[dict[str, object]] = []
+
+    for index, frame_name in enumerate(frame_names):
+        source_box = (
+            index * source_cell_width,
+            0,
+            (index + 1) * source_cell_width,
+            source.height,
+        )
+        cell = source.crop(source_box)
+        alpha_box = cell.getchannel("A").getbbox()
+        if alpha_box is None:
+            raise ValueError(f"Exit button frame {frame_name} is empty")
+        subject = cell.crop(alpha_box)
+        scale = min(208 / subject.width, 200 / subject.height)
+        target_size = (
+            max(1, round(subject.width * scale)),
+            max(1, round(subject.height * scale)),
+        )
+        subject = subject.resize(target_size, Image.Resampling.LANCZOS)
+        alpha = subject.getchannel("A").point(
+            lambda value: 255 if value >= 96 else 0,
+        )
+        subject = subject.quantize(
+            colors=64,
+            method=Image.Quantize.FASTOCTREE,
+        ).convert("RGBA")
+        subject.putalpha(alpha)
+
+        runtime = Image.new("RGBA", (224, 224), (0, 0, 0, 0))
+        runtime_x = (224 - subject.width) // 2
+        runtime_y = (224 - subject.height) // 2
+        runtime.alpha_composite(subject, (runtime_x, runtime_y))
+        runtime_path = RUNTIME / f"exit_button_{frame_name}.png"
+        runtime.save(runtime_path)
+        frames.append(
+            {
+                "name": frame_name,
+                "source": str(source_path.relative_to(ROOT)),
+                "source_cell": list(source_box),
+                "source_subject_bounds": list(alpha_box),
+                "runtime_subject_bounds": [
+                    runtime_x,
+                    runtime_y,
+                    subject.width,
+                    subject.height,
+                ],
+                "runtime_path": str(runtime_path.relative_to(ROOT)),
+                "runtime_size": [224, 224],
+            },
+        )
+
+    return frames
+
+
 def main() -> None:
     cabinet = Image.open(SOURCE / "cabinet/cabinet-alpha.png").convert("RGBA")
     cabinet = cabinet.resize((360, 640), Image.Resampling.NEAREST)
@@ -94,6 +154,7 @@ def main() -> None:
         output_cell=64,
         padding=2,
     )
+    exit_button_frames = _normalize_exit_buttons()
     metadata = {
         "cabinet_body": {
             "path": "assets/images/number_rush/arcade_cabinet_body.png",
@@ -131,6 +192,17 @@ def main() -> None:
                 "fading_particles",
             ],
             "frames": fx_frames,
+        },
+        "exit_button": {
+            "production": "generated master preserved at 224x224 with area-aware reduction and high-quality 56x56 runtime display",
+            "source": "exit_button/sheet-alpha.png",
+            "layout": "two separate state files",
+            "runtime_cell": [224, 224],
+            "display_size": [56, 56],
+            "display_position": [33, 523],
+            "touch_region": [30, 523, 62, 56],
+            "order": ["idle", "pressed"],
+            "frames": exit_button_frames,
         },
         "rendering": {
             "filter": "nearest-neighbor",

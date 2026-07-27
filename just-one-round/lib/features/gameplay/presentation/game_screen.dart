@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -182,16 +183,22 @@ class _GameScreenState extends ConsumerState<GameScreen>
         fit: StackFit.expand,
         children: [
           GameWidget(game: _game.flameGame),
+          if (_definition.id == 'number_rush' &&
+              !_wasInterrupted &&
+              _pendingResult == null &&
+              _result == null)
+            _NumberRushExitButton(onExit: _leaveGame),
           SafeArea(
             child: Stack(
               fit: StackFit.expand,
               children: [
                 _GameHud(game: _game, definition: _definition),
-                Positioned(
-                  left: 8,
-                  top: 8,
-                  child: _GameExitButton(onExit: _leaveGame),
-                ),
+                if (_definition.id != 'number_rush')
+                  Positioned(
+                    left: 8,
+                    top: 13,
+                    child: _GameExitButton(onExit: _leaveGame),
+                  ),
                 if (_wasInterrupted) _InterruptedOverlay(onHome: _returnHome),
               ],
             ),
@@ -222,6 +229,85 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 }
 
+class _NumberRushExitButton extends StatefulWidget {
+  const _NumberRushExitButton({required this.onExit});
+
+  final VoidCallback onExit;
+
+  @override
+  State<_NumberRushExitButton> createState() => _NumberRushExitButtonState();
+}
+
+class _NumberRushExitButtonState extends State<_NumberRushExitButton> {
+  static const _logicalSize = Size(360, 640);
+  static const _touchRect = Rect.fromLTWH(30, 523, 62, 56);
+  static const _assetSize = 56.0;
+
+  var _isPressed = false;
+
+  void _setPressed(bool value) {
+    if (_isPressed == value || !mounted) return;
+    setState(() => _isPressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = math.min(
+          constraints.maxWidth / _logicalSize.width,
+          constraints.maxHeight / _logicalSize.height,
+        );
+        final viewportLeft =
+            (constraints.maxWidth - _logicalSize.width * scale) / 2;
+        final viewportTop =
+            (constraints.maxHeight - _logicalSize.height * scale) / 2;
+
+        return Stack(
+          children: [
+            Positioned(
+              left: viewportLeft + _touchRect.left * scale,
+              top: viewportTop + _touchRect.top * scale,
+              width: _touchRect.width * scale,
+              height: _touchRect.height * scale,
+              child: Tooltip(
+                message: '길게 눌러 게임 나가기',
+                triggerMode: TooltipTriggerMode.tap,
+                child: Semantics(
+                  button: true,
+                  label: '길게 눌러 게임 나가기',
+                  child: Listener(
+                    onPointerDown: (_) => _setPressed(true),
+                    onPointerUp: (_) => _setPressed(false),
+                    onPointerCancel: (_) => _setPressed(false),
+                    child: GestureDetector(
+                      key: const Key('game-exit-button'),
+                      behavior: HitTestBehavior.opaque,
+                      onLongPress: widget.onExit,
+                      child: Center(
+                        child: Image.asset(
+                          _isPressed
+                              ? 'assets/images/number_rush/exit_button_pressed.png'
+                              : 'assets/images/number_rush/exit_button_idle.png',
+                          key: const Key('number-rush-exit-image'),
+                          width: _assetSize * scale,
+                          height: _assetSize * scale,
+                          fit: BoxFit.fill,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class _GameExitButton extends StatelessWidget {
   const _GameExitButton({required this.onExit});
 
@@ -239,60 +325,15 @@ class _GameExitButton extends StatelessWidget {
           key: const Key('game-exit-button'),
           behavior: HitTestBehavior.opaque,
           onLongPress: onExit,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              boxShadow: [
-                BoxShadow(color: Color(0xFF7D3038), offset: Offset(0, 4)),
-              ],
-            ),
-            child: ClipPath(
-              clipper: const PixelCornerClipper(corner: 6),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundDeep.withValues(alpha: 0.9),
-                  border: Border.all(color: AppColors.danger, width: 2),
-                ),
-                child: const SizedBox(
-                  width: 72,
-                  height: 42,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.door_back_door_outlined,
-                        color: AppColors.danger,
-                        size: 19,
-                      ),
-                      SizedBox(width: 5),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'HOLD',
-                            style: TextStyle(
-                              fontFamily: 'Galmuri',
-                              color: AppColors.textMuted,
-                              fontSize: 7,
-                              fontWeight: FontWeight.w900,
-                              height: 1,
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'EXIT',
-                            style: TextStyle(
-                              fontFamily: 'Galmuri',
-                              color: AppColors.text,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              height: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+          child: const SizedBox(
+            width: 48,
+            height: 48,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: CustomPaint(
+                key: Key('game-exit-icon'),
+                size: Size.square(32),
+                painter: _PixelExitIconPainter(),
               ),
             ),
           ),
@@ -300,6 +341,76 @@ class _GameExitButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PixelExitIconPainter extends CustomPainter {
+  const _PixelExitIconPainter();
+
+  static const _sourceSize = 16.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final door = Paint()
+      ..color = Colors.white
+      ..isAntiAlias = false;
+    final arrow = Paint()
+      ..color = Colors.white
+      ..isAntiAlias = false;
+
+    const doorParts = [
+      Rect.fromLTWH(8, 2, 7, 2),
+      Rect.fromLTWH(13, 2, 2, 12),
+      Rect.fromLTWH(8, 12, 7, 2),
+      Rect.fromLTWH(8, 2, 2, 3),
+      Rect.fromLTWH(8, 11, 2, 3),
+    ];
+    final arrowPath = Path()
+      ..moveTo(1, 7)
+      ..lineTo(2, 7)
+      ..lineTo(2, 6)
+      ..lineTo(3, 6)
+      ..lineTo(3, 5)
+      ..lineTo(4, 5)
+      ..lineTo(4, 4)
+      ..lineTo(6, 4)
+      ..lineTo(6, 6)
+      ..lineTo(5, 6)
+      ..lineTo(5, 7)
+      ..lineTo(12, 7)
+      ..lineTo(12, 10)
+      ..lineTo(5, 10)
+      ..lineTo(5, 11)
+      ..lineTo(6, 11)
+      ..lineTo(6, 13)
+      ..lineTo(4, 13)
+      ..lineTo(4, 12)
+      ..lineTo(3, 12)
+      ..lineTo(3, 11)
+      ..lineTo(2, 11)
+      ..lineTo(2, 10)
+      ..lineTo(1, 10)
+      ..close();
+
+    final scale = size.shortestSide / _sourceSize;
+    final offset = Offset(
+      (size.width - (_sourceSize * scale)) / 2,
+      (size.height - (_sourceSize * scale)) / 2,
+    );
+    canvas
+      ..save()
+      ..translate(offset.dx, offset.dy)
+      ..scale(scale);
+
+    for (final part in doorParts) {
+      canvas.drawRect(part, door);
+    }
+    canvas
+      ..drawPath(arrowPath, arrow)
+      ..restore();
+  }
+
+  @override
+  bool shouldRepaint(_PixelExitIconPainter oldDelegate) => false;
 }
 
 class _GameHud extends StatelessWidget {
@@ -478,6 +589,7 @@ class _AppleGameHud extends StatelessWidget {
                 _HudValue(
                   label: definition.scoreLabel,
                   value: definition.formatScore(state.score),
+                  valueKey: const Key('apple-hud-score'),
                 ),
                 _HudValue(
                   label: 'TIME',
@@ -717,12 +829,14 @@ class _HudValue extends StatelessWidget {
   const _HudValue({
     required this.label,
     required this.value,
+    this.valueKey,
     this.alignEnd = false,
     this.isDanger = false,
   });
 
   final String label;
   final String value;
+  final Key? valueKey;
   final bool alignEnd;
   final bool isDanger;
 
@@ -745,6 +859,7 @@ class _HudValue extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           value,
+          key: valueKey,
           style: TextStyle(
             fontFamily: 'Galmuri',
             color: isDanger ? AppColors.danger : AppColors.text,
@@ -818,8 +933,6 @@ class _ResultPanel extends StatelessWidget {
               letterSpacing: 1.6,
             ),
           ),
-          const SizedBox(height: 24),
-          _ResultStat(label: '기록 단위', value: definition.resultUnitLabel),
           const SizedBox(height: 24),
           if (isSubmitting)
             const Text('오늘 순위를 계산하고 있어요...')
@@ -950,30 +1063,4 @@ class _InterruptedOverlay extends StatelessWidget {
 
 bool shouldInterruptGame(AppLifecycleState state) {
   return state != AppLifecycleState.resumed;
-}
-
-class _ResultStat extends StatelessWidget {
-  const _ResultStat({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontFamily: 'Galmuri',
-            color: AppColors.reward,
-            fontSize: 23,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(label, style: Theme.of(context).textTheme.bodyMedium),
-      ],
-    );
-  }
 }

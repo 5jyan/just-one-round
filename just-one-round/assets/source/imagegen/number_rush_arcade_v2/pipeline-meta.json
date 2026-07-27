@@ -344,6 +344,89 @@
       }
     ]
   },
+  "exit_button": {
+    "production": "generated master preserved at 224x224 with area-aware reduction and high-quality 56x56 runtime display",
+    "source": "exit_button/sheet-alpha.png",
+    "layout": "two separate state files",
+    "runtime_cell": [
+      224,
+      224
+    ],
+    "display_size": [
+      56,
+      56
+    ],
+    "display_position": [
+      33,
+      523
+    ],
+    "touch_region": [
+      30,
+      523,
+      62,
+      56
+    ],
+    "order": [
+      "idle",
+      "pressed"
+    ],
+    "frames": [
+      {
+        "name": "idle",
+        "source": "assets/source/imagegen/number_rush_arcade_v2/exit_button/sheet-alpha.png",
+        "source_cell": [
+          0,
+          0,
+          887,
+          887
+        ],
+        "source_subject_bounds": [
+          116,
+          127,
+          776,
+          756
+        ],
+        "runtime_subject_bounds": [
+          8,
+          13,
+          208,
+          198
+        ],
+        "runtime_path": "assets/images/number_rush/exit_button_idle.png",
+        "runtime_size": [
+          224,
+          224
+        ]
+      },
+      {
+        "name": "pressed",
+        "source": "assets/source/imagegen/number_rush_arcade_v2/exit_button/sheet-alpha.png",
+        "source_cell": [
+          887,
+          0,
+          1774,
+          887
+        ],
+        "source_subject_bounds": [
+          105,
+          127,
+          764,
+          756
+        ],
+        "runtime_subject_bounds": [
+          8,
+          12,
+          208,
+          199
+        ],
+        "runtime_path": "assets/images/number_rush/exit_button_pressed.png",
+        "runtime_size": [
+          224,
+          224
+        ]
+      }
+    ]
+  },
   "rendering": {
     "filter": "nearest-neighbor",
     "logical_art_pixel": "approximately 2x2",

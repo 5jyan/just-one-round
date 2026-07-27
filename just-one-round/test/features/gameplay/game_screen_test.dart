@@ -58,6 +58,8 @@ void main() {
 
     expect(find.text('한 판 종료!'), findsOneWidget);
     expect(find.byKey(const Key('final-score')), findsOneWidget);
+    expect(find.text('0.01초'), findsNothing);
+    expect(find.text('기록 단위'), findsNothing);
     expect(find.text('홈으로'), findsOneWidget);
     expect(find.byKey(const Key('game-end-title')), findsOneWidget);
     expect(
@@ -149,6 +151,94 @@ void main() {
     expect(find.text('0.00초'), findsNothing);
     expect(find.text('TIME'), findsOneWidget);
     expect(find.text('SURVIVE'), findsNothing);
+  });
+
+  testWidgets('사과 HUD 나가기 아이콘과 사과 개수는 같은 높이에 표시된다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'attempt-apple-hud',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+      gameId: 'apple_game_v2',
+    );
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            countdownDuration: Duration(seconds: 3),
+          ),
+        ),
+      ),
+    );
+
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 250)),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+
+    final exitIcon = find.byKey(const Key('game-exit-icon'));
+    final appleScore = find.byKey(const Key('apple-hud-score'));
+    expect(exitIcon, findsOneWidget);
+    expect(appleScore, findsOneWidget);
+    expect(tester.getCenter(appleScore).dy - tester.getCenter(exitIcon).dy, 1);
+  });
+
+  testWidgets('넘버러시는 게임기 하단의 전용 EXIT 버튼을 사용한다', (tester) async {
+    tester.view
+      ..physicalSize = const Size(360, 640)
+      ..devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view
+        ..resetPhysicalSize()
+        ..resetDevicePixelRatio();
+    });
+
+    const attempt = PlayAttempt(
+      id: 'attempt-number-rush-exit',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+      gameId: 'number_rush',
+    );
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            countdownDuration: Duration(seconds: 3),
+          ),
+        ),
+      ),
+    );
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 250)),
+    );
+    await tester.pump();
+
+    final exitButton = find.byKey(const Key('game-exit-button'));
+    final exitImage = find.byKey(const Key('number-rush-exit-image'));
+    expect(find.byKey(const Key('game-exit-icon')), findsNothing);
+    expect(exitButton, findsOneWidget);
+    expect(exitImage, findsOneWidget);
+    expect(tester.getTopLeft(exitButton), const Offset(30, 523));
+    expect(tester.getSize(exitButton), const Size(62, 56));
+    expect(tester.getTopLeft(exitImage), const Offset(33, 523));
+    expect(tester.getSize(exitImage), const Size.square(56));
+
+    final gesture = await tester.startGesture(tester.getCenter(exitButton));
+    await tester.pump();
+    expect(
+      (tester.widget<Image>(exitImage).image as AssetImage).assetName,
+      'assets/images/number_rush/exit_button_pressed.png',
+    );
+    await gesture.up();
+    await tester.pump();
+    expect(
+      (tester.widget<Image>(exitImage).image as AssetImage).assetName,
+      'assets/images/number_rush/exit_button_idle.png',
+    );
   });
 
   testWidgets('똥피하기는 생존 시간을 한 번만 표시한다', (tester) async {
@@ -286,6 +376,13 @@ void main() {
     await tester.pump();
 
     final exitButton = find.byKey(const Key('game-exit-button'));
+    final exitIcon = find.byKey(const Key('game-exit-icon'));
+    expect(exitIcon, findsOneWidget);
+    expect(tester.getSize(exitButton), const Size.square(48));
+    expect(tester.getSize(exitIcon), const Size.square(32));
+    expect(tester.getTopLeft(exitButton), const Offset(8, 13));
+    expect(tester.getTopLeft(exitIcon), const Offset(16, 29));
+
     await tester.tap(exitButton);
     await tester.pump();
 

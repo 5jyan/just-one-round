@@ -52,6 +52,7 @@ class NumberRushGame extends FlameGame
   var _playingElapsed = 0.0;
   var _lastPublishedCentisecond = -1;
   var _hasFinished = false;
+  var _boardLoaded = false;
 
   @override
   Color backgroundColor() => const Color(0xFF030713);
@@ -87,6 +88,7 @@ class NumberRushGame extends FlameGame
       fxSprites: _spritesFromSheet(fxSheet, columns: 4, rows: 2, cellSize: 64),
     );
     await world.add(_board);
+    _boardLoaded = true;
 
     if (countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
@@ -203,8 +205,10 @@ class NumberRushGame extends FlameGame
     if (_hasFinished) return;
     _hasFinished = true;
     _phase = MiniGamePhase.finished;
-    _board.isPlaying = false;
-    _publishHud(force: true);
+    if (_boardLoaded) {
+      _board.isPlaying = false;
+      _publishHud(force: true);
+    }
     pauseEngine();
   }
 
@@ -672,7 +676,6 @@ class _NumberRushBoard extends PositionComponent {
       ..color = const Color(0xFF64268F)
       ..strokeWidth = 3;
     canvas.drawPath(deck, _stroke);
-    _drawVent(canvas, const Rect.fromLTWH(30, 526, 62, 54), horizontal: true);
     _drawVent(canvas, const Rect.fromLTWH(268, 526, 62, 54), horizontal: true);
     _drawScrew(canvas, const Offset(22, 522), const Color(0xFF39F3FF));
     _drawScrew(canvas, const Offset(338, 522), const Color(0xFFFF4FC3));
