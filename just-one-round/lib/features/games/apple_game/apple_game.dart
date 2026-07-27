@@ -56,7 +56,7 @@ class AppleGame extends FlameGame
     implements MiniGameController {
   AppleGame({
     required this.onFinished,
-    this.gameDuration = const Duration(seconds: 120),
+    this.gameDuration = AppleGameRules.gameDuration,
     this.countdownDuration = const Duration(seconds: 3),
     this.assetSet = AppleGameAssetSet.midnightOrchard,
     Random? random,

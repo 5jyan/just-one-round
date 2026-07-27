@@ -66,7 +66,7 @@ void main() {
     expect(definition.scoreLabel, 'APPLES');
     expect(definition.formatScore(42), '42개');
     expect(definition.countdownInstruction, contains('합을 10'));
-    expect(definition.defaultDuration, const Duration(seconds: 120));
+    expect(definition.defaultDuration, const Duration(seconds: 140));
     expect(definition.hudStyle.name, 'appleGame');
   });
 

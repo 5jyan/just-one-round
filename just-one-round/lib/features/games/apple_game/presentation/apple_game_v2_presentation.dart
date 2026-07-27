@@ -3,8 +3,8 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 const appleGameV2Presentation = GamePresentationDefinition(
   id: 'apple_game_v2',
   loadingLabel: '사과나무 심는 중...',
-  durationLabel: '2분',
-  guideDurationText: '2분 동안 도전할 수 있어요.',
+  durationLabel: '2분 20초',
+  guideDurationText: '2분 20초 동안 도전할 수 있어요.',
   homeAspectRatio: 0.78,
   homePreview: GameHomePreviewKind.appleGameV2,
   guidePages: [
@@ -42,8 +42,8 @@ const appleGameV2Presentation = GamePresentationDefinition(
       visual: GameGuideVisualKind.appleScoring,
     ),
     GameGuidePageDefinition(
-      title: '2분 동안 최대한 많이',
-      description: '120초가 끝나면 지운 사과 수가 즉시 기록됩니다. 더 많은 사과를 지울수록 오늘의 랭킹이 올라갑니다.',
+      title: '2분 20초 동안 최대한 많이',
+      description: '140초가 끝나면 지운 사과 수가 즉시 기록됩니다. 더 많은 사과를 지울수록 오늘의 랭킹이 올라갑니다.',
       detail:
           '일시정지는 지원하지 않아요. 게임 중 홈으로 나가거나 앱을 닫거나 백그라운드로 보내면 이번 기회가 소진되고 기록도 제출되지 않습니다.',
       visual: GameGuideVisualKind.appleResult,

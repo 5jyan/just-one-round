@@ -7,10 +7,11 @@ import 'package:just_one_round/features/games/apple_game/apple_game.dart';
 import 'package:just_one_round/features/games/apple_game/domain/apple_game_rules.dart';
 
 void main() {
-  test('게임 보드는 8열 14행이며 최대 112개 사과를 센다', () {
+  test('게임 보드는 8열 13행이며 최대 104개 사과를 센다', () {
     expect(AppleGameRules.columnCount, 8);
-    expect(AppleGameRules.rowCount, 14);
-    expect(AppleGameRules.maximumScore, 112);
+    expect(AppleGameRules.rowCount, 13);
+    expect(AppleGameRules.maximumScore, 104);
+    expect(AppleGameRules.gameDuration, const Duration(seconds: 140));
   });
 
   test('드래그 방향과 관계없이 직사각형 합계를 계산한다', () {

@@ -83,7 +83,7 @@ void main() {
       ),
       (
         progress: 'HOW TO PLAY · 5/5',
-        title: '2분 동안 최대한 많이',
+        title: '2분 20초 동안 최대한 많이',
         copy: '기록도 제출되지 않습니다',
       ),
     ];
@@ -247,7 +247,7 @@ class _AppleGuideRepository extends PreviewDailyGameRepository {
       version: 1,
       displayName: '사과게임',
       description: '달빛 과수원에서 사과 숫자의 합을 10으로 만드세요.',
-      durationSeconds: 120,
+      durationSeconds: 140,
     ),
     attempts: const [],
     adAttemptAvailable: false,

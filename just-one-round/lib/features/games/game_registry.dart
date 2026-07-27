@@ -67,7 +67,7 @@ abstract final class GameRegistry {
       playingInstruction: '합이 10이면 제거 · 많이 묶을수록 고득점!',
       scoreLabel: 'APPLES',
       formatScore: AppleGameRules.formatApples,
-      defaultDuration: const Duration(seconds: 120),
+      defaultDuration: AppleGameRules.gameDuration,
       hudStyle: MiniGameHudStyle.appleGame,
       resultUnitLabel: '제거한 사과',
     ),

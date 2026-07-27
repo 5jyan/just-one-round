@@ -584,7 +584,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       version: 1,
       displayName: '사과게임',
       description: '달빛 과수원에서 사과 숫자의 합을 10으로 만들어 최대한 많이 지우세요.',
-      durationSeconds: 120,
+      durationSeconds: 140,
     ),
     'number_rush' => const TodayGame(
       id: 'number_rush',

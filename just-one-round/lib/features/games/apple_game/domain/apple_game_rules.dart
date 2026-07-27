@@ -20,9 +20,10 @@ class AppleCellRange {
 }
 
 abstract final class AppleGameRules {
-  static const rowCount = 14;
+  static const rowCount = 13;
   static const columnCount = 8;
   static const targetSum = 10;
+  static const gameDuration = Duration(seconds: 140);
   static const maximumScore = rowCount * columnCount;
 
   static List<List<int?>> createBoard(Random random) {

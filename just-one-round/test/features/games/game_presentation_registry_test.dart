@@ -56,10 +56,11 @@ void main() {
   });
 
   test('사과게임 메인 화면은 세로형 실기 캡처 비율을 사용한다', () {
-    expect(
-      GamePresentationRegistry.forId('apple_game_v2').homeAspectRatio,
-      0.78,
-    );
+    final presentation = GamePresentationRegistry.forId('apple_game_v2');
+
+    expect(presentation.homeAspectRatio, 0.78);
+    expect(presentation.durationLabel, '2분 20초');
+    expect(presentation.guideDurationText, '2분 20초 동안 도전할 수 있어요.');
   });
 
   test('알 수 없는 ID는 지원하지 않는 화면으로 처리한다', () {

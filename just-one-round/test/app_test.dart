@@ -52,7 +52,7 @@ void main() {
     final attempt = await repository.claimDailyAttempt(state.playDate);
 
     expect(state.game?.displayName, '사과게임');
-    expect(state.game?.durationSeconds, 120);
+    expect(state.game?.durationSeconds, 140);
     expect(attempt.gameId, 'apple_game_v2');
   });
 
