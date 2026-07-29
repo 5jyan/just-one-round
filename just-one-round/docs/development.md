@@ -18,7 +18,7 @@ npm run supabase:start
 npm run supabase:reset
 ```
 
-iOS Simulator는 기본값인 `http://127.0.0.1:54321`로 바로 연결한다. Android Emulator는 호스트 주소가 다르므로 실행할 때 지정한다.
+iOS Simulator도 실제 Supabase 저장소를 사용하며, 기본값인 `http://127.0.0.1:54321`로 로컬 서버에 바로 연결한다. Android Emulator는 호스트 주소가 다르므로 실행할 때 지정한다.
 
 ```sh
 flutter run -d <android-emulator-id> \
@@ -32,6 +32,12 @@ flutter run -d <android-emulator-id> \
 포함된 공개 publishable key를 자동 사용한다. 필요하면 기존
 `SUPABASE_URL`/`SUPABASE_ANON_KEY` dart-define으로 어느 빌드에서든 덮어쓸 수
 있다.
+
+하드코딩된 미리보기 저장소가 필요할 때만 다음 플래그를 명시한다.
+
+```sh
+flutter run -d <device-id> --dart-define=USE_PREVIEW_REPOSITORY=true
+```
 
 ## iOS Simulator
 

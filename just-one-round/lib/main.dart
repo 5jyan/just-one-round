@@ -19,6 +19,10 @@ Future<void> main() async {
   });
   const configuredSupabaseUrl = String.fromEnvironment('SUPABASE_URL');
   const configuredSupabaseKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  const usePreviewRepository = bool.fromEnvironment(
+    'USE_PREVIEW_REPOSITORY',
+    defaultValue: false,
+  );
   final appBuildInfo = await readAppBuildInfo();
   final supabaseUrl = configuredSupabaseUrl.isNotEmpty
       ? configuredSupabaseUrl
@@ -38,7 +42,7 @@ Future<void> main() async {
       'x-app-platform': appBuildInfo.platform,
     },
   );
-  final repository = await isIosSimulator()
+  final repository = usePreviewRepository
       ? PreviewDailyGameRepository(testMode: true)
       : SupabaseDailyGameRepository(Supabase.instance.client);
   final rewardedAdService = AdMobRewardedAdService(
