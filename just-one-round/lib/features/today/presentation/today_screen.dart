@@ -188,7 +188,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                '실제 기록 + NPC ${result.participants}개 중 '
+                '실제 기록 ${result.participants}개 중 '
                 '${result.rank}위 · 상위 ${result.topPercent}%',
                 key: const Key('previous-result-rank'),
                 style: const TextStyle(
@@ -1289,7 +1289,7 @@ class _RankingSheet extends ConsumerWidget {
               Expanded(
                 child: _RankSummaryValue(
                   value: '${result.participants}개',
-                  label: '실제 기록 + NPC',
+                  label: '실제 기록',
                 ),
               ),
               Container(width: 1, height: 42, color: AppColors.surfaceLight),
@@ -1310,7 +1310,10 @@ class _RankingSheet extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 18),
-          const _RankingSectionTitle(eyebrow: 'REAL + NPC', title: '전체 비교 랭킹'),
+          const _RankingSectionTitle(
+            eyebrow: 'REAL PLAYERS',
+            title: '전체 비교 랭킹',
+          ),
           const SizedBox(height: 10),
           Expanded(
             child: rankingItems.isEmpty

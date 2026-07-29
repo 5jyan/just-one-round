@@ -164,6 +164,9 @@ void main() {
 
     expect(find.text('DAILY LEADERBOARD'), findsOneWidget);
     expect(find.text('24개'), findsOneWidget);
+    expect(find.text('실제 기록'), findsOneWidget);
+    expect(find.text('REAL PLAYERS'), findsOneWidget);
+    expect(find.textContaining('NPC'), findsNothing);
     expect(find.text('작은공룡'), findsOneWidget);
     expect(find.text('5.39초'), findsWidgets);
     expect(find.text('전체'), findsNothing);
@@ -245,7 +248,7 @@ void main() {
     );
     expect(find.text('어제의 최종 결과'), findsOneWidget);
     expect(find.text('똥피하기'), findsOneWidget);
-    expect(find.text('실제 기록 + NPC 24개 중 8위 · 상위 34%'), findsOneWidget);
+    expect(find.text('실제 기록 24개 중 8위 · 상위 34%'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('acknowledge-previous-result')));
     await tester.pumpAndSettle();
