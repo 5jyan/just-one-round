@@ -1,0 +1,40 @@
+{
+  "asset": "snake_scale_pattern_candidate",
+  "status": "integrated",
+  "generation": {
+    "tool": "built-in image_gen",
+    "intent": "new raster asset",
+    "style_reference": "assets/images/midnight_snake/snake_head_slither_atlas.png",
+    "selected_raw": "raw-tile.png",
+    "rejected_raw": "rejected-star-draft.png",
+    "rejection_reason": "Marks read as stars rather than snake scales"
+  },
+  "processing": {
+    "script": "process_candidate.py",
+    "chroma_key": "#ec07e7 sampled from generated border",
+  "motif_crop": [427, 142, 508, 197],
+  "motif_size_art_pixels": [4, 3],
+  "motif_size_runtime_pixels": [8, 6],
+  "authored_grid": [16, 16],
+    "display_scale": 2,
+    "runtime_candidate": [32, 32],
+    "runtime_path": "assets/images/midnight_snake/snake_scale_pattern.png",
+    "resampling": "nearest-neighbor",
+    "palette_rgba": {
+      "dark": [76, 38, 10, 255],
+      "amber": [220, 152, 25, 255],
+      "cream": [255, 237, 164, 255]
+    }
+  },
+  "qc": {
+    "transparent_background": true,
+    "art_pixel": "2x2 logical pixels",
+    "seamless_by_wrapped_assembly": true,
+    "runtime_code_modified": true,
+    "runtime_loader_verified": true,
+    "simulator_screenshot": "qc/simulator-applied.png",
+    "gameplay_preview": "qc/gameplay-preview.png",
+    "repeat_preview": "qc/repeat-4x.png",
+    "enlarged_preview": "qc/tile-8x.png"
+  }
+}

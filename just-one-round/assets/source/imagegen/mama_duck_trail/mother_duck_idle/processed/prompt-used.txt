@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: runtime pixel-art game character master sprite
+Primary request: Create one mother duck idle master for the mobile game "엄마, 어디가".
+Reference role: The accepted baby duck master locks the exact coarse pixel grid, dark plum-brown outline thickness, compact cluster language, light direction, and yellow/orange family. Match its apparent pixel size, not its childish proportions or dopey personality.
+Subject: A conventionally warm and beautiful mother duck, not ugly-cute. Soft balanced duck anatomy, calm kind eyes, neat straight bill, gently protective posture, and one broad wing slightly opened as if ready to shelter her baby. Mature cream-gold feathers with a restrained warm highlight.
+Pose/view: Single static idle, full body, front 3/4 top-down game view, feet on one baseline, centered with generous padding.
+Pixel style: Coarse true pixel art designed to reduce to a 32×32 cell and display at 64×64. Thick staircase silhouette matching the baby duck, 2–3 shading levels, 9–12 colors, no antialiasing.
+Background: Perfectly flat solid #FF00FF chroma-key background.
+Constraints: One character only, healthy symmetrical anatomy, complete silhouette in central 68%. No floor, shadow, reflection, text, border, grid, props, detached feathers, gradients, blur, or #FF00FF in the character.

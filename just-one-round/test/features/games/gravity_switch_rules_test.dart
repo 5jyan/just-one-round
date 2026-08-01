@@ -1,9 +1,33 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flame/components.dart';
+import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/gravity_switch/gravity_switch_game.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
 
 void main() {
+  test('한 판은 최대 5분이다', () {
+    expect(GravitySwitchRules.gameDuration, const Duration(minutes: 5));
+  });
+
+  test('시간 상한 결과는 충돌 없이 한 번만 제출한다', () {
+    final results = <GameResult>[];
+    final game = GravitySwitchGame(
+      gameDuration: const Duration(milliseconds: 20),
+      countdownDuration: Duration.zero,
+      onFinished: results.add,
+    );
+
+    game.reachTimeLimitForTesting();
+    game.reachTimeLimitForTesting();
+
+    expect(results, hasLength(1));
+    expect(results.single.score, 20);
+    expect(results.single.duration, const Duration(milliseconds: 20));
+    expect(results.single.collisions, 0);
+    expect(results.single.endType, GameEndType.timeUp);
+    game.disposeController();
+  });
+
   test('생존 시간이 늘수록 이동 속도가 증가한다', () {
     expect(GravitySwitchRules.scrollSpeed(0), 160);
     expect(GravitySwitchRules.scrollSpeed(1), 161.5);
@@ -23,6 +47,10 @@ void main() {
     );
     expect(tallResolution.x, 360);
     expect(tallResolution.y, closeTo(782.686, 0.001));
+    expect(
+      GravitySwitchGame.viewportResolutionForCanvas(Vector2(1080, 2400)),
+      Vector2(360, 800),
+    );
     expect(
       GravitySwitchGame.viewportResolutionForCanvas(Vector2(360, 900)),
       Vector2(360, GravitySwitchGame.maxVisibleHeight),

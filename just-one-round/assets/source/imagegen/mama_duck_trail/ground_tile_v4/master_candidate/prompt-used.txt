@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: one review-ready top-down pixel-art marsh ground tile
+Input images: Image 1 is the current marsh environment reference for palette and setting; Image 2 is the approved mother-duck master reference for the new coarser pixel cluster scale and warm outline language.
+Primary request: Redesign one basic nighttime marsh floor tile for the mobile game "엄마, 어디가".
+View: Exact orthographic top-down ground surface with no perspective side faces.
+Surface: Dark warm-brown compact mud with a few broad irregular soil clumps, two or three small rounded pebbles, and only a trace of muted olive moss. Keep the central 60% quiet and low-contrast so large white duck footprints remain immediately readable.
+Style: Deliberate coarse true pixel art matching the approved mother duck's chunky 2-logical-pixel cluster language. Use larger connected texture masses, restrained detail, and a compact 14–18 color night palette. No scattered one-pixel noise.
+Tiling: One single square tile filling the entire canvas. It must repeat seamlessly in all four directions: the left edge continues into the right edge and the top edge continues into the bottom edge. Keep edge values and material density compatible, with no frame, border, gutter, corner vignette, or obvious central island.
+Lighting: Soft moonlit upper-left highlight, low contrast, darker than the characters.
+Constraints: Opaque full-canvas tile only. No puddle, water, reeds, roots, flowers, footprints, characters, props, text, symbols, grid, shadow, blur, antialias smoothing, or magenta background.

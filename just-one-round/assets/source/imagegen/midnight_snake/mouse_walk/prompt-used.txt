@@ -1,0 +1,24 @@
+Create a runtime production sprite sheet for a 2D mobile pixel-art game.
+
+Use case: stylized-concept
+Asset type: top-down creature walk sprite atlas
+Visual references: use the two images just shown as style and runtime-scale references—the existing midnight snack food atlas locks the chunky pixel density, dark brown-black outline, compact shading, and warm low-light palette; the simulator screenshot locks the 32x32 board-cell scale and top-down kitchen context.
+
+Canvas and grid:
+- Perfectly flat solid #FF00FF magenta background, uniform with no gradients, shadows, texture, or lighting variation.
+- Exactly 4 rows by 2 columns of eight equal invisible cells.
+- No visible grid, borders, separators, labels, text, UI, watermark, floor, cast shadow, or detached effects.
+- Row order: row 1 mouse facing down, row 2 facing left, row 3 facing right, row 4 facing up.
+- Two coherent walking frames per direction: frame 1 left paws forward, frame 2 right paws forward with a tiny tail sway.
+
+Subject:
+- The exact same tiny house mouse in all eight cells.
+- Top-down slightly three-quarter readable game view, full body visible.
+- Dusty gray-brown chunky body, oversized round muted-pink ears, pointed snout, thin curled tail, tiny black eyes with a mildly blank dopey expression.
+- Slightly awkward and cute, not polished or glossy.
+- Strong compact silhouette and dark brown-black 1-cluster outline matching the reference food sprites.
+- Restrained 3-to-5 color shading, deliberate chunky pixels, no antialiasing, no dithering noise, no fur microtexture.
+- Subject should occupy about 58% to 64% of each cell, stay centered, and remain the same camera distance and anatomical scale in every frame.
+- Entire ears, paws, snout, and tail must fit fully inside each cell with generous magenta padding on all four sides; nothing may touch or cross any cell edge.
+- The tail must stay tucked close to the body so it is never clipped.
+- No food, snake, cheese, accessories, clothing, scenery, or extra animals.

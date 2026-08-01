@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "mother_duck_v4",
+  "processing": {
+    "cell_size": 36,
+    "fit_scale": 0.84,
+    "trim_border": 4,
+    "edge_clean_depth": 3,
+    "align": "feet",
+    "shared_scale": true,
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "component_padding": 1,
+    "min_component_area": 1,
+    "edge_touch_margin": 0
+  },
+  "output_origin": [
+    18.0,
+    34
+  ],
+  "reference": {
+    "target": "asset",
+    "mode": "single",
+    "rows": 1,
+    "cols": 1,
+    "body_scale_mean": 0.5584202531919531,
+    "body_scale_cv": 0.0,
+    "anchor_y_mean": 0.8731942215088283
+  },
+  "qc": {
+    "max_body_scale_drift": 0.1
+  }
+}

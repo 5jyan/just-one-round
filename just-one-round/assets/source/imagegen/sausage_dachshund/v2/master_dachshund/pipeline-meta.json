@@ -1,0 +1,17 @@
+{
+  "asset": "dachshund_master",
+  "status": "candidate_master",
+  "pipeline": "built-in image_gen reference edit plus local chroma-key removal",
+  "reference": "user-reference.png",
+  "raw": "raw-master.png",
+  "transparent": "master-transparent.png",
+  "raw_dimensions": [1254, 1254],
+  "view": "strict right-facing side profile",
+  "style": "clean HD 2D cel animation",
+  "background_key_requested": "#FF00FF",
+  "background_key_detected": "#F505E7",
+  "transparent_pixels": 1477265,
+  "partially_transparent_pixels": 2710,
+  "total_pixels": 1572516,
+  "runtime_integrated": false
+}

@@ -1,0 +1,9 @@
+Exactly 6 equal frames in a 2x3 grid of the accepted baby duck celebrating:
+anticipation, small hop with opening wings, peak hop, landing squash,
+excited flap, and a proud dopey settle. Preserve the accepted yellow baby-duck
+identity, round proportions, sparse face, tiny feet, and clueless cute
+expression. Crisp authored pixel art with 12-16 colors, hard pixel clusters,
+no antialiasing, no blur, no subpixel shading. Same camera distance, stable
+center and foot baseline, central safe area, generous padding. Uniform solid
+#FF00FF background. No detached effects, confetti, shadows, labels, borders,
+guide marks, or edge crossing. Beak uses the same pixel scale as the body.

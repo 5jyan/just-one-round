@@ -1,0 +1,219 @@
+{
+  "status": "integrated",
+  "preserved_behavior": {
+    "rules": true,
+    "scoring": true,
+    "lives": true,
+    "controls": true,
+    "failure_duration_seconds": 1.0,
+    "tile_selection": "indices 0-4 mud, 5-7 puddles"
+  },
+  "art_contract": {
+    "canonical_art_pixel": "2 logical pixels",
+    "viewport": [
+      360,
+      640
+    ],
+    "filtering": "nearest-neighbor",
+    "wolf_runtime_palette_adjustment": {
+      "brightness": 1.08,
+      "contrast": 1.04,
+      "reason": "separate the gray-brown silhouette from warm mud"
+    }
+  },
+  "runtime": {
+    "marsh_tiles_atlas.png": {
+      "size": [
+        108,
+        108
+      ],
+      "layout": [
+        3,
+        3
+      ],
+      "cell": [
+        36,
+        36
+      ],
+      "display": [
+        72,
+        72
+      ],
+      "palette_colors": 24,
+      "tiles": [
+        {
+          "index": 0,
+          "sha256": "a0c25316708d08e6bff5cc3df664a1baff1a09d30e02ce77b47731cb20847052",
+          "periodic_edges": true
+        },
+        {
+          "index": 1,
+          "sha256": "a68f854cdf1260f4e1fe6c2e0a31b575017617b26c1ecbad2d7235704962e4a8",
+          "periodic_edges": true
+        },
+        {
+          "index": 2,
+          "sha256": "bc371b4b4bbf2027649dd8f262b1699ee14167d5a7c903140dacd726aca0cf14",
+          "periodic_edges": true
+        },
+        {
+          "index": 3,
+          "sha256": "047848e8901ca9119d9dfc342549e54dab28beb5272ae41ba5f92cec35b9ae42",
+          "periodic_edges": true
+        },
+        {
+          "index": 4,
+          "sha256": "c60cd795283bab6b4e86b34aeaf1040aeca6f53d65f5624bd1a3d86fff5ec24a",
+          "periodic_edges": true
+        },
+        {
+          "index": 5,
+          "sha256": "90980afeb8bda951a5e7e6a716b28fa4474f5aaacf5f3272c0f7b61dfff6f8e9",
+          "periodic_edges": true
+        },
+        {
+          "index": 6,
+          "sha256": "50b51ffd1b8ddfd0778ba2ccfd9fce9e5176b6995370d7a8cfc6f284e2db73ed",
+          "periodic_edges": true
+        },
+        {
+          "index": 7,
+          "sha256": "d689126823b438f7f50f75dc1787236a67cfa1d994fc6acfaea15a1592563474",
+          "periodic_edges": true
+        },
+        {
+          "index": 8,
+          "sha256": "cade2808e1a0ba3625062406e7d033ecc97915839e91daeaba091661a870e05a",
+          "periodic_edges": true
+        }
+      ]
+    },
+    "wolf_idle.png": {
+      "size": [
+        48,
+        48
+      ],
+      "display": [
+        96,
+        96
+      ],
+      "bbox": [
+        8,
+        4,
+        40,
+        46
+      ],
+      "feet_baseline_y": 46,
+      "sha256": "ebdda2d8db0fa632bc7988e25918f87925315400c81cfb75004d655fb32e18ee"
+    },
+    "wolf_failure_sheet.png": {
+      "size": [
+        144,
+        96
+      ],
+      "layout": [
+        2,
+        3
+      ],
+      "cell": [
+        48,
+        48
+      ],
+      "display": [
+        96,
+        96
+      ],
+      "total_duration_seconds": 1.0,
+      "frames": [
+        {
+          "index": 1,
+          "bbox": [
+            4,
+            12,
+            44,
+            46
+          ],
+          "feet_baseline_y": 46,
+          "sha256": "209017fea162d4b62f883ea6730a78cf57775f529445fedd3a43ba2f3a3c56e3"
+        },
+        {
+          "index": 2,
+          "bbox": [
+            5,
+            7,
+            42,
+            46
+          ],
+          "feet_baseline_y": 46,
+          "sha256": "13717c8fb3371d7961ace4ab7940ad81c7b4d73df0ddab216767011b838d9612"
+        },
+        {
+          "index": 3,
+          "bbox": [
+            7,
+            5,
+            41,
+            46
+          ],
+          "feet_baseline_y": 46,
+          "sha256": "928382db000a7d7ae1a10e2e72feb1d4d764dbae32c894a2180637d747936a67"
+        },
+        {
+          "index": 4,
+          "bbox": [
+            7,
+            8,
+            41,
+            46
+          ],
+          "feet_baseline_y": 46,
+          "sha256": "3cf952062e727ad76fd6cd0587f9be5fe41908252bbcac288660e06f0c026245"
+        },
+        {
+          "index": 5,
+          "bbox": [
+            7,
+            7,
+            40,
+            46
+          ],
+          "feet_baseline_y": 46,
+          "sha256": "4fa6b1e122193760a63633f0fe472a63835a84ed260d5f707ef2bc70820415d8"
+        },
+        {
+          "index": 6,
+          "bbox": [
+            6,
+            5,
+            41,
+            46
+          ],
+          "feet_baseline_y": 46,
+          "sha256": "5eb12b9194dff76476947bb0bcfafa4b24be55d7a3426e3b690c5e3e7a750679"
+        }
+      ]
+    }
+  },
+  "old_runtime_hashes": {
+    "marsh_tiles_atlas.png": "2f4c5ca8a5031015d302213d79149ca7c7a69f5b0cc4d2d3e58d8321780ac6dc",
+    "wolf_idle.png": "5e824d8adc4ef9aa9c2077cd18bfc61ac614327938a085bfc450485c25d8a67c",
+    "wolf_failure_sheet.png": "56fa1dcb5bef5f89d3b541675d78d1f020ec9c5926b3e440341d7f602f7bbe2d"
+  },
+  "sources": {
+    "tile_master": "ground_tile_v4/master/ground_tile_master.png",
+    "tile_master_prompt": "ground_tile_v4/master_candidate/prompt-used.txt",
+    "tile_atlas_prompt": "ground_tile_v4/atlas/prompt-used.txt",
+    "tile_atlas_raw": "ground_tile_v4/atlas/raw/raw-atlas.png",
+    "wolf_master": "wolf_v4/master/wolf_idle_master.png",
+    "wolf_master_prompt": "wolf_v4/master_candidate/prompt-used.txt",
+    "wolf_failure_prompt": "wolf_v4/failure/prompt-used.txt",
+    "wolf_failure_raw": "wolf_v4/failure/raw/raw-sheet.png",
+    "wolf_processor": "wolf_v4/failure/processed/pipeline-meta.json"
+  },
+  "recomposed": [
+    "guide_observe.png",
+    "guide_recall.png",
+    "guide_failure.png",
+    "home_gameplay_hero.png"
+  ]
+}

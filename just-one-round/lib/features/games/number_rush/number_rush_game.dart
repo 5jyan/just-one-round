@@ -167,7 +167,10 @@ class NumberRushGame extends FlameGame
       pauseEngine();
       onFinished(
         GameResult(
-          score: NumberRushRules.rankingScoreFromElapsedMs(elapsedMs),
+          score: NumberRushRules.rankingScoreForResult(
+            elapsedMs: elapsedMs,
+            timedOut: timedOut,
+          ),
           starsCollected: 0,
           collisions: timedOut ? 1 : 0,
           duration: Duration(milliseconds: elapsedMs),

@@ -1,0 +1,14 @@
+Create one production master specimen sheet for a top-down 2D mobile game sprite system.
+Use gameplay-concept-v4.png as the visual reference for the smooth-haired chestnut
+dachshund identity and grilled sausage.
+
+Sheet: exactly 2 rows x 3 columns on solid #FF00FF.
+Row 1: head/shoulders facing right with two front legs and a centered left-edge
+connector; straight horizontal body; compact left-to-bottom 90-degree elbow.
+Row 2: straight vertical body; hip/tail facing left with two rear legs and a centered
+right-edge connector; grilled meat sausage with blunt ends, grill marks, and steam.
+
+The dog has exactly four legs total, no clothing, no middle legs. Neck and body use
+one constant connection width. No seams, gaps, broad curves, or S-curves. Every
+non-connector detail remains inside its own cell. No text, labels, UI, borders,
+guides, floor, or shadows.

@@ -1,0 +1,84 @@
+{
+  "version": "trump_v3",
+  "card": [
+    72,
+    100
+  ],
+  "suitCell": [
+    12,
+    12
+  ],
+  "smallSuitCell": [
+    10,
+    10
+  ],
+  "smallSuitGlyph": [
+    8,
+    8
+  ],
+  "smallSuitClubSource": "suit_icons_small_v5-20260801-113838.piskel",
+  "smallSuitClubRuntimeMask": "v5-piskel-8x8",
+  "smallSuitRuntimeAdaptation": "v5 diamond expanded to nearest even-width symmetric mask for 10x10 cell contract",
+  "rankCell": [
+    18,
+    18
+  ],
+  "rankOrder": [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K"
+  ],
+  "rankRows": [
+    "black",
+    "red"
+  ],
+  "royalCell": [
+    48,
+    60
+  ],
+  "royalOrder": [
+    "black-J",
+    "black-Q",
+    "black-K",
+    "red-J",
+    "red-Q",
+    "red-K"
+  ],
+  "dealer": {
+    "cell": [
+      64,
+      64
+    ],
+    "idle": 4,
+    "deal": 6,
+    "win": 4,
+    "lose": 4
+  },
+  "player": {
+    "cell": [
+      48,
+      48
+    ],
+    "idle": 4,
+    "win": 4,
+    "lose": 4
+  },
+  "chipFx": {
+    "cell": [
+      24,
+      24
+    ],
+    "frames": 4
+  },
+  "filter": "nearest-neighbor at runtime"
+}

@@ -1,0 +1,17 @@
+Create one exact 2-row by 3-column production pixel-art animation sheet on a perfectly uniform solid #FF00FF chroma background.
+
+Image 1 is the exact approved wolf identity master. Preserve the same gray-brown compact hunched body, long broad muzzle, large dark nose, heavy sleepy overconfident eyes, small uneven fangs, skinny bent legs, oversized paws, thick curled tail, warm dark-brown outline, coarse shading, and exactly three marsh reeds attached to the top of his head.
+
+Image 2 is the strict 2×3 character anchor. Use it only to lock the six slot positions, camera distance, body root, standing-equivalent scale, feet baseline, and safe padding. Do not reproduce guides, borders, labels, or separators.
+
+Animate one continuous comic failure sequence, row-major:
+1. crouched and sneaking in, hungry but overconfident;
+2. rises slightly and notices the prey, eyes widening;
+3. opens his mouth very wide while keeping the muzzle and reeds inside the cell;
+4. quick in-place gulp, mouth closed and cheeks briefly puffed;
+5. belly begins swelling while his posture compresses;
+6. round full belly, smug sleepy satisfaction and a tiny closed-mouth burp expression.
+
+This is wolf-body animation only. Never draw a duck, prey, food, feather, heart, smoke, burp cloud, text, floor, shadow, or detached effect. Keep the torso root and feet centered on one shared baseline. Keep every pose inside the same central 70% silhouette envelope. Tuck the muzzle, tail, reeds, paws, and belly inward so nothing crosses cell edges. Preserve exactly three reeds in all six frames; never add or remove reeds.
+
+Use the same full-body three-quarter-front top-down gameplay view, palette, outline thickness, pixel density, and identity in every frame. Crisp deliberate pixel clusters only, no antialias blur, gradients, semitransparent pixels, grid lines, or #FF00FF inside the wolf.

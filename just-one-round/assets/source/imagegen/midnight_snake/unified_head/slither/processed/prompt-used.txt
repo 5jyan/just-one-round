@@ -1,0 +1,19 @@
+Create a raw 4x4 directional animation sheet for the same golden snake head
+as the approved master specimen. The supplied long blue snake is a geometry
+and personality reference only. The golden head master locks the identity,
+warm golden-ochre palette, rounded cap silhouette, huge uneven white eyes,
+dark pupils, low-detail pixel clusters, open neck socket, camera distance,
+and subject scale.
+
+Exactly four rows and four columns of equal invisible cells. Row order:
+DOWN, LEFT, RIGHT, UP. In every row: neutral, tiny eye/pupil wobble and
+slight squash, neutral return, opposite eye/pupil wobble and slight stretch.
+Each frame contains only the enlarged head cap and face. Rotate the open neck
+socket to the rear opposite the facing direction. The socket has the body
+color and no dark cross-edge or outline. Keep the same scale and central
+60–65% occupancy in all frames.
+
+Top-down mobile pixel art, crisp intentional 2-pixel cluster language,
+restrained shading, no realistic scales, no accessories, no detached effects.
+Solid flat #FF00FF background. No text, labels, UI, borders, separators,
+guide marks, gradients, or external shadows. Nothing crosses a cell edge.

@@ -1,0 +1,8 @@
+Exactly 9 complete top-down marsh floor tiles in a 3x3 grid: five dark damp
+mud variants and four irregular teal puddle variants. Preserve the accepted
+swamp palette and tile-family identity while improving clarity and natural
+variation. Crisp authored pixel art with 8-12 colors, larger deliberate
+texture clusters, no antialiasing, blur, gradients, or scattered micro-noise.
+Compatible tile edges, asymmetrical puddles, restrained highlights, and no
+repeated mirrored puddles. No visible grid, labels, characters, footprints,
+perspective sides, or watermark.

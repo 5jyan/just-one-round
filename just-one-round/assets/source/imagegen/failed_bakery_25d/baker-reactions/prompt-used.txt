@@ -1,5 +1,0 @@
-Use the accepted 3/4 Failed Bakery background as the exact palette, pixel-density, outline, camera, and humor reference.
-
-Create one original apprentice baker in an exact invisible 2-row by 2-column grid on solid #FF00FF. Identity: short stocky body, uneven black bob, thick mismatched eyebrows, sleepy oval eyes, flour-smudged cheeks, faded-mint apron, stale-cream shirt, strawberry-pink neckerchief, bent tall chef hat, tiny shoes.
-
-Frame order: neutral deadpan; anxious while clutching a compact spatula; restrained delight with tiny raised fist; silent slumped despair. Keep identity, camera distance, anatomy scale, body centerline, and foot baseline fixed. Full body in the central 65% with magenta margin. No detached effects, shadows, text, UI, visible grid, borders, or separators. Crisp project-native pixel art with no blur, antialiasing, gradients, or painterly rendering.

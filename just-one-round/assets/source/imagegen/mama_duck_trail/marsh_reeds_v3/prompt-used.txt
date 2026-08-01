@@ -1,0 +1,7 @@
+Create exactly six distinct compact marsh reed clusters in a 2x3 grid:
+bent cattails, thin reeds, broken dry reeds, leafy grass, young shoots and a
+mixed crooked cluster. Vary silhouette, lean, height and mass. Match the
+moonlit swamp palette with muted olive, brown and tan tips. Root each cluster
+on one bottom baseline inside a safe central area. Crisp medium-high-detail
+pixel art on solid #FF00FF. No ground plate, water, detached leaves, shadows,
+labels, separators or edge crossing.

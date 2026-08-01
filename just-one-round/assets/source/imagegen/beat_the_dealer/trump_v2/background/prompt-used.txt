@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: full-screen 2D mobile minigame background, no UI
+Primary request: Create a higher-quality pixel-art blackjack table room background for the game "딜러를 이겨라", preserving the mood and composition of the inspected existing runtime screenshot while making the art clearer and richer.
+Scene/backdrop: a cramped, slightly crooked old wooden casino cabin at night, front-facing symmetrical view, dark navy wooden walls, a large deep-green felt blackjack table filling the lower two thirds, worn brown wooden rail, two small oval porthole-like wall frames, dim ropes and beams above.
+Style/medium: deliberately authored chunky 2D pixel art, awkward ugly-cute indie minigame house style, effective 2-pixel clusters, hard edges, no smoothing, restrained detail.
+Composition/framing: portrait 360:840 composition; central upper area behind dealer remains readable; tabletop center stays quiet for cards; bottom 160 pixels remain quiet for controls; continue real room art beyond the 360x640 gameplay-safe core so tall and short viewports can crop safely.
+Lighting/mood: dim warm casino light, cozy but suspicious, high readability on the green table.
+Color palette: dark navy, muted purple, forest green felt, aged brown wood, tiny warm gold accents.
+Constraints: background only; no characters, no playing cards, no chips, no numbers, no lettering, no buttons, no logo, no watermark; no gradients or painterly blur; perspective must support cards laid on the table; keep every important landmark inside the central 360x640 safe core.
+Avoid: glossy modern casino, photorealism, tiny noisy texture, perspective distortion, UI, typography.

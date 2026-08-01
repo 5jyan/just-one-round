@@ -1,0 +1,100 @@
+{
+  "identity": "approved V3 dachshund",
+  "display_cell_size": [
+    32,
+    32
+  ],
+  "runtime_filter": "nearest-neighbor",
+  "frame_resampling": "per-cell Lanczos 96-to-32",
+  "connector_profile": "shared two-pixel cross-section at every open edge",
+  "frame_order": [
+    "down",
+    "left",
+    "right",
+    "up"
+  ],
+  "walk_frames_per_direction": 4,
+  "eat_frames_per_direction": 4,
+  "body_module_order": [
+    "left-right",
+    "up-down",
+    "left-down",
+    "up-right",
+    "right-down",
+    "left-up"
+  ],
+  "sheets": [
+    {
+      "source": "assets/images/sausage_dachshund/dog_head_walk_atlas_v3.png",
+      "output": "assets/images/sausage_dachshund/dog_head_walk_atlas_v4.png",
+      "source_frame_size": [
+        96,
+        96
+      ],
+      "runtime_frame_size": [
+        32,
+        32
+      ],
+      "atlas_size": [
+        128,
+        128
+      ],
+      "rows": 4,
+      "columns": 4
+    },
+    {
+      "source": "assets/images/sausage_dachshund/dog_head_eat_atlas_v3.png",
+      "output": "assets/images/sausage_dachshund/dog_head_eat_atlas_v4.png",
+      "source_frame_size": [
+        96,
+        96
+      ],
+      "runtime_frame_size": [
+        32,
+        32
+      ],
+      "atlas_size": [
+        128,
+        128
+      ],
+      "rows": 4,
+      "columns": 4
+    },
+    {
+      "source": "assets/images/sausage_dachshund/dog_body_atlas_v3.png",
+      "output": "assets/images/sausage_dachshund/dog_body_atlas_v4.png",
+      "source_frame_size": [
+        96,
+        96
+      ],
+      "runtime_frame_size": [
+        32,
+        32
+      ],
+      "atlas_size": [
+        64,
+        96
+      ],
+      "rows": 3,
+      "columns": 2
+    },
+    {
+      "source": "assets/images/sausage_dachshund/dog_tail_walk_atlas_v3.png",
+      "output": "assets/images/sausage_dachshund/dog_tail_walk_atlas_v4.png",
+      "source_frame_size": [
+        96,
+        96
+      ],
+      "runtime_frame_size": [
+        32,
+        32
+      ],
+      "atlas_size": [
+        128,
+        128
+      ],
+      "rows": 4,
+      "columns": 4
+    }
+  ]
+}

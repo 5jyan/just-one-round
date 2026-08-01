@@ -1,0 +1,8 @@
+Exactly 6 equal frames in a 2x3 grid of the accepted baby duck performing a
+small grounded waddling walk cycle: neutral, left-foot waddle, neutral,
+right-foot waddle, forward-lean waddle, neutral return. Preserve identity,
+palette, face, round proportions, dark outline, and dopey-but-cute personality.
+Crisp authored pixel art with 12-16 colors, hard clusters, no antialiasing,
+blur, subpixel shading, gradients, or painterly texture. Stable anatomical
+scale, center, and foot-contact baseline. Uniform solid #FF00FF background.
+No detached effects, shadows, labels, borders, guides, or edge crossing.

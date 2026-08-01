@@ -1,0 +1,6 @@
+Use case: precise-object-edit
+Asset type: runtime pixel-art game character master sprite
+Primary request: Change only the baby duckling's bill so its apparent pixel size exactly matches the coarse pixels used by the head, eyes, body, feet, and outer outline.
+Keep unchanged: Character identity, head shape, body, eyes, pupils, eyebrows, three hair tufts, wings, legs, feet, pose, palette, canvas position, scale, and flat #FF00FF background.
+Bill edit: Replace the current fine-pixel curved bill with a simple straight, centered, symmetrical duck bill built from the same large square pixel blocks as the outer silhouette. Use a dark plum-brown staircase outline of the same thickness as the head outline, one flat orange fill cluster, one darker lower-lip cluster, and one simple dark horizontal opening. The bill may be slightly open for a harmless dopey expression.
+Constraints: The bill must use the same coarse pixel grid and detail density as the rest of the character. No tiny teeth-like pixels, no fine inner contour, no smooth curve, no gradients, no blur, no antialiasing, no crookedness, and no facial asymmetry.

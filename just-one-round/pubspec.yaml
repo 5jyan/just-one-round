@@ -74,6 +74,10 @@ flutter:
     - assets/images/gravity_switch_v2/platform_modules_v4/
     - assets/images/apple_game_v2/
     - assets/images/number_rush/
+    - assets/images/mama_duck_trail/
+    - assets/images/sausage_dachshund/
+    - assets/images/midnight_snake/
+    - assets/images/beat_the_dealer/
     - assets/maps/
     - assets/maps/patterns/
 

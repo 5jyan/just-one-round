@@ -37,7 +37,7 @@ const numberRushPresentation = GamePresentationDefinition(
       title: '50을 누르면 기록 확정',
       description: '50을 누르는 순간 기록이 끝납니다. 완료 시간이 짧을수록 오늘의 랭킹이 높아집니다.',
       detail:
-          '최대 3분 안에 끝내야 해요. 홈으로 나가거나 앱을 닫거나 백그라운드로 보내면 기회가 소진되고 기록은 제출되지 않습니다.',
+          '최대 3분 안에 끝내야 해요. 3분 안에 50까지 누르지 못하면 0점입니다. 홈으로 나가거나 앱을 닫거나 백그라운드로 보내면 기회가 소진되고 기록은 제출되지 않습니다.',
       visual: GameGuideVisualKind.numberResult,
     ),
   ],

@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: fixed full-board pixel-art terrain map for a mobile minigame
+Input images: existing marsh tile atlas as style reference; existing moonlit marsh background as mood/color reference
+Primary request: one cohesive 5-column by 7-row wetland board replacing repetitive square tile art, with a warm muddy footpath woven through three irregular connected shallow-water pools, wet mud islands, low mossy grass, and distinct reed-grass thickets.
+Composition: portrait board, full bleed, no frame, no labels, no text, no characters; broad continuous forms cross logical cell boundaries; only subtle broken mud grooves imply the 5x7 input cells.
+Style: chunky authored 2D pixel art, ugly-cute project environment direction, mostly 2x2 logical-pixel clusters, crisp hard edges, no anti-aliasing, blur, or smooth gradients.
+Palette: readable moonlit wetland with blue-teal reflective water, warm umber mud, olive and yellow-green reeds, and small amber highlights; brighter and more varied than the existing brown tile atlas.
+Constraints: fixed non-random composition; all cells remain traversable and readable for white duck footprints and 72px display-size duck sprites; no impassable walls, holes, dark grid, checkerboard, isolated puddle stamps, or wallpaper repetition.
+Avoid: dense micro-noise, thin vector lines, 3D perspective, large rocks, UI, text, watermark, extra animals, or collision-like obstacles.

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "duckling_hd_v5",
+  "processing": {
+    "cell_size": 72,
+    "fit_scale": 0.84,
+    "trim_border": 4,
+    "edge_clean_depth": 3,
+    "align": "feet",
+    "shared_scale": false,
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "component_padding": 0,
+    "min_component_area": 1,
+    "edge_touch_margin": 0
+  },
+  "output_origin": [
+    36.0,
+    67
+  ],
+  "reference": {
+    "target": "player",
+    "mode": "idle",
+    "rows": 1,
+    "cols": 1,
+    "body_scale_mean": 0.47006181432701666,
+    "body_scale_cv": 0.0,
+    "anchor_y_mean": 0.7897271268057785
+  },
+  "qc": {
+    "max_body_scale_drift": 0.1
+  }
+}

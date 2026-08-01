@@ -1,0 +1,45 @@
+Use case: precise-object-edit
+Asset type: mature feminine mother-duck master sprite candidate
+Input images: Image 1 is the adult mother-duck edit target and locks the
+cream-ivory palette, plump adult body, grounded proportions, pixel-art
+rendering, camera, lighting, and family identity. Image 2 locks the baby-duck
+family resemblance, outline language, and pixel cluster scale.
+Primary request: redesign Image 1 to read unmistakably as a mature, feminine,
+nurturing mother duck while remaining an awkward, slightly clueless ugly-cute
+game character. Preserve the same full-body three-quarter-front camera,
+overall 36x36-target occupancy, broad pear-shaped adult torso, rounded hips,
+cream belly, orange feet, warm-brown outline, and upper-left light.
+Mature anatomy: reduce the head slightly relative to the body, give her a
+subtly longer graceful neck, a fuller upper chest, gently defined waist
+transition, broad rounded lower body, and one tidy side tail wedge. Keep the
+body plump and maternal rather than slim or glamorous. The full visible
+silhouette should remain about 80% of its height so it stays readable at
+36x36.
+Feminine face: make the glossy eyes slightly smaller and softly almond-shaped
+with gently lifted outer corners. Add only one short deliberate eyelash
+pixel-cluster at each outer eye corner. Use softer upper eyelids, tiny warm
+peach cheek marks, and a calm, affectionate, mildly worried smile. Make the
+orange beak a little longer and slimmer than the baby's, with a subtle upward
+mouth line. The expression should feel patient, protective, and slightly
+absent-minded—not seductive, fashionable, or polished.
+Head feathers: replace the baby's two upright crown tufts with one modest
+swept-back adult feather lock, integrated into the head silhouette.
+Pose: upright composed posture with both wings folded inward and lightly
+meeting in front of the lower chest/belly, like a protective mother holding
+her hands together. Both feet remain on one stable horizontal baseline.
+Accessory: add exactly one small muted dusty-coral neck kerchief tied with a
+tiny off-center knot. It must be simple, mature, and readable at low
+resolution, remain close to the neck/body silhouette, and not resemble a large
+bow or child accessory. No other accessories.
+Style: exact same crisp hand-authored-looking pixel-art family, chunky
+deliberate clusters, medium-low detail, deep warm-brown outline, no blur,
+antialiasing, smooth vector edges, gradients, painterly texture, dithering
+noise, or micro-feather details.
+Composition: exactly one complete mother duck, centered, fully contained,
+generous flat-magenta padding on every side, no cast shadow.
+Backdrop: perfectly flat uniform solid #FF00FF chroma-key background only, no
+texture, gradient, floor, scenery, text, border, UI, or watermark.
+Constraints: exactly two wings, two feet, two eyes, one beak, one swept
+feather lock, one tail wedge, and one small neck kerchief. No head bow, dress,
+apron, hat, jewelry, purse, props, nest, eggs, extra animals, detached
+feathers, effects, extra limbs, or extra facial features.

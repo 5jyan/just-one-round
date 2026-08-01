@@ -1,0 +1,22 @@
+Use case: stylized-concept
+Asset type: seamless pixel-art snake scale overlay tile master
+Input images: Image 1 is the rejected draft whose spacing and flat magenta
+backdrop may be preserved, but change the marks only; Image 2 locks the warm
+amber-gold, dark chocolate-brown and cream palette and chunky pixel style.
+Primary request: replace every star/diamond/spark mark from Image 1 with a
+small blunt overlapping snake-scale mark shaped like a squat rounded U or
+shallow scallop: dark-brown curved lower rim, amber interior, and at most one
+tiny cream pixel-cluster highlight near the upper-left. The result must
+unmistakably read as cute snake scales rather than stars, flowers, gems,
+crosses, or sparkles.
+Style/medium: chunky retro pixel art, orthographic flat texture, hard square
+pixel edges, no antialiasing, no blur, no fine noise, restrained 3-color marks.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background with no
+variation.
+Composition: exactly one seamless square repeating tile; staggered overlapping
+rows of scales, sparse enough to remain readable on an 18-pixel-wide snake
+body; left/right and top/bottom edges must wrap seamlessly; no unique focal
+point.
+Constraints: no pointed rays, no four-way symmetry, no cross shapes, no snake
+silhouette, no head, no eyes, no text, no watermark, no border, no tile grid,
+no shadow; do not use #FF00FF in the scale marks.

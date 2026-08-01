@@ -1,0 +1,72 @@
+{
+  "pipeline": "built-in-imagegen-plus-deterministic-postprocess",
+  "safeCore": [
+    0,
+    0,
+    360,
+    640
+  ],
+  "authoredWorld": [
+    0,
+    -100,
+    360,
+    840
+  ],
+  "cameraCenter": [
+    180,
+    320
+  ],
+  "filter": "nearest-neighbor",
+  "assets": {
+    "background_map_v2.png": [
+      360,
+      840
+    ],
+    "dealer_idle_v2.png": [
+      56,
+      56
+    ],
+    "player_idle_v2.png": [
+      40,
+      40
+    ],
+    "card_front_v2.png": [
+      32,
+      44
+    ],
+    "card_back_v2.png": [
+      32,
+      44
+    ],
+    "suit_icons_v2.png": [
+      32,
+      8
+    ],
+    "royal_faces_v2.png": [
+      96,
+      84
+    ],
+    "coin_v2.png": [
+      20,
+      20
+    ]
+  },
+  "display": {
+    "dealer_idle_v2.png": [
+      112,
+      112
+    ],
+    "player_idle_v2.png": [
+      80,
+      80
+    ],
+    "card": [
+      64,
+      88
+    ],
+    "coin_v2.png": [
+      40,
+      40
+    ]
+  }
+}

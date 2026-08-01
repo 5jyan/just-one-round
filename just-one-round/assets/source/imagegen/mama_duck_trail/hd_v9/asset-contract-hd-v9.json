@@ -1,0 +1,39 @@
+{
+  "status": "integrated",
+  "version": "hd-v9-lives-spacing",
+  "scope": "mama duck trail HUD lives row only",
+  "asset_decisions": {
+    "assets/images/mama_duck_trail/duckling_life_face.png": "reuse_as_is"
+  },
+  "layout": {
+    "label": "LIVES",
+    "face_count": 3,
+    "face_display_size": [
+      48,
+      48
+    ],
+    "previous_center_spacing_pixels": 48,
+    "new_center_spacing_pixels": 24,
+    "group_size_pixels": [
+      96,
+      48
+    ],
+    "group_alignment": "centered_below_lives_label",
+    "layer_order": "left_to_right"
+  },
+  "preserved": [
+    "life_count",
+    "depleted_life_opacity",
+    "score_hud",
+    "time_hud",
+    "duck_face_asset",
+    "nearest_neighbor_filtering",
+    "game_rules",
+    "scoring",
+    "timing",
+    "input"
+  ],
+  "runtime_file": "lib/features/gameplay/presentation/game_screen.dart",
+  "test_file": "test/features/gameplay/game_screen_test.dart",
+  "runtime_capture": "runtime_lives_spacing_simulator.jpeg"
+}

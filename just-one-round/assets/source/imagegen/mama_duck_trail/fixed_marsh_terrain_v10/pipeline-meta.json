@@ -1,0 +1,126 @@
+{
+  "status": "processed",
+  "version": "fixed-marsh-terrain-v10",
+  "composition": {
+    "terrain_is_fixed": true,
+    "random_tile_selection_removed": true,
+    "decorative_only": true,
+    "board_cells": [
+      7,
+      5
+    ],
+    "cell_world_size": [
+      72,
+      72
+    ]
+  },
+  "viewport": {
+    "gameplay_safe_core": [
+      0,
+      0,
+      360,
+      640
+    ],
+    "maximum_target_viewport": [
+      0,
+      -70,
+      360,
+      710
+    ],
+    "authored_canvas": [
+      0,
+      -100,
+      360,
+      740
+    ],
+    "camera_center": [
+      180,
+      320
+    ]
+  },
+  "runtime": {
+    "marsh_board_map.png": {
+      "raw_size": [
+        1046,
+        1504
+      ],
+      "crop_box": [
+        0,
+        20,
+        1046,
+        1484
+      ],
+      "runtime_size": [
+        180,
+        252
+      ],
+      "display_size": [
+        360,
+        504
+      ],
+      "world_rect": [
+        0,
+        68,
+        360,
+        572
+      ],
+      "source_to_world_scale": 2,
+      "palette_limit": 48,
+      "sha256": "8636bcb5fa92cb42b4844daea34dde08b2916d31d8940ca9ed3a2c661eb8d199"
+    }
+  },
+  "layers": [
+    {
+      "name": "marsh_background",
+      "world_rect": [
+        0,
+        -100,
+        360,
+        740
+      ],
+      "role": "background"
+    },
+    {
+      "name": "marsh_board_map",
+      "world_rect": [
+        0,
+        68,
+        360,
+        572
+      ],
+      "role": "fixed decorative terrain"
+    },
+    {
+      "name": "footprints",
+      "world_rect": [
+        0,
+        68,
+        360,
+        572
+      ],
+      "role": "gameplay cue"
+    },
+    {
+      "name": "actors",
+      "world_rect": [
+        0,
+        68,
+        360,
+        572
+      ],
+      "role": "gameplay actors"
+    }
+  ],
+  "preserved_behavior": {
+    "path_generation": true,
+    "input_coordinates": true,
+    "collision": true,
+    "score": true,
+    "lives": true,
+    "failure_duration_seconds": 1.0
+  },
+  "qc": {
+    "native_preview": "qc/fixed_marsh_board_runtime.png",
+    "nearest_neighbor_preview": "qc/fixed_marsh_board_4x.png"
+  }
+}

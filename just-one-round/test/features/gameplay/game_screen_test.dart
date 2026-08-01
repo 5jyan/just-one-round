@@ -185,6 +185,66 @@ void main() {
     expect(tester.getCenter(appleScore).dy - tester.getCenter(exitIcon).dy, 1);
   });
 
+  testWidgets('엄마 어디가 HUD는 LIVES 아래에 오리 얼굴 목숨을 표시한다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'attempt-mama-duck-hud',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+      gameId: 'mama_duck_trail',
+    );
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: GameScreen(
+            attempt: attempt,
+            countdownDuration: Duration(seconds: 3),
+          ),
+        ),
+      ),
+    );
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 250)),
+    );
+    await tester.pump(const Duration(milliseconds: 32));
+
+    final score = find.byKey(const Key('mama-hud-score'));
+    final time = find.byKey(const Key('mama-hud-time'));
+    final livesLabel = find.byKey(const Key('mama-hud-lives-label'));
+    expect(score, findsOneWidget);
+    expect(time, findsOneWidget);
+    expect(livesLabel, findsOneWidget);
+    for (var index = 0; index < 3; index++) {
+      final life = find.byKey(Key('mama-duck-life-$index'));
+      expect(life, findsOneWidget);
+      expect(tester.widget<Opacity>(life).opacity, 1);
+      final image = tester.widget<Image>(
+        find.descendant(of: life, matching: find.byType(Image)),
+      );
+      expect(image.width, 48);
+      expect(image.height, 48);
+      expect(
+        tester.getCenter(life).dy,
+        greaterThan(tester.getCenter(livesLabel).dy),
+      );
+      expect(
+        tester.getCenter(life).dx,
+        inExclusiveRange(tester.getCenter(score).dx, tester.getCenter(time).dx),
+      );
+    }
+    final lives = [
+      for (var index = 0; index < 3; index++)
+        tester.getRect(find.byKey(Key('mama-duck-life-$index'))),
+    ];
+    expect(lives[1].center.dx - lives[0].center.dx, 24);
+    expect(lives[2].center.dx - lives[1].center.dx, 24);
+    expect(lives.last.right - lives.first.left, 96);
+    expect(
+      (lives.first.left + lives.last.right) / 2,
+      closeTo(tester.getCenter(livesLabel).dx, 0.01),
+    );
+  });
+
   testWidgets('넘버러시는 게임기 하단의 전용 EXIT 버튼을 사용한다', (tester) async {
     tester.view
       ..physicalSize = const Size(360, 640)
@@ -538,7 +598,8 @@ class _RecordingRepository implements DailyGameRepository {
   Future<DailyRankResult?> retryPendingScore() => throw UnimplementedError();
 
   @override
-  Future<DailyRankResult> fetchDailyRank() => throw UnimplementedError();
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) =>
+      throw UnimplementedError();
 
   @override
   Future<void> setNickname(String nickname) => throw UnimplementedError();
@@ -608,7 +669,7 @@ class _NicknameRepository extends _RecordingRepository {
   }
 
   @override
-  Future<DailyRankResult> fetchDailyRank() async {
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async {
     return DailyRankResult(
       score: 600,
       rank: 1,

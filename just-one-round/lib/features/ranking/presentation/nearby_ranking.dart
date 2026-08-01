@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
-import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
+import 'package:just_one_round/features/games/dung_dodge_v2/domain/dung_dodge_v2_rules.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
@@ -9,7 +9,7 @@ import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 class NearbyRanking extends ConsumerWidget {
   const NearbyRanking({
     required this.result,
-    this.formatScore = StarDodgeRules.formatSurvival,
+    this.formatScore = DungDodgeV2Rules.formatSurvival,
     super.key,
   });
 
@@ -22,6 +22,7 @@ class NearbyRanking extends ConsumerWidget {
     return PixelPanel(
       padding: const EdgeInsets.all(14),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
             '내 주변 랭킹',

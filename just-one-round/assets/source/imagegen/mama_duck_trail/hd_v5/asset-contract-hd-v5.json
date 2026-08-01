@@ -1,0 +1,489 @@
+{
+  "status": "integrated",
+  "version": "hd-v5",
+  "approved_exception": {
+    "source_cells_are_native_runtime_size": true,
+    "reason": "preserve detail from the approved high-resolution masters",
+    "effective_cluster_rule": "mostly 2 logical pixels; isolated 1px face and fur accents"
+  },
+  "preserved_behavior": {
+    "controls": true,
+    "rules": true,
+    "scoring": true,
+    "lives": true,
+    "collision": true,
+    "render_sizes": true,
+    "animation_timing": true
+  },
+  "runtime_dimensions": {
+    "duckling_idle.png": [
+      72,
+      72
+    ],
+    "duckling_walk_sheet.png": [
+      216,
+      144
+    ],
+    "duckling_cheer_sheet.png": [
+      216,
+      144
+    ],
+    "duckling_life_face.png": [
+      20,
+      20
+    ],
+    "mother_duck_idle.png": [
+      72,
+      72
+    ],
+    "mother_duck_walk_sheet.png": [
+      216,
+      144
+    ],
+    "mother_duck_hug.png": [
+      72,
+      72
+    ],
+    "wolf_idle.png": [
+      96,
+      96
+    ],
+    "wolf_failure_sheet.png": [
+      288,
+      192
+    ],
+    "marsh_tiles_atlas.png": [
+      108,
+      108
+    ]
+  },
+  "cells": {
+    "duck": [
+      72,
+      72
+    ],
+    "wolf": [
+      96,
+      96
+    ],
+    "tile": [
+      36,
+      36
+    ]
+  },
+  "display_sizes": {
+    "duck": [
+      72,
+      72
+    ],
+    "wolf": [
+      96,
+      96
+    ],
+    "tile": [
+      72,
+      72
+    ]
+  },
+  "palette_limits": {
+    "duckling": 48,
+    "mother": 64,
+    "wolf": 48
+  },
+  "baselines": {
+    "duck": 68,
+    "wolf": 92
+  },
+  "tile_separation": {
+    "source_border_each_side": 1,
+    "combined_display_width": 4,
+    "color": [
+      54,
+      43,
+      30,
+      255
+    ],
+    "opaque": true
+  },
+  "frame_records": {
+    "duckling_idle.png": {
+      "bbox": [
+        14,
+        8,
+        58,
+        68
+      ],
+      "feet_baseline_y": 68,
+      "sha256": "523e2cc9ef5742b032769a83ffebbe3a4274ebf76f87f086a314e4871019aabb"
+    },
+    "duckling_walk_sheet.png": [
+      {
+        "index": 1,
+        "bbox": [
+          14,
+          8,
+          57,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "8000761482f8d43e4a11d1989b1f64ba12b40ad6f30251a35448714743ec34ac"
+      },
+      {
+        "index": 2,
+        "bbox": [
+          13,
+          8,
+          59,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "33ca3a1d2aecb13a94a82f13d2c4a871b34e56c4bac0a3962877e34c2551ff5d"
+      },
+      {
+        "index": 3,
+        "bbox": [
+          14,
+          8,
+          58,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "0cbc2b226d920024f2412445389b4637d3f7dea0d0c4933a56bf62350fc9625a"
+      },
+      {
+        "index": 4,
+        "bbox": [
+          14,
+          8,
+          57,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "69009f178cede4e8d61aaf9a3f9df42ed3c23e2f851a1b7e3e96da66cf58604d"
+      },
+      {
+        "index": 5,
+        "bbox": [
+          13,
+          8,
+          59,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "b22a43ec5141459b1dd3a41d17a4b4c660f928be6369b1fbde39696467f58a1f"
+      },
+      {
+        "index": 6,
+        "bbox": [
+          13,
+          8,
+          58,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "9dc3a4fa467e7558bbac194972973f38c33c539c28f00d1176c1699ab04417de"
+      }
+    ],
+    "duckling_cheer_sheet.png": [
+      {
+        "index": 1,
+        "bbox": [
+          14,
+          8,
+          57,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "a9562709cfee5ecf95059a7c40bf7502dd809804e319435c92c394f7fccbfe72"
+      },
+      {
+        "index": 2,
+        "bbox": [
+          10,
+          8,
+          61,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "250e7a96d02e98d2a3a19a9ef677e68fb26781b59b4cac04a0ff3650d122cd5d"
+      },
+      {
+        "index": 3,
+        "bbox": [
+          9,
+          8,
+          63,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "9ab06f73fa4915f0ca86d9726350c64161789c874362ff32fff42358d8c9af02"
+      },
+      {
+        "index": 4,
+        "bbox": [
+          6,
+          8,
+          65,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "12086d3bc82dbb06f225f5ff134d7d5ad81da2784e321f67bd5a9e7829c3d331"
+      },
+      {
+        "index": 5,
+        "bbox": [
+          7,
+          8,
+          64,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "cfcbf42f776362ac0eaa39fc89de9221565cb00bc18706902f14dcb40227d711"
+      },
+      {
+        "index": 6,
+        "bbox": [
+          14,
+          8,
+          57,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "1e0097f3c5eb1f7ef545e1e59ffa712f223161878f2710afb83e45681f0bad27"
+      }
+    ],
+    "mother_duck_idle.png": {
+      "bbox": [
+        12,
+        8,
+        59,
+        68
+      ],
+      "feet_baseline_y": 68,
+      "sha256": "3a7306d45153b8a00e37b7246926a77b122b6f602c3eda7f31995116f21b4a34"
+    },
+    "mother_duck_walk_sheet.png": [
+      {
+        "index": 1,
+        "bbox": [
+          13,
+          8,
+          59,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "82f92088835892ccf5816dfc58db7bad10586e4fb71a0f475ad3860a5264a288"
+      },
+      {
+        "index": 2,
+        "bbox": [
+          13,
+          10,
+          58,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "f4acf85f9721d6ac824f776aeeabcb003fe7ffd2f4ca5b6b3d6169f7e601592d"
+      },
+      {
+        "index": 3,
+        "bbox": [
+          13,
+          9,
+          58,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "f67ba67d4d82260ac51e193e16a405c1f085207b72301bfc592a9eb1741a6f44"
+      },
+      {
+        "index": 4,
+        "bbox": [
+          13,
+          8,
+          59,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "19db72aecc4ff7ce2a3ecbb2aab7dd7a46b0533b2dd4b50781644a8a2d58f5e0"
+      },
+      {
+        "index": 5,
+        "bbox": [
+          13,
+          10,
+          59,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "ad3b9ab6534413dcdf3295657cc4148368f753b7c948ed00a4f39dbc68b7fee3"
+      },
+      {
+        "index": 6,
+        "bbox": [
+          13,
+          9,
+          59,
+          68
+        ],
+        "feet_baseline_y": 68,
+        "sha256": "3d86bdb07c57a607e5cb9f3747940b5f49d1b8d7bb57607a9c9ea85b686564e2"
+      }
+    ],
+    "mother_duck_hug.png": {
+      "bbox": [
+        10,
+        8,
+        61,
+        68
+      ],
+      "feet_baseline_y": 68,
+      "sha256": "a359f0733bc0279bb0f53c32d587b10e685dfe8bc06365ad5314edfc56ec5e05"
+    },
+    "wolf_idle.png": {
+      "bbox": [
+        15,
+        9,
+        80,
+        92
+      ],
+      "feet_baseline_y": 92,
+      "sha256": "296a567564809962fd4cd42d34ceb533338fe445d2eab0d700591ca40eb40af3"
+    },
+    "wolf_failure_sheet.png": [
+      {
+        "index": 1,
+        "bbox": [
+          7,
+          21,
+          88,
+          92
+        ],
+        "feet_baseline_y": 92,
+        "sha256": "035f565c20ad4d856e56d20b61c1e4f74a8ac04292b2ddf43dec6bd2d3dbf24e"
+      },
+      {
+        "index": 2,
+        "bbox": [
+          11,
+          13,
+          85,
+          92
+        ],
+        "feet_baseline_y": 92,
+        "sha256": "59b0348d49ccb065b3189f55ae4b1329bae27d8422d431784d867312deff7a1b"
+      },
+      {
+        "index": 3,
+        "bbox": [
+          13,
+          8,
+          82,
+          92
+        ],
+        "feet_baseline_y": 92,
+        "sha256": "36143ed32265801369e054fd473100461ffd50e802ab91b2e50efe816de8cd9c"
+      },
+      {
+        "index": 4,
+        "bbox": [
+          13,
+          13,
+          82,
+          92
+        ],
+        "feet_baseline_y": 92,
+        "sha256": "48bc4cd28d36a19acdf86323f8c4ff02cee595cc3441af910191e594a9e4c8e4"
+      },
+      {
+        "index": 5,
+        "bbox": [
+          14,
+          13,
+          81,
+          92
+        ],
+        "feet_baseline_y": 92,
+        "sha256": "ac31db26f687acd7726072783d867269e9aec886b95c04a108dacba9a1971928"
+      },
+      {
+        "index": 6,
+        "bbox": [
+          13,
+          8,
+          83,
+          92
+        ],
+        "feet_baseline_y": 92,
+        "sha256": "bef84b847ac0999779662c6600f901a73f94cbd496d118b4abec7a416d65ed19"
+      }
+    ]
+  },
+  "tile_records": [
+    {
+      "index": 0,
+      "sha256": "ef2b5f6c30d86de1c8877b7ec781d335880999b892cb0120dedd92ce894d9eaa",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 1,
+      "sha256": "75bf5c978030ab2524209ab9ea947c87ca0ae5d2853487aab847768d721c8a57",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 2,
+      "sha256": "d1e0f1d940dab37a8907e5d2df89463af879364a48c2e65c59454f427ddfef7f",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 3,
+      "sha256": "ae332357426153c8a626cce95f7225873dadf87ed6e659203e98c0f138a1f8b8",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 4,
+      "sha256": "e3678d760fdb94914fcadd7186be2444d7f1089040ecc1c4b60931e3382125f2",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 5,
+      "sha256": "371bb108ed23a88f62690ba9784f85f9f6ee2d401e235c8e91550abebcc6fd82",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 6,
+      "sha256": "11652e19ad2f63cd26bac186356a85f50234a9a9cc22da4c117a8baf30992433",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 7,
+      "sha256": "f307280c1ca8513d83c13ca9a93d0e7d88b8627350910e62b082128d1148ba65",
+      "one_pixel_inner_border": true
+    },
+    {
+      "index": 8,
+      "sha256": "07686a42322fbcb8f9ba8f0d92be2cd881060962b75f242b40a20e66700f45ad",
+      "one_pixel_inner_border": true
+    }
+  ],
+  "processor_sources": {
+    "duckling": "duckling_v4",
+    "mother": "mother_duck_v4",
+    "wolf": "wolf_v4"
+  },
+  "processor_qc": {
+    "duckling_walk": "duckling/walk/processed/pipeline-meta.json",
+    "duckling_cheer": "duckling/cheer/processed/pipeline-meta.json",
+    "mother_walk": "mother/walk/processed/pipeline-meta.json",
+    "mother_hug": "mother/hug/processed/pipeline-meta.json",
+    "wolf_failure": "wolf/failure/processed/pipeline-meta.json",
+    "runtime_review": "qc/runtime_quality_comparison.png",
+    "runtime_capture": "qc/runtime_actual_360x640.png"
+  },
+  "recomposed": [
+    "guide_observe.png",
+    "guide_recall.png",
+    "guide_failure.png",
+    "home_gameplay_hero.png"
+  ]
+}

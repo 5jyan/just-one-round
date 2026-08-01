@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: 6-frame runtime pixel-art enemy failure-action sheet
+Primary request: Animate the accepted marsh wolf through one continuous comic failure sequence: emerge, open mouth, gulp, and finish with a round full belly.
+Reference lock: Preserve the exact wolf identity, gray-brown palette, long muzzle, sleepy overconfident eyes, skinny limbs, oversized paws, dark outline, coarse pixel density, and exactly three reeds attached to his head.
+Layout: Exact 2 rows × 3 columns, six chronological frames, left-to-right then top-to-bottom.
+Motion: frame 1 crouched ready; frame 2 rises with eyes wide; frame 3 mouth opens very large; frame 4 quick in-place gulp with closed mouth; frame 5 belly begins swelling; frame 6 round full belly and smug tiny burp pose. Comic and non-gory.
+Geometry: Wolf body only, no duck and no detached effect. Torso root and feet remain centered on one shared baseline. Express the action in place inside a shared central 70% silhouette envelope. Tuck muzzle, tail, reeds, and limbs inward so nothing crosses cell edges.
+Pixel style: Coarse true pixel art for 48×48 runtime cells displayed at 96×96, matching the master apparent pixel size.
+Background: Perfectly flat solid #FF00FF.
+Constraints: Six wolves only, one per cell. No labels, borders, separators, floor, shadow, blood, prey, feathers, smoke, extra reeds, extra limbs, gradients, blur, or #FF00FF in the wolf.

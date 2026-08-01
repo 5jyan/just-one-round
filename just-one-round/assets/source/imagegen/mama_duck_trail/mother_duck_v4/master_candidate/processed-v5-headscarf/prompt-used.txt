@@ -1,0 +1,43 @@
+Use case: precise-object-edit
+Asset type: mature mother-duck master sprite wearing a traditional headscarf
+Input images: Image 1 is the current mature feminine mother-duck edit target
+and locks the almond eyes, tiny eyelashes, cheek warmth, caring expression,
+folded wings, broad plump adult body, feet, pose, palette, outline, lighting,
+camera, and pixel rendering. Image 2 locks the broad maternal body
+proportions. Image 3 locks family resemblance and pixel-cluster scale.
+Primary request: remove the neck kerchief from Image 1 completely. Replace it
+with exactly one traditional mother-duck headscarf: a simple babushka-style
+cloth covering the top and back of the head, wrapping around both sides of the
+face, and tied in a small practical knot directly under the chin. It should
+immediately read as the familiar headscarf worn by a countryside mother or
+mother-goose character—not a fashion bandana, hair bow, bonnet, hat, hood, or
+neck scarf.
+Headscarf design: muted dusty-rose cloth with a narrow warm-cream edge trim.
+No printed pattern, or at most two or three large cream pixel clusters as very
+sparse cloth accents; absolutely no dense micro-pattern. The scarf must follow
+the rounded head silhouette closely, leave the full face and beak
+unobstructed, and form two short cloth ends beneath the chin. Keep it compact
+enough for a 36x36 sprite and fully inside the body silhouette envelope. The
+crown feather may be covered by the scarf.
+Mother identity: preserve a mature feminine, nurturing, patient, mildly
+worried and slightly absent-minded ugly-cute expression. Keep the smaller
+softly almond-shaped eyes with one short eyelash cluster at each outer corner,
+tiny peach cheeks, a longer slim adult orange beak, smaller head-to-body ratio,
+broad chest, very plump pear-shaped belly and hips, folded wings meeting
+protectively in front, one small side tail wedge, and two grounded orange
+feet.
+Silhouette: keep the full visible body approximately 80% to 85% as wide as it
+is tall. Do not narrow the torso. Both feet stay on one shared horizontal
+baseline and the visual mass remains centered.
+Style: exact crisp hand-authored-looking pixel art, chunky deliberate
+clusters, medium-low detail, warm-brown outline, no blur, antialiasing, smooth
+vector edges, gradients, painterly texture, dithering noise, or micro-feather
+details.
+Composition: exactly one complete full-body mother duck, centered, fully
+contained, generous padding, no cast shadow.
+Backdrop: perfectly flat uniform solid #FF00FF chroma-key background only, no
+texture, floor, scenery, text, border, UI, or watermark.
+Constraints: exactly two wings, two feet, two eyes, one beak, one tail wedge,
+and one headscarf tied under the chin. No neck scarf, head bow, bonnet, apron,
+dress, jewelry, purse, props, nest, eggs, extra animals, detached effects, or
+extra anatomy.

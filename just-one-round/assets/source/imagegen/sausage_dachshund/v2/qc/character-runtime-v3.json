@@ -1,0 +1,106 @@
+{
+  "identity": "approved V2 dachshund",
+  "runtime_frame_size": [
+    96,
+    96
+  ],
+  "display_cell_size": [
+    28,
+    28
+  ],
+  "runtime_filter": "medium",
+  "frame_order": [
+    "down",
+    "left",
+    "right",
+    "up"
+  ],
+  "walk_frames_per_direction": 4,
+  "eat_frames_per_direction": 4,
+  "body_module_order": [
+    "left-right",
+    "up-down",
+    "left-down",
+    "up-right",
+    "right-down",
+    "left-up"
+  ],
+  "sheets": [
+    {
+      "source": "assets/images/sausage_dachshund/dog_head_walk_atlas_v2.png",
+      "output": "assets/images/sausage_dachshund/dog_head_walk_atlas_v3.png",
+      "size": [
+        384,
+        384
+      ],
+      "frame_size": [
+        96,
+        96
+      ],
+      "display_size": [
+        28,
+        28
+      ],
+      "cleaned_chroma_pixels": 4736,
+      "contrast_adjusted_pixels": 31381,
+      "remaining_chroma_pixels": 0
+    },
+    {
+      "source": "assets/images/sausage_dachshund/dog_head_eat_atlas_v2.png",
+      "output": "assets/images/sausage_dachshund/dog_head_eat_atlas_v3.png",
+      "size": [
+        384,
+        384
+      ],
+      "frame_size": [
+        96,
+        96
+      ],
+      "display_size": [
+        28,
+        28
+      ],
+      "cleaned_chroma_pixels": 4249,
+      "contrast_adjusted_pixels": 30910,
+      "remaining_chroma_pixels": 0
+    },
+    {
+      "source": "assets/images/sausage_dachshund/dog_body_atlas_v2.png",
+      "output": "assets/images/sausage_dachshund/dog_body_atlas_v3.png",
+      "size": [
+        192,
+        288
+      ],
+      "frame_size": [
+        96,
+        96
+      ],
+      "display_size": [
+        28,
+        28
+      ],
+      "cleaned_chroma_pixels": 1373,
+      "contrast_adjusted_pixels": 19336,
+      "remaining_chroma_pixels": 0
+    },
+    {
+      "source": "assets/images/sausage_dachshund/dog_tail_walk_atlas_v2.png",
+      "output": "assets/images/sausage_dachshund/dog_tail_walk_atlas_v3.png",
+      "size": [
+        384,
+        384
+      ],
+      "frame_size": [
+        96,
+        96
+      ],
+      "display_size": [
+        28,
+        28
+      ],
+      "cleaned_chroma_pixels": 5390,
+      "contrast_adjusted_pixels": 30874,
+      "remaining_chroma_pixels": 0
+    }
+  ]
+}

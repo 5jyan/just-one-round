@@ -1,0 +1,50 @@
+{
+  "asset_type": "gameplay_concept_mockup",
+  "status": "concept_only_not_runtime_ready",
+  "generation_mode": "built_in_image_gen",
+  "generated_at": "2026-07-29",
+  "raw_file": "raw-gameplay-concept.png",
+  "selected_file": "gameplay-concept-v4.png",
+  "selected_revision": "straight_body_exactly_four_legs",
+  "raw_dimensions": [
+    941,
+    1672
+  ],
+  "logical_composition": [
+    360,
+    640
+  ],
+  "gameplay_safe_core": [
+    0,
+    0,
+    360,
+    640
+  ],
+  "planned_board_rect": [
+    20,
+    96,
+    320,
+    512
+  ],
+  "planned_board_grid": [
+    10,
+    16
+  ],
+  "planned_map_unit": 32,
+  "planned_art_pixel_logical_size": 2,
+  "reference_assets": [
+    "assets/images/dung_dodge_v2/player_run_sheet.png",
+    "assets/images/mama_duck_trail/duckling_walk_sheet.png",
+    "assets/images/gravity_switch_v2/player_magnet_mite_sheet_v3.png",
+    "assets/images/number_rush/arcade_background.png",
+    "assets/images/mama_duck_trail/marsh_tiles_atlas.png"
+  ],
+  "runtime_integration": false,
+  "notes": [
+    "Concept image validates identity, palette, top-down composition, and Snake readability only.",
+    "The selected revision replaces repeated sausage-like body modules and many legs with an organic elongated dachshund torso, exactly four short legs, a tapering tail, and a breed-readable long muzzle and floppy ears.",
+    "The selected revision removes all clothing, renders the pickup as an unwrapped grilled sausage, and constrains every occupied dog section to its assigned grid tile.",
+    "The selected revision favors long straight orthogonal body runs, permits only compact one-cell 90-degree elbows, and fixes the legs to one front pair and one rear pair.",
+    "Exact sprite cells, modular seams, transparency, frame order, anchors, and runtime hitboxes remain for the runtime asset production phase."
+  ]
+}

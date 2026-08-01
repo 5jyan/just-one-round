@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: master specimen for a runtime 2D mobile game character sprite
+Primary request: Create one tiny broke chick player character for the same pixel-art game as the approved tired octopus dealer shown earlier. The chick is desperate to win bus fare at a card table. Show a readable three-quarter rear view with enough face profile to see one worried round eye, a round body, very short wings, one single feather sticking up from the top of the head, and a visibly empty floppy coin pouch held close to the body. Idle pose: leaning too earnestly toward the unseen table because its wings are too short.
+Style/medium: authentic deliberately low-resolution pixel art matching the octopus dealer family; slightly ugly, awkward, dopey-but-cute; chunky square pixel clusters; restrained internal detail; compact highlight and shadow masses; near-black purple outline; no antialiasing or smooth curves. Designed to survive reduction into a 32×32 source cell and display at 64×64 with nearest-neighbor scaling.
+Composition/framing: one character only, centered, full silhouette, generous empty padding on every side, stable bottom anchor, no limb or pouch touching the canvas edge. Keep the contour very simple for a 32×32 cell.
+Color palette: muted warm mustard-yellow chick, dusty orange beak and feet, deep navy-purple shadows and outline, faded brown-gray pouch. Maximum about 7 main colors excluding the chroma background.
+Lighting/mood: dim midnight card room but evenly readable.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background for local background removal. One uniform magenta color only: no shadows, gradients, texture, floor plane, reflections, or lighting variation.
+Semantic invariants: exactly one chick; exactly one top feather; short wings; worried eye; empty floppy pouch; forward-leaning awkward posture.
+Constraints: crisp hard pixel edges; no text, labels, numbers, cards, coins, table, borders, cell separators, watermark, cast shadow, contact shadow, reflection, glow, or background objects. Do not use #FF00FF inside the character.
+Avoid: duck proportions, long wings, adult chicken comb, multiple feathers, cute polished mascot finish, heroic pose, photorealism, 3D rendering, gradients, blur, microtexture, horns, extra limbs, hair, tail accessories, detached parts, malformed anatomy.

@@ -1,0 +1,44 @@
+Use case: precise-object-edit
+Asset type: corrected production master character reference for a 2D mobile game
+Input images: Image 1 is the edit target. Image 2 is the authoritative
+dachshund anatomy, proportions, face, pose restraint, and black-and-tan
+marking reference.
+
+Primary request: correct only the dog in Image 1 so it follows Image 2 much
+more closely in natural dachshund proportions while keeping the clean HD 2D
+cel-animation rendering and flat magenta production background.
+
+Required anatomy corrections:
+- Reduce the head and eye size substantially.
+- Use a small restrained dark eye rather than a glossy mascot eye.
+- Lower the head and neck and lengthen the muzzle slightly.
+- Make the torso longer, lower, straighter, leaner, and ribcage-like.
+- Remove the bulbous belly and oversized chest.
+- Shorten and slim all four legs and make the paws smaller.
+- Preserve exactly four legs: two at the shoulders and two at the rump.
+- Keep the middle torso leg-free.
+- Make the tail thinner with only a gentle upward curve.
+- Read immediately as a smooth-haired dachshund, not a generic puppy mascot,
+  sausage, worm, tube, or basset hound.
+
+Preserve:
+- Right-facing strict side profile.
+- Complete connected neck and body.
+- Charcoal-black coat.
+- Warm tan muzzle, chest, eyebrows, and paws.
+- Long floppy ear.
+- Crisp smooth dark outline and restrained two-step shading.
+- Neutral, slightly clueless expression.
+- Full-body containment and generous padding.
+
+Background:
+- Perfectly flat solid #FF00FF only.
+- No gradient, texture, floor, contact shadow, or reflection.
+- Do not use #FF00FF on the dog.
+
+Constraints:
+- Exactly one dog.
+- No clothes, collar, harness, tag, accessories, text, watermark, food,
+  sausage, UI, border, guides, extra limbs, merged legs, broken outlines,
+  disconnected neck, upright ears, curly tail, orange torso, candy colors,
+  or body segmentation.

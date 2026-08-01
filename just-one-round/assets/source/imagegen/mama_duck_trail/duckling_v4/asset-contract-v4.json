@@ -1,0 +1,201 @@
+{
+  "identity": "mama-duckling-v4",
+  "master": "master/raw/master-chroma.png",
+  "reference": "user-provided duckling pixel-art board",
+  "canonical_art_pixel": "2 logical pixels",
+  "source_cell": [
+    36,
+    36
+  ],
+  "display_size": [
+    72,
+    72
+  ],
+  "scale": 2,
+  "anchor": "feet",
+  "palette_colors": 24,
+  "runtime": {
+    "duckling_walk_sheet.png": {
+      "size": [
+        108,
+        72
+      ],
+      "layout": [
+        2,
+        3
+      ],
+      "frame_seconds": 0.09,
+      "frames": [
+        {
+          "index": 1,
+          "bbox": [
+            7,
+            4,
+            28,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "344c34685e00730430b64ca85e5cc88284005dc2af9b0691f695aed669955a53"
+        },
+        {
+          "index": 2,
+          "bbox": [
+            6,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "9bcffa9cdf8f67ca68a717689ee06fda36c0470aa3dcaf67b38a81ba0f4edb63"
+        },
+        {
+          "index": 3,
+          "bbox": [
+            7,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "4016c54077c35737c04dbe70a9ce4d64eb2978b2ffcd6ba1fd22d9ba604e900d"
+        },
+        {
+          "index": 4,
+          "bbox": [
+            7,
+            4,
+            28,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "85cdd4b6d4041358cae0906c482452be37169c5ee70b640fb69fdfa84b643766"
+        },
+        {
+          "index": 5,
+          "bbox": [
+            6,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "f2cac490c52156408bce8d0c05b8ed076321d8ba12d0818a3114bc708e6af712"
+        },
+        {
+          "index": 6,
+          "bbox": [
+            7,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "4812aa63964e2581d57694afdabf1176808ac0f5d5617d9ff76970337b3a0cdc"
+        }
+      ]
+    },
+    "duckling_cheer_sheet.png": {
+      "size": [
+        108,
+        72
+      ],
+      "layout": [
+        2,
+        3
+      ],
+      "frame_seconds": 0.125,
+      "frames": [
+        {
+          "index": 1,
+          "bbox": [
+            7,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "4e873c9241ddaf893017a7d3fa5bfecf477afca43e8f2e4d3a9cdcaf9890c10f"
+        },
+        {
+          "index": 2,
+          "bbox": [
+            5,
+            4,
+            31,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "01fcebaa2eb3e627abb5d2a26bd07c53989f7e3ba5eebf80cc77c012f13a29b0"
+        },
+        {
+          "index": 3,
+          "bbox": [
+            4,
+            4,
+            31,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "43482accd31f41445bdc5a236ac39bee7197a5615fe04958cc06b2ac237f7502"
+        },
+        {
+          "index": 4,
+          "bbox": [
+            3,
+            4,
+            32,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "212cba526fe82deeb3587b1755479f71175d5886884250661098e715c61bc5b0"
+        },
+        {
+          "index": 5,
+          "bbox": [
+            4,
+            4,
+            32,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "66a213f927f872b3b99b4979085ad517de670f2076630a86ea8f5eb6ad5d9230"
+        },
+        {
+          "index": 6,
+          "bbox": [
+            7,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "3b65d5ab3cf95d1ec44c795a80914fd95a8130dd5733be276724f6d8b806dbe3"
+        }
+      ]
+    },
+    "duckling_idle.png": {
+      "size": [
+        36,
+        36
+      ],
+      "derived_from": "walk-1"
+    },
+    "duckling_life_face.png": {
+      "size": [
+        20,
+        20
+      ],
+      "derived_from": "duckling_idle.png",
+      "display_size": [
+        40,
+        40
+      ]
+    }
+  },
+  "processor_qc": {
+    "walk": "walk/processed/pipeline-meta.json",
+    "cheer": "cheer/processed/pipeline-meta.json",
+    "cheer_anchor_y_limit": 0.06,
+    "note": "The generated cheer source measured 0.0542 normalized anchor standard deviation; deterministic feet alignment produces an identical runtime baseline in every frame."
+  }
+}

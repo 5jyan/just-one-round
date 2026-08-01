@@ -1,0 +1,7 @@
+Create an exact 3x3 top-down marsh atlas: five richly detailed mud variants,
+three irregular teal puddle variants and one spare detailed mud variant.
+Use layered clods, pebbles, cracks, moss seams, leaf litter, roots, wet
+highlights, ripples and duckweed while preserving a calm central 55% for
+large white footprints. Shared 18-22-color palette, hard pixel clusters and
+compatible edge colors. No visible grid, labels, characters, footprints,
+perspective sides, repeated mirrored motifs or noisy one-pixel static.

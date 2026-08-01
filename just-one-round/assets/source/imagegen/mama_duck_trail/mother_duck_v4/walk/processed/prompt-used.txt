@@ -1,0 +1,17 @@
+Create one production-ready pixel-art sprite sheet on a perfectly uniform solid #FF00FF chroma background.
+
+Image 1 is the exact approved mother-duck identity and style master. Preserve her identity exactly: mature plump adult cream-ivory duck, dusty-rose babushka headscarf covering the top and back of her head, cream edging, the same under-chin knot and two short scarf ends, almond black eyes with short eyelashes, tiny warm brows, peach cheeks, orange beak and feet, warm dark-brown outline, soft golden shading, and the same slightly awkward dopey-cute pixel-art character.
+
+Image 2 is a strict 2-row by 3-column placement, scale, and feet-baseline anchor. Create exactly six equally sized cells in that exact grid. Do not add gutters, borders, captions, guides, numbers, drop shadows, floor shadows, particles, or any extra objects.
+
+Animate a subtle continuous grounded waddle in place, row-major:
+1. neutral contact,
+2. body dips slightly with left foot forward,
+3. passing pose with gentle head and torso sway,
+4. opposite contact,
+5. body rises slightly with right foot forward,
+6. passing pose returning smoothly toward frame 1.
+
+Keep the character in the same three-quarter-front view in every cell. Keep her exact size, silhouette, face, headscarf shape, knot position, palette, outline thickness, and feet baseline consistent. Her folded wings may counter-swing a little but remain close to her body. The scarf must remain a head covering tied under her chin, never become a neck scarf, hat, hair, cape, or detached cloth. Keep both feet visible as appropriate for a waddling duck and prevent clipping at cell edges.
+
+Output only the six-frame sheet. Use crisp deliberate pixel clusters with no antialias blur, no smooth-vector rendering, and no semi-transparent pixels. Background must be exactly solid #FF00FF.

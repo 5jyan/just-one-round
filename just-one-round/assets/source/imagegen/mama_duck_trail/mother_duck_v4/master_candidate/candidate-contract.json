@@ -1,0 +1,37 @@
+{
+  "status": "accepted_master",
+  "selected_variant": "v5_headscarf",
+  "runtime_integrated": false,
+  "family_reference": "../../duckling_v4/master/raw/master-chroma.png",
+  "raw_source": "raw/mother-master-chroma-v5-headscarf.png",
+  "processed_source": "processed-v5-headscarf/idle-1.png",
+  "candidate": "mother_idle_candidate.png",
+  "accepted_master": "../master/mother_idle_master.png",
+  "source_cell": [36, 36],
+  "subject_bounds": [6, 4, 29, 34],
+  "subject_size": [23, 30],
+  "display_size": [72, 72],
+  "display_scale": 2,
+  "anchor": "feet",
+  "feet_baseline_y": 34,
+  "palette_colors": 28,
+  "identity_cues": [
+    "traditional dusty-rose headscarf tied under the chin",
+    "small almond eyes with short outer eyelashes",
+    "warm peach cheeks",
+    "folded protective wings",
+    "broad plump adult torso"
+  ],
+  "transparent_background": true,
+  "qc": {
+    "source_edge_touch": false,
+    "output_edge_touch": false,
+    "paste_clamped": false,
+    "empty_frame": false
+  },
+  "preserved_runtime_assets": [
+    "assets/images/mama_duck_trail/mother_duck_idle.png",
+    "assets/images/mama_duck_trail/mother_duck_walk_sheet.png",
+    "assets/images/mama_duck_trail/mother_duck_hug.png"
+  ]
+}

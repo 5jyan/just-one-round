@@ -1,0 +1,40 @@
+{
+  "source": "assets/source/imagegen/sausage_dachshund/v2/environment/raw/kitchen-background-v2.png",
+  "source_size": [
+    941,
+    1672
+  ],
+  "base_size": [
+    180,
+    320
+  ],
+  "runtime_size": [
+    360,
+    640
+  ],
+  "board_rect_world": [
+    40,
+    128,
+    280,
+    448
+  ],
+  "grid": {
+    "columns": 10,
+    "rows": 16,
+    "cell_size_world": 28
+  },
+  "safe_core_world": [
+    0,
+    0,
+    360,
+    640
+  ],
+  "filtering": "180x320 creative base, nearest-neighbor 2x runtime",
+  "board_rgb_mean": [
+    2,
+    37,
+    44
+  ],
+  "creative_source": "built-in Image Gen using user screenshot as reference",
+  "geometry": "deterministically baked into the single runtime background"
+}

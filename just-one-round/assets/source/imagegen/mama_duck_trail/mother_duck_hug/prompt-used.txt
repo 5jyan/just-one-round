@@ -1,0 +1,8 @@
+Use case: identity-preserve
+Asset type: single runtime pixel-art NPC success pose
+Primary request: Change only the accepted mother duck's pose into a warm sheltering hug pose for greeting her baby.
+Reference lock: Preserve her exact face, straight bill, eyes, anatomy, palette, outline, coarse pixel density, camera, and scale.
+Pose: Front 3/4 top-down full body, crouched slightly with both broad wings opened downward into a safe heart-like shelter, kind relieved smile, feet on baseline. Leave a clear small space directly beneath her chest where the baby sprite can be composited.
+Pixel style: Coarse true pixel art for one 32×32 runtime cell displayed at 64×64.
+Background: Perfectly flat solid #FF00FF.
+Constraints: Mother duck only; do not include the baby. No floor, shadow, text, props, extra limbs, gradients, blur, antialiasing, or #FF00FF in the character.

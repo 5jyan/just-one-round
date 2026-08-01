@@ -33,6 +33,7 @@ void main() {
     expect(definition.id, 'gravity_switch');
     expect(definition.countdownInstruction, contains('중력'));
     expect(definition.formatHudScore(12345), '12.35');
+    expect(definition.defaultDuration, const Duration(minutes: 5));
     expect(definition.hudStyle.name, 'survivalTime');
   });
 
@@ -76,8 +77,49 @@ void main() {
     expect(definition.id, 'number_rush');
     expect(definition.scoreLabel, 'CLEAR TIME');
     expect(definition.formatScore(3590123), '9.88초');
+    expect(definition.formatScore(0), '0점');
     expect(definition.hudStyle.name, 'numberRush');
     expect(definition.countdownInstruction, contains('1부터 50'));
     expect(definition.defaultDuration, const Duration(minutes: 3));
+  });
+
+  test('엄마 어디가는 120초 경로 점수전을 사용한다', () {
+    final definition = GameRegistry.forId('mama_duck_trail');
+
+    expect(definition.id, 'mama_duck_trail');
+    expect(definition.scoreLabel, 'TRAIL SCORE');
+    expect(definition.formatScore(12345), '12,345점');
+    expect(definition.formatHudScore(12345), '12,345');
+    expect(definition.defaultDuration, const Duration(seconds: 120));
+    expect(definition.countdownInstruction, contains('발자국'));
+    expect(definition.hudStyle.name, 'mamaDuckTrail');
+    expect(GameRegistry.supports('mama_duck_trail', 1), isTrue);
+  });
+
+  test('야식털이 뱀은 최대 5분 음식 개수 점수전을 사용한다', () {
+    final definition = GameRegistry.forId('midnight_snake');
+
+    expect(definition.id, 'midnight_snake');
+    expect(definition.scoreLabel, 'MIDNIGHT SNACKS');
+    expect(definition.formatScore(12), '12개');
+    expect(definition.formatHudScore(12), '12');
+    expect(definition.defaultDuration, const Duration(minutes: 5));
+    expect(definition.countdownInstruction, contains('스와이프'));
+    expect(GameRegistry.supports('midnight_snake', 2), isTrue);
+    expect(GameRegistry.supports('midnight_snake', 1), isFalse);
+  });
+
+  test('블랙잭 가즈아는 10라운드 코인 점수전을 사용한다', () {
+    final definition = GameRegistry.forId('beat_the_dealer');
+
+    expect(definition.id, 'beat_the_dealer');
+    expect(definition.scoreLabel, 'COINS');
+    expect(definition.formatScore(125), '125코인');
+    expect(definition.defaultDuration, const Duration(minutes: 3));
+    expect(definition.countdownInstruction, contains('공개 카드'));
+    expect(definition.hudStyle.name, 'beatTheDealer');
+    expect(GameRegistry.supports('beat_the_dealer', 3), isTrue);
+    expect(GameRegistry.supports('beat_the_dealer', 2), isFalse);
+    expect(GameRegistry.supports('beat_the_dealer', 1), isFalse);
   });
 }

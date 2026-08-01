@@ -1,0 +1,8 @@
+Exactly 6 equal frames in a 2x3 grid of the accepted mother duck performing a
+gentle grounded waddling walk cycle. Preserve the warm cream-yellow palette,
+brown bonnet, maternal eyes, round body, and conventionally cute personality.
+Crisp authored pixel art with 12-18 colors, hard deliberate clusters, a warm
+dark outline, no antialiasing, blur, subpixel shading, or microtexture. Stable
+camera distance, center, scale, and foot baseline with generous padding.
+Uniform solid #FF00FF background. No effects, shadows, labels, borders, guides,
+extra characters, or edge crossing.

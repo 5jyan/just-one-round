@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: runtime pixel-art game character master sprite
+Primary request: Design a completely new baby duckling idle master for the mobile memory-path game "엄마, 어디가".
+Reference role: The reference locks only the chunky pixel-cluster language, dark plum-brown outline, and yellow/orange palette. Do not preserve the old duckling's crooked bill, asymmetrical face, worried expression, or awkward anatomy.
+Character direction: This is not an ugly or malformed duck. It is a conventionally adorable baby duckling that looks slightly dim-witted in an innocent, lovable, dopey way: cute 80%, dopey 20%.
+Subject: Round plump cheeks, a small soft pear-shaped body, two symmetrical orange webbed feet, and exactly three soft damp hair tufts. A small straight symmetrical bill is slightly open in harmless blank surprise. Two evenly aligned large clear eyes with centered pupils and tiny highlights give a sweet, trusting expression. It looks as if it understands everything one beat late, yet eagerly follows its mother.
+Pose/view: Single static idle, full body, front 3/4 top-down game view, upright chest, stable symmetrical stance, feet planted on one baseline, centered with generous padding.
+Pixel style: Deliberate coarse true pixel art, designed to reduce cleanly to a 32×32 source cell and display at 64×64 with nearest-neighbor. Thick staircase silhouette, dark plum-brown one-pixel-equivalent outline, compact pixel clusters, 2–3 shading levels, 9–12 colors total, no antialiasing or painterly texture.
+Background: Perfectly flat solid #FF00FF chroma-key background, uniform corner to corner.
+Constraints: One character only. Cute and healthy anatomy. Straight centered bill. Symmetrical face and eyes. No floor, no shadow, no reflection, no text, no border, no grid, no props. Keep the complete silhouette within the central 65% of the canvas.
+Avoid: Crooked bill, facial asymmetry, uneven eye height, disability-coded features, gaunt body, grotesque face, unfocused or crossed pupils, sickly or frightened expression, horror, extra limbs, extra hair tufts, smooth vector edges, high-resolution feather detail, gradients, blur, semitransparency, or any #FF00FF inside the character.

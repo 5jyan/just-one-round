@@ -1,13 +1,18 @@
 import 'package:just_one_round/features/games/domain/mini_game.dart';
-import 'package:just_one_round/features/games/apple_game/apple_game.dart';
-import 'package:just_one_round/features/games/apple_game/domain/apple_game_rules.dart';
-import 'package:just_one_round/features/games/failed_bakery/domain/failed_bakery_rules.dart';
+import 'package:just_one_round/features/games/beat_the_dealer/beat_the_dealer_game.dart';
+import 'package:just_one_round/features/games/beat_the_dealer/domain/beat_the_dealer_rules.dart';
+import 'package:just_one_round/features/games/apple_game_v2/apple_game_v2.dart';
+import 'package:just_one_round/features/games/apple_game_v2/domain/apple_game_v2_rules.dart';
+import 'package:just_one_round/features/games/dung_dodge_v2/domain/dung_dodge_v2_rules.dart';
+import 'package:just_one_round/features/games/dung_dodge_v2/dung_dodge_v2_game.dart';
 import 'package:just_one_round/features/games/gravity_switch/domain/gravity_switch_rules.dart';
 import 'package:just_one_round/features/games/gravity_switch/gravity_switch_game.dart';
+import 'package:just_one_round/features/games/mama_duck_trail/domain/mama_duck_trail_rules.dart';
+import 'package:just_one_round/features/games/mama_duck_trail/mama_duck_trail_game.dart';
 import 'package:just_one_round/features/games/number_rush/domain/number_rush_rules.dart';
 import 'package:just_one_round/features/games/number_rush/number_rush_game.dart';
-import 'package:just_one_round/features/games/star_dodge/domain/star_dodge_rules.dart';
-import 'package:just_one_round/features/games/star_dodge/star_dodge_game.dart';
+import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
+import 'package:just_one_round/features/games/midnight_snake/midnight_snake_game.dart';
 
 abstract final class GameRegistry {
   static final _definitions = <String, MiniGameDefinition>{
@@ -17,18 +22,18 @@ abstract final class GameRegistry {
           ({
             required gameDuration,
             required countdownDuration,
+            required attemptOrdinal,
             required onFinished,
-          }) => StarDodgeGame(
+          }) => DungDodgeV2Game(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
-            assetSet: StarDodgeAssetSet.uglyCute,
             onFinished: onFinished,
           ),
       countdownInstruction: '화면을 좌우로 드래그하세요',
       playingInstruction: '떨어지는 똥을 피하세요! · 충돌하면 종료',
       scoreLabel: 'SURVIVAL TIME',
-      formatScore: StarDodgeRules.formatSurvival,
-      hudScoreFormatter: StarDodgeRules.formatHudTime,
+      formatScore: DungDodgeV2Rules.formatSurvival,
+      hudScoreFormatter: DungDodgeV2Rules.formatHudTime,
       defaultDuration: const Duration(minutes: 5),
       hudStyle: MiniGameHudStyle.survivalTime,
     ),
@@ -38,8 +43,10 @@ abstract final class GameRegistry {
           ({
             required gameDuration,
             required countdownDuration,
+            required attemptOrdinal,
             required onFinished,
           }) => GravitySwitchGame(
+            gameDuration: gameDuration,
             countdownDuration: countdownDuration,
             onFinished: onFinished,
           ),
@@ -48,6 +55,7 @@ abstract final class GameRegistry {
       scoreLabel: 'SURVIVAL TIME',
       formatScore: GravitySwitchRules.formatSurvival,
       hudScoreFormatter: GravitySwitchRules.formatHudTime,
+      defaultDuration: GravitySwitchRules.gameDuration,
       hudStyle: MiniGameHudStyle.survivalTime,
     ),
     'apple_game_v2': MiniGameDefinition(
@@ -56,18 +64,19 @@ abstract final class GameRegistry {
           ({
             required gameDuration,
             required countdownDuration,
+            required attemptOrdinal,
             required onFinished,
-          }) => AppleGame(
+          }) => AppleGameV2(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
-            assetSet: AppleGameAssetSet.midnightOrchard,
+            assetSet: AppleGameV2AssetSet.midnightOrchard,
             onFinished: onFinished,
           ),
       countdownInstruction: '드래그한 사과 숫자의 합을 10으로 만드세요',
       playingInstruction: '합이 10이면 제거 · 많이 묶을수록 고득점!',
       scoreLabel: 'APPLES',
-      formatScore: AppleGameRules.formatApples,
-      defaultDuration: AppleGameRules.gameDuration,
+      formatScore: AppleGameV2Rules.formatApples,
+      defaultDuration: AppleGameV2Rules.gameDuration,
       hudStyle: MiniGameHudStyle.appleGame,
       resultUnitLabel: '제거한 사과',
     ),
@@ -77,6 +86,7 @@ abstract final class GameRegistry {
           ({
             required gameDuration,
             required countdownDuration,
+            required attemptOrdinal,
             required onFinished,
           }) => NumberRushGame(
             countdownDuration: countdownDuration,
@@ -91,6 +101,71 @@ abstract final class GameRegistry {
       hudStyle: MiniGameHudStyle.numberRush,
       resultUnitLabel: '기록 시간 · 최대 3분',
     ),
+    'mama_duck_trail': MiniGameDefinition(
+      id: 'mama_duck_trail',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required attemptOrdinal,
+            required onFinished,
+          }) => MamaDuckTrailGame(
+            gameDuration: gameDuration,
+            countdownDuration: countdownDuration,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '엄마 오리의 발자국을 기억하세요',
+      playingInstruction: '사라진 길을 출발점부터 드래그하세요!',
+      scoreLabel: 'TRAIL SCORE',
+      formatScore: MamaDuckTrailRules.formatScore,
+      hudScoreFormatter: MamaDuckTrailRules.formatHudScore,
+      defaultDuration: MamaDuckTrailRules.gameDuration,
+      hudStyle: MiniGameHudStyle.mamaDuckTrail,
+      resultUnitLabel: '완성 경로 점수',
+    ),
+    'midnight_snake': MiniGameDefinition(
+      id: 'midnight_snake',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required attemptOrdinal,
+            required onFinished,
+          }) => MidnightSnakeGame(
+            gameDuration: gameDuration,
+            countdownDuration: countdownDuration,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '상하좌우로 스와이프해 방향을 바꾸세요',
+      playingInstruction: '야식을 먹고 몸과 벽을 피하세요!',
+      scoreLabel: 'MIDNIGHT SNACKS',
+      formatScore: MidnightSnakeRules.formatScore,
+      hudScoreFormatter: MidnightSnakeRules.formatHudScore,
+      defaultDuration: MidnightSnakeRules.gameDuration,
+      resultUnitLabel: '먹은 야식',
+    ),
+    'beat_the_dealer': MiniGameDefinition(
+      id: 'beat_the_dealer',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required attemptOrdinal,
+            required onFinished,
+          }) => BeatTheDealerGame(
+            gameDuration: gameDuration,
+            countdownDuration: countdownDuration,
+            attemptOrdinal: attemptOrdinal,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '딜러 공개 카드를 보고 코인을 거세요',
+      playingInstruction: '21에 가깝게 · 한 장 더 또는 멈추기',
+      scoreLabel: 'COINS',
+      formatScore: BeatTheDealerRules.formatScore,
+      defaultDuration: BeatTheDealerRules.gameDuration,
+      hudStyle: MiniGameHudStyle.beatTheDealer,
+      resultUnitLabel: '최종 보유 코인',
+    ),
   };
 
   static const _supportedVersions = <String, int>{
@@ -98,6 +173,9 @@ abstract final class GameRegistry {
     'gravity_switch': 1,
     'apple_game_v2': 1,
     'number_rush': 1,
+    'mama_duck_trail': 1,
+    'midnight_snake': MidnightSnakeRules.rulesVersion,
+    'beat_the_dealer': BeatTheDealerRules.rulesVersion,
   };
 
   static MiniGameDefinition? tryForId(String? id) => _definitions[id];
@@ -115,9 +193,10 @@ abstract final class GameRegistry {
   static Set<String> get registeredIds => Set.unmodifiable(_definitions.keys);
 
   static String formatScore(String? gameId, int score) => switch (gameId) {
-    'failed_bakery' => FailedBakeryRules.formatLayers(score),
-    'apple_game' => AppleGameRules.formatApples(score),
-    'star_dodge' || 'dung_dodge' => StarDodgeRules.formatSurvival(score),
+    // Historical records can outlive a removed game implementation.
+    'failed_bakery' => '$score층',
+    'apple_game' => AppleGameV2Rules.formatApples(score),
+    'star_dodge' || 'dung_dodge' => DungDodgeV2Rules.formatSurvival(score),
     _ => forId(gameId).formatScore(score),
   };
 }

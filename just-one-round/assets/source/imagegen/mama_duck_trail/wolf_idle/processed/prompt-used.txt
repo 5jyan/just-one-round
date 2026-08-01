@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: runtime pixel-art enemy character master sprite
+Primary request: Create one hidden-marsh wolf idle master for the mobile game "엄마, 어디가".
+Reference role: The accepted baby duck master locks the exact coarse pixel grid, dark plum-brown outline thickness, compact cluster language, light direction, and detail density.
+Subject: A lanky gray-brown wolf in the project's lovable dopey-cute style. He believes he is cleverly disguised, but only three obvious reeds sit on his head. Long muzzle, large closed mouth, skinny legs, oversized paws, sleepy overconfident eyes, and a harmless foolish grin. Threatening enough to read as danger, comic rather than horrific.
+Pose/view: Single static idle, full body, front 3/4 top-down game view, feet on one baseline, centered with generous padding.
+Pixel style: Coarse true pixel art designed to reduce to a 48×48 cell and display at 96×96. Same apparent pixel size as the 32×32 duck, thick staircase outline, 2–3 shading levels, 10–14 colors, no fine fur texture or antialiasing.
+Background: Perfectly flat solid #FF00FF chroma-key background.
+Constraints: One wolf only. Reeds are attached to the head silhouette. No floor, shadow, reflection, blood, prey, text, border, grid, extra limbs, gradients, blur, or #FF00FF in the subject.

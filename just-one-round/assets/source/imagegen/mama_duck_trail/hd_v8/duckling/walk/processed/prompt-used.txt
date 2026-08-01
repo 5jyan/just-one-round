@@ -1,0 +1,37 @@
+Use case: stylized-concept
+Asset type: six-frame mobile game character walk animation sheet
+Input images: Image 1 is the exact accepted baby-duck identity and pixel-art
+reference. Image 2 is a scale-and-root template made from that character; use
+it only for the invisible 2-row × 3-column slot positions, fixed camera
+distance, standing-equivalent scale, body-root position, foot-contact line,
+spacing, and padding. Do not reproduce any visible guide, border, separator,
+or template marks.
+Primary request: create one continuous six-frame grounded waddling walk cycle
+for exactly the same baby duck. Frame order is left-to-right across the top
+row, then left-to-right across the bottom row: 1 neutral contact, 2 body dips
+and left foot advances, 3 passing pose with slight rightward lean, 4 opposite
+contact, 5 body rises and right foot advances, 6 passing pose returning toward
+frame 1. The duck moves in place; no whole-character travel across cells.
+Identity lock: preserve the exact oversized fluffy round head, smaller
+pear-shaped body, two uneven crown tufts, wide glossy black eyes, small flat
+orange beak, tiny side wings, short orange webbed feet,
+butter-yellow/golden-yellow/cream palette, deep warm-brown outline, blank
+slightly clueless ugly-cute expression, and mildly pigeon-toed stance from
+Image 1. Do not redesign or beautify it.
+Style: crisp deliberate pixel art, chunky clusters, medium-low detail,
+upper-left light, no blur, antialiasing, gradients, dithering noise, or
+painterly texture. Every frame must have the same anatomical proportions,
+pixel density, outline weight, palette, camera angle, and standing-equivalent
+body scale. Motion comes from alternating feet, small wing counter-swing,
+gentle head bob, and body squash/rise.
+Layout: exact 2×3 grid with six equal invisible cells and no more than six
+ducks. Keep the entire duck in the central 66% of each cell with generous
+magenta padding on all four sides. Both feet share one stable grounded
+baseline. No wing tip, foot, tuft, or beak may cross a cell edge. Never zoom
+individual poses to fill their cell.
+Backdrop: perfectly flat uniform solid #FF00FF chroma-key background only; no
+gradient, texture, floor, shadow, reflection, scenery, guide boxes, text,
+labels, UI, watermark, cell borders, or separators.
+Avoid: no detached feathers, dust, motion lines, extra limbs, extra eyes,
+extra tufts, clothing, hats, props, accessories, side-view rotation, rear
+view, or dramatic perspective.

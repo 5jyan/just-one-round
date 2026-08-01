@@ -35,6 +35,7 @@ class GravitySwitchGame extends FlameGame
     implements MiniGameController {
   GravitySwitchGame({
     required this.onFinished,
+    this.gameDuration = GravitySwitchRules.gameDuration,
     this.countdownDuration = const Duration(seconds: 3),
     this.captureConfig,
     Random? random,
@@ -52,11 +53,12 @@ class GravitySwitchGame extends FlameGame
        );
 
   static final logicalSize = Vector2(360, 640);
-  static const maxVisibleHeight = 784.0;
+  static const maxVisibleHeight = 800.0;
   static const playerX = 92.0;
   static const playerSize = 48.0;
   static const playerContactHalfHeight = 15.0;
 
+  final Duration gameDuration;
   final Duration countdownDuration;
   final GravitySwitchCaptureConfig? captureConfig;
   final ValueChanged<GameResult> onFinished;
@@ -214,6 +216,14 @@ class GravitySwitchGame extends FlameGame
 
   void _updatePlaying(double dt) {
     _playingElapsed += dt;
+    final durationSeconds =
+        gameDuration.inMicroseconds / Duration.microsecondsPerSecond;
+    if (_playingElapsed >= durationSeconds) {
+      _playingElapsed = durationSeconds;
+      _score = gameDuration.inMilliseconds;
+      _finish(timedOut: true);
+      return;
+    }
     final scriptedTaps = captureConfig?.tapAtSeconds ?? const <double>[];
     while (_nextCaptureTapIndex < scriptedTaps.length &&
         _playingElapsed >= scriptedTaps[_nextCaptureTapIndex]) {
@@ -337,22 +347,32 @@ class GravitySwitchGame extends FlameGame
     if (_phase == MiniGamePhase.playing) _player.switchGravity();
   }
 
-  void _finish() {
+  void _finish({bool timedOut = false}) {
     if (_hasFinished) return;
     _hasFinished = true;
     _phase = MiniGamePhase.finished;
-    _player.showGameOver();
+    if (!timedOut) {
+      _player.showGameOver();
+    }
     _publishHud(force: true);
     pauseEngine();
     onFinished(
       GameResult(
         score: _score,
         starsCollected: 0,
-        collisions: 1,
+        collisions: timedOut ? 0 : 1,
         duration: Duration(milliseconds: _score),
-        endType: GameEndType.gameOver,
+        endType: timedOut ? GameEndType.timeUp : GameEndType.gameOver,
       ),
     );
+  }
+
+  @visibleForTesting
+  void reachTimeLimitForTesting() {
+    _playingElapsed =
+        gameDuration.inMicroseconds / Duration.microsecondsPerSecond;
+    _score = gameDuration.inMilliseconds;
+    _finish(timedOut: true);
   }
 
   @override
@@ -653,7 +673,7 @@ class _TerrainRenderer extends Component {
   static const _cell = 48.0;
   static const _gridOriginY = 128.0;
   // Covers y=-112..752, including the maximum responsive viewport
-  // y=-72..712 with 40 logical pixels of visual-only margin on both sides.
+  // y=-80..720 with 32 logical pixels of visual-only margin on both sides.
   static const _minimumRow = -5;
   static const _maximumRow = 12;
   static const blockWidth = 3;

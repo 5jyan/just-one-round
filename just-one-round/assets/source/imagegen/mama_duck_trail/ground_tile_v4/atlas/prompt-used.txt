@@ -1,0 +1,22 @@
+Create one exact 3-row by 3-column production pixel-art terrain atlas for the mobile game "엄마, 어디가".
+
+Image 1 is the approved basic marsh-ground master. Preserve its dark warm-brown mud palette, broad connected soil clusters, restrained moonlit contrast, quiet central area, and coarse 2-logical-pixel texture scale.
+
+Image 2 is a geometry-only 3×3 layout guide. Use it only to keep exactly nine equal cells in the correct arrangement. Do not reproduce its boxes, borders, blue lines, center marks, black gutters, white background, or guides.
+
+Fill every cell completely with opaque orthographic top-down terrain. There must be no transparent or magenta areas, no gutters, no visible grid, and no separator lines. Every cell uses the same compatible mud color along all four edges so arbitrary neighboring cells join without visible seams. Keep the central area of every cell readable beneath a large white duck footprint.
+
+Exact row-major cell contents:
+1. approved quiet basic mud, closest possible match to Image 1;
+2. mud with one broad low-contrast soil clod;
+3. mud with only two or three small rounded pebbles;
+4. mud with one restrained irregular crack cluster;
+5. mud with a small muted olive moss patch near an outer area;
+6. mud with a small irregular dark-teal puddle, mostly mud remains;
+7. mud with a medium irregular dark-teal puddle;
+8. mud with a large irregular dark-teal puddle, still leaving a readable muddy border;
+9. spare mud tile with one subtle root fragment near an outer edge.
+
+All nine cells must be unique without mirrored duplication. Use a compact shared palette, strong deliberate pixel clusters, low texture density, and soft upper-left moonlight. Puddles use the existing marsh's subdued blue-green teal with only one or two simple ripple highlights.
+
+No reeds, grass tufts, flowers, characters, footprints, bones, props, text, symbols, labels, borders, shadows, perspective side faces, tiny one-pixel static, gradients, blur, antialias smoothing, or repeated wallpaper motifs.

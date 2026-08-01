@@ -1,0 +1,110 @@
+{
+  "status": "processed_and_integrated",
+  "version": "hd-v8-smaller-duckling",
+  "approved_change": {
+    "scope": "duckling walk and cheer only",
+    "method": "deterministic reprocessing from accepted high-resolution raw sheets",
+    "old_subject_height_pixels": 60,
+    "new_subject_height_pixels": 50,
+    "reduction_percent": 16.6667,
+    "reason": "make the duckling visibly smaller than the mother"
+  },
+  "preserved": {
+    "mother_assets": true,
+    "lives_face": true,
+    "cell_size": [
+      72,
+      72
+    ],
+    "sheet_layout": [
+      3,
+      2
+    ],
+    "frame_count": 6,
+    "feet_baseline_y": 68,
+    "animation_timing": true,
+    "path_spacing": "one duck per tile",
+    "rules_scoring_lives_and_input": true
+  },
+  "walk": {
+    "raw_source": "assets/source/imagegen/mama_duck_trail/duckling_v4/walk/raw/raw-sheet.png",
+    "processed_sheet": "duckling/walk/processed/sheet-transparent.png",
+    "runtime_sheet": "assets/images/mama_duck_trail/duckling_walk_sheet.png",
+    "runtime_qc_sheet": "duckling/walk/processed/sheet-runtime.png",
+    "pipeline_metadata": "duckling/walk/processed/pipeline-meta.json",
+    "frame_duration_milliseconds": 90,
+    "subject_heights": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50
+    ],
+    "feet_baselines": [
+      68,
+      68,
+      68,
+      68,
+      68,
+      68
+    ]
+  },
+  "cheer": {
+    "raw_source": "assets/source/imagegen/mama_duck_trail/duckling_v4/cheer/raw/raw-sheet-v2.png",
+    "processed_sheet": "duckling/cheer/processed/sheet-transparent.png",
+    "runtime_sheet": "assets/images/mama_duck_trail/duckling_cheer_sheet.png",
+    "runtime_qc_sheet": "duckling/cheer/processed/sheet-runtime.png",
+    "pipeline_metadata": "duckling/cheer/processed/pipeline-meta.json",
+    "frame_duration_milliseconds": 125,
+    "subject_heights": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50
+    ],
+    "feet_baselines": [
+      68,
+      68,
+      68,
+      68,
+      68,
+      68
+    ]
+  },
+  "processor": {
+    "cell_size": 72,
+    "fit_scale": 0.7,
+    "anchor": "feet",
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "strict_qc": true,
+    "scale_profile": "duckling/character-scale-profile.json",
+    "runtime_palette_colors": 48,
+    "runtime_alpha_threshold": 128
+  },
+  "qc": {
+    "walk": {
+      "valid_frames": 6,
+      "empty_frames": 0,
+      "edge_touch_frames": 0,
+      "paste_clamped_frames": 0,
+      "body_scale_cv": 0.013372919544138316,
+      "anchor_y_std": 0.013244037297950264
+    },
+    "cheer": {
+      "valid_frames": 6,
+      "empty_frames": 0,
+      "edge_touch_frames": 0,
+      "paste_clamped_frames": 0,
+      "body_scale_cv": 0.022252266182100224,
+      "anchor_y_std": 0.07573328921388607,
+      "profile_body_scale_drift": 0.02766414763005942
+    },
+    "result": "pass"
+  },
+  "runtime_capture": "qc/runtime_group_success_smaller_duckling.png",
+  "pixel_scale_comparison": "qc/duckling_scale_comparison.png"
+}

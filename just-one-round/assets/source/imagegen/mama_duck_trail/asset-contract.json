@@ -1,0 +1,139 @@
+{
+  "game_id": "mama_duck_trail",
+  "title": "엄마, 어디가",
+  "status": "runtime_integrated_v1",
+  "canonical_viewport": [360, 640],
+  "apparent_art_pixel_logical_px": 2,
+  "filtering": "nearest_neighbor",
+  "generation": {
+    "creative_source": "built_in_image_gen",
+    "chroma_key": "#FF00FF",
+    "processor": "generate2dsprite.py",
+    "raw_sources_preserved": true
+  },
+  "assets": [
+    {
+      "runtime": "assets/images/mama_duck_trail/duckling_idle.png",
+      "source_cell": [32, 32],
+      "display_size": [64, 64],
+      "anchor": "feet",
+      "identity": "cute 80%, innocent dopey-cute 20%; straight symmetrical bill"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/duckling_life_face.png",
+      "source_cell": [20, 20],
+      "display_size": [30, 30],
+      "display_scale": 1.5,
+      "display_scale_exception": "explicitly approved for the compact three-face LIVES HUD group",
+      "anchor": "center",
+      "method": "deterministic crop from duckling_idle.png; facial pixels preserved",
+      "identity": "same accepted cute dopey duckling face"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/mother_duck_idle.png",
+      "source_cell": [32, 32],
+      "display_size": [64, 64],
+      "anchor": "feet",
+      "identity": "warm conventional cuteness; no ugly-cute"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/wolf_idle.png",
+      "source_cell": [48, 48],
+      "display_size": [96, 96],
+      "anchor": "feet",
+      "identity": "lanky dopey threat with three-reed disguise"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/marsh_tiles_atlas.png",
+      "atlas_size": [72, 72],
+      "cell": [24, 24],
+      "display_cell": [72, 72],
+      "layout": "3x3 row-major",
+      "order": [
+        "mud_01", "mud_02", "mud_03",
+        "mud_04", "mud_05", "puddle_01",
+        "puddle_02", "puddle_03", "goal_special"
+      ]
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/footprints_atlas.png",
+      "atlas_size": [64, 48],
+      "cell": [16, 16],
+      "display_cell": [48, 48],
+      "layout": "3x4",
+      "columns": ["up", "right", "down", "left"],
+      "rows": ["mother", "player", "error"]
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/duckling_walk_sheet.png",
+      "atlas_size": [96, 64],
+      "cell": [32, 32],
+      "display_cell": [64, 64],
+      "layout": "2x3 chronological",
+      "frames": 6,
+      "anchor": "feet"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/mother_duck_walk_sheet.png",
+      "atlas_size": [96, 64],
+      "cell": [32, 32],
+      "display_cell": [64, 64],
+      "layout": "2x3 chronological",
+      "frames": 6,
+      "anchor": "feet"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/mother_duck_hug.png",
+      "source_cell": [32, 32],
+      "display_size": [64, 64],
+      "frames": 1,
+      "anchor": "feet"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/wolf_failure_sheet.png",
+      "atlas_size": [144, 96],
+      "cell": [48, 48],
+      "display_cell": [96, 96],
+      "layout": "2x3 chronological",
+      "frames": 6,
+      "anchor": "feet"
+    },
+    {
+      "runtime": "assets/images/mama_duck_trail/feather_poof_sheet.png",
+      "atlas_size": [64, 64],
+      "cell": [32, 32],
+      "display_cell": [64, 64],
+      "layout": "2x2 chronological",
+      "frames": 4,
+      "anchor": "center"
+    }
+  ],
+  "qc": {
+    "processor_strict_qc": true,
+    "transparent_corners": true,
+    "output_edge_touch": false,
+    "paste_clamped": false,
+    "marsh_raw_source_edge_touch": "reviewed and allowed; regenerated output has a one-pixel safety gap",
+    "viewport_composite": "qc/mama_duck_trail_5x7_qc.png",
+    "pixel_scale_comparison": "qc/pixel_scale_comparison.png",
+    "duckling_life_face_native_review": "qc/duckling_life_face_8x.png",
+    "actual_flame_runtime_capture": "qc/runtime_gameplay_360x640.png",
+    "actual_simulator_hud_capture": "qc/simulator_hud_v2.png",
+    "actual_lives_random_path_capture": "qc/simulator_lives_random_path_v3.png",
+    "full_flutter_test_count": 153
+  },
+  "scope_notes": {
+    "runtime_code_changed": true,
+    "pubspec_changed": true,
+    "animations_deferred": false,
+    "backend_daily_schedule_deferred": true,
+    "actor_visibility": "mother preview, recall, and success; duckling success only; wolf failure only",
+    "goal_tile_runtime_use": false,
+    "puddle_count": 9,
+    "puddle_layout": "seeded per session; no 2x2 puddle block",
+    "path_progression": "4 cells initially, +1 per success, capped only by the 35-cell no-revisit board",
+    "path_randomness": "random starting column on the bottom row; unbiased shuffled search across legal up, right, down, and left candidates after departure",
+    "lives_hud": "centered LIVES label above three 30x30 duckling faces with 2px gaps",
+    "board_rect": [0, 68, 360, 504]
+  }
+}

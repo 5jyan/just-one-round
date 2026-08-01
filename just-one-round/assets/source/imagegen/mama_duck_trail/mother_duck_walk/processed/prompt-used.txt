@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: 6-frame runtime pixel-art NPC walk sheet
+Primary request: Animate the accepted mother duck walking calmly forward while leaving a path for her baby.
+Reference lock: Preserve her exact warm conventional beauty, balanced anatomy, kind aligned eyes, straight bill, broad protective wing, cream-gold palette, dark plum-brown outline, and coarse pixel density. Do not make her ugly-cute or foolish.
+Layout: Exact 2 rows × 3 columns, six chronological frames, left-to-right then top-to-bottom.
+Motion: alternating left/right steps with restrained body bob and gentle tail counter-motion; dignified, caring, and slightly hurried.
+Geometry: Full body centered in every cell, same standing-equivalent height, torso center fixed, feet on one shared baseline, complete silhouette inside central 68%, no translation across cells.
+Pixel style: Coarse true pixel art for 32×32 runtime cells displayed at 64×64, exact master cluster scale, 2–3 shading levels, no antialiasing.
+Background: Perfectly flat solid #FF00FF.
+Constraints: Six mother ducks only, one per cell. No labels, borders, separators, floor, shadow, props, detached feathers, extra limbs, gradients, blur, or #FF00FF in the character.

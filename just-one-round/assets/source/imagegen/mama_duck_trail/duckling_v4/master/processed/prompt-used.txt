@@ -1,0 +1,27 @@
+Use case: stylized-concept
+Asset type: master specimen for a mobile game pixel-art character
+Input image: Image 1 is a style and proportion reference only. Create a newly
+designed baby duck inspired by its round head, glossy black eyes, warm yellow
+palette, short orange beak, tiny wings, and plump body; do not copy its sheet
+layout or accessories.
+Subject: one full-body baby duck standing in a neutral grounded
+three-quarter-front view, slightly above eye level. Oversized round fluffy
+head, smaller pear-shaped body, tiny side wings, short webbed orange feet, two
+small uneven crown-feather tufts. Wide-spaced glossy black eyes and a small
+flat orange beak. Expression is gentle, blank, slightly clueless, awkward, and
+dopey-cute—not polished mascot-cute. Mildly imperfect symmetry and a subtly
+pigeon-toed stance are intentional.
+Style/medium: crisp hand-authored-looking pixel art for a 36x36 source cell
+displayed at 2x. Strong readable silhouette, chunky deliberate pixel clusters,
+restrained medium-low internal detail. Butter-yellow base, golden-yellow
+shadow masses, pale cream belly highlight, burnt-orange beak and feet, deep
+warm brown 1-pixel-style outline. Light comes from upper left. No blur, no
+antialiasing, no painterly texture, no dithering noise, no subpixel detail.
+Composition: exactly one duck, centered, full body entirely visible, generous
+padding on every side, stable foot-contact baseline, no cast shadow.
+Backdrop: perfectly flat uniform solid #FF00FF chroma-key background, no
+gradient, texture, floor, lighting variation, or shadow.
+Constraints: no clothing, no hat, no props, no scenery, no extra animals, no
+text, no labels, no UI, no border, no watermark. No detached feathers or
+effects. Do not use magenta anywhere in the duck. Keep anatomy simple and
+readable with exactly two wings, two feet, one beak, and two crown tufts.

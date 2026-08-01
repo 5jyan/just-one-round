@@ -63,10 +63,40 @@ void main() {
     expect(presentation.guideDurationText, '2분 20초 동안 도전할 수 있어요.');
   });
 
+  test('중력 스위치와 탭50 설명서는 시간 종료 규칙을 정확히 안내한다', () {
+    final gravity = GamePresentationRegistry.forId('gravity_switch');
+    final numberRush = GamePresentationRegistry.forId('number_rush');
+
+    expect(gravity.durationLabel, '최대 5분');
+    expect(gravity.guideDurationText, contains('5분'));
+    expect(gravity.guidePages.last.description, contains('최대 5분'));
+    expect(numberRush.guidePages.last.detail, contains('0점'));
+  });
+
+  test('엄마 어디가는 120초와 목숨 3개를 안내한다', () {
+    final presentation = GamePresentationRegistry.forId('mama_duck_trail');
+
+    expect(presentation.durationLabel, '120초');
+    expect(presentation.guideDurationText, contains('목숨 3개'));
+    expect(presentation.guidePages.last.title, '목숨은 3개');
+    expect(presentation.guidePages.last.description, contains('120초'));
+  });
+
   test('알 수 없는 ID는 지원하지 않는 화면으로 처리한다', () {
     expect(
       () => GamePresentationRegistry.forId('unknown'),
       throwsA(isA<UnsupportedError>()),
     );
+  });
+
+  test('야식털이 뱀 화면은 5분과 예약 입력 규칙을 안내한다', () {
+    final presentation = GamePresentationRegistry.forId('midnight_snake');
+
+    expect(presentation.durationLabel, '최대 5분');
+    expect(presentation.guideDurationText, contains('5분'));
+    expect(presentation.guidePages, hasLength(4));
+    expect(presentation.guidePages.first.description, contains('짧게'));
+    expect(presentation.guidePages[2].description, contains('최대 3개'));
+    expect(presentation.guidePages.last.detail, contains('5분'));
   });
 }

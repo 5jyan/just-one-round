@@ -1,0 +1,21 @@
+Create one production-ready 2D pixel-art animation sheet for the existing mother duck NPC.
+
+Image 1 is the exact character identity and art reference. Preserve her mature warm motherly face, round balanced adult-duck body, coral-red tied headscarf, yellow and cream palette, orange bill and feet, crisp dark outline, restrained two-to-three-step shading, and current front-facing 3/4-top-down camera.
+
+Image 2 is a scale-and-root template made from the same accepted character. Use it only to preserve the exact 2-row by 3-column invisible cell layout, cell locations, camera distance, standing-equivalent anatomical scale, body-root position, grounded foot-contact line, and generous padding. Change only the action poses. Do not reproduce any guides, boxes, safe-area marks, labels, borders, or separators.
+
+Create exactly six sequential celebration frames, read left-to-right across the top row and then left-to-right across the bottom row:
+1. warm relieved smile, eyes brightening, folded wings just beginning to open;
+2. wings opening outward, cheeks lifted, body compressing slightly for a happy bounce;
+3. wings raised in a welcoming motherly cheer, delighted crescent eyes, broad but gentle smile;
+4. strongest happy beat, wings lifted and body rising slightly without leaving the shared grounded foot line;
+5. wings softly fluttering inward, proud joyful expression;
+6. settling toward frame 1 with wings still slightly open so the six-frame sequence loops smoothly.
+
+Keep the same mother duck identity in every cell. Keep head, torso, wing thickness, headscarf shape, knot, palette, outline, light direction, pixel cluster size, and anatomical scale constant. Keep both feet grounded at the same vertical baseline and the torso center fixed. The entire duck must fit fully inside the central 65% to 70% safe area of every cell with solid magenta margin on all four sides. No body part or scarf tip may cross a cell edge.
+
+Art style: match the shown project-native crisp chunky pixel art exactly, with deliberate blocky clusters and no smoothing, no microtexture, and no frame-specific zoom.
+
+Background: 100% solid flat #FF00FF magenta in every cell, with no gradient, texture, shadow, floor, reflection, or lighting variation.
+
+No text, labels, UI, speech bubbles, borders, cell separators, hearts, confetti, sparkles, detached effects, extra accessories, extra limbs, anatomy changes, watermark, or signature.

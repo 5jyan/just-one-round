@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: 3×3 runtime pixel-art marsh tile variant sheet
+Primary request: Create exactly nine square wet-marsh board tiles in a strict 3 rows × 3 columns layout.
+Frame order, left-to-right then top-to-bottom: mud_01, mud_02, mud_03 / mud_04, mud_05, puddle_01 / puddle_02, puddle_03, goal_special.
+Tile identity: Five dark muddy-brown variants with sparse chunky dents or pebbles; three teal puddle variants with one or two broad highlight clusters; one special goal tile with a subtle warm reed-ring emblem but no text.
+Pixel style: Coarse true pixel art designed to reduce each cell to 24×24 and display at 48×48. Dark plum-brown 1-pixel-equivalent edge, 2–3 flat shading levels, large deliberate clusters, exact same apparent pixel size as the duck master.
+Geometry: Every tile is a complete straight-edged square facing directly top-down, same size and camera, centered in its cell, with a tiny uniform safety gap. No perspective, no rounded card corners, no cast shadow.
+Background: Perfectly flat solid #FF00FF chroma-key background behind and between tiles.
+Constraints: Exact 3×3 grid, nine tiles only, no labels, no numbers, no grid lines, no cell borders, no overlap, no cropping, no reeds protruding beyond a tile, no gradients, blur, antialiasing, fine noise, or #FF00FF inside tiles.

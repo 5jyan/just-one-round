@@ -68,6 +68,18 @@ void main() {
     expect(attempt.gameId, 'dung_dodge_v2');
   });
 
+  test('시뮬레이터 개발자 메뉴에서 엄마 어디가를 선택할 수 있다', () async {
+    final repository = PreviewDailyGameRepository(testMode: true);
+
+    await repository.setDeveloperGame('mama_duck_trail');
+    final state = await repository.fetchToday();
+    final attempt = await repository.claimDailyAttempt(state.playDate);
+
+    expect(state.game?.displayName, '엄마, 어디가');
+    expect(state.game?.durationSeconds, 120);
+    expect(attempt.gameId, 'mama_duck_trail');
+  });
+
   testWidgets('오늘의 게임과 플레이 기회를 보여준다', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
     await tester.pump();
@@ -101,7 +113,11 @@ void main() {
 
     expect(find.byKey(const Key('required-update-screen')), findsOneWidget);
     expect(find.byKey(const Key('required-update-button')), findsOneWidget);
-    expect(find.text('앱 업데이트가 필요해요'), findsOneWidget);
+    expect(find.text('게임이 업데이트 되었어요'), findsOneWidget);
+    expect(find.text('원활한 게임 플레이를 위해\n앱을 업데이트 해주세요'), findsOneWidget);
+    expect(find.textContaining('현재 빌드'), findsNothing);
+    expect(find.byKey(const Key('required-update-retry')), findsNothing);
+    expect(find.text('업데이트 확인'), findsNothing);
     expect(find.text('딱 한 판만!'), findsNothing);
     expect(find.byKey(const Key('game-guide-button')), findsNothing);
   });
@@ -164,28 +180,65 @@ void main() {
 
     expect(find.text('DAILY LEADERBOARD'), findsOneWidget);
     expect(find.text('24개'), findsOneWidget);
-    expect(find.text('실제 기록'), findsOneWidget);
-    expect(find.text('REAL PLAYERS'), findsOneWidget);
+    expect(find.text('참여 기록'), findsOneWidget);
+    expect(find.text('TOP SCORES'), findsOneWidget);
     expect(find.textContaining('NPC'), findsNothing);
+    expect(find.text('REAL PLAYERS'), findsNothing);
+    expect(find.text('실제 기록'), findsNothing);
     expect(find.text('작은공룡'), findsOneWidget);
     expect(find.text('5.39초'), findsWidgets);
     expect(find.text('전체'), findsNothing);
-    expect(find.text('전체 비교 랭킹'), findsOneWidget);
+    expect(find.text('전체 랭킹'), findsOneWidget);
     expect(find.text('내 주변 랭킹'), findsNothing);
     expect(find.byKey(const Key('overall-leaderboard')), findsOneWidget);
     expect(find.byKey(const Key('nearby-leaderboard')), findsNothing);
-    expect(find.byKey(const Key('leaderboard-gap')), findsOneWidget);
     await tester.drag(
       find.byKey(const Key('overall-leaderboard')),
       const Offset(0, -220),
     );
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('leaderboard-gap')), findsOneWidget);
     expect(find.byKey(const Key('my-leaderboard-rank')), findsOneWidget);
     expect(find.byKey(const Key('my-rank-badge')), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const Key('my-leaderboard-rank'))).height,
+      greaterThanOrEqualTo(74),
+    );
     expect(find.text('tester'), findsWidgets);
     expect(find.text('말랑주먹'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('느린번개'),
+      100,
+      scrollable: find
+          .descendant(
+            of: find.byKey(const Key('overall-leaderboard')),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     expect(find.text('느린번개'), findsOneWidget);
     expect(find.text('8등'), findsOneWidget);
+  });
+
+  testWidgets('랭킹을 열 때 서버의 최신 결과를 다시 조회한다', (tester) async {
+    final repository = _RefreshingRankingRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const JustOneRoundApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final rankingButton = find.byKey(const Key('ranking-button'));
+    await tester.ensureVisible(rankingButton);
+    await tester.tap(rankingButton);
+    await tester.pumpAndSettle();
+
+    expect(repository.rankFetchCalls, 1);
+    expect(repository.requestedPlayDate, isNotNull);
+    expect(find.text('31개'), findsOneWidget);
+    expect(find.text('최신랭커'), findsOneWidget);
   });
 
   testWidgets('시작 버튼으로 게임 화면에 진입한다', (tester) async {
@@ -396,6 +449,32 @@ void main() {
 class _PrivacyRequiredAdService extends FakeRewardedAdService {
   @override
   Future<bool> isPrivacyOptionsRequired() async => true;
+}
+
+class _RefreshingRankingRepository extends PreviewDailyGameRepository {
+  var rankFetchCalls = 0;
+  DateTime? requestedPlayDate;
+
+  @override
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async {
+    rankFetchCalls += 1;
+    requestedPlayDate = playDate;
+    return const DailyRankResult(
+      score: 4200,
+      rank: 2,
+      participants: 31,
+      topPercent: 7,
+      nickname: 'tester',
+      bestScore: 5000,
+      nearby: [
+        NearbyRank(rank: 2, nickname: 'tester', score: 4200, isMe: true),
+      ],
+      leaders: [
+        NearbyRank(rank: 1, nickname: '최신랭커', score: 5000, isMe: false),
+        NearbyRank(rank: 2, nickname: 'tester', score: 4200, isMe: true),
+      ],
+    );
+  }
 }
 
 class _TestAccountRepository extends PreviewDailyGameRepository {

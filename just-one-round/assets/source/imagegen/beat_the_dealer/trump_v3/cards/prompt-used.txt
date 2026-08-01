@@ -1,0 +1,3 @@
+royal-master.png: Exact 3x2 pixel-art atlas on solid #FF00FF. Top row black-suit J, Q, K; bottom row red-suit J, Q, K. Charming maritime casino court figures, mirrored traditional playing-card composition, bold clusters, crisp silhouette, no text, no shadows outside each figure.
+
+card-back-master.png: One premium full playing-card back on solid #FF00FF, maritime casino theme with navy, teal, coral and antique gold, centered compass rose and anchor motifs, symmetrical pixel-art border, no empty top or bottom margin, no text.

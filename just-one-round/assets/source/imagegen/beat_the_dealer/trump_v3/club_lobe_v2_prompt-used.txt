@@ -1,0 +1,7 @@
+Use case: game asset sprite.
+Asset type: a single small-suit card glyph reference image.
+Primary request: create one centered, symmetrical pixel-art CLUB suit symbol (♣) with exactly three clearly rounded puffy lobes: one centered top lobe and two side lobes, plus a short narrow centered stem and a small flat foot.
+Style: crisp chunky pixel art based on a 16×16 source grid, hard square stepped edges, no anti-aliasing, no blur, no gradients, no text.
+Composition: one icon only with generous margin, front-facing, isolated.
+Color: dark purple-black #261F30 glyph on a flat #FF00FF chroma-key background.
+Constraints: unmistakably a traditional club; no border, shadow, texture, watermark, or extra symbols.

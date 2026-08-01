@@ -1,0 +1,7 @@
+Create one production-ready single-frame pixel-art game sprite on a perfectly uniform solid #FF00FF chroma background.
+
+Use the reference image as the exact approved mother-duck identity and style master. Preserve her identity exactly: mature plump adult cream-ivory duck, dusty-rose babushka headscarf covering the top and back of her head, cream edging, the same under-chin knot and two short scarf ends, almond black eyes with short eyelashes, tiny warm brows, peach cheeks, orange beak and feet, warm dark-brown outline, soft golden shading, and the same slightly awkward dopey-cute pixel-art character.
+
+Make a mother-only caring embrace pose in the same three-quarter-front view. She has a warm delighted expression. Open both wings and curve them inward and slightly forward, forming a welcoming hug around an intentionally empty central lower-torso space where a separate baby-duck sprite can later be overlaid. Do not draw a baby, egg, heart, particles, text, props, floor, or shadow. Keep the headscarf tied under the chin; it must not become a neck scarf, hat, hair, cape, or detached cloth. Keep the adult plump silhouette, both grounded orange feet, original scale, palette, and outline thickness. Fit the complete headscarf, wing tips, body, and feet comfortably inside the image with generous empty margin and no edge clipping.
+
+Output only one centered character. Use crisp deliberate pixel clusters with no antialias blur, no smooth-vector rendering, and no semi-transparent pixels. Background must be exactly solid #FF00FF.

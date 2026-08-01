@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
+import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
+import 'package:just_one_round/features/games/midnight_snake/presentation/midnight_snake_path.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_definition.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_registry.dart';
 import 'package:just_one_round/features/legal/legal_config.dart';
@@ -19,6 +21,7 @@ import 'package:just_one_round/features/today/domain/daily_reset.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
+import 'package:just_one_round/features/today/presentation/mama_duck_trail_home_preview.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -454,7 +457,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         backgroundColor: AppColors.surface,
         title: const Text('계정과 데이터를 삭제할까요?'),
         content: const Text(
-          '닉네임, 모든 게임 기록과 광고 보상 기록이 영구 삭제됩니다. 이 작업은 되돌릴 수 없어요.',
+          '닉네임, 모든 게임 기록과 광고 보상 기록이 영구 삭제됩니다. '
+          '당일 중복 플레이를 막기 위한 익명 기기 표식만 다음 일일 초기화까지 유지됩니다. '
+          '이 작업은 되돌릴 수 없어요.',
         ),
         actions: [
           TextButton(
@@ -735,6 +740,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
               nearby: [],
             ),
         gameId: state.game?.id,
+        playDate: state.playDate,
       ),
     );
   }
@@ -815,10 +821,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                 ),
               ),
               data: (state) => state.requiresUpdate
-                  ? _RequiredUpdateView(
-                      compatibility: state.compatibility,
-                      onRetry: () => ref.invalidate(todayStateProvider),
-                    )
+                  ? _RequiredUpdateView(compatibility: state.compatibility)
                   : Center(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(18, 10, 18, 32),
@@ -975,18 +978,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (state.canClaimDaily) return '아직 플레이하지 않았어요 · 기회 1회';
     if (state.adAttemptAvailable) return '첫 판 완료 · 광고로 기회 1회 추가 가능';
     if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';
+    if (state.dailyClaimed) return '이 기기의 오늘 플레이는 이미 완료됐어요';
     return '중단된 게임은 다시 시작할 수 없어요';
   }
 }
 
 class _RequiredUpdateView extends StatelessWidget {
-  const _RequiredUpdateView({
-    required this.compatibility,
-    required this.onRetry,
-  });
+  const _RequiredUpdateView({required this.compatibility});
 
   final ClientCompatibility compatibility;
-  final VoidCallback onRetry;
 
   Future<void> _openStore(BuildContext context) async {
     final rawUrl = compatibility.storeUrl;
@@ -1018,12 +1018,10 @@ class _RequiredUpdateView extends StatelessWidget {
                 size: 56,
               ),
               const SizedBox(height: 18),
-              Text(
-                compatibility.reason == 'unsupported_game'
-                    ? '새 게임 업데이트가 필요해요'
-                    : '앱 업데이트가 필요해요',
+              const Text(
+                '게임이 업데이트 되었어요',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.text,
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
@@ -1031,21 +1029,12 @@ class _RequiredUpdateView extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               const Text(
-                '오늘의 게임을 안전하게 플레이하려면 최신 버전으로 업데이트해 주세요.',
+                '원활한 게임 플레이를 위해\n앱을 업데이트 해주세요',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textMuted,
                   height: 1.5,
                   fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '현재 빌드 ${compatibility.currentBuild}'
-                ' · 필요 빌드 ${compatibility.minimumSupportedBuild}',
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
                 ),
               ),
               const SizedBox(height: 22),
@@ -1054,12 +1043,6 @@ class _RequiredUpdateView extends StatelessWidget {
                 label: '스토어에서 업데이트',
                 icon: Icons.open_in_new_rounded,
                 onPressed: () => _openStore(context),
-              ),
-              const SizedBox(height: 10),
-              TextButton(
-                key: const Key('required-update-retry'),
-                onPressed: onRetry,
-                child: const Text('업데이트 확인'),
               ),
             ],
           ),
@@ -1261,14 +1244,25 @@ class _DeveloperToolsDialogState extends State<_DeveloperToolsDialog> {
 }
 
 class _RankingSheet extends ConsumerWidget {
-  const _RankingSheet({required this.initialResult, required this.gameId});
+  const _RankingSheet({
+    required this.initialResult,
+    required this.gameId,
+    required this.playDate,
+  });
 
   final DailyRankResult initialResult;
   final String? gameId;
+  final DateTime playDate;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final result = initialResult;
+    final result = ref
+        .watch(dailyRankProvider(playDate))
+        .when(
+          data: (latest) => latest,
+          error: (_, _) => initialResult,
+          loading: () => initialResult,
+        );
     final rankingItems = _mergeRankingEntries(
       leaders: result.leaders,
       nearby: result.nearby,
@@ -1289,7 +1283,7 @@ class _RankingSheet extends ConsumerWidget {
               Expanded(
                 child: _RankSummaryValue(
                   value: '${result.participants}개',
-                  label: '실제 기록',
+                  label: '참여 기록',
                 ),
               ),
               Container(width: 1, height: 42, color: AppColors.surfaceLight),
@@ -1310,10 +1304,7 @@ class _RankingSheet extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 18),
-          const _RankingSectionTitle(
-            eyebrow: 'REAL PLAYERS',
-            title: '전체 비교 랭킹',
-          ),
+          const _RankingSectionTitle(eyebrow: 'TOP SCORES', title: '전체 랭킹'),
           const SizedBox(height: 10),
           Expanded(
             child: rankingItems.isEmpty
@@ -1525,6 +1516,7 @@ class _LeaderboardRow extends StatelessWidget {
     };
     return Container(
       key: entry.isMe ? const Key('my-leaderboard-rank') : null,
+      constraints: const BoxConstraints(minHeight: 74),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
         color: entry.isMe
@@ -1890,7 +1882,1315 @@ class _GuideVisual extends StatelessWidget {
     GameGuideVisualKind.numberRefill => const _NumberRefillGuideVisual(),
     GameGuideVisualKind.numberMistake => const _NumberMistakeGuideVisual(),
     GameGuideVisualKind.numberResult => const _NumberResultGuideVisual(),
+    GameGuideVisualKind.mamaObserve => const _MamaDuckGuideVisual(
+      assetName: 'guide_observe.png',
+    ),
+    GameGuideVisualKind.mamaRecall => const _MamaDuckGuideVisual(
+      assetName: 'guide_recall.png',
+    ),
+    GameGuideVisualKind.mamaFailure => const _MamaDuckGuideVisual(
+      assetName: 'guide_failure.png',
+    ),
+    GameGuideVisualKind.snakeSwipe => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.swipe,
+    ),
+    GameGuideVisualKind.snakeQueue => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.queue,
+    ),
+    GameGuideVisualKind.snakeGrow => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.grow,
+    ),
+    GameGuideVisualKind.snakeCollision => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.collision,
+    ),
+    GameGuideVisualKind.sausageSwipe => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.swipe,
+    ),
+    GameGuideVisualKind.sausageGrow => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.grow,
+    ),
+    GameGuideVisualKind.sausageCollision => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.collision,
+    ),
+    GameGuideVisualKind.dealerGoal => const _BeatTheDealerVisual(
+      scene: _DealerPreviewScene.goal,
+    ),
+    GameGuideVisualKind.dealerBet => const _BeatTheDealerVisual(
+      scene: _DealerPreviewScene.bet,
+    ),
+    GameGuideVisualKind.dealerChoice => const _BeatTheDealerVisual(
+      scene: _DealerPreviewScene.choice,
+    ),
+    GameGuideVisualKind.dealerResult => const _BeatTheDealerVisual(
+      scene: _DealerPreviewScene.result,
+    ),
   };
+}
+
+enum _DealerPreviewScene { home, goal, bet, choice, result }
+
+class _BeatTheDealerVisual extends StatefulWidget {
+  const _BeatTheDealerVisual({required this.scene});
+
+  final _DealerPreviewScene scene;
+
+  @override
+  State<_BeatTheDealerVisual> createState() => _BeatTheDealerVisualState();
+}
+
+class _BeatTheDealerVisualState extends State<_BeatTheDealerVisual> {
+  static const _homeAnimationTick = Duration(milliseconds: 100);
+  static const _homeAnimationFrameCount = 75; // 7.5 seconds per loop.
+
+  Timer? _timer;
+  var _frame = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.scene == _DealerPreviewScene.home) {
+      _timer = Timer.periodic(_homeAnimationTick, (_) {
+        if (mounted) {
+          setState(() => _frame = (_frame + 1) % _homeAnimationFrameCount);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scene = widget.scene;
+    final homeStage = _frame < 25
+        ? _DealerPreviewScene.bet
+        : _frame < 53
+        ? _DealerPreviewScene.choice
+        : _DealerPreviewScene.result;
+    final visibleScene = scene == _DealerPreviewScene.home ? homeStage : scene;
+    final spriteFrame = (_frame ~/ 2) % 4;
+    final dealerCards = switch (visibleScene) {
+      _DealerPreviewScene.choice => const [('6', '♥'), (null, null)],
+      _DealerPreviewScene.result => const [('6', '♥'), ('Q', '♣'), ('2', '♦')],
+      _ => const [('6', '♥'), (null, null)],
+    };
+    final playerCards = switch (visibleScene) {
+      _DealerPreviewScene.goal => const [('A', '♠'), ('K', '♥')],
+      _DealerPreviewScene.choice => const [('K', '♠'), ('6', '♦')],
+      _DealerPreviewScene.result => const [('K', '♠'), ('Q', '♥')],
+      _ => const <(String, String)>[],
+    };
+    final coins = visibleScene == _DealerPreviewScene.result ? 120 : 100;
+    final status = switch (visibleScene) {
+      _DealerPreviewScene.goal => 'A + K = 블랙잭!',
+      _DealerPreviewScene.bet => '얼마를 걸까?',
+      _DealerPreviewScene.choice => '한 장 더 받을까?',
+      _DealerPreviewScene.result => '승리!  +20',
+      _DealerPreviewScene.home => '',
+    };
+
+    return ColoredBox(
+      key: Key(
+        scene == _DealerPreviewScene.home
+            ? 'beat-dealer-home-animation'
+            : 'beat-dealer-guide-${scene.name}',
+      ),
+      color: const Color(0xFF120F25),
+      child: FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: 360,
+          height: 460,
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: [
+              const Positioned.fill(
+                child: Image(
+                  image: AssetImage(
+                    'assets/images/beat_the_dealer/background_map_v3.png',
+                  ),
+                  fit: BoxFit.cover,
+                  filterQuality: FilterQuality.none,
+                ),
+              ),
+              Positioned(
+                left: 124,
+                top: 4,
+                width: 112,
+                height: 112,
+                child: _BeatTheDealerSpriteFrame(
+                  asset:
+                      'assets/images/beat_the_dealer/dealer_idle_sheet_v3.png',
+                  frame: spriteFrame,
+                  frameSize: 64,
+                  scale: 1.75,
+                ),
+              ),
+              Positioned(
+                left: 18,
+                top: 24,
+                child: _DealerPreviewPanel(
+                  child: Row(
+                    children: [
+                      const Image(
+                        image: AssetImage(
+                          'assets/images/beat_the_dealer/coin_v3.png',
+                        ),
+                        width: 28,
+                        height: 28,
+                        filterQuality: FilterQuality.none,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        '$coins',
+                        key: const Key('beat-dealer-preview-coins'),
+                        style: const TextStyle(
+                          color: Color(0xFFFFE66D),
+                          fontFamily: 'Galmuri',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 104,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (
+                      var index = 0;
+                      index < dealerCards.length;
+                      index++
+                    ) ...[
+                      _DealerPreviewCard(
+                        rank: dealerCards[index].$1,
+                        suit: dealerCards[index].$2,
+                      ),
+                      if (index != dealerCards.length - 1)
+                        const SizedBox(width: 6),
+                    ],
+                  ],
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 214,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (
+                      var index = 0;
+                      index < playerCards.length;
+                      index++
+                    ) ...[
+                      _DealerPreviewCard(
+                        rank: playerCards[index].$1,
+                        suit: playerCards[index].$2,
+                      ),
+                      if (index != playerCards.length - 1)
+                        const SizedBox(width: 6),
+                    ],
+                  ],
+                ),
+              ),
+              Positioned(
+                left: 28,
+                right: 28,
+                top: 307,
+                child: Text(
+                  status,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFFFFE66D),
+                    fontFamily: 'Galmuri',
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (visibleScene == _DealerPreviewScene.bet)
+                const Positioned(
+                  left: 42,
+                  right: 42,
+                  bottom: 24,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _DealerPreviewButton(label: '- 5'),
+                      _DealerPreviewButton(label: '배팅 5'),
+                      _DealerPreviewButton(label: '+ 5'),
+                    ],
+                  ),
+                ),
+              if (visibleScene == _DealerPreviewScene.choice)
+                const Positioned(
+                  left: 42,
+                  right: 42,
+                  bottom: 24,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _DealerPreviewButton(label: '한 장 더', wide: true),
+                      _DealerPreviewButton(label: '멈추기', wide: true),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BeatTheDealerSpriteFrame extends StatelessWidget {
+  const _BeatTheDealerSpriteFrame({
+    required this.asset,
+    required this.frame,
+    required this.frameSize,
+    required this.scale,
+    this.columns = 2,
+    this.rows = 2,
+  });
+
+  final String asset;
+  final int frame;
+  final double frameSize;
+  final double scale;
+  final int columns;
+  final int rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final frameWidth = frameSize * scale;
+    final sheetWidth = frameWidth * columns;
+    final sheetHeight = frameWidth * rows;
+    final column = frame % columns;
+    final row = (frame ~/ columns) % rows;
+
+    return SizedBox(
+      width: frameWidth,
+      height: frameWidth,
+      child: ClipRect(
+        child: OverflowBox(
+          alignment: Alignment.topLeft,
+          minWidth: sheetWidth,
+          maxWidth: sheetWidth,
+          minHeight: sheetHeight,
+          maxHeight: sheetHeight,
+          child: Transform.translate(
+            offset: Offset(-column * frameWidth, -row * frameWidth),
+            transformHitTests: false,
+            child: Image.asset(
+              asset,
+              width: sheetWidth,
+              height: sheetHeight,
+              fit: BoxFit.fill,
+              filterQuality: FilterQuality.none,
+              gaplessPlayback: true,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DealerPreviewPanel extends StatelessWidget {
+  const _DealerPreviewPanel({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+    decoration: BoxDecoration(
+      color: const Color(0xE6231839),
+      border: Border.all(color: const Color(0xFF9D78C8), width: 2),
+    ),
+    child: child,
+  );
+}
+
+class _DealerPreviewCard extends StatelessWidget {
+  const _DealerPreviewCard({required this.rank, required this.suit});
+
+  final String? rank;
+  final String? suit;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 58,
+    height: 78,
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        Image(
+          image: AssetImage(
+            rank == null
+                ? 'assets/images/beat_the_dealer/card_back_v3.png'
+                : 'assets/images/beat_the_dealer/card_front_v3.png',
+          ),
+          fit: BoxFit.fill,
+          filterQuality: FilterQuality.none,
+        ),
+        if (rank != null) ...[
+          Positioned(
+            left: 6,
+            top: 5,
+            child: Text(
+              '$rank\n$suit',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: suit == '♥' || suit == '♦'
+                    ? const Color(0xFFC93948)
+                    : const Color(0xFF282035),
+                fontFamily: 'Galmuri',
+                fontSize: 13,
+                height: 0.9,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Center(
+            child: Text(
+              suit!,
+              style: TextStyle(
+                color: suit == '♥' || suit == '♦'
+                    ? const Color(0xFFC93948)
+                    : const Color(0xFF282035),
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 6,
+            bottom: 5,
+            child: RotatedBox(
+              quarterTurns: 2,
+              child: Text(
+                '$rank\n$suit',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: suit == '♥' || suit == '♦'
+                      ? const Color(0xFFC93948)
+                      : const Color(0xFF282035),
+                  fontFamily: 'Galmuri',
+                  fontSize: 13,
+                  height: 0.9,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    ),
+  );
+}
+
+class _DealerPreviewButton extends StatelessWidget {
+  const _DealerPreviewButton({required this.label, this.wide = false});
+
+  final String label;
+  final bool wide;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: wide ? 126 : 82,
+    padding: const EdgeInsets.symmetric(vertical: 13),
+    decoration: BoxDecoration(
+      color: const Color(0xFF4A2F68),
+      border: Border.all(color: const Color(0xFFD4B7F0), width: 2),
+    ),
+    child: Text(
+      label,
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        color: Colors.white,
+        fontFamily: 'Galmuri',
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
+}
+
+class _MamaDuckGuideVisual extends StatelessWidget {
+  const _MamaDuckGuideVisual({required this.assetName});
+
+  final String assetName;
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: const Color(0xFF172D38),
+    child: Image.asset(
+      'assets/images/mama_duck_trail/$assetName',
+      fit: BoxFit.contain,
+      filterQuality: FilterQuality.none,
+    ),
+  );
+}
+
+enum _SnakePreviewScene { home, swipe, queue, grow, collision }
+
+class _MidnightSnakeVisual extends StatefulWidget {
+  const _MidnightSnakeVisual({required this.scene});
+
+  final _SnakePreviewScene scene;
+
+  @override
+  State<_MidnightSnakeVisual> createState() => _MidnightSnakeVisualState();
+}
+
+class _MidnightSnakeVisualState extends State<_MidnightSnakeVisual> {
+  static const _tick = Duration(milliseconds: 50);
+
+  Timer? _timer;
+  ui.Image? _pattern;
+  var _elapsed = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(_tick, (_) {
+      if (mounted && TickerMode.valuesOf(context).enabled) {
+        setState(() => _elapsed += _tick);
+      }
+    });
+    unawaited(_loadPattern());
+  }
+
+  Future<void> _loadPattern() async {
+    final data = await rootBundle.load(
+      'assets/images/midnight_snake/snake_scale_pattern.png',
+    );
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    );
+    final frame = await codec.getNextFrame();
+    codec.dispose();
+    if (!mounted) {
+      frame.image.dispose();
+      return;
+    }
+    setState(() => _pattern = frame.image);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pattern?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final frame = _SnakePreviewFrame.at(_elapsed, scene: widget.scene);
+    final head = frame.pathPoints.first;
+    final headLeft =
+        _SnakePreviewFrame.boardLeft +
+        (head.column + 0.5) * _SnakePreviewFrame.cellSize -
+        16;
+    final headTop =
+        _SnakePreviewFrame.boardTop +
+        (head.row + 0.5) * _SnakePreviewFrame.cellSize -
+        16;
+    final food = frame.food;
+    final keyName = widget.scene == _SnakePreviewScene.home
+        ? 'midnight-snake-home-animation'
+        : 'midnight-snake-${widget.scene.name}-guide-animation';
+
+    return FittedBox(
+      fit: BoxFit.cover,
+      clipBehavior: Clip.hardEdge,
+      alignment:
+          widget.scene == _SnakePreviewScene.grow && frame.goldenSausage != null
+          ? Alignment.topCenter
+          : Alignment.center,
+      child: SizedBox(
+        key: Key(keyName),
+        width: 360,
+        height: 640,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: Image(
+                image: AssetImage(
+                  'assets/images/midnight_snake/apartment_background.png',
+                ),
+                fit: BoxFit.fill,
+                filterQuality: FilterQuality.none,
+              ),
+            ),
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _SnakePreviewBody(frame: frame, pattern: _pattern),
+              ),
+            ),
+            if (food != null)
+              Positioned(
+                left:
+                    _SnakePreviewFrame.boardLeft +
+                    food.column * _SnakePreviewFrame.cellSize,
+                top:
+                    _SnakePreviewFrame.boardTop +
+                    food.row * _SnakePreviewFrame.cellSize,
+                child: _SausageAtlasCell(
+                  assetPath:
+                      'assets/images/midnight_snake/midnight_food_atlas.png',
+                  columns: 6,
+                  rows: 2,
+                  column: frame.foodType,
+                  row: frame.foodFrame,
+                  dimension: 32,
+                ),
+              ),
+            if (frame.goldenSausage case final golden?)
+              Positioned(
+                left:
+                    _SnakePreviewFrame.boardLeft +
+                    golden.column * _SnakePreviewFrame.cellSize,
+                top:
+                    _SnakePreviewFrame.boardTop +
+                    golden.row * _SnakePreviewFrame.cellSize,
+                child: _SausageAtlasCell(
+                  assetPath:
+                      'assets/images/midnight_snake/golden_sausage_sheet.png',
+                  columns: 1,
+                  rows: 2,
+                  column: 0,
+                  row: frame.bonusFrame,
+                  dimension: 32,
+                ),
+              ),
+            if (frame.mouse case final mouse?)
+              Positioned(
+                left:
+                    _SnakePreviewFrame.boardLeft +
+                    mouse.column * _SnakePreviewFrame.cellSize,
+                top:
+                    _SnakePreviewFrame.boardTop +
+                    mouse.row * _SnakePreviewFrame.cellSize,
+                child: _SausageAtlasCell(
+                  assetPath:
+                      'assets/images/midnight_snake/mouse_walk_atlas.png',
+                  columns: 2,
+                  rows: 4,
+                  column: frame.bonusFrame,
+                  row: _headDirectionRow(frame.mouseDirection),
+                  dimension: 32,
+                ),
+              ),
+            Positioned(
+              left: headLeft,
+              top: headTop,
+              child: _SausageAtlasCell(
+                assetPath:
+                    'assets/images/midnight_snake/snake_head_slither_atlas.png',
+                columns: 4,
+                rows: 4,
+                column: frame.headFrame,
+                row: _headDirectionRow(frame.direction),
+                dimension: 32,
+              ),
+            ),
+            if (widget.scene == _SnakePreviewScene.home)
+              _SnakePreviewHud(frame: frame),
+            if (widget.scene == _SnakePreviewScene.swipe)
+              _SnakeSwipeOverlay(frame: frame),
+            if (widget.scene == _SnakePreviewScene.queue)
+              _SnakeQueueOverlay(frame: frame),
+            if (widget.scene == _SnakePreviewScene.grow)
+              _SnakeGrowOverlay(frame: frame),
+            if (widget.scene == _SnakePreviewScene.collision)
+              _SnakeCollisionOverlay(frame: frame),
+            if (frame.fadeOpacity > 0)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: Color.fromRGBO(3, 18, 28, frame.fadeOpacity),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static int _headDirectionRow(SnakeDirection direction) => switch (direction) {
+    SnakeDirection.down => 0,
+    SnakeDirection.left => 1,
+    SnakeDirection.right => 2,
+    SnakeDirection.up => 3,
+  };
+}
+
+class _SnakePreviewFrame {
+  const _SnakePreviewFrame({
+    required this.pathPoints,
+    required this.direction,
+    required this.food,
+    required this.foodType,
+    required this.foodFrame,
+    required this.goldenSausage,
+    required this.mouse,
+    required this.mouseDirection,
+    required this.bonusFrame,
+    required this.headFrame,
+    required this.score,
+    required this.remainingSeconds,
+    required this.queuedDirections,
+    required this.appliedTurns,
+    required this.justAte,
+    required this.collision,
+    required this.fadeOpacity,
+  });
+
+  static const boardLeft = 36.0;
+  static const boardTop = 112.0;
+  static const cellSize = 32.0;
+  static const cycleSeconds = 16.0;
+  static const stepSeconds = 0.62;
+  static const _initialHoldSeconds = 1.25;
+
+  static const _headTrail = <SnakeCell>[
+    SnakeCell(7, 1),
+    SnakeCell(7, 2),
+    SnakeCell(7, 3),
+    SnakeCell(7, 4),
+    SnakeCell(6, 4),
+    SnakeCell(6, 5),
+    SnakeCell(7, 5),
+    SnakeCell(7, 6),
+    SnakeCell(7, 7),
+    SnakeCell(6, 7),
+    SnakeCell(5, 7),
+    SnakeCell(5, 8),
+    SnakeCell(6, 8),
+    SnakeCell(7, 8),
+    SnakeCell(8, 8),
+    SnakeCell(8, 7),
+    SnakeCell(8, 6),
+    SnakeCell(9, 6),
+    SnakeCell(10, 6),
+    SnakeCell(10, 5),
+    SnakeCell(10, 4),
+    SnakeCell(9, 4),
+    SnakeCell(9, 5),
+    SnakeCell(10, 5),
+  ];
+
+  final List<MidnightSnakePathPoint> pathPoints;
+  final SnakeDirection direction;
+  final SnakeCell? food;
+  final int foodType;
+  final int foodFrame;
+  final SnakeCell? goldenSausage;
+  final SnakeCell? mouse;
+  final SnakeDirection mouseDirection;
+  final int bonusFrame;
+  final int headFrame;
+  final int score;
+  final int remainingSeconds;
+  final List<SnakeDirection> queuedDirections;
+  final int appliedTurns;
+  final bool justAte;
+  final bool collision;
+  final double fadeOpacity;
+
+  static _SnakePreviewFrame at(
+    Duration elapsed, {
+    required _SnakePreviewScene scene,
+  }) {
+    final sceneCycleSeconds = switch (scene) {
+      _SnakePreviewScene.queue => 8.0,
+      _SnakePreviewScene.collision => 10.0,
+      _ => cycleSeconds,
+    };
+    final cycle = (elapsed.inMilliseconds / 1000) % sceneCycleSeconds;
+    final scriptCycle = switch (scene) {
+      _SnakePreviewScene.grow => (cycle + 2.6) % cycleSeconds,
+      _SnakePreviewScene.collision => cycle + 11.7,
+      _ => cycle,
+    };
+    final movement = max(0.0, scriptCycle - _initialHoldSeconds);
+    final rawStep = movement / stepSeconds;
+    final lastStep = scene == _SnakePreviewScene.queue
+        ? 3
+        : _headTrail.length - 4;
+    final completedStep = min(lastStep, rawStep.floor());
+    final targetStep = min(lastStep, completedStep + 1);
+    final progress = completedStep >= lastStep ? 1.0 : rawStep - completedStep;
+    final previousBody = _bodyAt(completedStep);
+    final targetBody = _bodyAt(targetStep);
+    final builtPathPoints = buildMidnightSnakePath(
+      body: targetBody,
+      previousBody: previousBody,
+      progress: progress,
+    );
+    final pathPoints = scene == _SnakePreviewScene.collision
+        ? builtPathPoints
+              .map(
+                (point) => MidnightSnakePathPoint(point.row - 2, point.column),
+              )
+              .toList(growable: false)
+        : builtPathPoints;
+    final direction = targetStep == completedStep
+        ? _directionAt(completedStep)
+        : _directionAt(targetStep);
+    final score = completedStep >= 13
+        ? 2
+        : completedStep >= 4
+        ? 1
+        : 0;
+    final collision =
+        scene == _SnakePreviewScene.collision && completedStep >= lastStep;
+    final fadeStart = sceneCycleSeconds - 0.55;
+    final fadeOpacity = cycle <= fadeStart
+        ? 0.0
+        : ((cycle - fadeStart) / (sceneCycleSeconds - fadeStart)).clamp(
+            0.0,
+            1.0,
+          );
+    final queue = _queueAt(scriptCycle, completedStep);
+    final showGolden =
+        (scene == _SnakePreviewScene.home ||
+            scene == _SnakePreviewScene.grow) &&
+        cycle >= 3 &&
+        cycle < 7;
+    final showMouse =
+        (scene == _SnakePreviewScene.home ||
+            scene == _SnakePreviewScene.grow) &&
+        cycle >= 9 &&
+        cycle < 14;
+    return _SnakePreviewFrame(
+      pathPoints: pathPoints,
+      direction: direction,
+      food: scene == _SnakePreviewScene.collision
+          ? null
+          : completedStep < 4
+          ? const SnakeCell(7, 6)
+          : completedStep < 13
+          ? const SnakeCell(8, 6)
+          : const SnakeCell(4, 2),
+      foodType: score % 6,
+      foodFrame: ((scriptCycle / 0.18).floor()) % 2,
+      goldenSausage: showGolden ? const SnakeCell(0, 8) : null,
+      mouse: showMouse
+          ? SnakeCell(3, 2 + ((cycle - 9) / 1.2).floor().clamp(0, 3))
+          : null,
+      mouseDirection: SnakeDirection.right,
+      bonusFrame: ((scriptCycle / 0.5).floor()) % 2,
+      headFrame: ((scriptCycle / 0.11).floor()) % 4,
+      score: score,
+      remainingSeconds: max(0, 300 - cycle.floor()),
+      queuedDirections: queue,
+      appliedTurns: min(3, completedStep),
+      justAte: (completedStep == 4 || completedStep == 13) && progress < 0.45,
+      collision: collision,
+      fadeOpacity: fadeOpacity,
+    );
+  }
+
+  static List<SnakeCell> _bodyAt(int step) {
+    final headIndex = 3 + step;
+    final length = step >= 13
+        ? 6
+        : step >= 4
+        ? 5
+        : 4;
+    return [
+      for (var index = 0; index < length; index++)
+        _headTrail[max(0, headIndex - index)],
+    ];
+  }
+
+  static SnakeDirection _directionAt(int step) {
+    if (step <= 0) return SnakeDirection.right;
+    final from = _headTrail[3 + step - 1];
+    final to = _headTrail[3 + step];
+    if (to.row < from.row) return SnakeDirection.up;
+    if (to.row > from.row) return SnakeDirection.down;
+    return to.column < from.column ? SnakeDirection.left : SnakeDirection.right;
+  }
+
+  static List<SnakeDirection> _queueAt(double cycle, int completedStep) {
+    const opening = [
+      SnakeDirection.up,
+      SnakeDirection.right,
+      SnakeDirection.down,
+    ];
+    if (completedStep >= 3) return const [];
+    if (cycle < 0.35) return const [];
+    final revealed = cycle < 0.65
+        ? 1
+        : cycle < 0.95
+        ? 2
+        : 3;
+    return opening
+        .skip(completedStep)
+        .take(max(0, revealed - completedStep))
+        .toList(growable: false);
+  }
+}
+
+class _SnakePreviewBody extends CustomPainter {
+  const _SnakePreviewBody({required this.frame, required this.pattern});
+
+  final _SnakePreviewFrame frame;
+  final ui.Image? pattern;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path();
+    for (var index = 0; index < frame.pathPoints.length; index++) {
+      final point = frame.pathPoints[index];
+      final center = Offset(
+        _SnakePreviewFrame.boardLeft +
+            (point.column + 0.5) * _SnakePreviewFrame.cellSize,
+        _SnakePreviewFrame.boardTop +
+            (point.row + 0.5) * _SnakePreviewFrame.cellSize,
+      );
+      if (index == 0) {
+        path.moveTo(center.dx, center.dy);
+      } else {
+        path.lineTo(center.dx, center.dy);
+      }
+    }
+    final bodyPaint = Paint()
+      ..color = const Color(0xFFDC9819)
+      ..strokeWidth = 18
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke
+      ..isAntiAlias = false;
+    canvas.drawPath(path, bodyPaint);
+    if (pattern case final image?) {
+      final patternPaint = Paint()
+        ..shader = ui.ImageShader(
+          image,
+          ui.TileMode.repeated,
+          ui.TileMode.repeated,
+          Float64List.fromList([
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+          ]),
+        )
+        ..strokeWidth = 18
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke
+        ..isAntiAlias = false
+        ..filterQuality = FilterQuality.none;
+      canvas.drawPath(path, patternPaint);
+    }
+    if (frame.collision) {
+      final head = frame.pathPoints.first;
+      canvas.drawRect(
+        Rect.fromLTWH(
+          _SnakePreviewFrame.boardLeft +
+              head.column * _SnakePreviewFrame.cellSize,
+          _SnakePreviewFrame.boardTop + head.row * _SnakePreviewFrame.cellSize,
+          _SnakePreviewFrame.cellSize,
+          _SnakePreviewFrame.cellSize,
+        ).inflate(2),
+        Paint()..color = const Color(0x99FF4B2B),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SnakePreviewBody oldDelegate) => true;
+}
+
+class _SnakePreviewHud extends StatelessWidget {
+  const _SnakePreviewHud({required this.frame});
+
+  final _SnakePreviewFrame frame;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      Positioned(
+        left: 42,
+        top: 54,
+        child: _SnakeHudValue(
+          eyebrow: 'SURVIVE',
+          value: '${frame.score.toString().padLeft(2, '0')}개',
+        ),
+      ),
+      Positioned(
+        right: 38,
+        top: 54,
+        child: _SnakeHudValue(
+          eyebrow: 'TIME',
+          value: frame.remainingSeconds.toString(),
+          alignEnd: true,
+        ),
+      ),
+      const Positioned(
+        left: 38,
+        right: 38,
+        bottom: 62,
+        child: _SnakePreviewCaption(text: '짧은 드래그 · 방향 3개까지 예약'),
+      ),
+    ],
+  );
+}
+
+class _SnakeHudValue extends StatelessWidget {
+  const _SnakeHudValue({
+    required this.eyebrow,
+    required this.value,
+    this.alignEnd = false,
+  });
+
+  final String eyebrow;
+  final String value;
+  final bool alignEnd;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: alignEnd
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.start,
+    children: [
+      Text(
+        eyebrow,
+        style: const TextStyle(
+          color: Color(0xFFB8D8DC),
+          fontFamily: 'Galmuri',
+          fontSize: 8,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 2,
+        ),
+      ),
+      Text(
+        value,
+        style: const TextStyle(
+          color: Color(0xFFFFE1A3),
+          fontFamily: 'Galmuri',
+          fontSize: 21,
+          fontWeight: FontWeight.w900,
+          shadows: [Shadow(color: Color(0xFF020A10), offset: Offset(2, 2))],
+        ),
+      ),
+    ],
+  );
+}
+
+class _SnakeSwipeOverlay extends StatelessWidget {
+  const _SnakeSwipeOverlay({required this.frame});
+
+  final _SnakePreviewFrame frame;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = _directionIcon(frame.direction);
+    return Stack(
+      children: [
+        Positioned(
+          left: 134,
+          top: 278,
+          child: Container(
+            width: 92,
+            height: 64,
+            decoration: BoxDecoration(
+              color: const Color(0xB803121C),
+              border: Border.all(color: const Color(0xFF4ED8C7), width: 2),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.touch_app_rounded,
+                  color: Color(0xFFFFE1A3),
+                  size: 28,
+                ),
+                const SizedBox(width: 7),
+                Icon(icon, color: const Color(0xFFFFC875), size: 32),
+              ],
+            ),
+          ),
+        ),
+        const Positioned(
+          left: 40,
+          right: 40,
+          bottom: 58,
+          child: _SnakePreviewCaption(text: '짧게 끌고 놓으면 다음 칸부터 회전'),
+        ),
+      ],
+    );
+  }
+}
+
+class _SnakeQueueOverlay extends StatelessWidget {
+  const _SnakeQueueOverlay({required this.frame});
+
+  final _SnakePreviewFrame frame;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      Positioned(
+        left: 86,
+        right: 86,
+        top: 270,
+        child: Container(
+          key: const Key('midnight-snake-queued-inputs'),
+          height: 58,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          color: const Color(0xD903121C),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (var index = 0; index < 3; index++) ...[
+                _SnakeQueueSlot(
+                  direction: index < frame.queuedDirections.length
+                      ? frame.queuedDirections[index]
+                      : null,
+                  index: index,
+                  applied: index < frame.appliedTurns,
+                ),
+                if (index < 2) const SizedBox(width: 6),
+              ],
+            ],
+          ),
+        ),
+      ),
+      Positioned(
+        left: 40,
+        right: 40,
+        bottom: 58,
+        child: _SnakePreviewCaption(
+          text: frame.queuedDirections.isEmpty
+              ? '예약한 방향이 실제 회전에 적용됐어요'
+              : '예약 ${frame.queuedDirections.length}/3 · 입력 순서대로 적용',
+        ),
+      ),
+    ],
+  );
+}
+
+class _SnakeQueueSlot extends StatelessWidget {
+  const _SnakeQueueSlot({
+    required this.direction,
+    required this.index,
+    required this.applied,
+  });
+
+  final SnakeDirection? direction;
+  final int index;
+  final bool applied;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: Key('midnight-snake-queue-slot-$index'),
+    width: 38,
+    height: 38,
+    decoration: BoxDecoration(
+      color: direction != null
+          ? const Color(0xFFDC9819)
+          : applied
+          ? const Color(0xFF285A50)
+          : const Color(0xFF102C35),
+      border: Border.all(
+        color: direction != null || applied
+            ? const Color(0xFFFFE1A3)
+            : const Color(0xFF28515A),
+        width: 2,
+      ),
+    ),
+    child: direction == null
+        ? applied
+              ? const Icon(
+                  Icons.check_rounded,
+                  color: Color(0xFFFFE1A3),
+                  size: 25,
+                )
+              : null
+        : Icon(
+            _directionIcon(direction!),
+            color: const Color(0xFF03121C),
+            size: 25,
+          ),
+  );
+}
+
+class _SnakeGrowOverlay extends StatelessWidget {
+  const _SnakeGrowOverlay({required this.frame});
+
+  final _SnakePreviewFrame frame;
+
+  @override
+  Widget build(BuildContext context) {
+    final bonusText = frame.goldenSausage != null
+        ? '황금 +3 · 몸길이 +1'
+        : frame.mouse != null
+        ? '쥐 +2 · 몸길이 +1'
+        : frame.justAte
+        ? '+1 · 몸길이 +1'
+        : null;
+    return Stack(
+      children: [
+        if (bonusText != null)
+          Positioned(
+            key: const Key('midnight-snake-grow-score'),
+            left: 104,
+            right: 104,
+            top: frame.goldenSausage != null ? 176 : 288,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              color: const Color(0xD903121C),
+              child: Text(
+                bonusText,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFFFFC875),
+                  fontFamily: 'Galmuri',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        const Positioned(
+          left: 40,
+          right: 40,
+          bottom: 58,
+          child: _SnakePreviewCaption(text: '일반 +1 · 황금 +3 · 쥐 +2'),
+        ),
+      ],
+    );
+  }
+}
+
+class _SnakeCollisionOverlay extends StatelessWidget {
+  const _SnakeCollisionOverlay({required this.frame});
+
+  final _SnakePreviewFrame frame;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      if (frame.collision)
+        const Positioned(
+          key: Key('midnight-snake-collision-warning'),
+          left: 102,
+          right: 102,
+          top: 286,
+          child: _SnakePreviewCaption(text: 'GAME OVER'),
+        ),
+      Positioned(
+        left: 40,
+        right: 40,
+        bottom: 58,
+        child: _SnakePreviewCaption(
+          text: frame.collision ? '자기 몸과 충돌했어요' : '벽과 자기 몸을 피하세요',
+        ),
+      ),
+    ],
+  );
+}
+
+class _SnakePreviewCaption extends StatelessWidget {
+  const _SnakePreviewCaption({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: const Color(0xD903121C),
+      border: Border.all(color: const Color(0xFF28515A)),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Color(0xFFFFE1A3),
+          fontFamily: 'Galmuri',
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    ),
+  );
+}
+
+IconData _directionIcon(SnakeDirection direction) => switch (direction) {
+  SnakeDirection.up => Icons.arrow_upward_rounded,
+  SnakeDirection.right => Icons.arrow_forward_rounded,
+  SnakeDirection.down => Icons.arrow_downward_rounded,
+  SnakeDirection.left => Icons.arrow_back_rounded,
+};
+
+class _SausageAtlasCell extends StatelessWidget {
+  const _SausageAtlasCell({
+    required this.assetPath,
+    required this.columns,
+    required this.rows,
+    required this.column,
+    required this.row,
+    this.dimension = 32,
+  });
+
+  final String assetPath;
+  final int columns;
+  final int rows;
+  final int column;
+  final int row;
+  final double dimension;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: dimension,
+    child: ClipRect(
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          Positioned(
+            left: -column * dimension,
+            top: -row * dimension,
+            width: columns * dimension,
+            height: rows * dimension,
+            child: Image.asset(
+              assetPath,
+              fit: BoxFit.fill,
+              filterQuality: FilterQuality.none,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _AppleGuideScene extends StatelessWidget {
@@ -2941,10 +4241,26 @@ class _GamePreview extends StatelessWidget {
           GameHomePreviewKind.gravitySwitch => const _GravityGamePreview(),
           GameHomePreviewKind.appleGameV2 => const _AppleGameV2Preview(),
           GameHomePreviewKind.numberRush => const _NumberRushHomePreview(),
+          GameHomePreviewKind.mamaDuckTrail => const MamaDuckTrailHomePreview(),
+          GameHomePreviewKind.midnightSnake =>
+            const _MidnightSnakeHomePreview(),
+          GameHomePreviewKind.sausageDachshund =>
+            const _MidnightSnakeHomePreview(),
+          GameHomePreviewKind.beatTheDealer => const _BeatTheDealerVisual(
+            scene: _DealerPreviewScene.home,
+          ),
         },
       ),
     );
   }
+}
+
+class _MidnightSnakeHomePreview extends StatelessWidget {
+  const _MidnightSnakeHomePreview();
+
+  @override
+  Widget build(BuildContext context) =>
+      const _MidnightSnakeVisual(scene: _SnakePreviewScene.home);
 }
 
 class _DungDodgeV2Preview extends StatelessWidget {
@@ -3721,42 +5037,6 @@ class _NumberRushAtlasFrame extends StatelessWidget {
   );
 }
 
-class _AppleGamePreview extends StatelessWidget {
-  const _AppleGamePreview();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(
-            'assets/images/apple_game/apple_game_background.png',
-          ),
-          fit: BoxFit.cover,
-          filterQuality: FilterQuality.none,
-        ),
-      ),
-      child: Center(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: const Color(0xDD24181B),
-            border: Border.all(color: const Color(0xFFE6B94E), width: 3),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Image.asset(
-              'assets/images/apple_game/apple_faces_atlas.png',
-              width: 116,
-              height: 116,
-              filterQuality: FilterQuality.none,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _AppleGameV2Preview extends StatefulWidget {
   const _AppleGameV2Preview();
 
@@ -4162,185 +5442,6 @@ class _AppleHomeAtlasFrame extends StatelessWidget {
       );
     },
   );
-}
-
-class _FailedBakeryPreview extends StatefulWidget {
-  const _FailedBakeryPreview();
-
-  @override
-  State<_FailedBakeryPreview> createState() => _FailedBakeryPreviewState();
-}
-
-class _FailedBakeryPreviewState extends State<_FailedBakeryPreview> {
-  late final Future<List<ui.Image>> _cakeImages;
-
-  @override
-  void initState() {
-    super.initState();
-    _cakeImages = Future.wait([
-      _loadPreviewImage('assets/images/failed_bakery_25d/cake_top_atlas.png'),
-      _loadPreviewImage(
-        'assets/images/failed_bakery_25d/cake_side_face_atlas.png',
-      ),
-      _loadPreviewImage(
-        'assets/images/failed_bakery_25d/cake_side_plain_atlas.png',
-      ),
-    ]);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(
-            'assets/images/failed_bakery_25d/bakery_background_3q.png',
-          ),
-          fit: BoxFit.cover,
-          filterQuality: FilterQuality.none,
-        ),
-      ),
-      child: FutureBuilder<List<ui.Image>>(
-        future: _cakeImages,
-        builder: (context, snapshot) => CustomPaint(
-          painter: snapshot.hasData
-              ? _FailedBakeryPreviewPainter(
-                  topAtlas: snapshot.data![0],
-                  faceSideAtlas: snapshot.data![1],
-                  plainSideAtlas: snapshot.data![2],
-                )
-              : null,
-        ),
-      ),
-    );
-  }
-}
-
-Future<ui.Image> _loadPreviewImage(String path) async {
-  final data = await rootBundle.load(path);
-  final codec = await ui.instantiateImageCodec(
-    data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
-  );
-  final frame = await codec.getNextFrame();
-  codec.dispose();
-  return frame.image;
-}
-
-class _FailedBakeryPreviewPainter extends CustomPainter {
-  const _FailedBakeryPreviewPainter({
-    required this.topAtlas,
-    required this.faceSideAtlas,
-    required this.plainSideAtlas,
-  });
-
-  final ui.Image topAtlas;
-  final ui.Image faceSideAtlas;
-  final ui.Image plainSideAtlas;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height * 0.73);
-    const skins = [0, 4, 1, 3, 2];
-    for (var layer = 0; layer < skins.length; layer++) {
-      final width = 82.0 - layer * 3;
-      final halfWidth = width / 2;
-      final halfHeight = width / 4;
-      final y = center.dy - layer * 8;
-      final back = Offset(center.dx, y - halfHeight);
-      final right = Offset(center.dx + halfWidth, y);
-      final front = Offset(center.dx, y + halfHeight);
-      final left = Offset(center.dx - halfWidth, y);
-      _drawPreviewCakeFace(
-        canvas,
-        origin: left,
-        horizontal: front - left,
-        skin: skins[layer],
-        image: faceSideAtlas,
-      );
-      _drawPreviewCakeFace(
-        canvas,
-        origin: front,
-        horizontal: right - front,
-        skin: skins[layer],
-        image: plainSideAtlas,
-      );
-      final topRow = skins[layer] ~/ 3;
-      final topColumn = skins[layer] % 3;
-      _drawPreviewImage(
-        canvas,
-        image: topAtlas,
-        source: Rect.fromLTWH(topColumn * 40.0, topRow * 40.0, 40, 40),
-        origin: back,
-        horizontal: right - back,
-        vertical: left - back,
-      );
-    }
-  }
-
-  void _drawPreviewCakeFace(
-    Canvas canvas, {
-    required Offset origin,
-    required Offset horizontal,
-    required int skin,
-    required ui.Image image,
-  }) {
-    final row = skin ~/ 2;
-    final column = skin % 2;
-    _drawPreviewImage(
-      canvas,
-      image: image,
-      source: Rect.fromLTWH(column * 40.0, row * 8.0, 40, 8),
-      origin: origin,
-      horizontal: horizontal,
-      vertical: const Offset(0, 8),
-    );
-  }
-
-  void _drawPreviewImage(
-    Canvas canvas, {
-    required ui.Image image,
-    required Rect source,
-    required Offset origin,
-    required Offset horizontal,
-    required Offset vertical,
-  }) {
-    final matrix = Float64List.fromList([
-      horizontal.dx / source.width,
-      horizontal.dy / source.width,
-      0,
-      0,
-      vertical.dx / source.height,
-      vertical.dy / source.height,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      origin.dx,
-      origin.dy,
-      0,
-      1,
-    ]);
-    canvas
-      ..save()
-      ..transform(matrix)
-      ..drawImageRect(
-        image,
-        source,
-        Rect.fromLTWH(0, 0, source.width, source.height),
-        Paint()
-          ..filterQuality = FilterQuality.none
-          ..isAntiAlias = false,
-      )
-      ..restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant _FailedBakeryPreviewPainter oldDelegate) =>
-      oldDelegate.topAtlas != topAtlas ||
-      oldDelegate.faceSideAtlas != faceSideAtlas ||
-      oldDelegate.plainSideAtlas != plainSideAtlas;
 }
 
 enum _GravityGuideMode { control, landing, obstacle, difficulty, collision }

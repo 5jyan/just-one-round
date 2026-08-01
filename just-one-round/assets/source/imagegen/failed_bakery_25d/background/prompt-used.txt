@@ -1,5 +1,0 @@
-Use the accepted Failed Bakery interior and cake materials as exact style and world references.
-
-Create a portrait 9:16 opaque pixel-art background for a 2.5D isometric stacking game: a tiny failing neighborhood cake workshop from a high three-quarter camera angle. Keep the central vertical 55% calm and mostly empty for the cake tower. Place crooked counters, an empty display case, patched walls, dim lamp, bent rack, taped oven, sleepy clock, cheap plant, and failed decorations around the edges. Leave a clear bottom-center tray landing zone and a dark simple upper-center score area. No characters, tower, central obstruction, readable text, logo, or UI.
-
-Use stale cream, toasted brown, strawberry pink, faded mint, butter yellow, and dark navy. Crisp project-native pixel art, hard clusters, slightly lopsided handmade construction, no blur, antialiasing, smooth vector art, or painterly rendering.

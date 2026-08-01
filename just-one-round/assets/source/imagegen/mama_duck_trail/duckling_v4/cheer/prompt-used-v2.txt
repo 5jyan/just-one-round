@@ -1,0 +1,30 @@
+Use case: precise-object-edit
+Asset type: corrected six-frame mobile game cheer sprite sheet
+Input images: Image 1 is the edit target and contains the accepted six cheer
+poses. Image 2 locks the exact baby-duck identity, face, anatomy, palette,
+outline, lighting, and pixel style. Image 3 is the exact scale-and-root
+template for the invisible 2-row × 3-column grid, cell centers,
+standing-equivalent scale, and foot-contact line.
+Primary request: correct only the geometric anchoring and identity consistency
+of Image 1. Preserve the same six cheer phases, wing positions, facial
+expressions, frame order, colors, pixel-art rendering, and overall
+composition. Align both feet of every grounded pose to the same relative
+horizontal foot-contact line inside its own cell, matching Image 3. In
+particular, move the three bottom-row ducks downward as needed so their feet
+use the same relative y position as the top row. Keep every body root centered
+and keep one identical camera distance and standing-equivalent anatomical
+scale across all six cells. Do not resize individual poses to fill their
+cells.
+Identity correction: every frame must retain exactly the same oversized round
+fluffy head, pear-shaped body, exactly two small uneven crown tufts, eye
+spacing, short flat orange beak, wing thickness, foot size,
+butter-yellow/golden-yellow/cream palette, and deep warm-brown outline as Image
+2. Do not change the intended expression sequence.
+Layout: exact 2×3 invisible grid, exactly six ducks, generous padding, all
+anatomy fully contained. Do not reproduce any guide box, line, center mark,
+border, label, separator, or template artifact.
+Backdrop: preserve a perfectly flat uniform solid #FF00FF background only,
+with no gradient, texture, floor, shadow, reflection, text, UI, or watermark.
+Avoid: no pose redesign, no new gesture, no detached effects, no confetti, no
+sparkles, no extra anatomy, no accessories, no blur, no antialiasing, no
+painterly texture.

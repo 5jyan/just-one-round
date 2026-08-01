@@ -1,0 +1,8 @@
+Create a 9:16 moonlit marsh background under the real 360x640 game board.
+Keep the top HUD center and bottom COMBO center dark and low contrast. Put
+distant crooked reeds, haze, clouds and fireflies near the outer edges above;
+put still dark water, teal reflections, submerged grass and edge reeds below.
+Continue genuine environment through the covered center. Crisp pixel art,
+20-24 cool teal/navy/brown colors and effective 2-logical-pixel clusters.
+No characters, paths, footprints, UI, text, bright moon disc, mirrored
+repetition, flat bands or watermark.

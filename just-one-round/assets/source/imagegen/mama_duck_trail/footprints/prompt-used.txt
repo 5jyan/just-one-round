@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: 3×4 runtime pixel-art duck-footprint atlas
+Primary request: Create exactly twelve isolated duck-footprint cell sprites in a strict 3 rows × 4 columns layout.
+Columns, left-to-right: up, right, down, left.
+Rows, top-to-bottom: mother trail, player trail, error trail.
+Mother row: bright lemon-cream center, dark plum-brown outline, tiny pale glow rim kept as hard pixels.
+Player row: warm golden-yellow center, dark plum-brown outline.
+Error row: vivid red-orange center, darkest plum-brown outline.
+Shape: One unmistakable webbed duck footprint per cell, three forward toes connected by a broad web, chunky heel nub, direction clearly readable. Use the same footprint proportions in every cell and rotate cleanly by 90-degree steps.
+Pixel style: Extremely coarse true pixel art designed to reduce each cell to 16×16 and display at 32×32. Large square clusters, 1-pixel-equivalent outline, 2–3 colors per sprite, no antialiasing.
+Background: Perfectly flat solid #FF00FF chroma-key background.
+Constraints: Exact 3×4 grid, twelve sprites only, identical scale and center, generous padding, no labels, numbers, borders, cell separators, shadows, mud splashes, extra prints, gradients, blur, or #FF00FF inside sprites.

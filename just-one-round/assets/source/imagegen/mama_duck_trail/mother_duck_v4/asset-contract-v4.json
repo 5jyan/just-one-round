@@ -1,0 +1,144 @@
+{
+  "identity": "mama-duck-v4-headscarf",
+  "approved_master": "master/mother_idle_master.png",
+  "raw_master": "master/raw-master-chroma.png",
+  "canonical_art_pixel": "2 logical pixels",
+  "source_cell": [
+    36,
+    36
+  ],
+  "display_size": [
+    72,
+    72
+  ],
+  "scale": 2,
+  "anchor": "feet",
+  "feet_baseline_y": 34,
+  "palette_colors_walk_and_hug": 32,
+  "runtime": {
+    "mother_duck_idle.png": {
+      "size": [
+        36,
+        36
+      ],
+      "source": "approved master",
+      "bbox": [
+        6,
+        4,
+        29,
+        34
+      ],
+      "feet_baseline_y": 34,
+      "sha256": "71bde46f76ced4626280339b9604908a546ad6699688a5ba9a985dad5040bb61"
+    },
+    "mother_duck_walk_sheet.png": {
+      "size": [
+        108,
+        72
+      ],
+      "layout": [
+        2,
+        3
+      ],
+      "frame_seconds": 0.11,
+      "frames": [
+        {
+          "bbox": [
+            6,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "a0aef4af92dfa5f353860bc7b9afecaa29cb149b0f0a1b29114c2b57c5f52ff7",
+          "index": 1
+        },
+        {
+          "bbox": [
+            7,
+            5,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "33af1cdcb7178b872a276ea58f16405fd8df92c1742f8c9df318afbf0262115e",
+          "index": 2
+        },
+        {
+          "bbox": [
+            7,
+            5,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "245c92f8ebd20cde9166ea69d3830ffaaf67839d25598bb9db13ff410c60d4cc",
+          "index": 3
+        },
+        {
+          "bbox": [
+            6,
+            4,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "70cb84d73a1731fc76c6335d7715105b1f178081da15b781f4974e7feb7f2db1",
+          "index": 4
+        },
+        {
+          "bbox": [
+            6,
+            5,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "ecdba88ac7160f1d75fbe4b040ccc5876b673f5e4f0d52cd5bff7c6199c83a3c",
+          "index": 5
+        },
+        {
+          "bbox": [
+            6,
+            5,
+            29,
+            34
+          ],
+          "feet_baseline_y": 34,
+          "sha256": "86db65fe682c02162af01e48697922c191542fb617d8b5d72609de037b11a6bd",
+          "index": 6
+        }
+      ]
+    },
+    "mother_duck_hug.png": {
+      "size": [
+        36,
+        36
+      ],
+      "composition": "mother only; baby overlays at runtime",
+      "bbox": [
+        5,
+        4,
+        30,
+        34
+      ],
+      "feet_baseline_y": 34,
+      "sha256": "666e6b9c944163a3b222ad4c0fbbf3c1c058f5f6935528227ff35a0d1f6c48ae"
+    }
+  },
+  "derived_composites": [
+    "guide_observe.png",
+    "guide_recall.png",
+    "home_gameplay_hero.png"
+  ],
+  "unchanged_composites": [
+    "guide_failure.png"
+  ],
+  "processor_qc": {
+    "walk": "walk/processed/pipeline-meta.json",
+    "hug": "hug/processed/pipeline-meta.json",
+    "scale_profile": "character-scale-profile.json",
+    "review_sheet": "qc/mother_duck_v4_runtime_qc.png",
+    "walk_preview": "qc/mother_duck_v4_walk.gif"
+  }
+}

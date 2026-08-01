@@ -1,0 +1,8 @@
+Recreate the accepted baby duck as an exact 2x3 six-frame grounded waddling
+walk sheet. Preserve identity, silhouette, palette, face, scale, camera and
+pose order. Increase pixel detail with layered crown and cheek feathers,
+clear wing rows, belly volume, golden shadow steps, webbed feet and a
+dimensional beak. Keep the expression cute, blank and slightly clueless.
+Medium-high detail, 20-24 colors, hard pixel clusters, solid #FF00FF
+background, stable feet baseline and central safe area. No antialiasing,
+blur, effects, shadows, labels, separators or edge crossing.

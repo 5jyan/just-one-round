@@ -1,0 +1,19 @@
+Create a raw 4x4 eating animation sheet for the exact approved golden snake
+head identity. The master and directional sheet lock the palette, rounded
+head-cap silhouette, huge uneven eyes, pupil style, low-detail pixel cluster
+language, open rear neck socket, camera distance, and scale.
+
+Exactly four rows and four columns of equal invisible cells. Row order:
+DOWN, LEFT, RIGHT, UP. Columns are closed-mouth anticipation, mouth opening,
+widest goofy bite with startled eyes, close and return. Mouth stays on the
+forward edge. Each frame contains only the head cap and face. No body, food,
+crumbs, tongue, or detached effects. Rotate the open neck socket to the rear
+opposite the facing direction. The socket has the exact body color and no
+dark cross-edge or outline.
+
+Top-down mobile pixel art with crisp intentional 2-pixel clusters, warm
+golden ochre fill, restrained amber shadow, tiny highlight, huge uneven white
+eyes, dark pupils, and a blank hungry expression. Keep exact head size and
+central 60–65% occupancy in every frame. Solid flat #FF00FF background. No
+text, labels, UI, borders, separators, guide marks, gradients, or external
+shadows. Nothing crosses a cell edge.

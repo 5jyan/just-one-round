@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: master specimen for a runtime 2D mobile game character sprite
+Primary request: Create one idle octopus card dealer for the Korean minigame “딜러를 넘겨라”. He is a tired, slightly shabby octopus who cannot hide his cards because his arms are tangled. He has a broad drooping head, a blank exhausted expression, and one old dealer cap rotated noticeably to one side. Show a readable front-facing seated idle pose behind an implied card table, but do not draw the table itself.
+Style/medium: authentic deliberately low-resolution pixel art, slightly ugly, awkward, dopey-but-cute; chunky square pixel clusters; restrained internal detail; compact highlight and shadow masses; near-black purple outline; no antialiasing or smooth vector curves. Designed to survive reduction into a 48×48 source cell and display at 96×96 with nearest-neighbor scaling.
+Composition/framing: one character only, centered, full visible silhouette, generous empty padding on every side, stable bottom anchor. Keep the silhouette simple: broad head, a few clearly readable curled/tangled arms, no limb touching the canvas edge.
+Color palette: muted dusty plum octopus, deep navy-purple shadows, warm cream eyes, small faded teal accent on the crooked cap. Maximum about 8 main colors excluding the chroma background.
+Lighting/mood: dim midnight card room, but the sprite itself must remain readable and evenly lit.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background for local background removal. One uniform magenta color only: no shadows, gradients, texture, reflections, floor plane, or lighting variation.
+Semantic invariants: octopus dealer; crooked worn dealer cap; tired blank expression; tangled arms; intentional asymmetry; exactly one character; no cards or coins attached to the body.
+Constraints: crisp hard pixel edges; no text, labels, numbers, borders, cell separators, watermark, cast shadow, contact shadow, reflection, glow, or background objects. Do not use #FF00FF anywhere inside the character.
+Avoid: polished mascot cuteness, heroic pose, excessive accessories, suit jacket, photorealism, 3D rendering, gradients, blur, microtexture, extra eyes, horns, ears, hair, tail, detached limbs, unexplained protrusions, malformed anatomy.

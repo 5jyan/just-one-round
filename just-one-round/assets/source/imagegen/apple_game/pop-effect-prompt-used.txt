@@ -1,9 +1,0 @@
-Use case: stylized-concept
-Asset type: four-frame removal-effect sprite sheet for a mobile 2D pixel-art apple puzzle game
-Primary request: show one red ugly-cute apple disappearing across exactly four animation frames arranged in one horizontal row from left to right. Frame 1: apple squashes inward with startled face. Frame 2: apple bursts into four chunky red peel pieces and two pale juice pixels. Frame 3: pieces shrink and spread slightly. Frame 4: only three tiny fading red sparkle pixels remain.
-Style/medium: crisp handcrafted low-resolution pixel art, chunky deliberate clusters, no antialiasing, consistent with tacky Korean retro apple sprites
-Composition/framing: exact 1 row by 4 equal cells, effect centered in each cell, stable center anchor, full containment, generous padding, no cell separators
-Scene/backdrop: perfectly flat solid #FF00FF chroma-key background
-Color palette: apple #E94A4E and #8D2439, outline #591F2C, shine #FFF2DA
-Constraints: no digits, no text, no labels, no borders, no guide marks, no shadows, no floor, no extra objects, background must be uniform #FF00FF, do not use #FF00FF in the effect, no watermark
-Avoid: smooth vector art, blur, smoke, photorealistic liquid, clipped particles, duplicated frames

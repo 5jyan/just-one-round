@@ -1,0 +1,284 @@
+{
+  "status": "processed",
+  "version": "hd-v6-layout",
+  "viewport": {
+    "gameplay_safe_core": [
+      0,
+      0,
+      360,
+      640
+    ],
+    "maximum_target_viewport": [
+      0,
+      -70,
+      360,
+      710
+    ],
+    "authored_canvas": [
+      0,
+      -100,
+      360,
+      740
+    ],
+    "camera_center": [
+      180,
+      320
+    ],
+    "fixed_visible_width": 360
+  },
+  "runtime": {
+    "duckling_life_face.png": {
+      "size": [
+        24,
+        24
+      ],
+      "display": [
+        48,
+        48
+      ],
+      "scale": 2,
+      "source": "duckling_idle.png"
+    },
+    "footprints_atlas.png": {
+      "size": [
+        192,
+        144
+      ],
+      "layout": [
+        3,
+        4
+      ],
+      "cell": [
+        48,
+        48
+      ],
+      "display": [
+        48,
+        48
+      ],
+      "scale": 1,
+      "palette_limit": 32,
+      "frames": [
+        {
+          "index": 1,
+          "row_role": "preview",
+          "direction": "up",
+          "bbox": [
+            5,
+            4,
+            42,
+            43
+          ],
+          "sha256": "8e6c46894e831d9a0888f2598f0964d075a6d29afd342ced985e08de49154886"
+        },
+        {
+          "index": 2,
+          "row_role": "preview",
+          "direction": "right",
+          "bbox": [
+            5,
+            4,
+            43,
+            43
+          ],
+          "sha256": "d290402caba5f8b11ced96eb11feff41e453a3756a17ea75e2cc7655cc0bee30"
+        },
+        {
+          "index": 3,
+          "row_role": "preview",
+          "direction": "down",
+          "bbox": [
+            4,
+            5,
+            43,
+            43
+          ],
+          "sha256": "8fe43e79c68067f440506aff9419d43fe6ab0bd35b3872a9655d46803dcd1ab2"
+        },
+        {
+          "index": 4,
+          "row_role": "preview",
+          "direction": "left",
+          "bbox": [
+            5,
+            4,
+            43,
+            43
+          ],
+          "sha256": "ba55fac1cb669740760a5f583182eac2c18d1192319485e48c8a09d23ab1f172"
+        },
+        {
+          "index": 5,
+          "row_role": "entered",
+          "direction": "up",
+          "bbox": [
+            5,
+            4,
+            43,
+            43
+          ],
+          "sha256": "f7b0bf6c1958ea0642800efa08bcff0ef691097811cc5eecc83fe4313331b70f"
+        },
+        {
+          "index": 6,
+          "row_role": "entered",
+          "direction": "right",
+          "bbox": [
+            4,
+            4,
+            43,
+            43
+          ],
+          "sha256": "bce7a726e8bbadb0a93ecfbbe282328e6c6cb370bd167e65fb78730e9042212a"
+        },
+        {
+          "index": 7,
+          "row_role": "entered",
+          "direction": "down",
+          "bbox": [
+            4,
+            5,
+            43,
+            43
+          ],
+          "sha256": "15a3e742055a2041f6f8ec32a57fa3d06a409a5807e1b9bdbc4aa0cae52ce393"
+        },
+        {
+          "index": 8,
+          "row_role": "entered",
+          "direction": "left",
+          "bbox": [
+            4,
+            4,
+            43,
+            43
+          ],
+          "sha256": "3b94f144cc4945b87929e30da8a41adc39d26d2861ee83b42d82c9b0f46a3e83"
+        },
+        {
+          "index": 9,
+          "row_role": "wrong",
+          "direction": "up",
+          "bbox": [
+            5,
+            4,
+            43,
+            43
+          ],
+          "sha256": "f1e35cc1f1e87dc6cc32a9f28b1e21c1adccf8df7f0b44a71e56d6680579babc"
+        },
+        {
+          "index": 10,
+          "row_role": "wrong",
+          "direction": "right",
+          "bbox": [
+            4,
+            4,
+            43,
+            43
+          ],
+          "sha256": "6cd129685d35a5ce548cc03747c72cdb61e4c1fa3178694a8022e5341ccc17a6"
+        },
+        {
+          "index": 11,
+          "row_role": "wrong",
+          "direction": "down",
+          "bbox": [
+            4,
+            5,
+            43,
+            43
+          ],
+          "sha256": "368c127f8416d17b5665c03f1eea91c34bc884fbc531945c466cc05bd14782c0"
+        },
+        {
+          "index": 12,
+          "row_role": "wrong",
+          "direction": "left",
+          "bbox": [
+            4,
+            4,
+            43,
+            43
+          ],
+          "sha256": "9e3613e4a9c598192bb79fb3a230d6e32a53dcec2fcd212ae5796ec4ecf10ed6"
+        }
+      ]
+    },
+    "marsh_background.png": {
+      "raw_size": [
+        941,
+        1672
+      ],
+      "crop_box": [
+        112,
+        0,
+        829,
+        1672
+      ],
+      "runtime_size": [
+        180,
+        420
+      ],
+      "world_rect": [
+        0,
+        -100,
+        360,
+        740
+      ],
+      "source_to_world_scale": 2
+    }
+  },
+  "removed_runtime_effect": {
+    "asset": "feather_poof_sheet.png",
+    "file_preserved": true,
+    "loader_and_render_usage_removed": true
+  },
+  "wolf_failure_timeline_seconds": {
+    "closed": [
+      0.0,
+      0.1
+    ],
+    "opening": [
+      0.1,
+      0.2
+    ],
+    "wide_open_hold": [
+      0.2,
+      0.44
+    ],
+    "swallow": [
+      0.44,
+      0.6
+    ],
+    "chew": [
+      0.6,
+      0.8
+    ],
+    "satisfied": [
+      0.8,
+      1.0
+    ]
+  },
+  "preserved_behavior": {
+    "board_geometry": true,
+    "input_coordinates": true,
+    "collision": true,
+    "rules": true,
+    "score": true,
+    "lives": true,
+    "failure_duration_seconds": 1.0
+  },
+  "processor_qc": {
+    "footprints": "footprints/processed/pipeline-meta.json",
+    "layout_review": "qc/layout_asset_comparison.png",
+    "wolf_timeline_preview": "qc/wolf_mouth_open_timeline.gif",
+    "runtime_simulator": "qc/runtime_simulator_iphone17pro.png"
+  },
+  "recomposed": [
+    "guide_observe.png",
+    "guide_recall.png",
+    "guide_failure.png",
+    "home_gameplay_hero.png"
+  ]
+}

@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: 6-frame runtime pixel-art player walk sheet
+Primary request: Animate the accepted baby duckling walking forward in a cute, earnest, slightly dopey waddle.
+Reference lock: Preserve the exact accepted identity: symmetrical healthy face, straight centered coarse-pixel bill, aligned clear eyes, exactly three hair tufts, round cheeks, pear body, yellow/orange palette, dark plum-brown outline, and coarse pixel density.
+Layout: Exact 2 rows × 3 columns, six chronological frames, left-to-right then top-to-bottom.
+Motion: frame 1 neutral contact; frame 2 left foot forward and body leans; frame 3 passing pose with tiny squash; frame 4 right foot forward; frame 5 passing pose with tiny squash; frame 6 returns toward neutral. The humor comes from an over-serious chest and gentle side-to-side waddle, never malformed anatomy.
+Geometry: Full body centered in every cell, same standing-equivalent height, torso center fixed, feet on one shared baseline, complete silhouette inside central 65%, no body translation across cells.
+Pixel style: Coarse true pixel art for 32×32 runtime cells displayed at 64×64, same cluster size and detail density as the master, no antialiasing.
+Background: Perfectly flat solid #FF00FF.
+Constraints: Six ducklings only, one per cell. No labels, borders, separators, floor, shadow, props, detached feathers, extra limbs, crossed eyes, crooked bill, gradients, blur, or #FF00FF in the character.

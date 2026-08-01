@@ -1,0 +1,12 @@
+{
+  "target": "hud_life_icon",
+  "method": "deterministic_crop_and_recenter",
+  "source": "assets/images/mama_duck_trail/duckling_idle.png",
+  "source_crop": [6, 0, 20, 18],
+  "output": "assets/images/mama_duck_trail/duckling_life_face.png",
+  "output_size": [20, 20],
+  "display_size": [40, 40],
+  "display_scale": 2,
+  "filtering": "nearest_neighbor",
+  "identity_pixels_repainted": false
+}

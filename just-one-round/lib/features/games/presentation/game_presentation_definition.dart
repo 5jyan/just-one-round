@@ -1,4 +1,13 @@
-enum GameHomePreviewKind { dungDodgeV2, gravitySwitch, appleGameV2, numberRush }
+enum GameHomePreviewKind {
+  dungDodgeV2,
+  gravitySwitch,
+  appleGameV2,
+  numberRush,
+  mamaDuckTrail,
+  midnightSnake,
+  sausageDachshund,
+  beatTheDealer,
+}
 
 enum GameGuideVisualKind {
   dungSwipe,
@@ -21,6 +30,20 @@ enum GameGuideVisualKind {
   numberRefill,
   numberMistake,
   numberResult,
+  mamaObserve,
+  mamaRecall,
+  mamaFailure,
+  snakeSwipe,
+  snakeQueue,
+  snakeGrow,
+  snakeCollision,
+  sausageSwipe,
+  sausageGrow,
+  sausageCollision,
+  dealerGoal,
+  dealerBet,
+  dealerChoice,
+  dealerResult,
 }
 
 class GameGuidePageDefinition {

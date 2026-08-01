@@ -3,8 +3,8 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 const gravitySwitchPresentation = GamePresentationDefinition(
   id: 'gravity_switch',
   loadingLabel: '고철 수집 중...',
-  durationLabel: '제한 없음',
-  guideDurationText: '시간 제한 없이 도전할 수 있어요.',
+  durationLabel: '최대 5분',
+  guideDurationText: '최대 5분 동안 도전할 수 있어요.',
   homeAspectRatio: 0.78,
   homePreview: GameHomePreviewKind.gravitySwitch,
   guidePages: [
@@ -30,7 +30,7 @@ const gravitySwitchPresentation = GamePresentationDefinition(
     GameGuidePageDefinition(
       title: '한 번 부딪히면 GAME OVER',
       description:
-          '고철 기둥에 닿는 순간 캐릭터가 KO 상태로 바뀌고 게임이 즉시 종료됩니다. 시간 제한 없이 그때까지 살아남은 시간이 기록됩니다.',
+          '고철 기둥에 닿는 순간 캐릭터가 KO 상태로 바뀌고 게임이 즉시 종료됩니다. 최대 5분까지 그때까지 살아남은 시간이 기록됩니다.',
       detail:
           '기록은 0.01초 단위로 비교돼요. 홈으로 나가거나 앱을 닫거나 백그라운드로 보내면 기회가 소진되고 기록은 제출되지 않습니다.',
       visual: GameGuideVisualKind.gravitySurvival,

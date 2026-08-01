@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: runtime pixel-art game character master sprite
+Primary request: Create one front-facing baby duckling idle master for the mobile memory-path game "엄마, 어디가".
+Reference role: The prior game concept image locks the chunky pixel-cluster language, dark plum-brown outline, wet-marsh palette, and general baby-duck identity. Revise only the duckling's cute-versus-ugly balance.
+Subject: A very cute yellow baby duckling, cuteness 70% and awkward ugly-cute 30%. Round plump cheeks, a small soft pear-shaped body, slightly oversized orange webbed feet turned a little pigeon-toed, exactly three damp hair tufts, and a bill that is only subtly crooked. The eyes are clear, vulnerable, and worried but trusting, with a tiny single-pixel highlight; only a very slight eye-height asymmetry. It should look earnest and protectable.
+Pose/view: Single static idle, full body, front 3/4 top-down game view, feet planted on one shared baseline, centered with generous padding.
+Pixel style: Deliberate coarse true pixel art, designed to reduce cleanly to a 32×32 source cell and display at 64×64 with nearest-neighbor. Thick staircase silhouette, dark plum-brown one-pixel-equivalent outline, compact pixel clusters, 2–3 shading levels, 9–12 colors total, no antialiasing or painterly texture.
+Background: Perfectly flat solid #FF00FF chroma-key background, uniform corner to corner.
+Constraints: One character only. No floor, no shadow, no reflection, no text, no border, no grid, no props, no detached feathers. Keep the complete silhouette within the central 65% of the canvas.
+Avoid: Gaunt body, grotesque face, unfocused pupils, sickly expression, horror, extra limbs, extra hair tufts, smooth vector edges, high-resolution feather detail, gradients, blur, semitransparency, or any #FF00FF inside the character.

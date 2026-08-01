@@ -1,0 +1,40 @@
+Use case: stylized-concept
+Asset type: review-candidate master specimen for an adult mother-duck mobile
+game sprite
+Input image: Image 1 is the exact family identity, pixel-art style, camera,
+lighting, outline, facial-language, and cluster-density reference. Design the
+adult mother of this baby duck; preserve clear family resemblance without
+merely enlarging the baby.
+Subject: exactly one full-body adult mother duck in a neutral grounded
+three-quarter-front view, viewed from slightly above. She has a moderately
+smaller head-to-body ratio than the baby, a subtly longer neck, a fuller
+pear-shaped adult torso, rounded hips, one small tail wedge visible behind one
+side, two short wings resting close to the body, and two short orange webbed
+feet. Retain two small uneven crown-feather tufts as the family marker, but
+make their silhouette slightly smoother and more mature. Use the same
+wide-spaced glossy black eyes and small flat orange beak family language, with
+a gentle, mildly worried, blank, slightly clueless ugly-cute expression. Her
+stance is earnest and a little stiff, with mild imperfect symmetry. No
+eyelashes or human gender markers.
+Color palette: warm cream-ivory main feathers to distinguish the mother from
+the yellow baby, pale butter-yellow face and upper-chest warmth, golden ochre
+shadow masses, soft cream belly highlight, burnt-orange beak and feet, and the
+same deep warm-brown outline as Image 1. Upper-left light direction.
+Style/medium: crisp hand-authored-looking pixel art intended for a 36x36 source
+cell displayed at 2x. Strong readable silhouette, chunky deliberate pixel
+clusters, restrained medium-low detail, approximately the same apparent pixel
+size and detail frequency as Image 1. No blur, no antialiasing, no smooth
+vector edges, no painterly texture, no gradients, no dithering noise, and no
+tiny decorative feather noise.
+Composition: centered, complete full body entirely visible, standing still
+with both feet on one stable horizontal contact baseline. Generous padding on
+all four sides. The adult should read slightly taller and broader than the
+baby through proportions and silhouette, while still fitting the same 36x36
+runtime cell.
+Backdrop: perfectly flat uniform solid #FF00FF chroma-key background, no
+gradient, texture, floor, lighting variation, cast shadow, reflection, or
+scenery.
+Constraints: exactly two wings, two feet, one beak, two eyes, two small crown
+tufts, and one small tail wedge. No clothing, hat, bow, necklace, props, nest,
+eggs, extra animals, text, labels, UI, borders, watermark, detached feathers,
+effects, or accessories. Do not use magenta anywhere in the duck.

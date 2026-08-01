@@ -1,6 +1,8 @@
 import 'dart:math';
 
 abstract final class GravitySwitchRules {
+  static const gameDuration = Duration(minutes: 5);
+
   // One course column is exactly one displayed player width.
   static const columnWidth = 48.0;
   static const gravityAcceleration = 5200.0;

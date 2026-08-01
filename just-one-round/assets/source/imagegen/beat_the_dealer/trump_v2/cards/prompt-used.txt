@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: pixel-art playing-card art atlas for a 2D mobile blackjack game
+Primary request: Create a coherent pixel-art atlas containing twelve tiny court-card portrait emblems for J, Q, K across four suits, plus one ornate card-back motif and one gold betting chip motif.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background.
+Style/medium: chunky old playing-card woodcut interpreted as deliberate pixel art, quirky ugly-cute faces, simple mirrored royal busts, dark plum outlines, hard edges, 3-step shading.
+Composition/framing: exact 4-column by 3-row grid; columns spade, heart, diamond, club; rows Jack, Queen, King. Bottom section contains a teal-and-coral card-back medallion and a chunky gold casino chip.
+Constraints: no readable letters, numbers, words, card rectangles, atlas borders, labels, shadows, glow, or watermark; perfectly uniform #FF00FF background.

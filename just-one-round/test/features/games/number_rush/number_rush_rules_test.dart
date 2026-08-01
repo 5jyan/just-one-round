@@ -85,6 +85,21 @@ void main() {
     expect(NumberRushRules.formatRankingScore(fast), '9.87초');
   });
 
+  test('3분 안에 완료하지 못한 결과는 0점이다', () {
+    expect(
+      NumberRushRules.rankingScoreForResult(
+        elapsedMs: const Duration(minutes: 3).inMilliseconds,
+        timedOut: true,
+      ),
+      0,
+    );
+    expect(
+      NumberRushRules.rankingScoreForResult(elapsedMs: 12345, timedOut: false),
+      NumberRushRules.rankingScoreFromElapsedMs(12345),
+    );
+    expect(NumberRushRules.formatRankingScore(0), '0점');
+  });
+
   test('시간을 소수점 둘째 자리로 반올림해 표시한다', () {
     expect(NumberRushRules.formatElapsedMs(12344), '12.34초');
     expect(NumberRushRules.formatElapsedMs(12345), '12.35초');

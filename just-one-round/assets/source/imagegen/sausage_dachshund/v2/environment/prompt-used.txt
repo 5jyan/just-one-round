@@ -1,0 +1,36 @@
+Use case: stylized-concept
+Asset type: full-screen 2D mobile game background, no characters and no UI
+Primary request: Create a new empty dark kitchen game environment closely
+following the attached reference's composition and pixel-art atmosphere. The
+central teal tiled floor must feel physically built into the kitchen floor, not
+like a floating board or a separate overlay.
+Input image: the user-provided kitchen screenshot is the master reference for
+camera angle, room composition, teal floor material, dark navy kitchen palette,
+chunky pixel density, and warm refrigerator light. Do not copy or retain its
+dachshund, sausage, timer, score, or HUD.
+Composition/framing: exact portrait 9:16 composition. Straight top-down / very
+slight three-quarter pixel-art kitchen. Reserve a completely unobstructed
+central rectangular playfield from 11.1% to 88.9% of image width and from 20%
+to 90% of image height. Surround it with a dark kitchen perimeter: sink and
+small counter at upper left, refrigerator at upper right, sparse
+counters/appliances/plants along far side edges, rug below. Nothing may overlap
+the central playfield.
+Central playfield: one continuous deep teal ceramic tile surface integrated
+flush with the surrounding dark floor. Quiet low-contrast texture and subtle
+worn highlights. Keep the surface visually calm so brown dog sprites and orange
+sausages remain readable. Do not draw a fixed grid count; leave broad regular
+tile material that can accept a precisely aligned grid in deterministic
+postprocessing.
+Style/medium: intentionally chunky 2D pixel art, approximately 2 screen-pixel
+clusters at final 360x640 display, slightly awkward cozy late-night kitchen,
+subdued detail density, hard pixel edges, no smoothing, no painterly brushwork,
+no 3D render.
+Lighting/mood: cool dim blue-green room with a warm amber refrigerator glow
+confined near the upper-right perimeter; central board mostly even and dark
+enough for gameplay.
+Constraints: empty environment only; no dog, no animal, no sausage, no food
+pickup, no HUD, no timer, no score, no numerals, no letters, no icons, no
+watermark. No furniture, light pool, or prop may enter the central playfield.
+Preserve clear dark border around the playfield. No perspective distortion on
+the central rectangle. No standalone floating board, beveled tabletop, or drop
+shadow around it.

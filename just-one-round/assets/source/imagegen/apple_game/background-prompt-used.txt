@@ -1,9 +1,0 @@
-Use case: stylized-concept
-Asset type: portrait background for a mobile 2D pixel-art apple puzzle game, designed to be downsampled to 180x320
-Primary request: an intentionally tacky yet charming Korean retro room backdrop resembling faded neighborhood beauty-salon wallpaper and an old kitchen table, with a large quiet central play area for a puzzle board
-Style/medium: crisp low-resolution pixel art, chunky deliberate pixels, slightly awkward ugly-cute taste, visually coherent and production-ready
-Composition/framing: exact portrait 9:16 composition; faded beige rose-pattern wallpaper in the upper area, a simple horizontal trim, worn yellow-beige vinyl table surface below; keep the central 75 percent low-detail and evenly lit so a game board remains readable; decorative details only near edges
-Lighting/mood: warm flat indoor lighting, nostalgic, slightly dingy, funny rather than dirty
-Color palette: beige #D8BC83, dusty rose #B96C76, burgundy #7B352D, muted cream and dull gold
-Constraints: no apples, no characters, no game board, no interface, no text, no letters, no logos, no watermark, no perspective floor grid, no photorealism
-Avoid: modern minimalist design, dark dramatic lighting, dense central detail, 3D render, smooth vector gradients

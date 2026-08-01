@@ -38,5 +38,9 @@ void main() {
     expect(find.text('별둘'), findsOneWidget);
     expect(find.byKey(const Key('my-nearby-rank')), findsOneWidget);
     expect(find.text('NPC'), findsNothing);
+    expect(
+      tester.getSize(find.byKey(const Key('my-nearby-rank'))).width,
+      tester.getSize(find.text('내 주변 랭킹')).width,
+    );
   });
 }

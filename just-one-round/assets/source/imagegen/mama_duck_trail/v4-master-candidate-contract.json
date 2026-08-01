@@ -1,0 +1,48 @@
+{
+  "status": "accepted_as_v4_masters",
+  "runtime_replacement": true,
+  "integration_contract": "asset-contract-v4-full.json",
+  "ground_tile": {
+    "path": "ground_tile_v4/master_candidate/ground_tile_candidate.png",
+    "source_size": [
+      36,
+      36
+    ],
+    "display_size": [
+      72,
+      72
+    ],
+    "opaque": true,
+    "palette_colors": 18,
+    "seam_qc": {
+      "left_right_mean_rgb_delta": 2.56,
+      "top_bottom_mean_rgb_delta": 3.77
+    }
+  },
+  "wolf": {
+    "path": "wolf_v4/master_candidate/wolf_idle_candidate.png",
+    "source_size": [
+      48,
+      48
+    ],
+    "display_size": [
+      96,
+      96
+    ],
+    "alpha": true,
+    "palette_colors": 20,
+    "bbox": [
+      8,
+      4,
+      40,
+      46
+    ],
+    "feet_baseline_y": 46,
+    "reeds": 3
+  },
+  "preserved_runtime": [
+    "assets/images/mama_duck_trail/marsh_tiles_atlas.png",
+    "assets/images/mama_duck_trail/wolf_idle.png",
+    "assets/images/mama_duck_trail/wolf_failure_sheet.png"
+  ]
+}

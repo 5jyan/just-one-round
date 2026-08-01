@@ -1,0 +1,8 @@
+Use case: style-transfer
+Asset type: two-character pixel-art master sprite sheet for a 2D mobile blackjack minigame
+Primary request: Recreate the two reference characters at slightly higher source quality while preserving their exact identities: left is the sleepy pink-purple octopus dealer with tiny tilted dealer cap, right is the small nervous yellow chick player. Make them feel like the same characters, not redesigns.
+Input images: existing dealer_idle.png locks the octopus dealer identity, silhouette, color, hat, expression and front view; existing player_idle.png locks the chick identity, color, beak, legs, expression and side/front three-quarter view.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background.
+Style/medium: deliberately authored chunky pixel art, awkward ugly-cute indie minigame style, hard 1-pixel source clusters intended for nearest-neighbor 2x display, restrained 3-step shading, dark plum outlines.
+Composition/framing: exactly two isolated sprites side by side in one horizontal row; octopus centered in left half, chick centered in right half; generous uniform padding; no overlap; whole bodies fully contained; stable bottom baseline; octopus roughly 1.4 times the chick's visible height.
+Constraints: no labels, numbers, cards, chips, table, cast shadows, frames, separators, glow, or watermark; perfectly uniform #FF00FF background; crisp pixel edges.

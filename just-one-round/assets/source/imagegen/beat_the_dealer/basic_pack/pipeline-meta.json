@@ -1,0 +1,307 @@
+{
+  "game_id": "beat_the_dealer",
+  "contract": {
+    "safe_core": [
+      0,
+      0,
+      360,
+      640
+    ],
+    "maximum_viewport": [
+      0,
+      -100,
+      360,
+      840
+    ],
+    "art_pixel": "approximately 2x2 logical pixels",
+    "filter": "nearest-neighbor",
+    "runtime_integration": false
+  },
+  "background": {
+    "raw": "assets/source/imagegen/beat_the_dealer/basic_pack/background/raw/background-map.png",
+    "raw_sha256": "4821a727aaee2202048b8ed28fbbb810db96b6df59c9b9ea69bcd94ed1a4a6cd",
+    "crop_box": [
+      0,
+      0,
+      821,
+      1915
+    ],
+    "runtime": "assets/images/beat_the_dealer/background_map.png",
+    "runtime_size": [
+      180,
+      420
+    ],
+    "display_size": [
+      360,
+      840
+    ],
+    "world_rect": [
+      0,
+      -100,
+      360,
+      840
+    ],
+    "safe_core": [
+      0,
+      0,
+      360,
+      640
+    ],
+    "camera_center": [
+      180,
+      320
+    ]
+  },
+  "dealer": {
+    "raw": "assets/source/imagegen/beat_the_dealer/basic_pack/dealer/raw/dealer-idle-chroma-v2.png",
+    "raw_sha256": "89646becb9d8e8491c6fba554d091dae2b796134a4e211a10a220ced18e62305",
+    "alpha_source": "assets/source/imagegen/beat_the_dealer/basic_pack/dealer/processed/dealer-idle-chroma-v2-alpha.png",
+    "runtime": "assets/images/beat_the_dealer/dealer_idle.png",
+    "display_size": [
+      96,
+      96
+    ],
+    "scale": 2,
+    "chroma": {
+      "mode": "hard",
+      "auto_key": "border",
+      "tolerance": 30,
+      "despill": true,
+      "residual_magenta_cleanup": "r>150, b>150, g<40"
+    },
+    "source_bbox": [
+      183,
+      128,
+      1072,
+      1052
+    ],
+    "subject_size": [
+      42,
+      44
+    ],
+    "cell_size": [
+      48,
+      48
+    ],
+    "offset": [
+      3,
+      3
+    ],
+    "anchor": "bottom-center"
+  },
+  "player": {
+    "raw": "assets/source/imagegen/beat_the_dealer/basic_pack/player/raw/player-idle-chroma.png",
+    "raw_sha256": "d2da9b2c816eafaa9a700e9556364fdde0eb88bd3423b33a238e09bacd910e35",
+    "alpha_source": "assets/source/imagegen/beat_the_dealer/basic_pack/player/processed/player-idle-chroma-alpha.png",
+    "runtime": "assets/images/beat_the_dealer/player_idle.png",
+    "display_size": [
+      64,
+      64
+    ],
+    "scale": 2,
+    "chroma": {
+      "mode": "hard",
+      "auto_key": "border",
+      "tolerance": 30,
+      "despill": true,
+      "residual_magenta_cleanup": "r>150, b>150, g<40"
+    },
+    "source_bbox": [
+      246,
+      134,
+      969,
+      1057
+    ],
+    "subject_size": [
+      22,
+      28
+    ],
+    "cell_size": [
+      32,
+      32
+    ],
+    "offset": [
+      5,
+      3
+    ],
+    "anchor": "bottom-center"
+  },
+  "props": {
+    "raw": "assets/source/imagegen/beat_the_dealer/basic_pack/props/raw/props-chroma.png",
+    "raw_sha256": "e394e639f5ece356feaf3aa350041ab773c677b4e132a3f863c2e51e43a88adb",
+    "alpha_source": "assets/source/imagegen/beat_the_dealer/basic_pack/props/processed/props-alpha.png",
+    "chroma": {
+      "mode": "hard",
+      "auto_key": "border",
+      "tolerance": 30,
+      "despill": true,
+      "residual_magenta_cleanup": "r>150, b>150, g<40"
+    },
+    "outputs": {
+      "card_front.png": {
+        "runtime": "assets/images/beat_the_dealer/card_front.png",
+        "display_size": [
+          48,
+          64
+        ],
+        "scale": 2,
+        "source_region": [
+          117,
+          0,
+          525,
+          1024
+        ],
+        "source_bbox": [
+          0,
+          192,
+          408,
+          804
+        ],
+        "subject_size": [
+          20,
+          30
+        ],
+        "cell_size": [
+          24,
+          32
+        ],
+        "offset": [
+          2,
+          1
+        ],
+        "anchor": "bottom-center"
+      },
+      "card_back.png": {
+        "runtime": "assets/images/beat_the_dealer/card_back.png",
+        "display_size": [
+          48,
+          64
+        ],
+        "scale": 2,
+        "source_region": [
+          635,
+          0,
+          1059,
+          1024
+        ],
+        "source_bbox": [
+          0,
+          191,
+          424,
+          810
+        ],
+        "subject_size": [
+          21,
+          30
+        ],
+        "cell_size": [
+          24,
+          32
+        ],
+        "offset": [
+          1,
+          1
+        ],
+        "anchor": "bottom-center"
+      },
+      "coin.png": {
+        "runtime": "assets/images/beat_the_dealer/coin.png",
+        "display_size": [
+          32,
+          32
+        ],
+        "scale": 2,
+        "source_region": [
+          1149,
+          0,
+          1429,
+          1024
+        ],
+        "source_bbox": [
+          0,
+          389,
+          280,
+          687
+        ],
+        "subject_size": [
+          13,
+          14
+        ],
+        "cell_size": [
+          16,
+          16
+        ],
+        "offset": [
+          1,
+          1
+        ],
+        "anchor": "bottom-center"
+      }
+    }
+  },
+  "validation": {
+    "background_map.png": {
+      "size": [
+        180,
+        420
+      ],
+      "mode": "RGB",
+      "sha256": "c4ca34953a0c6a4b91f8c5490d052b133639744ba1ba54259fe89a54177b364a"
+    },
+    "dealer_idle.png": {
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "sha256": "4bc6ff149bb4d9f9f377d40595c51b1151b35bec0df3a0746f06b1688d3d8a9e",
+      "opaque_pixels": 1262,
+      "transparent_pixels": 1042
+    },
+    "player_idle.png": {
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "sha256": "b51db6ad2a6e1885394828cd820e2685ee2a4f74594df8ab7d769c69b268a295",
+      "opaque_pixels": 385,
+      "transparent_pixels": 639
+    },
+    "card_front.png": {
+      "size": [
+        24,
+        32
+      ],
+      "mode": "RGBA",
+      "sha256": "47e9c9f0a4df2c9f936d5fbbcb63f4e8656d6a9ca75ac5f4db0518e2ac1eb7e5",
+      "opaque_pixels": 596,
+      "transparent_pixels": 172
+    },
+    "card_back.png": {
+      "size": [
+        24,
+        32
+      ],
+      "mode": "RGBA",
+      "sha256": "c00c402befee74fc1a62f7730b481c338a9ee164d9574c715cf1181525a774a6",
+      "opaque_pixels": 626,
+      "transparent_pixels": 142
+    },
+    "coin.png": {
+      "size": [
+        16,
+        16
+      ],
+      "mode": "RGBA",
+      "sha256": "af027d3a60873218d62469620e480f48f4ba94a678223a15e65b920b37297b96",
+      "opaque_pixels": 146,
+      "transparent_pixels": 110
+    }
+  },
+  "qc": [
+    "assets/source/imagegen/beat_the_dealer/basic_pack/qc/pixel-scale-comparison.png",
+    "assets/source/imagegen/beat_the_dealer/basic_pack/qc/runtime-composite-360x640.png",
+    "assets/source/imagegen/beat_the_dealer/basic_pack/qc/runtime-composite-360x840.png"
+  ]
+}

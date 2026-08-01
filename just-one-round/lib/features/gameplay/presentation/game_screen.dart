@@ -57,6 +57,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _game = _definition.create(
       gameDuration: widget.gameDuration ?? _definition.defaultDuration,
       countdownDuration: widget.countdownDuration,
+      attemptOrdinal: widget.attempt?.ordinal ?? 1,
       onFinished: _handleFinished,
     );
   }
@@ -100,7 +101,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     setState(() => _isSavingNickname = true);
     try {
       await _repository.setNickname(nickname);
-      final rank = await _repository.fetchDailyRank();
+      final rank = await _repository.fetchDailyRank(
+        playDate: widget.attempt?.playDate,
+      );
       if (!mounted) return;
       setState(() => _rankResult = rank);
     } catch (error) {
@@ -188,12 +191,18 @@ class _GameScreenState extends ConsumerState<GameScreen>
               _pendingResult == null &&
               _result == null)
             _NumberRushExitButton(onExit: _leaveGame),
+          if (_definition.id == 'beat_the_dealer' &&
+              !_wasInterrupted &&
+              _pendingResult == null &&
+              _result == null)
+            _BeatTheDealerExitButton(onExit: _leaveGame),
           SafeArea(
             child: Stack(
               fit: StackFit.expand,
               children: [
                 _GameHud(game: _game, definition: _definition),
-                if (_definition.id != 'number_rush')
+                if (_definition.id != 'number_rush' &&
+                    _definition.id != 'beat_the_dealer')
                   Positioned(
                     left: 8,
                     top: 13,
@@ -225,6 +234,62 @@ class _GameScreenState extends ConsumerState<GameScreen>
             ),
         ],
       ),
+    );
+  }
+}
+
+class _BeatTheDealerExitButton extends StatelessWidget {
+  const _BeatTheDealerExitButton({required this.onExit});
+
+  static const _logicalSize = Size(360, 640);
+  static const _touchRect = Rect.fromLTWH(4, 21, 48, 48);
+
+  final VoidCallback onExit;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = math.min(
+          constraints.maxWidth / _logicalSize.width,
+          constraints.maxHeight / _logicalSize.height,
+        );
+        final viewportLeft =
+            (constraints.maxWidth - _logicalSize.width * scale) / 2;
+        final viewportTop =
+            (constraints.maxHeight - _logicalSize.height * scale) / 2;
+
+        return Stack(
+          children: [
+            Positioned(
+              left: viewportLeft + _touchRect.left * scale,
+              top: viewportTop + _touchRect.top * scale,
+              width: _touchRect.width * scale,
+              height: _touchRect.height * scale,
+              child: Tooltip(
+                message: '길게 눌러 게임 나가기',
+                triggerMode: TooltipTriggerMode.tap,
+                child: Semantics(
+                  button: true,
+                  label: '길게 눌러 게임 나가기',
+                  child: GestureDetector(
+                    key: const Key('game-exit-button'),
+                    behavior: HitTestBehavior.opaque,
+                    onLongPress: onExit,
+                    child: Center(
+                      child: CustomPaint(
+                        key: const Key('game-exit-icon'),
+                        size: Size.square(32 * scale),
+                        painter: const _PixelExitIconPainter(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -427,14 +492,17 @@ class _GameHud extends StatelessWidget {
         if (definition.hudStyle == MiniGameHudStyle.survivalTime) {
           return _SurvivalTimeHud(state: state, definition: definition);
         }
-        if (definition.hudStyle == MiniGameHudStyle.failedBakery) {
-          return _FailedBakeryHud(state: state, definition: definition);
-        }
         if (definition.hudStyle == MiniGameHudStyle.appleGame) {
           return _AppleGameHud(state: state, definition: definition);
         }
         if (definition.hudStyle == MiniGameHudStyle.numberRush) {
           return _NumberRushHud(state: state, definition: definition);
+        }
+        if (definition.hudStyle == MiniGameHudStyle.mamaDuckTrail) {
+          return _MamaDuckTrailHud(state: state, definition: definition);
+        }
+        if (definition.hudStyle == MiniGameHudStyle.beatTheDealer) {
+          return _BeatTheDealerHud(state: state, definition: definition);
         }
         return IgnorePointer(
           child: Stack(
@@ -516,6 +584,189 @@ class _GameHud extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _BeatTheDealerHud extends StatelessWidget {
+  const _BeatTheDealerHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    if (state.phase != MiniGamePhase.countdown) {
+      return const SizedBox.expand();
+    }
+    return IgnorePointer(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              state.countdownNumber > 0 ? '${state.countdownNumber}' : 'GO!',
+              style: const TextStyle(
+                fontFamily: 'Galmuri',
+                color: AppColors.primary,
+                fontSize: 68,
+                fontWeight: FontWeight.w700,
+                shadows: [
+                  Shadow(color: AppColors.primaryShadow, offset: Offset(5, 5)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              definition.countdownInstruction,
+              style: const TextStyle(
+                color: AppColors.text,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MamaDuckTrailHud extends StatelessWidget {
+  const _MamaDuckTrailHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 64,
+            right: 12,
+            top: 10,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 84,
+                  child: _HudValue(
+                    label: 'SURVIVE',
+                    value: definition.formatHudScore(state.score),
+                    valueKey: const Key('mama-hud-score'),
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'LIVES',
+                        key: Key('mama-hud-lives-label'),
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      SizedBox(
+                        width: 96,
+                        height: 48,
+                        child: Stack(
+                          children: [
+                            for (var index = 0; index < 3; index++)
+                              Positioned(
+                                left: index * 24,
+                                child: Opacity(
+                                  key: Key('mama-duck-life-$index'),
+                                  opacity: index < state.distance ? 1 : 0.18,
+                                  child: Image.asset(
+                                    'assets/images/mama_duck_trail/'
+                                    'duckling_life_face.png',
+                                    width: 48,
+                                    height: 48,
+                                    filterQuality: FilterQuality.none,
+                                    excludeFromSemantics: true,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 48,
+                  child: _HudValue(
+                    label: 'TIME',
+                    value: '${state.remainingSeconds ?? state.elapsedSeconds}'
+                        .padLeft(2, '0'),
+                    valueKey: const Key('mama-hud-time'),
+                    alignEnd: true,
+                    isDanger:
+                        state.remainingSeconds != null &&
+                        state.remainingSeconds! <= 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (state.phase == MiniGamePhase.countdown)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.countdownNumber > 0
+                        ? '${state.countdownNumber}'
+                        : 'GO!',
+                    style: const TextStyle(
+                      fontFamily: 'Galmuri',
+                      color: AppColors.primary,
+                      fontSize: 68,
+                      fontWeight: FontWeight.w700,
+                      shadows: [
+                        Shadow(
+                          color: AppColors.primaryShadow,
+                          offset: Offset(5, 5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    definition.countdownInstruction,
+                    style: const TextStyle(
+                      color: AppColors.text,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (state.phase == MiniGamePhase.playing)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 18,
+              child: Text(
+                definition.playingInstruction,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -623,103 +874,6 @@ class _AppleGameHud extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FailedBakeryHud extends StatelessWidget {
-  const _FailedBakeryHud({required this.state, required this.definition});
-
-  final MiniGameHudState state;
-  final MiniGameDefinition definition;
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 16,
-            child: Column(
-              children: [
-                Text(
-                  definition.formatScore(state.score),
-                  key: const Key('failed-bakery-score'),
-                  style: const TextStyle(
-                    fontFamily: 'Galmuri',
-                    color: Color(0xFFFFF0C7),
-                    fontSize: 42,
-                    fontWeight: FontWeight.w700,
-                    shadows: [
-                      Shadow(color: Color(0xB0120B1C), offset: Offset(3, 3)),
-                    ],
-                  ),
-                ),
-                if (state.combo >= 2)
-                  Text(
-                    'PERFECT ×${state.combo}',
-                    key: const Key('failed-bakery-combo'),
-                    style: const TextStyle(
-                      fontFamily: 'Galmuri',
-                      color: Color(0xFFFF91A8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          if (state.phase == MiniGamePhase.countdown)
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    state.countdownNumber > 0
-                        ? '${state.countdownNumber}'
-                        : 'GO!',
-                    style: const TextStyle(
-                      fontFamily: 'Galmuri',
-                      color: Color(0xFFFFD36A),
-                      fontSize: 68,
-                      fontWeight: FontWeight.w700,
-                      shadows: [
-                        Shadow(color: Color(0xFF7D3B3E), offset: Offset(5, 5)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    definition.countdownInstruction,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (state.phase == MiniGamePhase.playing && state.elapsedSeconds < 6)
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 22,
-              child: Text(
-                definition.playingInstruction,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xDDFFF4D6),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
               ),
             ),
         ],

@@ -1,0 +1,34 @@
+{
+  "golden_sausage": {
+    "source": "assets/images/midnight_snake/midnight_food_atlas.png",
+    "runtime": "assets/images/midnight_snake/golden_sausage_sheet.png",
+    "sheet": {
+      "rows": 2,
+      "columns": 1,
+      "cell": [
+        32,
+        32
+      ]
+    },
+    "method": "deterministic HSV palette adaptation with ivory highlights"
+  },
+  "mouse": {
+    "source": "assets/source/imagegen/midnight_snake/mouse_walk/processed/sheet-transparent.png",
+    "runtime": "assets/images/midnight_snake/mouse_walk_atlas.png",
+    "sheet": {
+      "rows": 4,
+      "columns": 2,
+      "cell": [
+        32,
+        32
+      ],
+      "row_order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    "method": "built-in image generation and chroma-key sprite processing"
+  }
+}

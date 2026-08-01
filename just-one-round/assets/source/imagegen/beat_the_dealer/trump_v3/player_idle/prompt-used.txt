@@ -1,0 +1,1 @@
+Exact 2x2 sprite sheet on solid #FF00FF. Four idle frames of a round yellow chick player, awkward and cute, consistent scale and baseline, crisp pixel clusters, no text.

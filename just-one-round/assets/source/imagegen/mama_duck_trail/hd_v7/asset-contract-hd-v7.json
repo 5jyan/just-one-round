@@ -1,0 +1,82 @@
+{
+  "status": "processed_and_integrated",
+  "version": "hd-v7-group-reunion",
+  "approved_runtime_choreography": {
+    "mother_position": "final_path_cell",
+    "leader_final_position": "penultimate_path_cell",
+    "leader_to_mother_center_distance_pixels": 72,
+    "follower_spacing_cells": 1.0,
+    "maximum_ducks_per_path_cell": 1,
+    "participants": "all_rescued_ducks",
+    "entry": "followers enter one by one along the solved path",
+    "arrival": {
+      "ducklings": "existing six-frame cheer loop",
+      "mother": "new six-frame cheer loop",
+      "duration_seconds": 1.5
+    },
+    "footer_parade_during_success": "hidden_to_prevent_duplicates",
+    "preserved_rules": [
+      "score",
+      "combo",
+      "lives",
+      "90_second_timer",
+      "path_generation",
+      "input_timing"
+    ]
+  },
+  "mother_cheer": {
+    "generation_original": "/Users/saulpark/.codex/generated_images/019fae4b-53e3-74a3-8cb3-300b022198aa/call_bFRFp5V3EapAUZXZPSYa6bu5.png",
+    "raw_sheet": "mother/cheer/raw/raw-sheet.png",
+    "processed_sheet": "mother/cheer/processed/sheet-transparent.png",
+    "runtime_sheet": "assets/images/mama_duck_trail/mother_duck_cheer_sheet.png",
+    "prompt": "mother/cheer/prompt-used.txt",
+    "pipeline_metadata": "mother/cheer/processed/pipeline-meta.json",
+    "layout": {
+      "columns": 3,
+      "rows": 2,
+      "frames": 6,
+      "cell_pixels": [
+        72,
+        72
+      ],
+      "sheet_pixels": [
+        216,
+        144
+      ],
+      "display_pixels": [
+        72,
+        72
+      ],
+      "frame_duration_milliseconds": 125,
+      "anchor": "feet"
+    },
+    "identity": {
+      "reference_master": "assets/source/imagegen/mama_duck_trail/mother_duck_v4/master/raw-master-chroma.png",
+      "reference_sheet": "assets/source/imagegen/mama_duck_trail/mother_duck_v4/references/mother-anchor-2x3.png",
+      "scale_profile": "assets/source/imagegen/mama_duck_trail/hd_v5/mother/character-scale-profile.json",
+      "headscarf": "preserved",
+      "extra_accessories_or_particles": false
+    },
+    "qc": {
+      "strict": true,
+      "valid_frames": 6,
+      "empty_frames": 0,
+      "edge_touch_frames": 0,
+      "paste_clamped_frames": 0,
+      "body_scale_cv": 0.011408440922068167,
+      "anchor_y_std": 0.03342565373222255,
+      "profile_body_scale_drift": 0.09451719719219764,
+      "thresholds": {
+        "max_body_scale_cv": 0.08,
+        "max_anchor_y_std": 0.05,
+        "max_profile_body_scale_drift": 0.1
+      },
+      "result": "pass"
+    }
+  },
+  "legacy_mother_hug": {
+    "runtime_file_preserved": true,
+    "loader_and_render_usage_removed": true
+  },
+  "runtime_capture": "qc/runtime_group_success_combo3.png"
+}

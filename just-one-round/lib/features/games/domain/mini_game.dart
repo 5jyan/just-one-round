@@ -7,9 +7,10 @@ enum MiniGamePhase { countdown, playing, finished }
 enum MiniGameHudStyle {
   standard,
   survivalTime,
-  failedBakery,
   appleGame,
   numberRush,
+  mamaDuckTrail,
+  beatTheDealer,
 }
 
 class MiniGameHudState {
@@ -20,8 +21,6 @@ class MiniGameHudState {
     required this.remainingSeconds,
     required this.countdownNumber,
     this.distance = 0,
-    this.combo = 0,
-    this.perfects = 0,
   });
 
   final MiniGamePhase phase;
@@ -30,8 +29,6 @@ class MiniGameHudState {
   final int? remainingSeconds;
   final int countdownNumber;
   final int distance;
-  final int combo;
-  final int perfects;
 }
 
 abstract interface class MiniGameController {
@@ -46,6 +43,7 @@ typedef MiniGameFactory =
     MiniGameController Function({
       required Duration gameDuration,
       required Duration countdownDuration,
+      required int attemptOrdinal,
       required ValueChanged<GameResult> onFinished,
     });
 

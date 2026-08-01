@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: one review-ready pixel-art enemy master sprite
+Input images: Image 1 is the existing wolf identity reference; Image 2 is the approved mother-duck master that locks the redesigned game's chunky pixel scale, warm dark-brown outline, restrained shading, and dopey-cute character language.
+Primary request: Redesign one basic idle master for the marsh wolf in the mobile game "엄마, 어디가".
+Identity: A gray-brown adult wolf who thinks he is cleverly hidden. Preserve exactly three obvious marsh reeds growing as a ridiculous disguise from the top of his head. Give him one long broad muzzle, a large dark nose, heavy sleepy overconfident eyes, small uneven fangs, skinny bent legs, oversized paws, and a thick curled tail.
+Silhouette and personality: More compact and readable than the old thin sprite, with a slightly hunched sneaking posture and one shoulder higher than the other. He should feel like a real danger to a duckling but remain awkward, foolish, and darkly funny rather than frightening or polished.
+View: Full-body three-quarter-front top-down gameplay view, centered, both feet on one shared baseline, generous empty padding.
+Pixel style: Coarse true pixel art designed for a 48×48 source cell displayed at 96×96. Match the mother duck's apparent pixel size and restrained detail density: strong staircase contour, simple 2–3-step shading, compact 16–20 color palette, readable silhouette before fur detail.
+Background: Perfectly flat solid #FF00FF chroma-key background.
+Constraints: Exactly one wolf. Exactly three reeds attached to the head. No floor, cast shadow, reflection, duck, blood, bones, clothing, props, text, border, grid, detached particles, fine fur noise, extra limbs, extra tails, extra ears, extra fangs, gradients, blur, semitransparent edges, or #FF00FF inside the wolf.

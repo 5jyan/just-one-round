@@ -1,0 +1,40 @@
+Use case: stylized-concept
+Asset type: six-frame mobile game character cheer animation sheet
+Input images: Image 1 is the exact accepted baby-duck identity and pixel-art
+reference. Image 2 is a scale-and-root template; use it only for the invisible
+2-row × 3-column slot positions, fixed camera distance, standing-equivalent
+anatomical scale, body-root position, shared grounded foot line, spacing, and
+padding. Do not reproduce visible guides, borders, separators, or template
+marks.
+Primary request: create one continuous six-frame grounded celebration cycle
+for exactly the same baby duck. Frame order is left-to-right across the top
+row, then left-to-right across the bottom row: 1 small anticipation crouch
+with wings tucked, 2 wings half-raised, 3 wings fully raised with a tiny
+delighted open beak, 4 happy peak with head slightly lifted and wings wide, 5
+wings lowering with pleased closed eyes, 6 return toward neutral. Keep the
+celebration awkward, earnest, and dopey-cute. The duck cheers in place; both
+feet stay connected to one shared ground-contact baseline in every frame, with
+no airborne jump and no whole-character travel.
+Identity lock: preserve the exact oversized fluffy round head, smaller
+pear-shaped body, exactly two uneven crown tufts, wide glossy black eyes, small
+flat orange beak, tiny wings, short orange webbed feet,
+butter-yellow/golden-yellow/cream palette, deep warm-brown outline, mildly
+pigeon-toed stance, and blank slightly clueless face from Image 1. Facial
+expression may change only as specified by the animation. Do not redesign,
+rotate, add anatomy, or beautify it.
+Style: crisp deliberate pixel art, chunky clusters, medium-low detail,
+upper-left light, no blur, antialiasing, gradients, dithering noise, or
+painterly texture. Every frame must keep the same anatomical proportions,
+pixel density, outline weight, palette, camera angle, head size, and
+standing-equivalent body scale. Natural wing pose and slight body squash may
+change the visible pose bbox; never zoom a pose.
+Layout: exact 2×3 grid with six equal invisible cells and exactly six ducks.
+Keep the complete character inside the central 66% of each cell with generous
+flat-magenta padding on all four sides. Stable centered body root and stable
+feet baseline. No wing tip, foot, tuft, or beak may cross any cell edge.
+Backdrop: perfectly flat uniform solid #FF00FF chroma-key background only; no
+gradient, texture, floor, cast shadow, reflection, scenery, guide boxes, text,
+labels, UI, watermark, cell borders, or separators.
+Avoid: no detached feathers, sparkles, confetti, dust, motion lines, extra
+limbs, extra eyes, extra tufts, clothing, hats, props, accessories, rear view,
+side view, dramatic perspective, or floating pose.

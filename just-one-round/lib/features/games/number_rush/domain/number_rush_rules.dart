@@ -10,6 +10,7 @@ abstract final class NumberRushRules {
   static const rankingCeilingMs = 3600000;
   static const minimumRefillDelaySeconds = 0.5;
   static const maximumRefillDelaySeconds = 2.0;
+  static const timeoutRankingScore = 0;
 
   static List<int> shuffledTiles(Random random) {
     final values = List<int>.generate(boardSlotCount, (index) => index + 1);
@@ -33,6 +34,11 @@ abstract final class NumberRushRules {
   static int rankingScoreFromElapsedMs(int elapsedMs) =>
       (rankingCeilingMs - elapsedMs).clamp(1, rankingCeilingMs - 1);
 
+  static int rankingScoreForResult({
+    required int elapsedMs,
+    required bool timedOut,
+  }) => timedOut ? timeoutRankingScore : rankingScoreFromElapsedMs(elapsedMs);
+
   static int elapsedMsFromRankingScore(int score) =>
       (rankingCeilingMs - score).clamp(1, rankingCeilingMs - 1);
 
@@ -43,6 +49,7 @@ abstract final class NumberRushRules {
     return '$seconds.${fraction.toString().padLeft(2, '0')}초';
   }
 
-  static String formatRankingScore(int score) =>
-      formatElapsedMs(elapsedMsFromRankingScore(score));
+  static String formatRankingScore(int score) => score == timeoutRankingScore
+      ? '0점'
+      : formatElapsedMs(elapsedMsFromRankingScore(score));
 }

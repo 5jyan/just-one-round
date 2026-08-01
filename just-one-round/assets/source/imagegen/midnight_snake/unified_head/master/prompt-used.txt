@@ -1,0 +1,23 @@
+Create one master specimen for a top-down mobile pixel-art snake head,
+facing RIGHT, for a dark midnight kitchen game. Use the supplied long blue
+snake only as the geometry and personality reference: one continuous simple
+snake with an enlarged rounded head and oversized clueless googly eyes. Do
+not copy its blue/green palette or background.
+
+Subject: a slightly awkward, dopey-but-cute pet snake head, rounded
+horizontal oval cap, warm golden ochre base (#C28A32 family) with one
+restrained darker amber shadow cluster and one small lighter highlight
+cluster. Two oversized uneven white eyes with dark pupils, looking slightly
+forward/right with a blank hungry expression. Very low detail, strong simple
+silhouette, intentional 2-pixel cluster language, crisp pixel edges, no
+antialiasing, no realistic scales, no accessories. No dark outline cutting
+across the rear/left neck connection. The rear-left edge must be an OPEN
+seamless socket of the same full body color, centered and about two-thirds of
+the head height, so a thick body stroke can enter underneath without a
+visible seam. No detached effects.
+
+Canvas/layout: exactly one centered sprite only, generous margin on every
+side, subject occupies about 55% of the canvas width and 45% of the canvas
+height. Entire subject fully contained. Background must be 100% solid flat
+#FF00FF magenta. No gradient in background, no text, no labels, no UI, no
+border, no shadow outside the sprite.

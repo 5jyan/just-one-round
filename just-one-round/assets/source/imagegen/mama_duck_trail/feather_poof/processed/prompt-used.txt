@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: 4-frame runtime pixel-art failure FX sheet
+Primary request: Create a brief non-gory comic poof of yellow feathers and dark muddy pixel smoke that hides the moment a duck is swallowed.
+Layout: Exact 2 rows × 2 columns, four chronological frames, left-to-right then top-to-bottom.
+Motion: frame 1 tiny central pop; frame 2 expanding round smoke cluster with three yellow feathers; frame 3 widest poof with four chunky feathers; frame 4 fading small smoke and one falling feather.
+Geometry: Effect centered in every cell, stable bottom anchor, complete effect inside central 70%, no cell crossing.
+Pixel style: Coarse true pixel art for 32×32 runtime cells displayed at 64×64, large clusters, dark plum-brown outline, 2–3 shading levels, matching the duck and wolf assets.
+Background: Perfectly flat solid #FF00FF.
+Constraints: Effect only. No duck, wolf, body parts, blood, gore, text, labels, borders, separators, gradients, blur, antialiasing, or #FF00FF inside the effect.

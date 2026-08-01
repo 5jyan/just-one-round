@@ -1,0 +1,28 @@
+Use case: precise-object-edit
+Asset type: final width-corrected adult mother-duck master sprite candidate
+Input images: Image 1 is the accepted adult design edit target. Image 2 is the
+immutable family style reference.
+Primary request: preserve Image 1's face, expression, head shape, head size,
+crown tufts, neck length, overall height, eye spacing, beak, wings, tail,
+feet, grounded pose, cream-ivory palette, lighting, outline, pixel clusters,
+and three-quarter-front camera. Change only the lower adult torso width.
+Silhouette correction: make the chest, belly, hips, and lower pear-shaped body
+approximately 22% broader than Image 1 without increasing height. Create a
+very full, plump adult-duck torso with rounded hips, a broad cream belly mass,
+and a compact grounded center of gravity. The full visible character width
+should be approximately 88% to 92% of its full visible height. Keep the head
+distinctly smaller in proportion to the larger adult body so she does not
+become a baby. Preserve the small side tail wedge and close resting wings.
+Keep both feet on one shared horizontal baseline and the body optically
+centered.
+Style: exact same crisp deliberate pixel-art family as both input images,
+chunky clusters, medium-low detail. No new texture or decorative details. No
+blur, antialiasing, smooth vector edges, painterly rendering, gradients,
+dithering, or micro-feathers.
+Composition: exactly one complete mother duck, all anatomy fully visible,
+generous padding, no clipping or shadow.
+Backdrop: perfectly flat uniform solid #FF00FF chroma-key background only,
+without floor, texture, scenery, text, borders, UI, or watermark.
+Constraints: exactly two wings, two feet, two eyes, one beak, two crown tufts,
+and one tail wedge. No accessories, eyelashes, clothing, props, nest, eggs,
+detached feathers, effects, or extra anatomy.
