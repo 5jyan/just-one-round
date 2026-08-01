@@ -7,7 +7,8 @@
 - Shorebird 앱 ID: `3dd8845d-0de5-4362-b06a-ad463b923e54`
 - 이번 App Store 제출 릴리스: `1.0.4+9`
 - Flutter 버전: `3.44.8`
-- 기존 기준 릴리스: Android `1.0.3+8`, iOS `1.0.2+8`
+- 기존 스토어 기준 릴리스: Android `1.0.3+8`, iOS `1.0.2+8`
+- iOS 심사 제출 릴리스: `1.0.4+9` (심사 대기 중)
 - Android 기준 AAB:
   `build/app/outputs/bundle/release/app-release.aab`
 - iOS 기준 IPA:
@@ -44,7 +45,7 @@ shorebird patch \
   기본 법적 문서 URL로 지정
 - [ ] Android 업로드 키 생성 후 `android/key.properties` 작성
 - [ ] iOS·Android 앱 아이콘과 시작 화면을 실제 브랜드 이미지로 교체
-- [ ] Xcode에서 Apple Distribution 인증서와 App Store 프로비저닝 프로파일
+- [x] Xcode에서 Apple Distribution 인증서와 App Store 프로비저닝 프로파일
   생성
 - [x] 연결된 Supabase 프로젝트에 새 마이그레이션과
   `delete-account` Edge Function 배포
@@ -55,7 +56,7 @@ shorebird patch \
 
 ## App Store Connect
 
-- [x] 앱 레코드와 iOS 버전 `1.0.0` 생성
+- [x] 앱 레코드와 iOS 버전 `1.0.4` 생성
 - [x] 한국어 설명, 홍보 문구, 키워드, 지원 URL, 저작권 입력
 - [x] 심사 연락처, 심사 메모, 수동 출시 설정
 - [x] 게임/캐주얼/액션 카테고리와 콘텐츠 권한 설정
@@ -71,7 +72,10 @@ shorebird patch \
   (6.5형에도 자동 적용, 1→2→3→4→5 순서 확인)
 - [x] 첫 출시 대상을 iPhone 전용으로 변경
   (`TARGETED_DEVICE_FAMILY = 1`, iPad 스크린샷 불필요)
-- [ ] Apple Distribution 서명 빌드 업로드 및 선택
+- [x] Apple Distribution 서명 빌드 `1.0.4 (9)` 업로드 및 선택
+- [x] iOS `1.0.4 (9)` App Store 심사 제출
+  (2026-08-01 23:37 KST, 제출 ID
+  `e804d51a-f76a-460b-95e0-e902159174e6`, 심사 대기 중)
 
 ## 앱과 서버에 반영된 항목
 
@@ -88,11 +92,11 @@ shorebird patch \
 
 ## 출시 직전 검증
 
-- [x] `flutter test` (2026-07-27, 134개 통과)
+- [x] `flutter test` (2026-08-01, 268개 통과)
 - [ ] `flutter build appbundle --release` (실제 업로드 키로 서명)
 - [x] iOS Release Xcode Archive 및 앱 설정 검증
-- [ ] `flutter build ipa --release` 또는 Xcode Organizer 배포
-  (Apple Distribution 인증서·프로파일 필요)
+- [x] Shorebird iOS Release Archive·IPA 생성 및 App Store Connect 업로드
+  (`1.0.4+9`, Shorebird release `744017`)
 - [ ] 신규 설치 → 게임 → 광고 보상 → 점수 제출 확인
 - [ ] 닉네임 신고·차단 후 닉네임만 숨고 순위·비교 기록 수가 유지되는지 확인
 - [ ] 오전 6시 10분 이후 전날 NPC 포함 최종 결과가 한 번만 표시되는지 확인
