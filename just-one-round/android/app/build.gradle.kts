@@ -13,6 +13,11 @@ val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     FileInputStream(keystorePropertiesFile).use(keystoreProperties::load)
 }
+val uploadKeystoreFile = file(
+    System.getenv("ANDROID_UPLOAD_KEYSTORE") ?: "upload-keystore.jks",
+)
+val uploadStorePassword = System.getenv("ANDROID_UPLOAD_STORE_PASSWORD")
+val uploadKeyAlias = System.getenv("ANDROID_UPLOAD_KEY_ALIAS") ?: "upload"
 
 android {
     namespace = "com.justoneround.app"
@@ -44,6 +49,13 @@ android {
                 storeFile = file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
             }
+        } else if (uploadKeystoreFile.exists() && !uploadStorePassword.isNullOrEmpty()) {
+            create("release") {
+                keyAlias = uploadKeyAlias
+                keyPassword = uploadStorePassword
+                storeFile = uploadKeystoreFile
+                storePassword = uploadStorePassword
+            }
         }
     }
 
@@ -64,4 +76,10 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Google Mobile Ads currently pulls in WorkManager 2.7.0, which crashes
+    // during AndroidX Startup on modern release builds before Flutter starts.
+    implementation("androidx.work:work-runtime:2.11.2")
 }

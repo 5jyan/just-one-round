@@ -11,6 +11,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations(const [
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString(
       'assets/licenses/Galmuri-OFL-1.1.txt',

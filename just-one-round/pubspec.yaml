@@ -81,6 +81,7 @@ flutter:
     - assets/images/beat_the_dealer/
     - assets/maps/
     - assets/maps/patterns/
+    - shorebird.yaml
 
   fonts:
     - family: Galmuri
