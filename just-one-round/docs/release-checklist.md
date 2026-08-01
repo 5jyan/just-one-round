@@ -1,6 +1,39 @@
 # 딱한판만 출시 체크리스트
 
-마지막 갱신: 2026-07-26
+마지막 갱신: 2026-08-01
+
+## Shorebird OTA
+
+- Shorebird 앱 ID: `3dd8845d-0de5-4362-b06a-ad463b923e54`
+- 이번 App Store 제출 릴리스: `1.0.4+9`
+- Flutter 버전: `3.44.8`
+- 기존 기준 릴리스: Android `1.0.3+8`, iOS `1.0.2+8`
+- Android 기준 AAB:
+  `build/app/outputs/bundle/release/app-release.aab`
+- iOS 기준 IPA:
+  `build/ios/ipa/딱한판만.ipa`
+
+스토어에 위 기준 릴리스를 먼저 배포한 뒤, Dart 코드만 바뀐 긴급 수정은
+플랫폼별로 다음 명령을 실행한다.
+
+```sh
+upload_secret=$(security find-generic-password \
+  -a upload \
+  -s just-one-round-android-upload-key-20260731 \
+  -w)
+ANDROID_UPLOAD_STORE_PASSWORD="$upload_secret" \
+  shorebird patch --platforms=android --release-version=1.0.4+9
+
+shorebird patch \
+  --platforms=ios \
+  --release-version=1.0.4+9 \
+  --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist
+```
+
+네이티브 코드, Flutter 엔진, 새 파일을 포함한 에셋 변경은 OTA 대상이
+아니므로 버전과 빌드 번호를 올린 뒤 새 `shorebird release`와 스토어
+업데이트를 만든다. 실제 게시 전에는 각 명령 끝에 `--dry-run`을 붙여
+검증한다.
 
 ## 출시 차단 항목
 
