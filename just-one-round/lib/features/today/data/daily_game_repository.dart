@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_one_round/app/app_environment.dart';
+import 'package:just_one_round/core/auth/anonymous_session_guard.dart';
+import 'package:just_one_round/core/auth/device_registration_guard.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/data/pending_score_submission.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
@@ -19,7 +22,7 @@ abstract interface class DailyGameRepository {
   Future<DailyRankResult> submitScore(String attemptId, GameResult result);
   Future<DailyRankResult?> retryPendingScore();
   Future<void> setNickname(String nickname);
-  Future<DailyRankResult> fetchDailyRank();
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate});
   Future<List<PlayHistoryEntry>> fetchHistory();
   Future<PreviousDailyResult?> fetchUnseenPreviousDailyResult();
   Future<void> acknowledgePreviousDailyResult(DateTime playDate, String gameId);
@@ -43,6 +46,13 @@ final todayStateProvider = FutureProvider<TodayState>((ref) async {
       .timeout(const Duration(seconds: 12));
 });
 
+final dailyRankProvider = FutureProvider.autoDispose
+    .family<DailyRankResult, DateTime>(
+      (ref, playDate) => ref
+          .watch(dailyGameRepositoryProvider)
+          .fetchDailyRank(playDate: playDate),
+    );
+
 class AppUpdateRequiredException implements Exception {
   const AppUpdateRequiredException(this.reason);
 
@@ -53,30 +63,41 @@ class AppUpdateRequiredException implements Exception {
 }
 
 class SupabaseDailyGameRepository implements DailyGameRepository {
-  SupabaseDailyGameRepository(this._client, {PendingScoreStore? pendingStore})
-    : _pendingStore = pendingStore ?? SharedPreferencesPendingScoreStore();
+  SupabaseDailyGameRepository(
+    this._client, {
+    PendingScoreStore? pendingStore,
+    Future<String> Function()? deviceHashLoader,
+  }) : _deviceHashLoader = deviceHashLoader ?? readDeviceInstallHash,
+       _pendingStore = pendingStore ?? SharedPreferencesPendingScoreStore(),
+       _sessionGuard = AnonymousSessionGuard(
+         hasSession: () => _client.auth.currentSession != null,
+         signInAnonymously: () async {
+           await _client.auth.signInAnonymously();
+         },
+       );
 
   final SupabaseClient _client;
+  final Future<String> Function() _deviceHashLoader;
   final PendingScoreStore _pendingStore;
+  final AnonymousSessionGuard _sessionGuard;
+  late final DeviceRegistrationGuard _deviceRegistration =
+      DeviceRegistrationGuard(
+        currentUserId: () => _client.auth.currentUser?.id,
+        readDeviceHash: _deviceHashLoader,
+        registerDevice: (deviceHash) async {
+          await _client.rpc(
+            'register_device_installation',
+            params: {'device_hash': deviceHash},
+          );
+        },
+      );
   late final _pendingScoreRetry = PendingScoreRetryService<DailyRankResult>(
     _pendingStore,
   );
-  var _sessionValidated = false;
 
   Future<void> _ensureSignedIn() async {
-    if (_client.auth.currentSession == null) {
-      await _client.auth.signInAnonymously();
-      _sessionValidated = true;
-      return;
-    }
-    if (_sessionValidated) return;
-    try {
-      await _client.auth.getUser();
-    } on AuthException {
-      await _client.auth.signOut(scope: SignOutScope.local);
-      await _client.auth.signInAnonymously();
-    }
-    _sessionValidated = true;
+    await _sessionGuard.ensureSignedIn();
+    await _deviceRegistration.ensureRegistered();
   }
 
   @override
@@ -87,7 +108,6 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
       return _blockedState(compatibility);
     }
 
-    final pending = await _pendingStore.load();
     var state = TodayState.fromJson(
       Map<String, dynamic>.from(await _client.rpc('get_today_state') as Map),
     );
@@ -96,12 +116,29 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
       return state.withCompatibility(unsupported);
     }
 
-    await retryPendingScore();
+    state = await refreshStateAfterPendingRetry(
+      currentState: state,
+      retry: retryPendingScore,
+      refresh: () async => TodayState.fromJson(
+        Map<String, dynamic>.from(await _client.rpc('get_today_state') as Map),
+      ),
+    );
+    // A terminal server rejection removes the saved payload. Re-read the
+    // store so that the now-unrecoverable issued attempt is expired during
+    // this same refresh instead of surviving for one extra app launch.
+    final pending = await _pendingStore.loadAll();
+    final recoveredUnsupported = _unsupportedGameCompatibility(
+      state,
+      compatibility,
+    );
+    if (recoveredUnsupported != null) {
+      return state.withCompatibility(recoveredUnsupported);
+    }
 
-    final interrupted = state.attempts
-        .where((attempt) => attempt.status == 'issued')
-        .where((attempt) => attempt.id != pending?.attemptId)
-        .toList(growable: false);
+    final interrupted = issuedAttemptsWithoutPending(
+      state,
+      pending.map((submission) => submission.attemptId).toSet(),
+    );
     if (interrupted.isNotEmpty) {
       for (final attempt in interrupted) {
         try {
@@ -153,13 +190,27 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
   @override
   Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate) async {
     await _ensureSignedIn();
-    return _attemptFromRpc(
-      await _client.rpc(
-        'claim_daily_attempt',
-        params: {'expected_play_date': playDateParameter(expectedPlayDate)},
-      ),
-    );
+    try {
+      return await _claimDailyAttempt(expectedPlayDate);
+    } on PostgrestException catch (error) {
+      if (!error.message.contains('device registration required')) rethrow;
+
+      // A restored Android session or another installation can leave the
+      // in-memory registration cache newer than the server-side association.
+      // The claim has not been issued when this error is raised, so one
+      // registration refresh and retry is safe.
+      await _deviceRegistration.registerAgain();
+      return _claimDailyAttempt(expectedPlayDate);
+    }
   }
+
+  Future<PlayAttempt> _claimDailyAttempt(DateTime expectedPlayDate) async =>
+      _attemptFromRpc(
+        await _client.rpc(
+          'claim_daily_attempt',
+          params: {'expected_play_date': playDateParameter(expectedPlayDate)},
+        ),
+      );
 
   @override
   Future<RewardedAdSession> prepareRewardedAd(DateTime expectedPlayDate) async {
@@ -195,9 +246,12 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
     String attemptId,
     GameResult result,
   ) async {
-    await _ensureSignedIn();
     final pending = PendingScoreSubmission.fromGameResult(attemptId, result);
-    return _pendingScoreRetry.sendAndPersist(pending, _submitPendingScore);
+    // Persist the completed result before any authentication or network work.
+    // If session recovery fails, the next app launch can still retry it.
+    await _pendingStore.save(pending);
+    await _ensureSignedIn();
+    return _pendingScoreRetry.sendPersisted(pending, _submitPendingScore);
   }
 
   @override
@@ -205,9 +259,7 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
     await _ensureSignedIn();
     return _pendingScoreRetry.retry(
       _submitPendingScore,
-      discardWhen: (error) =>
-          error is PostgrestException &&
-          error.message.contains('score submission window closed'),
+      discardWhen: isTerminalScoreSubmissionError,
     );
   }
 
@@ -234,9 +286,14 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
   }
 
   @override
-  Future<DailyRankResult> fetchDailyRank() async {
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async {
     await _ensureSignedIn();
-    final response = await _client.rpc('get_my_daily_result');
+    final response = await _client.rpc(
+      'get_my_daily_result',
+      params: playDate == null
+          ? null
+          : {'target_date': playDateParameter(playDate)},
+    );
     return DailyRankResult.fromJson(Map<String, dynamic>.from(response as Map));
   }
 
@@ -355,6 +412,45 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
   }
 }
 
+List<PlayAttempt> issuedAttemptsWithoutPending(
+  TodayState state,
+  Set<String> pendingAttemptIds,
+) => state.attempts
+    .where((attempt) => attempt.status == 'issued')
+    .where((attempt) => !pendingAttemptIds.contains(attempt.id))
+    .toList(growable: false);
+
+bool isTerminalScoreSubmissionError(Object error) {
+  if (error is! PostgrestException) return false;
+  const terminalMessages = <String>[
+    'score submission window closed',
+    'attempt expired',
+    'attempt not found',
+    'active attempt not found',
+    'game version not found',
+    'active game version not found',
+    'unsupported game result',
+    'invalid dung dodge v2 result',
+    'invalid gravity switch result',
+    'invalid apple game v2 result',
+    'invalid number rush result',
+    'invalid mama duck trail result',
+    'invalid sausage dachshund result',
+    'invalid midnight snake result',
+    'invalid beat the dealer result',
+  ];
+  return terminalMessages.any(error.message.contains);
+}
+
+Future<T> refreshStateAfterPendingRetry<T, R>({
+  required T currentState,
+  required Future<R?> Function() retry,
+  required Future<T> Function() refresh,
+}) async {
+  final recovered = await retry();
+  return recovered == null ? currentState : refresh();
+}
+
 class PreviewDailyGameRepository implements DailyGameRepository {
   PreviewDailyGameRepository({
     this.testMode = false,
@@ -370,6 +466,9 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     DeveloperGame(id: 'gravity_switch', version: 1, displayName: '중력 스위치'),
     DeveloperGame(id: 'apple_game_v2', version: 1, displayName: '사과게임'),
     DeveloperGame(id: 'number_rush', version: 1, displayName: '탭50'),
+    DeveloperGame(id: 'mama_duck_trail', version: 1, displayName: '엄마, 어디가'),
+    DeveloperGame(id: 'midnight_snake', version: 2, displayName: '야식털이 뱀'),
+    DeveloperGame(id: 'beat_the_dealer', version: 3, displayName: '블랙잭 가즈아'),
   ];
 
   @override
@@ -449,15 +548,8 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   Future<void> setNickname(String nickname) async {}
 
   @override
-  Future<DailyRankResult> fetchDailyRank() async => const DailyRankResult(
-    score: 2978,
-    rank: 8,
-    participants: 24,
-    topPercent: 34,
-    nickname: 'tester',
-    bestScore: 5387,
-    nearby: [NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: true)],
-  );
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async =>
+      (await fetchToday()).result!;
 
   @override
   Future<List<PlayHistoryEntry>> fetchHistory() async => const [];
@@ -507,7 +599,12 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     status: 'issued',
     grantType: grantType,
     gameId: _selectedGameId,
-    gameVersion: 1,
+    gameVersion: switch (_selectedGameId) {
+      'midnight_snake' => 2,
+      'beat_the_dealer' => 3,
+      _ => 1,
+    },
+    playDate: dailyPlayDateAt(DateTime.now()),
   );
 
   TodayGame _previewGame(String gameId) => switch (gameId) {
@@ -537,6 +634,27 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       version: 1,
       displayName: '탭50',
       description: '숫자를 1부터 50까지 순서대로 최대한 빠르게 터치하세요.',
+      durationSeconds: 180,
+    ),
+    'mama_duck_trail' => const TodayGame(
+      id: 'mama_duck_trail',
+      version: 1,
+      displayName: '엄마, 어디가',
+      description: '비에 지워진 엄마 오리의 발자국을 기억해 같은 길을 따라가세요.',
+      durationSeconds: 120,
+    ),
+    'midnight_snake' => const TodayGame(
+      id: 'midnight_snake',
+      version: 2,
+      displayName: '야식털이 뱀',
+      description: '야식과 한 번씩 나타나는 황금 소시지·쥐를 노리고 몸과 벽을 피하세요.',
+      durationSeconds: 300,
+    ),
+    'beat_the_dealer' => const TodayGame(
+      id: 'beat_the_dealer',
+      version: 3,
+      displayName: '블랙잭 가즈아',
+      description: '딜러의 공개 카드를 보고 배팅한 뒤 21에 가까운 패를 만들어 코인을 불리세요.',
       durationSeconds: 180,
     ),
     _ => throw UnsupportedError('Unsupported preview game id: $gameId'),

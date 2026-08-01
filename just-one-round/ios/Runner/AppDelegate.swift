@@ -1,4 +1,5 @@
 import Flutter
+import Security
 import UIKit
 
 @main
@@ -39,9 +40,41 @@ import UIKit
           "build_number": info?["CFBundleVersion"] as? String ?? "1",
           "platform": "ios",
         ])
+      case "getDeviceInstallId":
+        result(self.deviceInstallId())
       default:
         result(FlutterMethodNotImplemented)
       }
     }
+  }
+
+  private func deviceInstallId() -> String {
+    let service = "\(Bundle.main.bundleIdentifier ?? "just-one-round").device-install-id"
+    let account = "primary"
+    let lookup: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecReturnData as String: true,
+      kSecMatchLimit as String: kSecMatchLimitOne,
+    ]
+
+    var item: CFTypeRef?
+    if SecItemCopyMatching(lookup as CFDictionary, &item) == errSecSuccess,
+       let data = item as? Data,
+       let stored = String(data: data, encoding: .utf8) {
+      return stored
+    }
+
+    let generated = UUID().uuidString.lowercased()
+    let insert: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+      kSecValueData as String: Data(generated.utf8),
+    ]
+    SecItemAdd(insert as CFDictionary, nil)
+    return generated
   }
 }

@@ -17,4 +17,9 @@ void main() {
     expect(NicknamePolicy.validate('한'), isNotNull);
     expect(NicknamePolicy.validate('ㅋㅋㅋㅋㅋ'), isNotNull);
   });
+
+  test('자동 발급 닉네임 형식은 직접 사용할 수 없다', () {
+    expect(NicknamePolicy.validate('신원미상#123'), isNotNull);
+    expect(NicknamePolicy.validate('신원미상'), isNull);
+  });
 }

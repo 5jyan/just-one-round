@@ -20,6 +20,9 @@ class NicknamePolicy {
     final nickname = value?.trim() ?? '';
     final length = nickname.characters.length;
     if (length < 2 || length > 12) return '2~12자로 입력해 주세요.';
+    if (RegExp(r'^신원미상#[0-9]+$').hasMatch(nickname)) {
+      return '자동으로 발급되는 닉네임은 직접 사용할 수 없어요.';
+    }
 
     final normalized = nickname.toLowerCase().replaceAll(
       RegExp(r'[\s._\-]'),

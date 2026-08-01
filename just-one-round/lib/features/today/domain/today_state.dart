@@ -48,6 +48,7 @@ class PlayAttempt {
     required this.grantType,
     this.gameId,
     this.gameVersion,
+    this.playDate,
   });
 
   factory PlayAttempt.fromJson(Map<String, dynamic> json) => PlayAttempt(
@@ -57,6 +58,9 @@ class PlayAttempt {
     grantType: json['grant_type'] as String,
     gameId: json['game_id'] as String?,
     gameVersion: (json['game_version'] as num?)?.toInt(),
+    playDate: json['play_date'] == null
+        ? null
+        : DateTime.parse(json['play_date'] as String),
   );
 
   final String id;
@@ -65,6 +69,7 @@ class PlayAttempt {
   final String grantType;
   final String? gameId;
   final int? gameVersion;
+  final DateTime? playDate;
 }
 
 class ClientCompatibility {
@@ -183,6 +188,7 @@ class TodayState {
     required this.testMode,
     required this.result,
     required this.nickname,
+    this.dailyClaimed = false,
     this.compatibility = const ClientCompatibility.supported(),
   });
 
@@ -202,6 +208,7 @@ class TodayState {
       nickname:
           json['nickname'] as String? ??
           (json['profile'] as Map<String, dynamic>?)?['nickname'] as String?,
+      dailyClaimed: json['daily_claimed'] as bool? ?? attempts.isNotEmpty,
     );
   }
 
@@ -212,12 +219,14 @@ class TodayState {
   final bool testMode;
   final DailyRankResult? result;
   final String? nickname;
+  final bool dailyClaimed;
   final ClientCompatibility compatibility;
 
   bool get requiresUpdate => compatibility.updateRequired;
-  bool get canClaimDaily => testMode || attempts.isEmpty;
+  bool get canClaimDaily => testMode || (!dailyClaimed && attempts.isEmpty);
   bool get hasPlayed => result?.score != null;
   bool get isExhausted =>
+      (!testMode && dailyClaimed && !adAttemptAvailable) ||
       (!testMode && attempts.length >= 2) ||
       (attempts.isNotEmpty && !adAttemptAvailable && !canClaimDaily);
 
@@ -229,6 +238,7 @@ class TodayState {
     testMode: testMode,
     result: result,
     nickname: nickname,
+    dailyClaimed: dailyClaimed,
     compatibility: value,
   );
 }

@@ -1,6 +1,12 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _environmentChannel = MethodChannel('just_one_round/app_environment');
+const _fallbackDeviceInstallIdKey = 'device_install_id';
 
 class AppBuildInfo {
   const AppBuildInfo({
@@ -49,4 +55,33 @@ Future<AppBuildInfo> readAppBuildInfo() async {
       platform: 'unknown',
     );
   }
+}
+
+Future<String> readDeviceInstallHash() async {
+  String? installId;
+  try {
+    installId = await _environmentChannel.invokeMethod<String>(
+      'getDeviceInstallId',
+    );
+  } on MissingPluginException {
+    // Widget tests and unsupported platforms use the local fallback below.
+  } on PlatformException {
+    // A temporary platform-channel failure must not prevent app startup.
+  }
+
+  installId = installId?.trim();
+  if (installId == null || installId.isEmpty) {
+    final preferences = await SharedPreferences.getInstance();
+    installId = preferences.getString(_fallbackDeviceInstallIdKey);
+    if (installId == null || installId.isEmpty) {
+      final random = Random.secure();
+      installId = List<int>.generate(
+        32,
+        (_) => random.nextInt(256),
+      ).map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+      await preferences.setString(_fallbackDeviceInstallIdKey, installId);
+    }
+  }
+
+  return sha256.convert(utf8.encode(installId)).toString();
 }

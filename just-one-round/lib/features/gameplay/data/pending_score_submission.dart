@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
@@ -51,7 +52,9 @@ class PendingScoreSubmission {
 
 abstract interface class PendingScoreStore {
   Future<PendingScoreSubmission?> load();
+  Future<List<PendingScoreSubmission>> loadAll();
   Future<void> save(PendingScoreSubmission submission);
+  Future<void> remove(String attemptId);
   Future<void> clear();
 }
 
@@ -65,8 +68,15 @@ class PendingScoreRetryService<T> {
     Future<T> Function(PendingScoreSubmission submission) send,
   ) async {
     await _store.save(submission);
+    return sendPersisted(submission, send);
+  }
+
+  Future<T> sendPersisted(
+    PendingScoreSubmission submission,
+    Future<T> Function(PendingScoreSubmission submission) send,
+  ) async {
     final result = await send(submission);
-    await _store.clear();
+    await _store.remove(submission.attemptId);
     return result;
   }
 
@@ -74,18 +84,19 @@ class PendingScoreRetryService<T> {
     Future<T> Function(PendingScoreSubmission submission) send, {
     bool Function(Object error)? discardWhen,
   }) async {
-    final submission = await _store.load();
-    if (submission == null) return null;
-    try {
-      final result = await send(submission);
-      await _store.clear();
-      return result;
-    } catch (error) {
-      if (discardWhen?.call(error) ?? false) {
-        await _store.clear();
+    final submissions = await _store.loadAll();
+    T? latestResult;
+    for (final submission in submissions) {
+      try {
+        latestResult = await send(submission);
+        await _store.remove(submission.attemptId);
+      } catch (error) {
+        if (discardWhen?.call(error) ?? false) {
+          await _store.remove(submission.attemptId);
+        }
       }
-      return null;
     }
+    return latestResult;
   }
 }
 
@@ -93,30 +104,140 @@ class SharedPreferencesPendingScoreStore implements PendingScoreStore {
   SharedPreferencesPendingScoreStore()
     : _preferences = SharedPreferences.getInstance();
 
-  static const _storageKey = 'pending_score_submission_v1';
+  static const _legacyStorageKey = 'pending_score_submission_v1';
+  static const _storageKey = 'pending_score_submissions_v2';
   final Future<SharedPreferences> _preferences;
+  Future<void> _operation = Future<void>.value();
+
+  Future<T> _synchronized<T>(Future<T> Function() action) {
+    final completer = Completer<T>();
+    _operation = _operation.then((_) async {
+      try {
+        completer.complete(await action());
+      } catch (error, stackTrace) {
+        completer.completeError(error, stackTrace);
+      }
+    });
+    return completer.future;
+  }
 
   @override
   Future<PendingScoreSubmission?> load() async {
-    final raw = (await _preferences).getString(_storageKey);
-    if (raw == null) return null;
+    final submissions = await loadAll();
+    return submissions.isEmpty ? null : submissions.first;
+  }
+
+  @override
+  Future<List<PendingScoreSubmission>> loadAll() => _synchronized(() async {
+    final preferences = await _preferences;
+    final rawQueue = preferences.getString(_storageKey);
+    if (rawQueue != null) {
+      try {
+        final submissions = (jsonDecode(rawQueue) as List<dynamic>)
+            .map(
+              (item) => PendingScoreSubmission.fromJson(
+                Map<String, dynamic>.from(item as Map),
+              ),
+            )
+            .toList(growable: false);
+        await preferences.remove(_legacyStorageKey);
+        return submissions;
+      } catch (_) {
+        await preferences.remove(_storageKey);
+      }
+    }
+
+    final legacyRaw = preferences.getString(_legacyStorageKey);
+    if (legacyRaw == null) return const [];
     try {
-      return PendingScoreSubmission.fromJson(
-        Map<String, dynamic>.from(jsonDecode(raw) as Map),
+      final legacy = PendingScoreSubmission.fromJson(
+        Map<String, dynamic>.from(jsonDecode(legacyRaw) as Map),
       );
-    } on FormatException {
-      await clear();
-      return null;
+      await _writeAll(preferences, [legacy]);
+      await preferences.remove(_legacyStorageKey);
+      return [legacy];
+    } catch (_) {
+      await preferences.remove(_legacyStorageKey);
+      return const [];
+    }
+  });
+
+  @override
+  Future<void> save(PendingScoreSubmission submission) =>
+      _synchronized(() async {
+        final preferences = await _preferences;
+        final submissions = await _readQueue(preferences);
+        final existingIndex = submissions.indexWhere(
+          (item) => item.attemptId == submission.attemptId,
+        );
+        if (existingIndex < 0) {
+          submissions.add(submission);
+        } else {
+          submissions[existingIndex] = submission;
+        }
+        await _writeAll(preferences, submissions);
+      });
+
+  @override
+  Future<void> remove(String attemptId) => _synchronized(() async {
+    final preferences = await _preferences;
+    final submissions = await _readQueue(preferences);
+    submissions.removeWhere((item) => item.attemptId == attemptId);
+    await _writeAll(preferences, submissions);
+  });
+
+  @override
+  Future<void> clear() => _synchronized(() async {
+    final preferences = await _preferences;
+    await preferences.remove(_storageKey);
+    await preferences.remove(_legacyStorageKey);
+  });
+
+  Future<List<PendingScoreSubmission>> _readQueue(
+    SharedPreferences preferences,
+  ) async {
+    final raw = preferences.getString(_storageKey);
+    if (raw != null) {
+      try {
+        final submissions = (jsonDecode(raw) as List<dynamic>)
+            .map(
+              (item) => PendingScoreSubmission.fromJson(
+                Map<String, dynamic>.from(item as Map),
+              ),
+            )
+            .toList();
+        await preferences.remove(_legacyStorageKey);
+        return submissions;
+      } catch (_) {
+        await preferences.remove(_storageKey);
+      }
+    }
+
+    final legacyRaw = preferences.getString(_legacyStorageKey);
+    if (legacyRaw == null) return [];
+    try {
+      final legacy = PendingScoreSubmission.fromJson(
+        Map<String, dynamic>.from(jsonDecode(legacyRaw) as Map),
+      );
+      await preferences.remove(_legacyStorageKey);
+      return [legacy];
+    } catch (_) {
+      await preferences.remove(_legacyStorageKey);
+      return [];
     }
   }
 
-  @override
-  Future<void> save(PendingScoreSubmission submission) async {
-    await (await _preferences).setString(_storageKey, jsonEncode(submission));
-  }
-
-  @override
-  Future<void> clear() async {
-    await (await _preferences).remove(_storageKey);
+  Future<void> _writeAll(
+    SharedPreferences preferences,
+    List<PendingScoreSubmission> submissions,
+  ) async {
+    if (submissions.isEmpty) {
+      await preferences.remove(_storageKey);
+      return;
+    }
+    await preferences.setString(
+      _storageKey,
+      jsonEncode(submissions.map((item) => item.toJson()).toList()),
+    );
   }
 }
