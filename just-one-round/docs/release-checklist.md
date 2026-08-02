@@ -8,7 +8,7 @@
 - 이번 App Store 제출 릴리스: `1.0.4+9`
 - Flutter 버전: `3.44.8`
 - 기존 스토어 기준 릴리스: Android `1.0.3+8`, iOS `1.0.2+8`
-- iOS 심사 제출 릴리스: `1.0.4+9` (심사 대기 중)
+- iOS 출시 릴리스: `1.0.4+9` (2026-08-02 App Store 공개 확인)
 - Android 기준 AAB:
   `build/app/outputs/bundle/release/app-release.aab`
 - iOS 기준 IPA:
@@ -75,7 +75,9 @@ shorebird patch \
 - [x] Apple Distribution 서명 빌드 `1.0.4 (9)` 업로드 및 선택
 - [x] iOS `1.0.4 (9)` App Store 심사 제출
   (2026-08-01 23:37 KST, 제출 ID
-  `e804d51a-f76a-460b-95e0-e902159174e6`, 심사 대기 중)
+  `e804d51a-f76a-460b-95e0-e902159174e6`)
+- [x] iOS `1.0.4 (9)` 공개 후 운영 최소 지원 빌드를 `8`로 상향
+  (iOS 빌드 7 이하 강제 업데이트, Android 빌드 8 유지)
 
 ## 앱과 서버에 반영된 항목
 
