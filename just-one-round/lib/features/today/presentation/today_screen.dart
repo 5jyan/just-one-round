@@ -46,7 +46,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   var _isLinkingKakao = false;
   late final RewardedAdService _rewardedAdService;
   late RewardedAdStatus _rewardedAdStatus;
-  var _adPreloadRequested = false;
   var _accountDeleted = false;
   var _isCheckingDailyReset = false;
   var _isDailyResetDialogVisible = false;
@@ -89,7 +88,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   void _handleTodayState(TodayState state) {
-    _preloadRewardedAdIfNeeded(state);
     _scheduleDailyResetCheck();
     if (state.requiresUpdate) {
       _previousResultTimer?.cancel();
@@ -255,7 +253,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     } finally {
       _isDailyResetDialogVisible = false;
       if (mounted) {
-        _adPreloadRequested = false;
         ref.invalidate(todayStateProvider);
       }
     }
@@ -1075,14 +1072,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         ),
       ),
     );
-  }
-
-  void _preloadRewardedAdIfNeeded(TodayState state) {
-    if (!state.adAttemptAvailable || _adPreloadRequested) return;
-    _adPreloadRequested = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) unawaited(_rewardedAdService.preload());
-    });
   }
 
   String _rewardedButtonLabel(TodayState state) {

@@ -100,4 +100,24 @@ void main() {
     expect(impactCount, 0);
     expect(find.byKey(const Key('startup-intro')), findsNothing);
   });
+
+  testWidgets('인트로가 사라진 다음 완료 콜백을 호출한다', (tester) async {
+    var finishedCount = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StartupIntro(
+          onFinished: () => finishedCount++,
+          child: const SizedBox.expand(),
+        ),
+      ),
+    );
+
+    expect(finishedCount, 0);
+    await tester.pump(const Duration(milliseconds: 921));
+    await tester.pump();
+
+    expect(find.byKey(const Key('startup-intro')), findsNothing);
+    expect(finishedCount, 1);
+  });
 }

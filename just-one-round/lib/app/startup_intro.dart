@@ -15,6 +15,7 @@ class StartupIntro extends StatefulWidget {
     this.firstImpact,
     this.secondImpact,
     this.reduceMotion,
+    this.onFinished,
     super.key,
   });
 
@@ -24,6 +25,7 @@ class StartupIntro extends StatefulWidget {
   final StartupImpact? firstImpact;
   final StartupImpact? secondImpact;
   final bool? reduceMotion;
+  final VoidCallback? onFinished;
 
   @override
   State<StartupIntro> createState() => _StartupIntroState();
@@ -105,6 +107,12 @@ class _StartupIntroState extends State<StartupIntro>
     if (!mounted || !_showIntro) return;
     _loadingController.stop();
     setState(() => _showIntro = false);
+    final onFinished = widget.onFinished;
+    if (onFinished != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) onFinished();
+      });
+    }
   }
 
   @override
