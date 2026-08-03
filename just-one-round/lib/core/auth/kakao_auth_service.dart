@@ -105,6 +105,24 @@ class SupabaseKakaoAuthService implements KakaoAuthService {
           error.msg.isEmpty ? '카카오 로그인에 실패했어요.' : error.msg,
         );
       }
+      if (error is kakao.KakaoAuthException) {
+        final description = error.errorDescription ?? '';
+        debugPrint(
+          '[Kakao] OAuth authorization failed: '
+          'cause=${error.error.name} message=$description',
+        );
+        if (error.error == kakao.AuthErrorCause.accessDenied) {
+          throw const KakaoLoginException('', cancelled: true);
+        }
+        if (error.error == kakao.AuthErrorCause.misconfigured) {
+          throw const KakaoLoginException(
+            '카카오 Android 키 해시가 개발자 콘솔에 등록되지 않았어요.',
+          );
+        }
+        throw KakaoLoginException(
+          description.isEmpty ? '카카오 로그인에 실패했어요.' : description,
+        );
+      }
       if (error is PlatformException) {
         debugPrint(
           '[Kakao] OAuth browser failed: code=${error.code} '

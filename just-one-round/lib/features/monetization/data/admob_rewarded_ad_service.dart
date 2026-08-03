@@ -106,8 +106,8 @@ class AdMobRewardedAdService implements RewardedAdService {
             RequestConfiguration(maxAdContentRating: MaxAdContentRating.pg),
           )
           .timeout(_operationTimeout);
-      await MobileAds.instance.setAppMuted(true).timeout(_operationTimeout);
       await MobileAds.instance.initialize().timeout(_operationTimeout);
+      await MobileAds.instance.setAppMuted(true).timeout(_operationTimeout);
       debugPrint('[AdMob] Mobile Ads initialized.');
       _setStatus(RewardedAdStatus.unavailable);
     } catch (error, stackTrace) {
