@@ -1,6 +1,6 @@
 # 딱한판만 출시 체크리스트
 
-마지막 갱신: 2026-08-01
+마지막 갱신: 2026-08-02
 
 ## Shorebird OTA
 
@@ -94,8 +94,8 @@ shorebird patch \
 
 ## 출시 직전 검증
 
-- [x] `flutter test` (2026-08-01, 268개 통과)
-- [ ] `flutter build appbundle --release` (실제 업로드 키로 서명)
+- [x] `flutter test` (2026-08-02, 278개 통과)
+- [x] `flutter build appbundle --release` (실제 업로드 키로 서명 및 `jarsigner -verify` 확인)
 - [x] iOS Release Xcode Archive 및 앱 설정 검증
 - [x] Shorebird iOS Release Archive·IPA 생성 및 App Store Connect 업로드
   (`1.0.4+9`, Shorebird release `744017`)
@@ -103,6 +103,10 @@ shorebird patch \
 - [ ] 닉네임 신고·차단 후 닉네임만 숨고 순위·비교 기록 수가 유지되는지 확인
 - [ ] 오전 6시 10분 이후 전날 NPC 포함 최종 결과가 한 번만 표시되는지 확인
 - [ ] 계정 삭제 후 Supabase Auth와 연결 데이터 삭제 확인
+- [ ] Kakao Login/OIDC와 Supabase manual linking 설정 확인
+- [ ] Android/iOS Native app key, package/bundle ID, custom scheme 설정 확인
+- [ ] 전날 플레이를 완료한 카카오 미연결 계정의 다음 날 기본 플레이가 프로필 연결 화면에서 차단되는지 확인
+- [ ] 카카오 미연결 계정도 광고 검증을 거쳐 두 번째 시도를 받을 수 있는지 확인
 - [ ] 개인정보 선택 메뉴가 필요한 지역에서 Google UMP 화면 확인
 - [ ] 공개 법적 문서 URL이 앱과 스토어 등록정보에서 모두 열리는지 확인
 - [ ] 신고 큐 운영 담당자와 확인 주기 지정

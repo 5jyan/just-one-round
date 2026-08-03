@@ -33,6 +33,43 @@ flutter run -d <android-emulator-id> \
 `SUPABASE_URL`/`SUPABASE_ANON_KEY` dart-define으로 어느 빌드에서든 덮어쓸 수
 있다.
 
+## 카카오 로그인
+
+카카오 로그인은 설정 화면의 `카카오 계정 연결`에서 실행되며, 현재 익명
+Supabase 계정의 기록을 유지하면서 Kakao identity를 연결한다.
+
+1. Kakao Developers에서 Android 패키지 `com.justoneround.app`과 iOS
+   번들 ID `com.justoneround.app`을 등록하고 Native app key를 발급한다.
+2. Kakao Login을 켜고 OpenID Connect와 `openid` 동의항목을 활성화한다.
+3. Supabase Dashboard의 Authentication > Providers > Kakao에 REST API key와
+   client secret을 등록하고, Authentication 설정에서 manual linking을 켠다.
+   로컬 Supabase는 `supabase/config.toml`에 이미 활성화되어 있다.
+4. Kakao Developers의 Platform key에 표시된 custom scheme을
+   `ios/Flutter/Debug.xcconfig`와 `ios/Flutter/Release.xcconfig`의
+   `KAKAO_CUSTOM_SCHEME` 값에 넣는다.
+
+실행 시 Native app key는 dart-define으로 전달한다.
+
+```sh
+flutter run -d <device-id> \
+  --dart-define=KAKAO_NATIVE_APP_KEY=<native-app-key> \
+  --dart-define=KAKAO_CUSTOM_SCHEME=<custom-scheme>
+```
+
+Android는 두 dart-define 값을 빌드 manifest에 자동 반영한다. iOS는
+`KAKAO_CUSTOM_SCHEME`만 xcconfig에도 설정해야 하며, 앱 키 자체는 서버 비밀이
+아니므로 dart-define으로 전달해도 된다. Kakao 계정 연결은 Supabase의
+`linkIdentityWithIdToken`을 사용하므로 기존 익명 user ID와 기록이 유지된다.
+단, 이미 다른 Supabase 계정에 연결된 카카오 계정이면 해당 계정으로 전환하며
+새 익명 세션의 기록은 자동 병합하지 않는다.
+
+전날 플레이를 완료한 익명 계정이 다음 날 첫 판을 시작하려면 카카오 계정 연결이
+필수다. 연결하지 않은 상태에서는 홈의 기본 플레이 버튼이 프로필 화면을 열고,
+서버의 `claim_daily_attempt` RPC도 Kakao identity가 없으면 거부한다. 보상형 광고
+추가 플레이는 익명 계정에도 열려 있으며, `prepare_rewarded_ad`/
+`claim_rewarded_attempt` RPC는 Kakao 여부와 무관하게 AdMob 서버 검증과 일일
+시도 제한을 적용한다.
+
 하드코딩된 미리보기 저장소가 필요할 때만 다음 플래그를 명시한다.
 
 ```sh
@@ -82,9 +119,10 @@ docker exec -i supabase_db_just-one-round psql -U postgres -d postgres \
 
 ### 실제 기기 테스트 모드
 
-설정 화면 아래의 앱 버전을 4초 안에 7회 누르면 테스터 PIN 입력창이 열린다.
+일반 계정에서 설정 화면 아래의 앱 버전을 4초 안에 7회 누르면 테스터 PIN 입력창이 열린다.
 PIN은 `activate_test_mode` RPC에서만 검증하며 앱에는 저장하지 않는다. 잘못된
-PIN을 5회 입력하면 해당 계정의 인증이 15분간 잠긴다.
+PIN을 5회 입력하면 해당 계정의 인증이 15분간 잠긴다. 테스트 계정은 같은 위치를
+7회 누르면 PIN 없이 `deactivate_test_mode` RPC를 호출해 일반 모드로 돌아간다.
 
 ```sh
 docker exec supabase_db_just-one-round psql -U postgres -d postgres \
