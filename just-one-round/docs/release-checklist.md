@@ -1,18 +1,19 @@
 # 딱한판만 출시 체크리스트
 
-마지막 갱신: 2026-08-02
+마지막 갱신: 2026-08-04
 
 ## Shorebird OTA
 
 - Shorebird 앱 ID: `3dd8845d-0de5-4362-b06a-ad463b923e54`
-- 이번 App Store 제출 릴리스: `1.0.4+9`
+- 이번 App Store 제출 릴리스: `1.0.5+10` (Apple 로그인 후 업로드·심사 제출 대기)
 - Flutter 버전: `3.44.8`
 - 기존 스토어 기준 릴리스: Android `1.0.3+8`, iOS `1.0.2+8`
 - iOS 출시 릴리스: `1.0.4+9` (2026-08-02 App Store 공개 확인)
+- Android 내부 테스트 릴리스: `1.0.5+10` (2026-08-04 Google Play 게시 확인)
 - Android 기준 AAB:
   `build/app/outputs/bundle/release/app-release.aab`
 - iOS 기준 IPA:
-  `build/ios/ipa/딱한판만.ipa`
+  `build/ios/ipa/딱한판만-1.0.5+10.ipa`
 
 스토어에 위 기준 릴리스를 먼저 배포한 뒤, Dart 코드만 바뀐 긴급 수정은
 플랫폼별로 다음 명령을 실행한다.
@@ -78,6 +79,13 @@ shorebird patch \
   `e804d51a-f76a-460b-95e0-e902159174e6`)
 - [x] iOS `1.0.4 (9)` 공개 후 운영 최소 지원 빌드를 `8`로 상향
   (iOS 빌드 7 이하 강제 업데이트, Android 빌드 8 유지)
+- [ ] Apple Distribution 서명 빌드 `1.0.5 (10)` 업로드 및 선택
+- [ ] iOS `1.0.5 (10)` App Store 심사 제출
+
+## Google Play
+
+- [x] 내부 테스트 트랙에 `1.0.5 (10)` 게시
+  (2026-08-04, 출시명 `1.0.5 (10) - 광고 보상 즉시 시작`)
 
 ## 앱과 서버에 반영된 항목
 
@@ -94,9 +102,12 @@ shorebird patch \
 
 ## 출시 직전 검증
 
-- [x] `flutter test` (2026-08-02, 278개 통과)
-- [x] `flutter build appbundle --release` (실제 업로드 키로 서명 및 `jarsigner -verify` 확인)
+- [x] `flutter test` (2026-08-03, 292개 통과)
+- [x] `flutter build appbundle --release --build-name 1.0.5 --build-number 10`
+  (실제 업로드 키로 서명 및 `jarsigner -verify` 확인)
 - [x] iOS Release Xcode Archive 및 앱 설정 검증
+- [x] iOS `1.0.5 (10)` Release 앱 생성, Apple Distribution 서명 및 IPA 검증
+- [x] Android `1.0.5 (10)` 내부 테스트 게시 상태 확인
 - [x] Shorebird iOS Release Archive·IPA 생성 및 App Store Connect 업로드
   (`1.0.4+9`, Shorebird release `744017`)
 - [ ] 신규 설치 → 게임 → 광고 보상 → 점수 제출 확인
