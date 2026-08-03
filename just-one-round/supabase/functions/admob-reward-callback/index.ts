@@ -19,7 +19,7 @@ function response(body: string, status = 200): Response {
 function decodeBase64Url(value: string): Uint8Array {
   const normalized = value.replaceAll("-", "+").replaceAll("_", "/");
   const padded = normalized.padEnd(
-    normalized.length + ((4 - normalized.length % 4) % 4),
+    normalized.length + ((4 - (normalized.length % 4)) % 4),
     "=",
   );
   return Uint8Array.from(atob(padded), (character) => character.charCodeAt(0));
@@ -96,7 +96,7 @@ async function verifySignature(
     headers: { accept: "application/json" },
   });
   if (!keysResponse.ok) throw new Error("Unable to fetch AdMob keys");
-  const payload = await keysResponse.json() as { keys: AdMobKey[] };
+  const payload = (await keysResponse.json()) as { keys: AdMobKey[] };
   const matchingKey = payload.keys.find((key) => key.keyId === keyId);
   if (!matchingKey) throw new Error("Unknown AdMob key id");
 
@@ -110,9 +110,7 @@ async function verifySignature(
   return crypto.subtle.verify(
     { name: "ECDSA", hash: "SHA-256" },
     publicKey,
-    asArrayBuffer(
-      derEcdsaSignatureToRaw(decodeBase64Url(encodedSignature)),
-    ),
+    asArrayBuffer(derEcdsaSignatureToRaw(decodeBase64Url(encodedSignature))),
     new TextEncoder().encode(signedContent),
   );
 }
@@ -125,8 +123,8 @@ function isAllowedAdUnit(adUnit: string): boolean {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  return allowed.some((value) =>
-    value === adUnit || value.endsWith(`/${adUnit}`)
+  return allowed.some(
+    (value) => value === adUnit || value.endsWith(`/${adUnit}`),
   );
 }
 
@@ -151,8 +149,13 @@ Deno.serve(async (request) => {
     const rewardItem = params.get("reward_item") ?? "";
 
     if (
-      !signature || !Number.isInteger(keyId) || !sessionId || !userId ||
-      !transactionId || !adUnit || !Number.isSafeInteger(rewardAmount)
+      !signature ||
+      !Number.isInteger(keyId) ||
+      !sessionId ||
+      !userId ||
+      !transactionId ||
+      !adUnit ||
+      !Number.isSafeInteger(rewardAmount)
     ) {
       return response("Missing callback parameters", 400);
     }
@@ -176,16 +179,23 @@ Deno.serve(async (request) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    const { error } = await supabase.rpc("verify_rewarded_ad_grant", {
-      reward_session_id: sessionId,
-      reward_user_id: userId,
-      transaction_id: transactionId,
-      verified_ad_unit_id: adUnit,
-      verified_reward_amount: rewardAmount,
-      verified_reward_item: rewardItem,
-    });
+    const { data: grantVerified, error } = await supabase.rpc(
+      "verify_rewarded_ad_grant",
+      {
+        reward_session_id: sessionId,
+        reward_user_id: userId,
+        transaction_id: transactionId,
+        verified_ad_unit_id: adUnit,
+        verified_reward_amount: rewardAmount,
+        verified_reward_item: rewardItem,
+      },
+    );
     if (error) {
       console.error("Failed to verify rewarded ad grant", error);
+      return response("Reward could not be recorded", 409);
+    }
+    if (grantVerified !== true) {
+      console.error("AdMob reward grant was rejected by the database");
       return response("Reward could not be recorded", 409);
     }
     return response("OK");

@@ -67,6 +67,8 @@ class AdMobRewardedAdService implements RewardedAdService {
   AdMobRewardedAdService(this.config);
 
   static const _diagnosticKey = 'admob_rewarded_last_diagnostic_v1';
+  static const _operationTimeout = Duration(seconds: 12);
+  static const _showTimeout = Duration(seconds: 90);
 
   final AdMobRewardedAdConfig config;
   final ValueNotifier<RewardedAdStatus> _status = ValueNotifier(
@@ -76,6 +78,7 @@ class AdMobRewardedAdService implements RewardedAdService {
   RewardedAd? _ad;
   Future<void>? _initialization;
   Completer<void>? _loadCompleter;
+  Future<void>? _loadFuture;
   var _disposed = false;
   var _canRequestAds = false;
 
@@ -98,11 +101,13 @@ class AdMobRewardedAdService implements RewardedAdService {
         return;
       }
       _canRequestAds = true;
-      await MobileAds.instance.updateRequestConfiguration(
-        RequestConfiguration(maxAdContentRating: MaxAdContentRating.pg),
-      );
-      await MobileAds.instance.setAppMuted(true);
-      await MobileAds.instance.initialize();
+      await MobileAds.instance
+          .updateRequestConfiguration(
+            RequestConfiguration(maxAdContentRating: MaxAdContentRating.pg),
+          )
+          .timeout(_operationTimeout);
+      await MobileAds.instance.setAppMuted(true).timeout(_operationTimeout);
+      await MobileAds.instance.initialize().timeout(_operationTimeout);
       debugPrint('[AdMob] Mobile Ads initialized.');
       _setStatus(RewardedAdStatus.unavailable);
     } catch (error, stackTrace) {
@@ -117,29 +122,38 @@ class AdMobRewardedAdService implements RewardedAdService {
     final update = Completer<void>();
     ConsentInformation.instance.requestConsentInfoUpdate(
       ConsentRequestParameters(),
-      update.complete,
+      () {
+        if (!update.isCompleted) update.complete();
+      },
       (error) {
         debugPrint(
           '[AdMob] Consent info update failed '
           '(code: ${error.errorCode}): ${error.message}',
         );
-        update.complete();
+        if (!update.isCompleted) update.complete();
       },
     );
-    await update.future;
-
-    final form = Completer<void>();
-    await ConsentForm.loadAndShowConsentFormIfRequired((error) {
-      if (error != null) {
-        debugPrint(
-          '[AdMob] Consent form failed '
-          '(code: ${error.errorCode}): ${error.message}',
-        );
-      }
-      form.complete();
-    });
-    await form.future;
-    final canRequestAds = await ConsentInformation.instance.canRequestAds();
+    try {
+      await update.future.timeout(_operationTimeout);
+      await ConsentForm.loadAndShowConsentFormIfRequired((error) {
+        if (error != null) {
+          debugPrint(
+            '[AdMob] Consent form failed '
+            '(code: ${error.errorCode}): ${error.message}',
+          );
+        }
+      }).timeout(_operationTimeout);
+    } on TimeoutException {
+      debugPrint('[AdMob] Consent operation timed out.');
+      return false;
+    } catch (error, stackTrace) {
+      debugPrint('[AdMob] Consent operation failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      return false;
+    }
+    final canRequestAds = await ConsentInformation.instance
+        .canRequestAds()
+        .timeout(_operationTimeout);
     debugPrint('[AdMob] Consent allows ad requests: $canRequestAds');
     return canRequestAds;
   }
@@ -149,61 +163,112 @@ class AdMobRewardedAdService implements RewardedAdService {
     if (_disposed || !config.enabled || _ad != null) return;
     await initialize();
     if (!_canRequestAds) return;
-    final activeLoad = _loadCompleter;
-    if (activeLoad != null) return activeLoad.future;
+    final activeLoad = _loadFuture;
+    if (activeLoad != null) return activeLoad;
 
     final completer = Completer<void>();
+    var timedOut = false;
     _loadCompleter = completer;
     _setStatus(RewardedAdStatus.loading);
-    await RewardedAd.load(
-      adUnitId: config.adUnitId,
-      request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) {
-          unawaited(_recordDiagnostic(null));
-          if (_disposed) {
-            ad.dispose();
-          } else {
-            _ad = ad;
-            _setStatus(RewardedAdStatus.ready);
-          }
-          if (!completer.isCompleted) completer.complete();
+    final loadFuture = completer.future.timeout(
+      _operationTimeout,
+      onTimeout: () {
+        timedOut = true;
+        if (identical(_loadCompleter, completer)) {
           _loadCompleter = null;
-        },
-        onAdFailedToLoad: (error) {
-          unawaited(
-            _recordDiagnostic(
-              'load:${error.code}:${error.domain}:${error.message}',
-            ),
-          );
-          debugPrint(
-            '[AdMob] Rewarded ad load failed '
-            '(code: ${error.code}, domain: ${error.domain}): ${error.message}',
-          );
+          _loadFuture = null;
           _setStatus(RewardedAdStatus.unavailable);
-          if (!completer.isCompleted) completer.complete();
-          _loadCompleter = null;
-        },
-      ),
+        }
+      },
     );
-    return completer.future;
+    _loadFuture = loadFuture;
+
+    void finishLoad() {
+      if (identical(_loadCompleter, completer)) {
+        _loadCompleter = null;
+        _loadFuture = null;
+      }
+      if (!completer.isCompleted) completer.complete();
+    }
+
+    try {
+      await RewardedAd.load(
+        adUnitId: config.adUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) {
+            if (timedOut) {
+              ad.dispose();
+              return;
+            }
+            unawaited(_recordDiagnostic(null));
+            if (_disposed) {
+              ad.dispose();
+            } else {
+              _ad = ad;
+              _setStatus(RewardedAdStatus.ready);
+            }
+            finishLoad();
+          },
+          onAdFailedToLoad: (error) {
+            if (timedOut) return;
+            unawaited(
+              _recordDiagnostic(
+                'load:${error.code}:${error.domain}:${error.message}',
+              ),
+            );
+            debugPrint(
+              '[AdMob] Rewarded ad load failed '
+              '(code: ${error.code}, domain: ${error.domain}): ${error.message}',
+            );
+            _setStatus(RewardedAdStatus.unavailable);
+            finishLoad();
+          },
+        ),
+      );
+    } catch (error, stackTrace) {
+      unawaited(_recordDiagnostic('load-request:$error'));
+      debugPrint('[AdMob] Rewarded ad load request failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      _setStatus(RewardedAdStatus.unavailable);
+      finishLoad();
+    }
+    return loadFuture;
   }
 
   @override
   Future<bool> isPrivacyOptionsRequired() async {
-    await initialize();
-    final requirement = await ConsentInformation.instance
-        .getPrivacyOptionsRequirementStatus();
-    return requirement == PrivacyOptionsRequirementStatus.required;
+    try {
+      await initialize();
+      final requirement = await ConsentInformation.instance
+          .getPrivacyOptionsRequirementStatus()
+          .timeout(_operationTimeout);
+      return requirement == PrivacyOptionsRequirementStatus.required;
+    } catch (error) {
+      debugPrint('[AdMob] Privacy options status unavailable: $error');
+      return false;
+    }
   }
 
   @override
   Future<bool> showPrivacyOptions() async {
     if (!await isPrivacyOptionsRequired()) return false;
-    final completed = Completer<void>();
-    ConsentForm.showPrivacyOptionsForm((_) => completed.complete());
-    await completed.future;
-    return true;
+    var hasError = false;
+    try {
+      await ConsentForm.showPrivacyOptionsForm((error) {
+        hasError = error != null;
+        if (error != null) {
+          debugPrint(
+            '[AdMob] Privacy options form failed '
+            '(code: ${error.errorCode}): ${error.message}',
+          );
+        }
+      }).timeout(_operationTimeout);
+      return !hasError;
+    } catch (error) {
+      debugPrint('[AdMob] Privacy options form unavailable: $error');
+      return false;
+    }
   }
 
   @override
@@ -218,23 +283,43 @@ class AdMobRewardedAdService implements RewardedAdService {
 
     _ad = null;
     _setStatus(RewardedAdStatus.loading);
-    await ad.setServerSideOptions(
-      ServerSideVerificationOptions(
-        userId: userId,
-        customData: verificationSessionId,
-      ),
-    );
+    try {
+      await ad
+          .setServerSideOptions(
+            ServerSideVerificationOptions(
+              userId: userId,
+              customData: verificationSessionId,
+            ),
+          )
+          .timeout(_operationTimeout);
+    } catch (error, stackTrace) {
+      debugPrint('[AdMob] Failed to configure SSV: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      ad.dispose();
+      _setStatus(RewardedAdStatus.unavailable);
+      unawaited(preload());
+      return RewardedAdOutcome.failed;
+    }
 
     final result = Completer<RewardedAdOutcome>();
     var earned = false;
+    var adDisposed = false;
+    void disposeAd() {
+      if (adDisposed) return;
+      adDisposed = true;
+      ad.dispose();
+    }
+
+    void complete(RewardedAdOutcome outcome) {
+      if (!result.isCompleted) result.complete(outcome);
+    }
+
     ad.fullScreenContentCallback = FullScreenContentCallback<RewardedAd>(
       onAdDismissedFullScreenContent: (ad) {
-        ad.dispose();
-        if (!result.isCompleted) {
-          result.complete(
-            earned ? RewardedAdOutcome.earned : RewardedAdOutcome.dismissed,
-          );
-        }
+        disposeAd();
+        complete(
+          earned ? RewardedAdOutcome.earned : RewardedAdOutcome.dismissed,
+        );
         unawaited(preload());
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
@@ -247,21 +332,32 @@ class AdMobRewardedAdService implements RewardedAdService {
           '[AdMob] Rewarded ad failed to show '
           '(code: ${error.code}, domain: ${error.domain}): ${error.message}',
         );
-        ad.dispose();
-        if (!result.isCompleted) result.complete(RewardedAdOutcome.failed);
+        disposeAd();
+        complete(RewardedAdOutcome.failed);
         unawaited(preload());
       },
     );
     try {
-      await ad.show(onUserEarnedReward: (_, _) => earned = true);
+      await ad
+          .show(onUserEarnedReward: (_, _) => earned = true)
+          .timeout(_showTimeout);
     } catch (error, stackTrace) {
       debugPrint('[AdMob] Rewarded ad show threw: $error');
       debugPrintStack(stackTrace: stackTrace);
-      ad.dispose();
-      if (!result.isCompleted) result.complete(RewardedAdOutcome.failed);
+      disposeAd();
+      complete(RewardedAdOutcome.failed);
       unawaited(preload());
     }
-    return result.future;
+    return result.future.timeout(
+      _showTimeout,
+      onTimeout: () {
+        disposeAd();
+        _setStatus(RewardedAdStatus.unavailable);
+        complete(RewardedAdOutcome.failed);
+        unawaited(preload());
+        return RewardedAdOutcome.failed;
+      },
+    );
   }
 
   void _setStatus(RewardedAdStatus next) {

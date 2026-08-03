@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/app/app.dart';
+import 'package:just_one_round/core/auth/kakao_auth_service.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
@@ -17,6 +19,9 @@ void main() {
         overrides: [
           dailyGameRepositoryProvider.overrideWithValue(repository),
           rewardedAdServiceProvider.overrideWithValue(adService),
+          kakaoAuthServiceProvider.overrideWithValue(
+            const _LinkedKakaoAuthService(),
+          ),
         ],
         child: const JustOneRoundApp(),
       ),
@@ -35,6 +40,65 @@ void main() {
     expect(adService.showCalls, 1);
     expect(repository.claimedSessionIds, ['reward-session', 'reward-session']);
   });
+
+  testWidgets('카카오 계정이 없어도 추가 플레이 광고를 시작한다', (tester) async {
+    final repository = _RewardedFlowRepository();
+    final adService = _RecordingRewardedAdService();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          dailyGameRepositoryProvider.overrideWithValue(repository),
+          rewardedAdServiceProvider.overrideWithValue(adService),
+          kakaoAuthServiceProvider.overrideWithValue(
+            const _UnlinkedKakaoAuthService(),
+          ),
+        ],
+        child: const JustOneRoundApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final rewardedButton = find.text('광고 보고 한 판 더');
+    expect(rewardedButton, findsOneWidget);
+    await tester.ensureVisible(rewardedButton);
+    await tester.pump();
+    await tester.tap(rewardedButton);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(repository.prepareCalls, 1);
+    expect(adService.showCalls, 1);
+    expect(repository.claimedSessionIds, ['reward-session', 'reward-session']);
+  });
+}
+
+class _LinkedKakaoAuthService implements KakaoAuthService {
+  const _LinkedKakaoAuthService();
+
+  @override
+  bool get isConfigured => true;
+
+  @override
+  bool get isLinked => true;
+
+  @override
+  Future<KakaoAccountLinkResult> linkAccount() async =>
+      KakaoAccountLinkResult.alreadyLinked;
+}
+
+class _UnlinkedKakaoAuthService implements KakaoAuthService {
+  const _UnlinkedKakaoAuthService();
+
+  @override
+  bool get isConfigured => true;
+
+  @override
+  bool get isLinked => false;
+
+  @override
+  Future<KakaoAccountLinkResult> linkAccount() async =>
+      KakaoAccountLinkResult.linked;
 }
 
 class _RewardedFlowRepository extends PreviewDailyGameRepository {
