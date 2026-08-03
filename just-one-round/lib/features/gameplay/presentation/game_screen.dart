@@ -60,7 +60,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
       gameId: _definition.id,
       gameVersion: attempt?.gameVersion ?? 1,
       playDate: attempt?.playDate,
-      attemptOrdinal: _definition.id == 'beat_the_dealer'
+      attemptOrdinal:
+          _definition.id == 'beat_the_dealer' && attempt?.isPractice != true
           ? attempt?.ordinal ?? 1
           : null,
     );
@@ -87,7 +88,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _pendingResult = result;
       _hasEnded = true;
     });
-    unawaited(_submitResult(result));
+    if (widget.attempt?.isPractice != true) {
+      unawaited(_submitResult(result));
+    }
   }
 
   void _revealResult() {
@@ -137,7 +140,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   Future<void> _submitResult(GameResult result) async {
     final attempt = widget.attempt;
-    if (attempt == null) return;
+    if (attempt == null || attempt.isPractice) return;
     setState(() => _isSubmitting = true);
     try {
       final rank = await _repository.submitScore(attempt.id, result);
@@ -166,7 +169,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _hasEnded = true;
     _game.interrupt();
     final attempt = widget.attempt;
-    if (attempt != null) {
+    if (attempt != null && !attempt.isPractice) {
       unawaited(_repository.expireAttempt(attempt.id).catchError((_) {}));
     }
     if (mounted) setState(() {});
@@ -189,7 +192,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _hasEnded = true;
       _game.interrupt();
       final attempt = widget.attempt;
-      if (attempt != null) {
+      if (attempt != null && !attempt.isPractice) {
         unawaited(_repository.expireAttempt(attempt.id).catchError((_) {}));
       }
     }
@@ -240,6 +243,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 final result? => _ResultPanel(
                   result: result,
                   definition: _definition,
+                  isPractice: widget.attempt?.isPractice ?? false,
                   rankResult: _rankResult,
                   isSubmitting: _isSubmitting,
                   submitError: _submitError,
@@ -1049,6 +1053,7 @@ class _ResultPanel extends StatelessWidget {
   const _ResultPanel({
     required this.result,
     required this.definition,
+    required this.isPractice,
     required this.rankResult,
     required this.isSubmitting,
     required this.submitError,
@@ -1060,6 +1065,7 @@ class _ResultPanel extends StatelessWidget {
 
   final GameResult result;
   final MiniGameDefinition definition;
+  final bool isPractice;
   final DailyRankResult? rankResult;
   final bool isSubmitting;
   final Object? submitError;
@@ -1107,7 +1113,17 @@ class _ResultPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          if (isSubmitting)
+          if (isPractice)
+            const Text(
+              '연습 모드 · 이 점수는 랭킹에 반영되지 않아요',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            )
+          else if (isSubmitting)
             const Text('오늘 순위를 계산하고 있어요...')
           else if (rankResult case final rank?)
             Column(

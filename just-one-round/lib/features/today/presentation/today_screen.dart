@@ -18,6 +18,7 @@ import 'package:just_one_round/features/games/presentation/game_presentation_reg
 import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
 import 'package:just_one_round/features/legal/legal_config.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
+import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/profile/presentation/profile_sheet.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
@@ -38,8 +39,11 @@ class TodayScreen extends ConsumerStatefulWidget {
   ConsumerState<TodayScreen> createState() => _TodayScreenState();
 }
 
+enum _PlayStartMode { daily, rewarded, practice }
+
 class _TodayScreenState extends ConsumerState<TodayScreen>
     with WidgetsBindingObserver {
+  static const _rewardVerificationRetryCount = 8;
   var _isClaiming = false;
   var _isSavingProfile = false;
   var _isRunningDeveloperAction = false;
@@ -648,11 +652,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   Future<void> _start({
-    required bool rewarded,
+    required _PlayStartMode mode,
     required TodayState displayedState,
   }) async {
     if (_isClaiming) return;
-    if (!rewarded &&
+    if (mode == _PlayStartMode.daily &&
         displayedState.requiresKakaoForDailyPlay &&
         !ref.read(kakaoAuthServiceProvider).isLinked) {
       await _showKakaoRequiredDialog(displayedState);
@@ -664,9 +668,19 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         return;
       }
       final repository = ref.read(dailyGameRepositoryProvider);
-      final attempt = rewarded
-          ? await _claimRewardedAttempt(repository, displayedState.playDate)
-          : await repository.claimDailyAttempt(displayedState.playDate);
+      final attempt = switch (mode) {
+        _PlayStartMode.daily => await repository.claimDailyAttempt(
+          displayedState.playDate,
+        ),
+        _PlayStartMode.rewarded => await _claimRewardedAttempt(
+          repository,
+          displayedState.playDate,
+        ),
+        _PlayStartMode.practice => await _claimPracticeAttempt(
+          repository,
+          displayedState.playDate,
+        ),
+      };
       if (attempt == null) return;
       if (!mounted) return;
       setState(() => _isClaiming = false);
@@ -684,8 +698,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         await _showDailyGameChangedDialog();
         return;
       }
-      if (!rewarded && _isKakaoRequiredError(error)) {
+      if (mode == _PlayStartMode.daily && _isKakaoRequiredError(error)) {
         await _showKakaoRequiredDialog(displayedState);
+        return;
+      }
+      if (_isTransientNetworkError(error)) {
+        _showMessage('인터넷 연결이 불안정해요. 잠시 후 다시 시도해 주세요.');
         return;
       }
       ScaffoldMessenger.of(
@@ -699,11 +717,27 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   Future<PlayAttempt?> _claimRewardedAttempt(
     DailyGameRepository repository,
     DateTime expectedPlayDate,
-  ) async {
-    final session = await repository.prepareRewardedAd(expectedPlayDate);
+  ) async => _claimAdGatedAttempt(
+    prepare: () => repository.prepareRewardedAd(expectedPlayDate),
+    claim: repository.claimRewardedAttempt,
+  );
+
+  Future<PlayAttempt?> _claimPracticeAttempt(
+    DailyGameRepository repository,
+    DateTime expectedPlayDate,
+  ) async => _claimAdGatedAttempt(
+    prepare: () => repository.preparePracticeAd(expectedPlayDate),
+    claim: repository.claimPracticeAttempt,
+  );
+
+  Future<PlayAttempt?> _claimAdGatedAttempt({
+    required Future<RewardedAdSession> Function() prepare,
+    required Future<PlayAttempt> Function(String sessionId) claim,
+  }) async {
+    final session = await _withTransientNetworkRetry(prepare);
 
     final recoveredAttempt = await _claimVerifiedReward(
-      repository,
+      claim,
       session.id,
       retries: 0,
     );
@@ -723,29 +757,30 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       return null;
     }
 
+    _showMessage('광고 확인 중이에요. 잠시만 기다려 주세요.');
     final verifiedAttempt = await _claimVerifiedReward(
-      repository,
+      claim,
       session.id,
-      retries: 8,
+      retries: _rewardVerificationRetryCount,
     );
     if (verifiedAttempt != null) return verifiedAttempt;
-    _showMessage('광고 확인이 처리 중이에요. 잠시 후 버튼을 다시 눌러 주세요.');
+    _showMessage('광고 확인이 아직 완료되지 않았어요. 잠시 후 같은 버튼으로 다시 시도해 주세요.');
     ref.invalidate(todayStateProvider);
     return null;
   }
 
   Future<PlayAttempt?> _claimVerifiedReward(
-    DailyGameRepository repository,
+    Future<PlayAttempt> Function(String sessionId) claim,
     String sessionId, {
     required int retries,
   }) async {
     for (var attempt = 0; attempt <= retries; attempt++) {
       try {
-        return await repository.claimRewardedAttempt(sessionId);
+        return await _withTransientNetworkRetry(() => claim(sessionId));
       } on PostgrestException catch (error) {
         if (!_isRewardPending(error)) rethrow;
         if (attempt == retries) return null;
-        await Future<void>.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(Duration(seconds: min(attempt + 1, 5)));
       }
     }
     return null;
@@ -757,7 +792,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   bool _isDailyGameChangedError(Object error) =>
       error is PostgrestException &&
       (error.message.contains('daily game changed') ||
-          error.message.contains('reward session not found'));
+          error.message.contains('reward session not found') ||
+          error.message.contains('practice session not found'));
 
   bool _isAppUpdateRequiredError(Object error) =>
       error is AppUpdateRequiredException ||
@@ -767,6 +803,34 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   bool _isKakaoRequiredError(Object error) =>
       error is PostgrestException &&
       error.message.contains('kakao account required');
+
+  Future<T> _withTransientNetworkRetry<T>(
+    Future<T> Function() operation,
+  ) async {
+    for (var attempt = 0; ; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (attempt >= 1 || !_isTransientNetworkError(error)) rethrow;
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+      }
+    }
+  }
+
+  bool _isTransientNetworkError(Object error) {
+    final message = error.toString().toLowerCase();
+    const markers = [
+      'socketexception',
+      'failed host lookup',
+      'connection reset',
+      'connection refused',
+      'network is unreachable',
+      'no route to host',
+      'connection timed out',
+      'timed out',
+    ];
+    return markers.any(message.contains);
+  }
 
   void _showMessage(String message) {
     if (!mounted) return;
@@ -1026,7 +1090,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                   onPressed: _isClaiming
                                       ? null
                                       : () => _start(
-                                          rewarded: false,
+                                          mode: _PlayStartMode.daily,
                                           displayedState: state,
                                         ),
                                 )
@@ -1042,7 +1106,23 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                               RewardedAdStatus.loading
                                       ? null
                                       : () => _start(
-                                          rewarded: true,
+                                          mode: _PlayStartMode.rewarded,
+                                          displayedState: state,
+                                        ),
+                                )
+                              else if (state.practiceAvailable)
+                                PixelButton(
+                                  label: _practiceButtonLabel(state),
+                                  icon: Icons.school_outlined,
+                                  onPressed:
+                                      _isClaiming ||
+                                          _rewardedAdStatus ==
+                                              RewardedAdStatus.disabled ||
+                                          _rewardedAdStatus ==
+                                              RewardedAdStatus.loading
+                                      ? null
+                                      : () => _start(
+                                          mode: _PlayStartMode.practice,
                                           displayedState: state,
                                         ),
                                 )
@@ -1081,8 +1161,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     return switch (_rewardedAdStatus) {
       RewardedAdStatus.loading => '광고 준비 중…',
       RewardedAdStatus.disabled => '추가 플레이 준비 중',
-      RewardedAdStatus.ready => '광고 보고 한 판 더',
+      RewardedAdStatus.ready => '딱 한 판만 더!',
       RewardedAdStatus.unavailable => '광고 다시 불러오기',
+    };
+  }
+
+  String _practiceButtonLabel(TodayState state) {
+    if (_isClaiming) {
+      return GamePresentationRegistry.forId(state.game?.id).loadingLabel;
+    }
+    return switch (_rewardedAdStatus) {
+      RewardedAdStatus.loading => '광고 준비 중…',
+      RewardedAdStatus.disabled => '연습 준비 중',
+      RewardedAdStatus.ready => '연습하기',
+      RewardedAdStatus.unavailable => '연습하기',
     };
   }
 
@@ -1090,6 +1182,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (state.testMode) return '테스트 모드 · 제한 없이 계속 플레이할 수 있어요';
     if (state.canClaimDaily) return '아직 플레이하지 않았어요 · 기회 1회';
     if (state.adAttemptAvailable) return '첫 판 완료 · 광고로 기회 1회 추가 가능';
+    if (state.practiceAvailable) return '랭킹 플레이 완료 · 광고로 연습을 계속할 수 있어요';
     if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';
     if (state.dailyClaimed) return '이 기기의 오늘 플레이는 이미 완료됐어요';
     return '중단된 게임은 다시 시작할 수 없어요';

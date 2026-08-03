@@ -102,7 +102,7 @@ class _AppContentState extends ConsumerState<_AppContent> {
   }
 
   void _handleTodayState(TodayState state) {
-    if (!state.adAttemptAvailable) {
+    if (!state.adAttemptAvailable && !state.practiceAvailable) {
       _preloadRequested = false;
       return;
     }

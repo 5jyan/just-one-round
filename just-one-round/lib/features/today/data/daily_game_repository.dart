@@ -20,6 +20,8 @@ abstract interface class DailyGameRepository {
   Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate);
   Future<RewardedAdSession> prepareRewardedAd(DateTime expectedPlayDate);
   Future<PlayAttempt> claimRewardedAttempt(String rewardSessionId);
+  Future<RewardedAdSession> preparePracticeAd(DateTime expectedPlayDate);
+  Future<PlayAttempt> claimPracticeAttempt(String rewardSessionId);
   Future<void> expireAttempt(String attemptId);
   Future<DailyRankResult> submitScore(String attemptId, GameResult result);
   Future<DailyRankResult?> retryPendingScore();
@@ -242,6 +244,29 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
     return _attemptFromRpc(
       await _client.rpc(
         'claim_rewarded_attempt',
+        params: {'reward_session_id': rewardSessionId},
+      ),
+    );
+  }
+
+  @override
+  Future<RewardedAdSession> preparePracticeAd(DateTime expectedPlayDate) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'prepare_practice_ad',
+      params: {'expected_play_date': playDateParameter(expectedPlayDate)},
+    );
+    return RewardedAdSession.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<PlayAttempt> claimPracticeAttempt(String rewardSessionId) async {
+    await _ensureSignedIn();
+    return _attemptFromRpc(
+      await _client.rpc(
+        'claim_practice_attempt',
         params: {'reward_session_id': rewardSessionId},
       ),
     );
@@ -585,6 +610,20 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       _previewAttempt('rewarded');
 
   @override
+  Future<RewardedAdSession> preparePracticeAd(
+    DateTime expectedPlayDate,
+  ) async => RewardedAdSession(
+    id: '00000000-0000-4000-8000-000000000002',
+    userId: 'preview-user',
+    status: 'prepared',
+    expiresAt: DateTime.now().add(const Duration(minutes: 15)),
+  );
+
+  @override
+  Future<PlayAttempt> claimPracticeAttempt(String rewardSessionId) async =>
+      _previewAttempt('practice_ad', ordinal: 3);
+
+  @override
   Future<void> expireAttempt(String attemptId) async {}
 
   @override
@@ -676,20 +715,21 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     }
   }
 
-  PlayAttempt _previewAttempt(String grantType) => PlayAttempt(
-    id: 'preview-attempt',
-    ordinal: 1,
-    status: 'issued',
-    grantType: grantType,
-    gameId: _selectedGameId,
-    gameVersion: switch (_selectedGameId) {
-      'midnight_snake' => 2,
-      'beat_the_dealer' => 3,
-      _ => 1,
-    },
-    gameDurationSeconds: _previewGame(_selectedGameId).durationSeconds,
-    playDate: dailyPlayDateAt(DateTime.now()),
-  );
+  PlayAttempt _previewAttempt(String grantType, {int ordinal = 1}) =>
+      PlayAttempt(
+        id: 'preview-attempt',
+        ordinal: ordinal,
+        status: 'issued',
+        grantType: grantType,
+        gameId: _selectedGameId,
+        gameVersion: switch (_selectedGameId) {
+          'midnight_snake' => 2,
+          'beat_the_dealer' => 3,
+          _ => 1,
+        },
+        gameDurationSeconds: _previewGame(_selectedGameId).durationSeconds,
+        playDate: dailyPlayDateAt(DateTime.now()),
+      );
 
   TodayGame _previewGame(String gameId) => switch (gameId) {
     'dung_dodge_v2' => const TodayGame(

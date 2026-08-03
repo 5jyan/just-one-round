@@ -97,6 +97,34 @@ void main() {
     );
   });
 
+  testWidgets('연습 판 결과는 랭킹을 제출하지 않는다', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          dailyGameRepositoryProvider.overrideWithValue(_RecordingRepository()),
+        ],
+        child: const MaterialApp(
+          home: GameScreen(
+            attempt: PlayAttempt(
+              id: 'practice-session',
+              ordinal: 3,
+              status: 'practice',
+              grantType: 'practice_ad',
+              gameId: 'dung_dodge_v2',
+              gameVersion: 1,
+              gameDurationSeconds: 1,
+            ),
+            countdownDuration: Duration.zero,
+            gameDuration: Duration(milliseconds: 100),
+          ),
+        ),
+      ),
+    );
+
+    await _pumpUntilFound(tester, find.text('연습 모드 · 이 점수는 랭킹에 반영되지 않아요'));
+    expect(find.text('오늘 순위를 계산하고 있어요...'), findsNothing);
+  });
+
   testWidgets('시도에 발급된 게임 시간이 기본 시간보다 우선한다', (tester) async {
     const attempt = PlayAttempt(
       id: 'attempt-issued-duration',
@@ -573,6 +601,14 @@ class _RecordingRepository implements DailyGameRepository {
 
   @override
   Future<PlayAttempt> claimRewardedAttempt(String rewardSessionId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<RewardedAdSession> preparePracticeAd(DateTime expectedPlayDate) =>
+      throw UnimplementedError();
+
+  @override
+  Future<PlayAttempt> claimPracticeAttempt(String rewardSessionId) =>
       throw UnimplementedError();
 
   @override

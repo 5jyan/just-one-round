@@ -80,6 +80,8 @@ class PlayAttempt {
   final int? gameDurationSeconds;
   final DateTime? playDate;
   final DateTime? issuedAt;
+
+  bool get isPractice => grantType == 'practice_ad';
 }
 
 class ClientCompatibility {
@@ -199,6 +201,7 @@ class TodayState {
     required this.result,
     required this.nickname,
     this.dailyClaimed = false,
+    this.practiceAvailable = false,
     this.requiresKakaoForDailyPlay = false,
     this.compatibility = const ClientCompatibility.supported(),
     this.economy = const PlayerEconomy.zero(),
@@ -221,6 +224,7 @@ class TodayState {
           json['nickname'] as String? ??
           (json['profile'] as Map<String, dynamic>?)?['nickname'] as String?,
       dailyClaimed: json['daily_claimed'] as bool? ?? attempts.isNotEmpty,
+      practiceAvailable: json['practice_available'] as bool? ?? false,
       requiresKakaoForDailyPlay:
           json['requires_kakao_for_daily_play'] as bool? ?? false,
       economy: _economyFromJson(json),
@@ -247,6 +251,7 @@ class TodayState {
   final DailyRankResult? result;
   final String? nickname;
   final bool dailyClaimed;
+  final bool practiceAvailable;
   final bool requiresKakaoForDailyPlay;
   final ClientCompatibility compatibility;
   final PlayerEconomy economy;
@@ -271,5 +276,6 @@ class TodayState {
     requiresKakaoForDailyPlay: requiresKakaoForDailyPlay,
     compatibility: value,
     economy: economy,
+    practiceAvailable: practiceAvailable,
   );
 }
