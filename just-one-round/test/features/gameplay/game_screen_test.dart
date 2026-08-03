@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_screen.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
@@ -94,6 +95,29 @@ void main() {
           tester.getBottomLeft(find.byKey(const Key('game-end-title'))).dy,
       greaterThan(16),
     );
+  });
+
+  testWidgets('시도에 발급된 게임 시간이 기본 시간보다 우선한다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'attempt-issued-duration',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+      gameId: 'dung_dodge_v2',
+      gameVersion: 1,
+      gameDurationSeconds: 1,
+    );
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
+        ),
+      ),
+    );
+
+    await _pumpUntilFound(tester, find.byKey(const Key('game-end-title')));
+
+    expect(find.byKey(const Key('game-end-title')), findsOneWidget);
   });
 
   testWidgets('공통 종료 연출 중에도 완료 기록은 즉시 제출한다', (tester) async {
@@ -562,10 +586,17 @@ class _RecordingRepository implements DailyGameRepository {
       throw UnimplementedError();
 
   @override
-  Future<void> acknowledgePreviousDailyResult(
+  Future<RewardGrant> acknowledgePreviousDailyResult(
     DateTime playDate,
     String gameId,
   ) => throw UnimplementedError();
+
+  @override
+  Future<CoinSpendResult> spendCoins({
+    required int amount,
+    required String gameId,
+    required String referenceId,
+  }) => throw UnimplementedError();
 
   @override
   Future<List<DeveloperGame>> fetchDeveloperGames() =>
@@ -583,6 +614,9 @@ class _RecordingRepository implements DailyGameRepository {
   @override
   Future<TesterActivationResult> activateTestMode(String pin) =>
       throw UnimplementedError();
+
+  @override
+  Future<void> deactivateTestMode() => throw UnimplementedError();
 
   @override
   Future<void> resetDeveloperDailyProgress() => throw UnimplementedError();

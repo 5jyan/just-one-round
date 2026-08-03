@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/beat_the_dealer/beat_the_dealer_game.dart';
 import 'package:just_one_round/features/games/beat_the_dealer/domain/beat_the_dealer_rules.dart';
@@ -13,6 +15,7 @@ import 'package:just_one_round/features/games/number_rush/domain/number_rush_rul
 import 'package:just_one_round/features/games/number_rush/number_rush_game.dart';
 import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
 import 'package:just_one_round/features/games/midnight_snake/midnight_snake_game.dart';
+import 'package:just_one_round/features/games/sausage_dachshund/domain/sausage_dachshund_rules.dart';
 
 abstract final class GameRegistry {
   static final _definitions = <String, MiniGameDefinition>{
@@ -23,10 +26,12 @@ abstract final class GameRegistry {
             required gameDuration,
             required countdownDuration,
             required attemptOrdinal,
+            required challengeSeed,
             required onFinished,
           }) => DungDodgeV2Game(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
+            random: Random(challengeSeed),
             onFinished: onFinished,
           ),
       countdownInstruction: '화면을 좌우로 드래그하세요',
@@ -44,10 +49,12 @@ abstract final class GameRegistry {
             required gameDuration,
             required countdownDuration,
             required attemptOrdinal,
+            required challengeSeed,
             required onFinished,
           }) => GravitySwitchGame(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
+            random: Random(challengeSeed),
             onFinished: onFinished,
           ),
       countdownInstruction: '탭해서 중력을 뒤집고 반대편으로 이동하세요',
@@ -65,11 +72,13 @@ abstract final class GameRegistry {
             required gameDuration,
             required countdownDuration,
             required attemptOrdinal,
+            required challengeSeed,
             required onFinished,
           }) => AppleGameV2(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
             assetSet: AppleGameV2AssetSet.midnightOrchard,
+            random: Random(challengeSeed),
             onFinished: onFinished,
           ),
       countdownInstruction: '드래그한 사과 숫자의 합을 10으로 만드세요',
@@ -87,10 +96,12 @@ abstract final class GameRegistry {
             required gameDuration,
             required countdownDuration,
             required attemptOrdinal,
+            required challengeSeed,
             required onFinished,
           }) => NumberRushGame(
             countdownDuration: countdownDuration,
             maxDuration: gameDuration,
+            random: Random(challengeSeed),
             onFinished: onFinished,
           ),
       countdownInstruction: '1부터 50까지 순서대로 터치하세요',
@@ -108,10 +119,12 @@ abstract final class GameRegistry {
             required gameDuration,
             required countdownDuration,
             required attemptOrdinal,
+            required challengeSeed,
             required onFinished,
           }) => MamaDuckTrailGame(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
+            random: Random(challengeSeed),
             onFinished: onFinished,
           ),
       countdownInstruction: '엄마 오리의 발자국을 기억하세요',
@@ -130,10 +143,12 @@ abstract final class GameRegistry {
             required gameDuration,
             required countdownDuration,
             required attemptOrdinal,
+            required challengeSeed,
             required onFinished,
           }) => MidnightSnakeGame(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
+            random: Random(challengeSeed),
             onFinished: onFinished,
           ),
       countdownInstruction: '상하좌우로 스와이프해 방향을 바꾸세요',
@@ -151,11 +166,13 @@ abstract final class GameRegistry {
             required gameDuration,
             required countdownDuration,
             required attemptOrdinal,
+            required challengeSeed,
             required onFinished,
           }) => BeatTheDealerGame(
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
             attemptOrdinal: attemptOrdinal,
+            challengeSeed: challengeSeed,
             onFinished: onFinished,
           ),
       countdownInstruction: '딜러 공개 카드를 보고 코인을 거세요',
@@ -197,6 +214,7 @@ abstract final class GameRegistry {
     'failed_bakery' => '$score층',
     'apple_game' => AppleGameV2Rules.formatApples(score),
     'star_dodge' || 'dung_dodge' => DungDodgeV2Rules.formatSurvival(score),
+    'sausage_dachshund' => SausageDachshundRules.formatScore(score),
     _ => forId(gameId).formatScore(score),
   };
 }

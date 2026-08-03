@@ -28,14 +28,16 @@ class BeatTheDealerGame extends FlameGame
   BeatTheDealerGame({
     required this.onFinished,
     required int attemptOrdinal,
+    this.challengeSeed,
     this.gameDuration = BeatTheDealerRules.gameDuration,
     this.countdownDuration = const Duration(seconds: 3),
     DateTime? seedInstant,
   }) : rounds = BeatTheDealerRules.generateRounds(
-         BeatTheDealerRules.dailySeed(
-           seedInstant ?? DateTime.now(),
-           attemptOrdinal: attemptOrdinal,
-         ),
+         challengeSeed ??
+             BeatTheDealerRules.dailySeed(
+               seedInstant ?? DateTime.now(),
+               attemptOrdinal: attemptOrdinal,
+             ),
        ),
        hud = ValueNotifier(
          MiniGameHudState(
@@ -54,6 +56,7 @@ class BeatTheDealerGame extends FlameGame
 
   final Duration gameDuration;
   final Duration countdownDuration;
+  final int? challengeSeed;
   final ValueChanged<GameResult> onFinished;
   final List<BeatTheDealerRound> rounds;
 

@@ -58,6 +58,7 @@ void main() {
     expect(GameRegistry.formatScore('failed_bakery', 27), '27층');
     expect(GameRegistry.formatScore('apple_game', 42), '42개');
     expect(GameRegistry.formatScore('star_dodge', 12345), '12.35초');
+    expect(GameRegistry.formatScore('sausage_dachshund', 12), '12개');
   });
 
   test('사과게임은 기존 규칙과 별도 에셋 세트를 사용한다', () {

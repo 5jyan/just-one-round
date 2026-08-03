@@ -9,6 +9,7 @@ import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
+import 'package:just_one_round/features/games/domain/mini_game_seed.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
@@ -54,12 +55,30 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _repository = ref.read(dailyGameRepositoryProvider);
     WidgetsBinding.instance.addObserver(this);
     _definition = GameRegistry.forId(widget.attempt?.gameId ?? 'dung_dodge_v2');
+    final attempt = widget.attempt;
+    final challengeSeed = MiniGameSeed.forAttempt(
+      gameId: _definition.id,
+      gameVersion: attempt?.gameVersion ?? 1,
+      playDate: attempt?.playDate,
+      attemptOrdinal: _definition.id == 'beat_the_dealer'
+          ? attempt?.ordinal ?? 1
+          : null,
+    );
     _game = _definition.create(
-      gameDuration: widget.gameDuration ?? _definition.defaultDuration,
+      gameDuration:
+          widget.gameDuration ??
+          _issuedAttemptDuration(widget.attempt) ??
+          _definition.defaultDuration,
       countdownDuration: widget.countdownDuration,
-      attemptOrdinal: widget.attempt?.ordinal ?? 1,
+      attemptOrdinal: attempt?.ordinal ?? 1,
+      challengeSeed: challengeSeed,
       onFinished: _handleFinished,
     );
+  }
+
+  Duration? _issuedAttemptDuration(PlayAttempt? attempt) {
+    final seconds = attempt?.gameDurationSeconds;
+    return seconds == null || seconds <= 0 ? null : Duration(seconds: seconds);
   }
 
   void _handleFinished(GameResult result) {

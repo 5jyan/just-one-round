@@ -76,20 +76,14 @@ class MidnightSnakeState {
     this.goldenSausage,
     this.mouse,
     this.mouseDirection = SnakeDirection.down,
-    bool goldenAppeared = false,
-    bool goldenResolved = false,
-    double? goldenExpiresAt,
-    bool mouseAppeared = false,
-    bool mouseResolved = false,
-    double? mouseExpiresAt,
-    double? mouseNextMoveAt,
-  }) : _goldenAppeared = goldenAppeared,
-       _goldenResolved = goldenResolved,
-       _goldenExpiresAt = goldenExpiresAt,
-       _mouseAppeared = mouseAppeared,
-       _mouseResolved = mouseResolved,
-       _mouseExpiresAt = mouseExpiresAt,
-       _mouseNextMoveAt = mouseNextMoveAt;
+    this._goldenAppeared = false,
+    this._goldenResolved = false,
+    this._goldenExpiresAt,
+    this._mouseAppeared = false,
+    this._mouseResolved = false,
+    this._mouseExpiresAt,
+    this._mouseNextMoveAt,
+  });
 
   factory MidnightSnakeState.initial({
     double goldenSpawnAtSeconds =
@@ -257,10 +251,7 @@ class MidnightSnakeState {
       food = MidnightSnakeRules.chooseReachableFood(
         body: _body,
         random: random,
-        blockedCells: {
-          if (goldenSausage case final golden?) golden,
-          if (mouse case final activeMouse?) activeMouse,
-        },
+        blockedCells: {?goldenSausage, ?mouse},
       );
       foodTypeIndex = random.nextInt(MidnightSnakeRules.foodTypeCount);
       if (food == null) finishReason = SnakeFinishReason.boardComplete;
@@ -329,10 +320,7 @@ class MidnightSnakeState {
     final selected = MidnightSnakeRules.chooseReachableCorner(
       body: _body,
       random: random,
-      blockedCells: {
-        if (food case final regularFood?) regularFood,
-        if (mouse case final activeMouse?) activeMouse,
-      },
+      blockedCells: {?food, ?mouse},
     );
     if (selected == null) return;
     goldenSausage = selected;
@@ -368,10 +356,7 @@ class MidnightSnakeState {
     final selected = MidnightSnakeRules.chooseMouseSpawn(
       body: _body,
       random: random,
-      blockedCells: {
-        if (food case final regularFood?) regularFood,
-        if (goldenSausage case final golden?) golden,
-      },
+      blockedCells: {?food, ?goldenSausage},
     );
     if (selected == null) return;
     mouse = selected;
@@ -568,11 +553,7 @@ abstract final class MidnightSnakeRules {
     required SnakeCell? goldenSausage,
     required Random random,
   }) {
-    final blocked = <SnakeCell>{
-      ...body,
-      if (food case final regularFood?) regularFood,
-      if (goldenSausage case final golden?) golden,
-    };
+    final blocked = <SnakeCell>{...body, ?food, ?goldenSausage};
     var candidates = [
       for (final direction in SnakeDirection.values)
         if (mouse.moved(direction) case final destination

@@ -156,12 +156,14 @@ void main() {
     final state = TodayState(
       playDate: DateTime(2026, 8, 1),
       game: null,
-      attempts: const [
+      attempts: [
         PlayAttempt(
           id: 'terminal-attempt',
           ordinal: 1,
           status: 'issued',
           grantType: 'daily',
+          issuedAt: DateTime.utc(2026, 8, 1),
+          gameDurationSeconds: 300,
         ),
       ],
       adAttemptAvailable: false,
@@ -170,9 +172,46 @@ void main() {
       nickname: null,
     );
 
-    expect(issuedAttemptsWithoutPending(state, const {}), hasLength(1));
+    expect(
+      issuedAttemptsWithoutPending(
+        state,
+        const {},
+        now: DateTime.utc(2026, 8, 1, 0, 8),
+      ),
+      hasLength(1),
+    );
     expect(
       issuedAttemptsWithoutPending(state, const {'terminal-attempt'}),
+      isEmpty,
+    );
+  });
+
+  test('최근 발급된 시도는 상태 새로고침 중 만료하지 않는다', () {
+    final state = TodayState(
+      playDate: DateTime(2026, 8, 1),
+      game: null,
+      attempts: [
+        PlayAttempt(
+          id: 'active-attempt',
+          ordinal: 2,
+          status: 'issued',
+          grantType: 'rewarded_ad',
+          issuedAt: DateTime.utc(2026, 8, 1),
+          gameDurationSeconds: 300,
+        ),
+      ],
+      adAttemptAvailable: false,
+      testMode: false,
+      result: null,
+      nickname: null,
+    );
+
+    expect(
+      issuedAttemptsWithoutPending(
+        state,
+        const {},
+        now: DateTime.utc(2026, 8, 1, 0, 1),
+      ),
       isEmpty,
     );
   });

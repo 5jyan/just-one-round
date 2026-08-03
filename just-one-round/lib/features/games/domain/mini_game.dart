@@ -44,6 +44,7 @@ typedef MiniGameFactory =
       required Duration gameDuration,
       required Duration countdownDuration,
       required int attemptOrdinal,
+      required int challengeSeed,
       required ValueChanged<GameResult> onFinished,
     });
 

@@ -1,5 +1,7 @@
--- Reject results that claim more active play time than has actually elapsed,
--- while retaining unlimited delivery time for genuinely completed offline games.
+-- Reject results that claim more active play time than has actually elapsed.
+-- The existing scores deadline still closes the previous play date at 06:10 KST;
+-- this check only prevents a result from being submitted before its claimed
+-- in-game duration has elapsed.
 create or replace function public.assert_score_submission_elapsed(
   issued_at timestamptz,
   duration_ms integer
