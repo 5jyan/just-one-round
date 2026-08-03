@@ -1,5 +1,5 @@
 name: just_one_round
-description: "하루 한 판, 매일 다른 1분 미니게임."
+description: "하루 한 판, 매일 다른 2~5분 미니게임."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -43,6 +43,7 @@ dependencies:
   flutter_svg: ^2.3.0
   shared_preferences: ^2.5.5
   google_mobile_ads: ^9.0.0
+  kakao_flutter_sdk_user: ^2.0.0+1
   url_launcher: ^6.3.2
 
 dev_dependencies:

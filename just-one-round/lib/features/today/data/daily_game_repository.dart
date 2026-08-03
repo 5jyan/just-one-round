@@ -4,6 +4,8 @@ import 'package:just_one_round/core/auth/anonymous_session_guard.dart';
 import 'package:just_one_round/core/auth/device_registration_guard.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/data/pending_score_submission.dart';
+import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
+import 'package:just_one_round/features/economy/domain/player_economy.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
@@ -25,12 +27,21 @@ abstract interface class DailyGameRepository {
   Future<DailyRankResult> fetchDailyRank({DateTime? playDate});
   Future<List<PlayHistoryEntry>> fetchHistory();
   Future<PreviousDailyResult?> fetchUnseenPreviousDailyResult();
-  Future<void> acknowledgePreviousDailyResult(DateTime playDate, String gameId);
+  Future<RewardGrant> acknowledgePreviousDailyResult(
+    DateTime playDate,
+    String gameId,
+  );
+  Future<CoinSpendResult> spendCoins({
+    required int amount,
+    required String gameId,
+    required String referenceId,
+  });
   Future<List<DeveloperGame>> fetchDeveloperGames();
   Future<void> reportNickname(String userId);
   Future<void> blockUser(String userId);
   Future<void> deleteAccount();
   Future<TesterActivationResult> activateTestMode(String pin);
+  Future<void> deactivateTestMode();
   Future<void> resetDeveloperDailyProgress();
   Future<void> setDeveloperGame(String gameId);
 }
@@ -174,6 +185,7 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
     result: null,
     nickname: null,
     compatibility: compatibility,
+    economy: const PlayerEconomy.zero(),
   );
 
   ClientCompatibility? _unsupportedGameCompatibility(
@@ -320,18 +332,37 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
   }
 
   @override
-  Future<void> acknowledgePreviousDailyResult(
+  Future<RewardGrant> acknowledgePreviousDailyResult(
     DateTime playDate,
     String gameId,
   ) async {
     await _ensureSignedIn();
-    await _client.rpc(
+    final response = await _client.rpc(
       'acknowledge_previous_daily_result',
       params: {
         'target_date': playDateParameter(playDate),
         'target_game_id': gameId,
       },
     );
+    return RewardGrant.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
+  @override
+  Future<CoinSpendResult> spendCoins({
+    required int amount,
+    required String gameId,
+    required String referenceId,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'spend_coins',
+      params: {
+        'amount': amount,
+        'game_id': gameId,
+        'reference_id': referenceId,
+      },
+    );
+    return CoinSpendResult.fromJson(Map<String, dynamic>.from(response as Map));
   }
 
   @override
@@ -385,6 +416,12 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
   }
 
   @override
+  Future<void> deactivateTestMode() async {
+    await _ensureSignedIn();
+    await _client.rpc('deactivate_test_mode');
+  }
+
+  @override
   Future<void> resetDeveloperDailyProgress() async {
     await _ensureSignedIn();
     await _client.rpc('reset_developer_daily_progress');
@@ -414,11 +451,31 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
 
 List<PlayAttempt> issuedAttemptsWithoutPending(
   TodayState state,
-  Set<String> pendingAttemptIds,
-) => state.attempts
-    .where((attempt) => attempt.status == 'issued')
-    .where((attempt) => !pendingAttemptIds.contains(attempt.id))
-    .toList(growable: false);
+  Set<String> pendingAttemptIds, {
+  DateTime? now,
+}) {
+  final currentTime = (now ?? DateTime.now()).toUtc();
+  return state.attempts
+      .where((attempt) => attempt.status == 'issued')
+      .where((attempt) => !pendingAttemptIds.contains(attempt.id))
+      .where((attempt) => _isStaleIssuedAttempt(attempt, currentTime))
+      .toList(growable: false);
+}
+
+bool _isStaleIssuedAttempt(PlayAttempt attempt, DateTime now) {
+  final issuedAt = attempt.issuedAt;
+  // Keep the old cleanup behavior for older API responses that do not expose
+  // issued_at yet. Current responses include it, which lets us avoid expiring
+  // a freshly claimed attempt while an ad-return refresh is still in flight.
+  if (issuedAt == null) return true;
+
+  final durationSeconds = attempt.gameDurationSeconds ?? 300;
+  final playableSeconds = durationSeconds < 1 ? 1 : durationSeconds;
+  final expiry = issuedAt.toUtc().add(
+    Duration(seconds: playableSeconds) + const Duration(minutes: 2),
+  );
+  return !now.isBefore(expiry);
+}
 
 bool isTerminalScoreSubmissionError(Object error) {
   if (error is! PostgrestException) return false;
@@ -455,10 +512,13 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   PreviewDailyGameRepository({
     this.testMode = false,
     this.compatibility = const ClientCompatibility.supported(),
+    this.initialEconomy = const PlayerEconomy.zero(),
   });
 
   bool testMode;
   final ClientCompatibility compatibility;
+  final PlayerEconomy initialEconomy;
+  late PlayerEconomy _economy = initialEconomy;
   String _selectedGameId = 'dung_dodge_v2';
 
   static const _games = [
@@ -503,6 +563,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     ),
     nickname: testMode ? 'tester' : null,
     compatibility: compatibility,
+    economy: _economy,
   );
 
   @override
@@ -558,10 +619,27 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   Future<PreviousDailyResult?> fetchUnseenPreviousDailyResult() async => null;
 
   @override
-  Future<void> acknowledgePreviousDailyResult(
+  Future<RewardGrant> acknowledgePreviousDailyResult(
     DateTime playDate,
     String gameId,
-  ) async {}
+  ) async =>
+      RewardGrant(coinsGranted: 0, experienceGranted: 0, economy: _economy);
+
+  @override
+  Future<CoinSpendResult> spendCoins({
+    required int amount,
+    required String gameId,
+    required String referenceId,
+  }) async {
+    if (amount <= 0 || amount > _economy.coins) {
+      throw StateError('insufficient coin balance');
+    }
+    _economy = PlayerEconomy.fromTotals(
+      coins: _economy.coins - amount,
+      experiencePoints: _economy.experiencePoints,
+    );
+    return CoinSpendResult(coinsSpent: amount, economy: _economy);
+  }
 
   @override
   Future<List<DeveloperGame>> fetchDeveloperGames() async => _games;
@@ -581,6 +659,11 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     return const TesterActivationResult(
       status: TesterActivationStatus.activated,
     );
+  }
+
+  @override
+  Future<void> deactivateTestMode() async {
+    testMode = false;
   }
 
   @override
@@ -604,6 +687,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       'beat_the_dealer' => 3,
       _ => 1,
     },
+    gameDurationSeconds: _previewGame(_selectedGameId).durationSeconds,
     playDate: dailyPlayDateAt(DateTime.now()),
   );
 
@@ -620,7 +704,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
       version: 1,
       displayName: '중력 스위치',
       description: '탭으로 중력을 뒤집어 위아래로 이어지는 입체 기둥 미로를 돌파하세요.',
-      durationSeconds: 180,
+      durationSeconds: 300,
     ),
     'apple_game_v2' => const TodayGame(
       id: 'apple_game_v2',

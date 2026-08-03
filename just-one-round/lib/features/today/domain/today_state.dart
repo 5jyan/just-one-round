@@ -1,3 +1,5 @@
+import 'package:just_one_round/features/economy/domain/player_economy.dart';
+
 class TodayGame {
   const TodayGame({
     required this.id,
@@ -48,7 +50,9 @@ class PlayAttempt {
     required this.grantType,
     this.gameId,
     this.gameVersion,
+    this.gameDurationSeconds,
     this.playDate,
+    this.issuedAt,
   });
 
   factory PlayAttempt.fromJson(Map<String, dynamic> json) => PlayAttempt(
@@ -58,9 +62,13 @@ class PlayAttempt {
     grantType: json['grant_type'] as String,
     gameId: json['game_id'] as String?,
     gameVersion: (json['game_version'] as num?)?.toInt(),
+    gameDurationSeconds: (json['game_duration_seconds'] as num?)?.toInt(),
     playDate: json['play_date'] == null
         ? null
         : DateTime.parse(json['play_date'] as String),
+    issuedAt: json['issued_at'] == null
+        ? null
+        : DateTime.tryParse(json['issued_at'] as String),
   );
 
   final String id;
@@ -69,7 +77,9 @@ class PlayAttempt {
   final String grantType;
   final String? gameId;
   final int? gameVersion;
+  final int? gameDurationSeconds;
   final DateTime? playDate;
+  final DateTime? issuedAt;
 }
 
 class ClientCompatibility {
@@ -189,7 +199,9 @@ class TodayState {
     required this.result,
     required this.nickname,
     this.dailyClaimed = false,
+    this.requiresKakaoForDailyPlay = false,
     this.compatibility = const ClientCompatibility.supported(),
+    this.economy = const PlayerEconomy.zero(),
   });
 
   factory TodayState.fromJson(Map<String, dynamic> json) {
@@ -209,7 +221,22 @@ class TodayState {
           json['nickname'] as String? ??
           (json['profile'] as Map<String, dynamic>?)?['nickname'] as String?,
       dailyClaimed: json['daily_claimed'] as bool? ?? attempts.isNotEmpty,
+      requiresKakaoForDailyPlay:
+          json['requires_kakao_for_daily_play'] as bool? ?? false,
+      economy: _economyFromJson(json),
     );
+  }
+
+  static PlayerEconomy _economyFromJson(Map<String, dynamic> json) {
+    final economy = json['economy'];
+    if (economy is Map) {
+      return PlayerEconomy.fromJson(Map<String, dynamic>.from(economy));
+    }
+    final profile = json['profile'];
+    if (profile is Map) {
+      return PlayerEconomy.fromJson(Map<String, dynamic>.from(profile));
+    }
+    return const PlayerEconomy.zero();
   }
 
   final DateTime playDate;
@@ -220,7 +247,9 @@ class TodayState {
   final DailyRankResult? result;
   final String? nickname;
   final bool dailyClaimed;
+  final bool requiresKakaoForDailyPlay;
   final ClientCompatibility compatibility;
+  final PlayerEconomy economy;
 
   bool get requiresUpdate => compatibility.updateRequired;
   bool get canClaimDaily => testMode || (!dailyClaimed && attempts.isEmpty);
@@ -239,6 +268,8 @@ class TodayState {
     result: result,
     nickname: nickname,
     dailyClaimed: dailyClaimed,
+    requiresKakaoForDailyPlay: requiresKakaoForDailyPlay,
     compatibility: value,
+    economy: economy,
   );
 }

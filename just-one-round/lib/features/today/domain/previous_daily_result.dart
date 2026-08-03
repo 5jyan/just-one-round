@@ -1,3 +1,5 @@
+import 'package:just_one_round/features/economy/domain/daily_reward_rules.dart';
+
 class PreviousDailyResult {
   const PreviousDailyResult({
     required this.playDate,
@@ -7,6 +9,8 @@ class PreviousDailyResult {
     required this.rank,
     required this.participants,
     required this.topPercent,
+    this.rewardCoins,
+    this.rewardExperiencePoints,
   });
 
   factory PreviousDailyResult.fromJson(Map<String, dynamic> json) =>
@@ -18,6 +22,9 @@ class PreviousDailyResult {
         rank: (json['rank'] as num).toInt(),
         participants: (json['participants'] as num).toInt(),
         topPercent: (json['top_percent'] as num).toInt(),
+        rewardCoins: (json['reward_coins'] as num?)?.toInt(),
+        rewardExperiencePoints: (json['reward_experience_points'] as num?)
+            ?.toInt(),
       );
 
   final DateTime playDate;
@@ -27,4 +34,14 @@ class PreviousDailyResult {
   final int rank;
   final int participants;
   final int topPercent;
+  final int? rewardCoins;
+  final int? rewardExperiencePoints;
+
+  int get effectiveRewardCoins =>
+      rewardCoins ??
+      DailyRewardRules.coinsForResult(rank: rank, participants: participants);
+
+  int get effectiveRewardExperiencePoints =>
+      rewardExperiencePoints ??
+      DailyRewardRules.experienceForCoins(effectiveRewardCoins);
 }

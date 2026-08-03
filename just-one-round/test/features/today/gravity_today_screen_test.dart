@@ -17,6 +17,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('JUL 22'), findsOneWidget);
     expect(find.text('중력 스위치'), findsOneWidget);
     expect(find.byKey(const Key('gravity-home-animation')), findsOneWidget);
     expect(
@@ -173,7 +174,7 @@ class _GravityRepository extends PreviewDailyGameRepository {
       version: 1,
       displayName: '중력 스위치',
       description: '입체 기둥 미로를 돌파하세요.',
-      durationSeconds: 180,
+      durationSeconds: 300,
     ),
     attempts: const [],
     adAttemptAvailable: false,

@@ -1,4 +1,5 @@
 import java.io.FileInputStream
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -18,6 +19,58 @@ val uploadKeystoreFile = file(
 )
 val uploadStorePassword = System.getenv("ANDROID_UPLOAD_STORE_PASSWORD")
 val uploadKeyAlias = System.getenv("ANDROID_UPLOAD_KEY_ALIAS") ?: "upload"
+val dartDefines = project.findProperty("dart-defines")
+    ?.toString()
+    ?.split(",")
+    ?.mapNotNull { encoded ->
+        runCatching {
+            String(Base64.getDecoder().decode(encoded), Charsets.UTF_8)
+        }.getOrNull()
+    }
+    ?.mapNotNull { value ->
+        val separator = value.indexOf('=')
+        if (separator <= 0) null
+        else value.substring(0, separator) to value.substring(separator + 1)
+    }
+    ?.toMap()
+    ?: emptyMap()
+val kakaoNativeAppKey = project.findProperty("KAKAO_NATIVE_APP_KEY")?.toString()
+    ?: System.getenv("KAKAO_NATIVE_APP_KEY")
+    ?: dartDefines["KAKAO_NATIVE_APP_KEY"]
+    ?: "8f22d14ad0934753e6de50e73edaee82"
+val kakaoCustomScheme = project.findProperty("KAKAO_CUSTOM_SCHEME")?.toString()
+    ?: System.getenv("KAKAO_CUSTOM_SCHEME")
+    ?: dartDefines["KAKAO_CUSTOM_SCHEME"]
+    ?: kakaoNativeAppKey.takeIf { it.isNotBlank() }?.let { "kakao$it" }
+    ?: "kakao8f22d14ad0934753e6de50e73edaee82"
+val keyPropertiesStoreFile = keystoreProperties.getProperty("storeFile")
+    ?.let { file(it) }
+val keyPropertiesSigningConfigured = keystorePropertiesFile.exists() &&
+    !keystoreProperties.getProperty("storePassword").isNullOrBlank() &&
+    !keystoreProperties.getProperty("keyPassword").isNullOrBlank() &&
+    !keystoreProperties.getProperty("keyAlias").isNullOrBlank() &&
+    keyPropertiesStoreFile?.exists() == true
+val environmentSigningConfigured = uploadKeystoreFile.exists() &&
+    !uploadStorePassword.isNullOrBlank()
+val releaseSigningConfigured =
+    keyPropertiesSigningConfigured || environmentSigningConfigured
+
+val verifyReleaseSigning = tasks.register("verifyReleaseSigning") {
+    doLast {
+        if (!releaseSigningConfigured) {
+            throw GradleException(
+                "Release signing is not configured. Provide android/key.properties " +
+                    "or ANDROID_UPLOAD_STORE_PASSWORD with the upload keystore.",
+            )
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name == "assembleRelease" || name == "bundleRelease") {
+        dependsOn(verifyReleaseSigning)
+    }
+}
 
 android {
     namespace = "com.justoneround.app"
@@ -39,6 +92,7 @@ android {
         versionName = flutter.versionName
         manifestPlaceholders["ADMOB_APP_ID"] =
             admobAppIdOverride ?: "ca-app-pub-3940256099942544~3347511713"
+        manifestPlaceholders["KAKAO_CUSTOM_SCHEME"] = kakaoCustomScheme
     }
 
     signingConfigs {

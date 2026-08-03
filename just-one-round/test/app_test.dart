@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/app/app.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
+import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
+import 'package:just_one_round/features/economy/domain/player_economy.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
@@ -89,6 +91,7 @@ void main() {
     expect(find.text('똥피하기'), findsOneWidget);
     expect(find.textContaining('오늘 비교 기록 24개'), findsOneWidget);
     expect(find.text('딱 한 판만!'), findsOneWidget);
+    expect(find.byKey(const Key('economy-summary')), findsNothing);
     expect(find.byKey(const Key('game-guide-button')), findsOneWidget);
     expect(find.byKey(const Key('ranking-button')), findsOneWidget);
   });
@@ -120,6 +123,21 @@ void main() {
     expect(find.text('업데이트 확인'), findsNothing);
     expect(find.text('딱 한 판만!'), findsNothing);
     expect(find.byKey(const Key('game-guide-button')), findsNothing);
+  });
+
+  testWidgets('강제 업데이트 중에는 전날 보상을 열지 않는다', (tester) async {
+    final repository = _PreviousResultRepository(updateRequired: true);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(home: TodayScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('required-update-screen')), findsOneWidget);
+    expect(find.byKey(const Key('previous-daily-result-dialog')), findsNothing);
+    expect(repository.unseenCalls, 0);
   });
 
   testWidgets('게임 설명은 다섯 페이지를 옆으로 넘기며 안내한다', (tester) async {
@@ -302,6 +320,8 @@ void main() {
     expect(find.text('어제의 최종 결과'), findsOneWidget);
     expect(find.text('똥피하기'), findsOneWidget);
     expect(find.text('실제 기록 24개 중 8위 · 상위 34%'), findsOneWidget);
+    expect(find.byKey(const Key('previous-result-reward')), findsOneWidget);
+    expect(find.text('+30'), findsNWidgets(2));
 
     await tester.tap(find.byKey(const Key('acknowledge-previous-result')));
     await tester.pumpAndSettle();
@@ -310,6 +330,7 @@ void main() {
     expect(repository.acknowledgedDate, DateTime(2026, 7, 26));
     expect(repository.acknowledgedGameId, 'dung_dodge_v2');
     expect(find.byKey(const Key('previous-daily-result-dialog')), findsNothing);
+    expect(find.text('+30 코인 · +30 EXP를 받았어요!'), findsOneWidget);
   });
 
   testWidgets('중단 화면의 홈 버튼은 홈으로 이동한다', (tester) async {
@@ -362,6 +383,24 @@ void main() {
     expect(find.byKey(const Key('developer-mode-menu')), findsNothing);
     expect(find.text('커뮤니티 운영정책'), findsOneWidget);
     expect(find.text('광고 개인정보 선택'), findsNothing);
+    expect(find.text('앱 버전 1.0.4 (9)'), findsOneWidget);
+  });
+
+  testWidgets('설정의 프로필에서 닉네임·경제·카카오 연결을 관리한다', (tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: TodayScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('설정'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('profile-menu')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('profile-display-name')), findsOneWidget);
+    expect(find.byKey(const Key('profile-economy-card')), findsOneWidget);
+    expect(find.byKey(const Key('profile-nickname-action')), findsOneWidget);
+    expect(find.byKey(const Key('profile-kakao-action')), findsOneWidget);
   });
 
   testWidgets('UMP가 요구하는 지역에서만 광고 개인정보 선택을 표시한다', (tester) async {
@@ -444,6 +483,35 @@ void main() {
 
     expect(repository.resetCalls, 1);
   });
+
+  testWidgets('테스트 계정은 앱 버전 7회 탭으로 PIN 없이 원래 모드로 돌아온다', (tester) async {
+    final repository = _TestModeDeactivationRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(home: TodayScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('설정'));
+    await tester.pumpAndSettle();
+    final versionTarget = find.byKey(const Key('app-version-tap-target'));
+    await tester.ensureVisible(versionTarget);
+    for (var tap = 0; tap < 7; tap++) {
+      await tester.tap(versionTarget);
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pumpAndSettle();
+
+    expect(repository.deactivationCalls, 1);
+    expect(find.byKey(const Key('tester-pin-field')), findsNothing);
+    expect(find.text('원래 계정 모드로 돌아왔어요.'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('설정'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('developer-mode-menu')), findsNothing);
+  });
 }
 
 class _PrivacyRequiredAdService extends FakeRewardedAdService {
@@ -512,6 +580,18 @@ class _TestAccountRepository extends PreviewDailyGameRepository {
   @override
   Future<void> resetDeveloperDailyProgress() async {
     resetCalls += 1;
+  }
+}
+
+class _TestModeDeactivationRepository extends PreviewDailyGameRepository {
+  _TestModeDeactivationRepository() : super(testMode: true);
+
+  var deactivationCalls = 0;
+
+  @override
+  Future<void> deactivateTestMode() async {
+    deactivationCalls += 1;
+    await super.deactivateTestMode();
   }
 }
 
@@ -607,7 +687,11 @@ class _TesterActivationRepository extends PreviewDailyGameRepository {
 }
 
 class _PreviousResultRepository extends PreviewDailyGameRepository {
+  _PreviousResultRepository({this.updateRequired = false});
+
+  final bool updateRequired;
   var acknowledged = false;
+  var unseenCalls = 0;
   DateTime? acknowledgedDate;
   String? acknowledgedGameId;
 
@@ -626,10 +710,19 @@ class _PreviousResultRepository extends PreviewDailyGameRepository {
     testMode: false,
     result: null,
     nickname: '플레이어',
+    compatibility: updateRequired
+        ? const ClientCompatibility(
+            currentBuild: 1,
+            minimumSupportedBuild: 2,
+            updateRequired: true,
+            storeUrl: 'https://example.com/store',
+          )
+        : const ClientCompatibility.supported(),
   );
 
   @override
   Future<PreviousDailyResult?> fetchUnseenPreviousDailyResult() async {
+    unseenCalls++;
     if (acknowledged) return null;
     return PreviousDailyResult(
       playDate: DateTime(2026, 7, 26),
@@ -643,12 +736,17 @@ class _PreviousResultRepository extends PreviewDailyGameRepository {
   }
 
   @override
-  Future<void> acknowledgePreviousDailyResult(
+  Future<RewardGrant> acknowledgePreviousDailyResult(
     DateTime playDate,
     String gameId,
   ) async {
     acknowledged = true;
     acknowledgedDate = playDate;
     acknowledgedGameId = gameId;
+    return RewardGrant(
+      coinsGranted: 30,
+      experienceGranted: 30,
+      economy: PlayerEconomy.fromTotals(coins: 30, experiencePoints: 30),
+    );
   }
 }

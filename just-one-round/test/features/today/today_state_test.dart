@@ -9,6 +9,13 @@ void main() {
       'nickname': '별하나',
       'attempts': <dynamic>[],
       'ad_attempt_available': false,
+      'requires_kakao_for_daily_play': true,
+      'economy': {
+        'coins': 125,
+        'experience_points': 225,
+        'level': 2,
+        'experience_to_next_level': 175,
+      },
       'result': {
         'score': 800,
         'rank': 2,
@@ -24,8 +31,12 @@ void main() {
     });
 
     expect(state.nickname, '별하나');
+    expect(state.economy.coins, 125);
+    expect(state.economy.experiencePoints, 225);
+    expect(state.economy.level, 2);
     expect(state.result?.nearby, hasLength(3));
     expect(state.result?.nearby[1].isMe, isTrue);
+    expect(state.requiresKakaoForDailyPlay, isTrue);
   });
 
   test('플레이 시도에서 게임 ID를 파싱한다', () {
@@ -36,10 +47,16 @@ void main() {
       'grant_type': 'daily',
       'game_id': 'gravity_switch',
       'game_version': 2,
+      'game_duration_seconds': 240,
+      'play_date': '2026-08-01',
+      'issued_at': '2026-08-01T12:34:56.000Z',
     });
 
     expect(attempt.gameId, 'gravity_switch');
     expect(attempt.gameVersion, 2);
+    expect(attempt.gameDurationSeconds, 240);
+    expect(attempt.playDate, DateTime(2026, 8, 1));
+    expect(attempt.issuedAt, DateTime.utc(2026, 8, 1, 12, 34, 56));
   });
 
   test('클라이언트 최소 빌드 응답을 파싱한다', () {

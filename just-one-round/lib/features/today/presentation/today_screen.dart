@@ -6,16 +6,20 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:just_one_round/app/app_environment.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/core/auth/kakao_auth_service.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
 import 'package:just_one_round/features/games/midnight_snake/presentation/midnight_snake_path.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_definition.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_registry.dart';
+import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
 import 'package:just_one_round/features/legal/legal_config.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
+import 'package:just_one_round/features/profile/presentation/profile_sheet.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/daily_reset.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
@@ -39,6 +43,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   var _isClaiming = false;
   var _isSavingProfile = false;
   var _isRunningDeveloperAction = false;
+  var _isLinkingKakao = false;
   late final RewardedAdService _rewardedAdService;
   late RewardedAdStatus _rewardedAdStatus;
   var _adPreloadRequested = false;
@@ -86,6 +91,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   void _handleTodayState(TodayState state) {
     _preloadRewardedAdIfNeeded(state);
     _scheduleDailyResetCheck();
+    if (state.requiresUpdate) {
+      _previousResultTimer?.cancel();
+      return;
+    }
     _schedulePreviousResultCheck();
     if (!state.testMode) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,7 +105,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
 
   Future<void> _handleAppResumed() async {
     final changed = await _checkForDailyGameChange();
-    if (!changed) await _checkForPreviousDailyResult();
+    if (!changed &&
+        ref.read(todayStateProvider).value?.requiresUpdate != true) {
+      await _checkForPreviousDailyResult();
+    }
   }
 
   void _scheduleDailyResetCheck() {
@@ -134,7 +146,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       return;
     }
     final state = ref.read(todayStateProvider).value;
-    if (state == null || state.testMode) return;
+    if (state == null || state.testMode || state.requiresUpdate) return;
 
     _isCheckingPreviousResult = true;
     try {
@@ -144,6 +156,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           .timeout(const Duration(seconds: 12));
       if (!mounted || result == null) {
         _schedulePreviousResultCheck();
+        return;
+      }
+      if (ref.read(todayStateProvider).value?.requiresUpdate == true) {
         return;
       }
       await _showPreviousDailyResultDialog(result);
@@ -160,66 +175,25 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (!mounted || _isPreviousResultDialogVisible) return;
     _isPreviousResultDialogVisible = true;
     try {
-      final action = await showDialog<_PreviousResultAction>(
+      final outcome = await showDialog<_PreviousResultDialogOutcome>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          key: const Key('previous-daily-result-dialog'),
-          backgroundColor: AppColors.surface,
-          title: const Text('어제의 최종 결과'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                result.displayName,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                GameRegistry.formatScore(result.gameId, result.score),
-                key: const Key('previous-result-score'),
-                style: const TextStyle(
-                  fontFamily: 'Galmuri',
-                  color: AppColors.reward,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '실제 기록 ${result.participants}개 중 '
-                '${result.rank}위 · 상위 ${result.topPercent}%',
-                key: const Key('previous-result-rank'),
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () =>
-                  Navigator.of(context).pop(_PreviousResultAction.history),
-              child: const Text('내 기록 보기'),
-            ),
-            FilledButton(
-              key: const Key('acknowledge-previous-result'),
-              onPressed: () =>
-                  Navigator.of(context).pop(_PreviousResultAction.close),
-              child: const Text('확인'),
-            ),
-          ],
+        builder: (_) => _PreviousDailyResultDialog(
+          result: result,
+          onClaim: () => ref
+              .read(dailyGameRepositoryProvider)
+              .acknowledgePreviousDailyResult(result.playDate, result.gameId),
         ),
       );
-      await ref
-          .read(dailyGameRepositoryProvider)
-          .acknowledgePreviousDailyResult(result.playDate, result.gameId);
-      if (mounted && action == _PreviousResultAction.history) {
+      if (outcome == null) return;
+      ref.invalidate(todayStateProvider);
+      if (mounted && outcome.reward.coinsGranted > 0) {
+        _showMessage(
+          '+${outcome.reward.coinsGranted} 코인 · '
+          '+${outcome.reward.experienceGranted} EXP를 받았어요!',
+        );
+      }
+      if (mounted && outcome.action == _PreviousResultAction.history) {
         context.push('/history');
       }
     } finally {
@@ -241,6 +215,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           .fetchToday()
           .timeout(const Duration(seconds: 12));
       if (!mounted) return false;
+      if (latestState.requiresUpdate || currentState.requiresUpdate) {
+        ref.invalidate(todayStateProvider);
+        return true;
+      }
       if (isSamePlayDate(currentState.playDate, latestState.playDate)) {
         _scheduleDailyResetCheck();
         return false;
@@ -289,12 +267,22 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   void _handleSettingsTap(TodayState state) {
-    if (_isSavingProfile || _isRunningDeveloperAction) return;
+    if (_isSavingProfile || _isRunningDeveloperAction || _isLinkingKakao) {
+      return;
+    }
     _openSettings(state);
   }
 
   Future<void> _openSettings(TodayState state) async {
-    final showAdPrivacy = await _rewardedAdService.isPrivacyOptionsRequired();
+    final appBuildInfo = ref.read(appBuildInfoProvider);
+    final kakaoAuthService = ref.read(kakaoAuthServiceProvider);
+    final kakaoLinked = kakaoAuthService.isLinked;
+    var showAdPrivacy = false;
+    try {
+      showAdPrivacy = await _rewardedAdService.isPrivacyOptionsRequired();
+    } catch (_) {
+      // Settings must remain usable when the ad consent SDK is unavailable.
+    }
     if (!mounted) return;
     final action = await showDialog<_SettingsAction>(
       context: context,
@@ -303,11 +291,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         title: const Text('설정'),
         children: [
           SimpleDialogOption(
-            onPressed: () =>
-                Navigator.of(context).pop(_SettingsAction.nickname),
-            child: const ListTile(
-              leading: Icon(Icons.badge_outlined, color: AppColors.text),
-              title: Text('닉네임 설정'),
+            key: const Key('profile-menu'),
+            onPressed: () => Navigator.of(context).pop(_SettingsAction.profile),
+            child: ListTile(
+              leading: const Icon(Icons.person_outline, color: AppColors.text),
+              title: const Text('프로필'),
+              subtitle: Text(kakaoLinked ? '카카오 계정 연결됨' : '닉네임·코인·경험치·카카오 계정'),
             ),
           ),
           SimpleDialogOption(
@@ -368,13 +357,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           GestureDetector(
             key: const Key('app-version-tap-target'),
             behavior: HitTestBehavior.opaque,
-            onTap: state.testMode
-                ? null
-                : () => _handleTesterVersionTap(context),
-            child: const Padding(
+            onTap: () =>
+                _handleTesterVersionTap(context, isTestMode: state.testMode),
+            child: Padding(
               padding: EdgeInsets.fromLTRB(24, 14, 24, 18),
               child: Text(
-                '앱 버전 1.0.0 (1)',
+                '앱 버전 ${appBuildInfo.version} (${appBuildInfo.buildNumber})',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textMuted,
@@ -389,8 +377,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     );
     if (!mounted) return;
     switch (action) {
-      case _SettingsAction.nickname:
-        await _editNickname(state.nickname);
+      case _SettingsAction.profile:
+        await _openProfile(state);
       case _SettingsAction.privacy:
         await _openLegalUrl(LegalConfig.privacyUri);
       case _SettingsAction.terms:
@@ -405,17 +393,97 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         await _openDeveloperTools(state);
       case _SettingsAction.testerActivation:
         await _showTesterActivationDialog();
+      case _SettingsAction.testerDeactivation:
+        await _deactivateTestMode();
       case null:
         return;
     }
   }
 
-  void _handleTesterVersionTap(BuildContext dialogContext) {
+  Future<void> _openProfile(TodayState state) async {
+    final kakaoAuthService = ref.read(kakaoAuthServiceProvider);
+    final action = await showProfileSheet(
+      context,
+      nickname: state.nickname,
+      economy: state.economy,
+      kakaoConfigured: kakaoAuthService.isConfigured,
+      kakaoLinked: kakaoAuthService.isLinked,
+    );
+    if (!mounted) return;
+    switch (action) {
+      case ProfileAction.editNickname:
+        await _editNickname(state.nickname);
+      case ProfileAction.linkKakao:
+        await _linkKakaoAccount();
+      case null:
+        return;
+    }
+  }
+
+  Future<void> _linkKakaoAccount() async {
+    final service = ref.read(kakaoAuthServiceProvider);
+    if (!service.isConfigured) {
+      _showMessage('카카오 로그인을 사용할 수 없어요. 앱 키 설정이 필요합니다.');
+      return;
+    }
+
+    setState(() => _isLinkingKakao = true);
+    try {
+      final result = await service.linkAccount();
+      if (!mounted) return;
+      if (result == KakaoAccountLinkResult.signedIntoExistingAccount) {
+        // The identity-conflict path changes the Supabase session to the
+        // existing Kakao account. Refresh synchronously so the home screen
+        // shows that account's economy instead of briefly rendering the old
+        // anonymous account's cached state.
+        try {
+          await ref.refresh(todayStateProvider.future).then<void>((_) {});
+        } catch (_) {
+          // The account switch succeeded even if the immediate refresh is
+          // offline. Keep the provider invalidated for the next retry.
+          ref.invalidate(todayStateProvider);
+        }
+      } else {
+        ref.invalidate(todayStateProvider);
+      }
+      _showMessage(switch (result) {
+        KakaoAccountLinkResult.linked => '카카오 계정이 연결됐어요. 다음에도 기록을 이어갈 수 있어요.',
+        KakaoAccountLinkResult.alreadyLinked => '카카오 계정이 이미 연결되어 있어요.',
+        KakaoAccountLinkResult.signedIntoExistingAccount =>
+          '이미 연결된 카카오 계정으로 전환했어요. 그 계정의 경험치와 코인을 불러왔어요.',
+      });
+    } on KakaoLoginException catch (error) {
+      if (!mounted || error.cancelled) return;
+      _showMessage(error.message);
+    } on AuthException catch (error) {
+      if (!mounted) return;
+      if (error.message.toLowerCase().contains('manual linking')) {
+        _showMessage('Supabase에서 계정 연결 기능을 먼저 켜 주세요.');
+      } else {
+        _showMessage('카카오 계정을 연결하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage('카카오 계정을 연결하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
+    } finally {
+      if (mounted) setState(() => _isLinkingKakao = false);
+    }
+  }
+
+  void _handleTesterVersionTap(
+    BuildContext dialogContext, {
+    required bool isTestMode,
+  }) {
     _testerVersionTapTimer?.cancel();
     _testerVersionTapCount += 1;
     if (_testerVersionTapCount >= 7) {
       _testerVersionTapCount = 0;
-      Navigator.of(dialogContext).pop(_SettingsAction.testerActivation);
+      Navigator.of(dialogContext).pop(
+        isTestMode
+            ? _SettingsAction.testerDeactivation
+            : _SettingsAction.testerActivation,
+      );
       return;
     }
     _testerVersionTapTimer = Timer(const Duration(seconds: 4), () {
@@ -434,6 +502,19 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (activated != true || !mounted) return;
     ref.invalidate(todayStateProvider);
     _showMessage('테스트 모드가 활성화됐어요.');
+  }
+
+  Future<void> _deactivateTestMode() async {
+    try {
+      await ref.read(dailyGameRepositoryProvider).deactivateTestMode();
+      if (!mounted) return;
+      ref.invalidate(todayStateProvider);
+      _showMessage('원래 계정 모드로 돌아왔어요.');
+    } catch (_) {
+      if (mounted) {
+        _showMessage('테스트 모드를 해제하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
+    }
   }
 
   Future<void> _openLegalUrl(Uri uri) async {
@@ -542,11 +623,44 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     }
   }
 
+  Future<void> _showKakaoRequiredDialog(TodayState state) async {
+    if (!mounted) return;
+    final openProfile = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: const Key('kakao-required-dialog'),
+        backgroundColor: AppColors.surface,
+        title: const Text('계정 연동이 필요해요'),
+        content: const Text('게임을 계속 하려면 카카오 계정을 연동해 주세요.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('나중에'),
+          ),
+          FilledButton(
+            key: const Key('kakao-required-link-button'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('계정 연동하러 가기'),
+          ),
+        ],
+      ),
+    );
+    if (openProfile == true && mounted) {
+      await _openProfile(state);
+    }
+  }
+
   Future<void> _start({
     required bool rewarded,
     required TodayState displayedState,
   }) async {
     if (_isClaiming) return;
+    if (!rewarded &&
+        displayedState.requiresKakaoForDailyPlay &&
+        !ref.read(kakaoAuthServiceProvider).isLinked) {
+      await _showKakaoRequiredDialog(displayedState);
+      return;
+    }
     setState(() => _isClaiming = true);
     try {
       if (await _checkForDailyGameChange(displayedState: displayedState)) {
@@ -571,6 +685,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       }
       if (_isDailyGameChangedError(error)) {
         await _showDailyGameChangedDialog();
+        return;
+      }
+      if (!rewarded && _isKakaoRequiredError(error)) {
+        await _showKakaoRequiredDialog(displayedState);
         return;
       }
       ScaffoldMessenger.of(
@@ -648,6 +766,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       error is AppUpdateRequiredException ||
       (error is PostgrestException &&
           error.message.contains('app update required'));
+
+  bool _isKakaoRequiredError(Object error) =>
+      error is PostgrestException &&
+      error.message.contains('kakao account required');
 
   void _showMessage(String message) {
     if (!mounted) return;
@@ -831,9 +953,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               _Header(
+                                playDate: state.playDate,
                                 isSaving:
                                     _isSavingProfile ||
-                                    _isRunningDeveloperAction,
+                                    _isRunningDeveloperAction ||
+                                    _isLinkingKakao,
                                 onHistory: () => context.push('/history'),
                                 onSettings: () => _handleSettingsTap(state),
                               ),
@@ -1052,10 +1176,340 @@ class _RequiredUpdateView extends StatelessWidget {
   );
 }
 
+class _PreviousResultDialogOutcome {
+  const _PreviousResultDialogOutcome({
+    required this.action,
+    required this.reward,
+  });
+
+  final _PreviousResultAction action;
+  final RewardGrant reward;
+}
+
+class _PreviousDailyResultDialog extends StatefulWidget {
+  const _PreviousDailyResultDialog({
+    required this.result,
+    required this.onClaim,
+  });
+
+  final PreviousDailyResult result;
+  final Future<RewardGrant> Function() onClaim;
+
+  @override
+  State<_PreviousDailyResultDialog> createState() =>
+      _PreviousDailyResultDialogState();
+}
+
+class _PreviousDailyResultDialogState extends State<_PreviousDailyResultDialog>
+    with TickerProviderStateMixin {
+  late final AnimationController _entryController;
+  late final AnimationController _rewardController;
+  RewardGrant? _reward;
+  String? _errorMessage;
+  var _isClaiming = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _entryController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 620),
+    );
+    _rewardController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    unawaited(_entryController.forward());
+  }
+
+  @override
+  void dispose() {
+    _entryController.dispose();
+    _rewardController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _claimAndClose(_PreviousResultAction action) async {
+    if (_isClaiming || _reward != null) return;
+    setState(() {
+      _errorMessage = null;
+      _isClaiming = true;
+    });
+    try {
+      final reward = await widget.onClaim();
+      if (!mounted) return;
+      setState(() {
+        _reward = reward;
+        _isClaiming = false;
+      });
+      await _rewardController.forward(from: 0);
+      if (!mounted) return;
+      Navigator.of(
+        context,
+      ).pop(_PreviousResultDialogOutcome(action: action, reward: reward));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isClaiming = false;
+        _errorMessage = '보상을 받지 못했어요. 잠시 후 다시 눌러 주세요.';
+      });
+    }
+  }
+
+  Widget _enterAnimation({required Widget child}) => AnimatedBuilder(
+    animation: _entryController,
+    builder: (context, child) {
+      final progress = Curves.easeOutCubic.transform(_entryController.value);
+      return Opacity(
+        opacity: progress,
+        child: Transform.translate(
+          offset: Offset(0, 18 * (1 - progress)),
+          child: child,
+        ),
+      );
+    },
+    child: child,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final result = widget.result;
+    final reward = _reward;
+    final canClaim = !_isClaiming && reward == null;
+    return AlertDialog(
+      key: const Key('previous-daily-result-dialog'),
+      backgroundColor: AppColors.surface,
+      title: _enterAnimation(child: const Text('어제의 최종 결과')),
+      content: _enterAnimation(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              result.displayName,
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              GameRegistry.formatScore(result.gameId, result.score),
+              key: const Key('previous-result-score'),
+              style: const TextStyle(
+                fontFamily: 'Galmuri',
+                color: AppColors.reward,
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '실제 기록 ${result.participants}개 중 '
+              '${result.rank}위 · 상위 ${result.topPercent}%',
+              key: const Key('previous-result-rank'),
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              key: const Key('previous-result-reward'),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 11),
+              decoration: BoxDecoration(
+                color: AppColors.reward.withValues(alpha: 0.12),
+                border: Border.all(
+                  color: AppColors.reward.withValues(alpha: 0.6),
+                ),
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                ),
+                child: reward == null
+                    ? _RewardPreview(
+                        key: const ValueKey('previous-reward-preview'),
+                        result: result,
+                      )
+                    : _RewardReceived(
+                        key: const ValueKey('previous-reward-received'),
+                        reward: reward,
+                        animation: _rewardController,
+                      ),
+              ),
+            ),
+            if (_errorMessage case final error?) ...[
+              const SizedBox(height: 10),
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.danger,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: canClaim
+              ? () => unawaited(_claimAndClose(_PreviousResultAction.history))
+              : null,
+          child: const Text('내 기록 보기'),
+        ),
+        FilledButton(
+          key: const Key('acknowledge-previous-result'),
+          onPressed: canClaim
+              ? () => unawaited(_claimAndClose(_PreviousResultAction.close))
+              : null,
+          child: Text(
+            _isClaiming
+                ? '보상 받는 중…'
+                : reward == null
+                ? '확인'
+                : '완료',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RewardPreview extends StatelessWidget {
+  const _RewardPreview({required this.result, super.key});
+
+  final PreviousDailyResult result;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      const Text(
+        '어제의 플레이 보상',
+        style: TextStyle(
+          color: AppColors.reward,
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: _RewardValue(
+              icon: Icons.monetization_on_outlined,
+              value: '+${result.effectiveRewardCoins}',
+              label: 'COINS',
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 30,
+            color: AppColors.reward.withValues(alpha: 0.35),
+          ),
+          Expanded(
+            child: _RewardValue(
+              icon: Icons.auto_awesome_outlined,
+              value: '+${result.effectiveRewardExperiencePoints}',
+              label: 'EXP',
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 7),
+      const Text(
+        '확인을 누르면 애니메이션과 함께 지갑에 들어와요',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: AppColors.textMuted,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    ],
+  );
+}
+
+class _RewardReceived extends StatelessWidget {
+  const _RewardReceived({
+    required this.reward,
+    required this.animation,
+    super.key,
+  });
+
+  final RewardGrant reward;
+  final Animation<double> animation;
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: animation,
+    builder: (context, _) {
+      final progress = Curves.easeOutCubic.transform(animation.value);
+      final coins = (reward.coinsGranted * progress).round();
+      final experience = (reward.experienceGranted * progress).round();
+      final scale = 0.88 + (0.12 * Curves.easeOutBack.transform(progress));
+      return Transform.scale(
+        scale: scale,
+        child: Column(
+          children: [
+            const Text(
+              '보상 획득!',
+              style: TextStyle(
+                color: AppColors.reward,
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _RewardValue(
+                    icon: Icons.monetization_on_outlined,
+                    value: '+$coins',
+                    label: 'COINS',
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 30,
+                  color: AppColors.reward.withValues(alpha: 0.35),
+                ),
+                Expanded(
+                  child: _RewardValue(
+                    icon: Icons.auto_awesome_outlined,
+                    value: '+$experience',
+                    label: 'EXP',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 7),
+            const Text(
+              '코인과 경험치가 지갑에 추가됐어요',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 enum _PreviousResultAction { history, close }
 
 enum _SettingsAction {
-  nickname,
+  profile,
   privacy,
   terms,
   community,
@@ -1063,6 +1517,7 @@ enum _SettingsAction {
   delete,
   developer,
   testerActivation,
+  testerDeactivation,
 }
 
 class _DeveloperAction {
@@ -2159,24 +2614,23 @@ class _BeatTheDealerSpriteFrame extends StatelessWidget {
     required this.frame,
     required this.frameSize,
     required this.scale,
-    this.columns = 2,
-    this.rows = 2,
   });
+
+  static const _columns = 2;
+  static const _rows = 2;
 
   final String asset;
   final int frame;
   final double frameSize;
   final double scale;
-  final int columns;
-  final int rows;
 
   @override
   Widget build(BuildContext context) {
     final frameWidth = frameSize * scale;
-    final sheetWidth = frameWidth * columns;
-    final sheetHeight = frameWidth * rows;
-    final column = frame % columns;
-    final row = (frame ~/ columns) % rows;
+    final sheetWidth = frameWidth * _columns;
+    final sheetHeight = frameWidth * _rows;
+    final column = frame % _columns;
+    final row = (frame ~/ _columns) % _rows;
 
     return SizedBox(
       width: frameWidth,
@@ -3507,27 +3961,6 @@ class _AppleAtlasFrame extends StatelessWidget {
   }
 }
 
-class _AppleSumBadge extends StatelessWidget {
-  const _AppleSumBadge({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-    color: const Color(0xE67B352D),
-    child: Text(
-      label,
-      style: const TextStyle(
-        fontFamily: 'Galmuri',
-        color: Color(0xFFFFF3C4),
-        fontSize: 11,
-        fontWeight: FontWeight.w900,
-      ),
-    ),
-  );
-}
-
 class _AppleScoreExample extends StatelessWidget {
   const _AppleScoreExample({
     required this.label,
@@ -3586,20 +4019,6 @@ class _AppleScoreExample extends StatelessWidget {
 abstract final class _AppleGuideLayout {
   static const sceneWidth = 246.0;
   static const sceneHeight = 176.0;
-
-  static double contentLeft(int columnCount) =>
-      (sceneWidth -
-              (columnCount * _AppleGuideBoard.cellSize +
-                  _AppleGuideBoard.padding * 2)) /
-          2 +
-      _AppleGuideBoard.padding;
-
-  static double contentTop(int rowCount) =>
-      (sceneHeight -
-              (rowCount * _AppleGuideBoard.cellSize +
-                  _AppleGuideBoard.padding * 2)) /
-          2 +
-      _AppleGuideBoard.padding;
 }
 
 class _SwipeGuideVisual extends StatelessWidget {
@@ -4077,6 +4496,45 @@ class _TodaySummary extends StatelessWidget {
   }
 }
 
+class _RewardValue extends StatelessWidget {
+  const _RewardValue({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Icon(icon, color: AppColors.reward, size: 16),
+      const SizedBox(height: 2),
+      Text(
+        value,
+        style: const TextStyle(
+          color: AppColors.reward,
+          fontFamily: 'Galmuri',
+          fontSize: 18,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+      const SizedBox(height: 2),
+      Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.textMuted,
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.7,
+        ),
+      ),
+    ],
+  );
+}
+
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge({required this.label});
 
@@ -4128,17 +4586,15 @@ class _HomeActionButton extends StatelessWidget {
   );
 }
 
-String _durationLabel(TodayGame? game) {
-  return GamePresentationRegistry.forId(game?.id).durationLabel;
-}
-
 class _Header extends StatelessWidget {
   const _Header({
+    required this.playDate,
     required this.onSettings,
     required this.onHistory,
     required this.isSaving,
   });
 
+  final DateTime playDate;
   final VoidCallback onSettings;
   final VoidCallback onHistory;
   final bool isSaving;
@@ -4161,7 +4617,7 @@ class _Header extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  '${_monthName(DateTime.now().month)} ${DateTime.now().day}',
+                  '${_monthName(playDate.month)} ${playDate.day}',
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 11,
@@ -5531,349 +5987,10 @@ class _GravityRuntimeGuide extends StatelessWidget {
   }
 }
 
-class _GravityRuntimeComparisonHalf extends StatelessWidget {
-  const _GravityRuntimeComparisonHalf({
-    required this.label,
-    required this.color,
-    required this.assetPath,
-  });
-
-  final String label;
-  final Color color;
-  final String assetPath;
-
-  @override
-  Widget build(BuildContext context) => Stack(
-    fit: StackFit.expand,
-    children: [
-      Image.asset(
-        assetPath,
-        key: ValueKey(assetPath),
-        fit: BoxFit.cover,
-        filterQuality: FilterQuality.none,
-        gaplessPlayback: true,
-      ),
-      Positioned(
-        left: 7,
-        top: 7,
-        child: _VisualLabel(label: label, color: color),
-      ),
-    ],
-  );
-}
-
-class _GravityGuideCanvas extends StatelessWidget {
-  const _GravityGuideCanvas({required this.mode, required this.frame});
-
-  final _GravityGuideMode mode;
-  final int frame;
-
-  @override
-  Widget build(BuildContext context) {
-    if (mode == _GravityGuideMode.difficulty) {
-      return _GravityDifficultyComparison(frame: frame);
-    }
-
-    final collision = mode == _GravityGuideMode.collision && frame >= 27;
-    final tripFrame = frame % 60;
-    final goingUp = tripFrame >= 9 && tripFrame < 25;
-    final onCeiling = tripFrame >= 25 && tripFrame < 37;
-    final goingDown = tripFrame >= 37 && tripFrame < 53;
-    final progressUp = ((tripFrame - 9) / 16).clamp(0.0, 1.0);
-    final progressDown = ((tripFrame - 37) / 16).clamp(0.0, 1.0);
-    final playerY = collision
-        ? 222.0
-        : goingUp
-        ? 222 - (116 * Curves.easeIn.transform(progressUp))
-        : onCeiling
-        ? 106.0
-        : goingDown
-        ? 106 + (116 * Curves.easeIn.transform(progressDown))
-        : 222.0;
-    final airborne = goingUp || goingDown;
-    final double playerAngle = airborne
-        ? (goingUp ? -1 : 1) * (airborne ? (tripFrame % 16) / 16 * pi * 2 : 0)
-        : 0.0;
-    final obstacleX = mode == _GravityGuideMode.collision
-        ? max(112.0, 330 - frame * 8.1)
-        : mode == _GravityGuideMode.obstacle
-        ? max(178.0, 330 - frame * 3.0)
-        : 260.0;
-    final playerFrame = airborne ? 2 + ((frame ~/ 2) % 2) : (frame ~/ 2) % 2;
-
-    return FittedBox(
-      fit: BoxFit.cover,
-      child: SizedBox(
-        width: 360,
-        height: 268,
-        child: Stack(
-          clipBehavior: Clip.hardEdge,
-          children: [
-            const Positioned.fill(
-              child: _GravitySceneBackground(
-                assetPath:
-                    'assets/images/gravity_switch_v2/current_runtime_guide.png',
-              ),
-            ),
-            if (mode == _GravityGuideMode.obstacle ||
-                mode == _GravityGuideMode.collision)
-              Positioned(
-                left: obstacleX,
-                bottom: 38,
-                width: 48,
-                height: 144,
-                child: const _GravityObstacleModule(),
-              ),
-            if (mode == _GravityGuideMode.obstacle)
-              const Positioned(
-                right: 10,
-                top: 0,
-                width: 48,
-                height: 144,
-                child: _GravityObstacleModule(ceiling: true),
-              ),
-            Positioned(
-              key: ValueKey(
-                collision
-                    ? 'gravity-guide-ko-state'
-                    : airborne
-                    ? 'gravity-guide-flight-state'
-                    : onCeiling
-                    ? 'gravity-guide-ceiling-state'
-                    : 'gravity-guide-floor-state',
-              ),
-              left: 70,
-              top: playerY - 24,
-              width: 48,
-              height: 48,
-              child: Transform.rotate(
-                angle: playerAngle,
-                child: _GravityPlayerFrame(
-                  frame: playerFrame,
-                  gameOver: collision,
-                  key: collision ? const Key('gravity-guide-ko') : null,
-                ),
-              ),
-            ),
-            if (!collision &&
-                (tripFrame == 25 ||
-                    tripFrame == 26 ||
-                    tripFrame == 53 ||
-                    tripFrame == 54))
-              Positioned(
-                left: 70,
-                top: tripFrame < 40 ? 81 : 190,
-                width: 48,
-                height: 48,
-                child: _GravityLandingFrame(frame: frame % 4),
-              ),
-            if (mode == _GravityGuideMode.control &&
-                (frame >= 6 && frame <= 12 || frame >= 34 && frame <= 40))
-              const Positioned(
-                left: 116,
-                top: 112,
-                child: _GravityTapCue(label: 'TAP'),
-              ),
-            if (mode == _GravityGuideMode.landing && frame >= 17 && frame <= 27)
-              const Positioned(
-                left: 132,
-                top: 104,
-                child: _GravityTapCue(label: '추가 탭', blocked: true),
-              ),
-            if (mode == _GravityGuideMode.landing && frame >= 28 && frame <= 39)
-              const Positioned(
-                left: 122,
-                top: 86,
-                child: _VisualLabel(
-                  label: '착지 후 다시 탭',
-                  color: AppColors.reward,
-                ),
-              ),
-            if (mode == _GravityGuideMode.obstacle) ...[
-              Positioned(
-                left: 110,
-                top: 74,
-                width: max(42.0, obstacleX - 116),
-                child: const Row(
-                  children: [
-                    Expanded(
-                      child: Divider(color: AppColors.primary, thickness: 2),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-              const Positioned(
-                left: 10,
-                top: 10,
-                child: _VisualLabel(label: '기둥 전에 위로'),
-              ),
-            ],
-            if (mode == _GravityGuideMode.collision)
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 12,
-                child: Text(
-                  (12.34 + min(frame, 27) / 10).toStringAsFixed(2),
-                  key: const Key('gravity-guide-collision-time'),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Galmuri',
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    shadows: [
-                      Shadow(color: Color(0xCC020617), offset: Offset(2, 2)),
-                    ],
-                  ),
-                ),
-              ),
-            if (collision) ...[
-              if (frame <= 29)
-                const Positioned.fill(
-                  child: ColoredBox(color: Color(0x55FF3565)),
-                ),
-              const Positioned(
-                left: 0,
-                right: 0,
-                top: 62,
-                child: Text(
-                  'GAME OVER',
-                  key: Key('gravity-guide-game-over'),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Galmuri',
-                    color: Color(0xFFFFD84A),
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    shadows: [
-                      Shadow(color: Color(0xFF6E123E), offset: Offset(3, 3)),
-                    ],
-                  ),
-                ),
-              ),
-              const Positioned(
-                left: 0,
-                right: 0,
-                bottom: 17,
-                child: Text(
-                  '한 번 닿으면 즉시 종료',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GravityDifficultyComparison extends StatelessWidget {
-  const _GravityDifficultyComparison({required this.frame});
-
-  final int frame;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: _GravityDifficultyHalf(
-          label: '초반',
-          color: AppColors.reward,
-          offset: (frame * 1.4) % 48,
-          hard: false,
-        ),
-      ),
-      Container(width: 2, color: AppColors.border),
-      Expanded(
-        child: _GravityDifficultyHalf(
-          label: '30초 이후',
-          color: AppColors.danger,
-          offset: (frame * 3.1) % 48,
-          hard: true,
-        ),
-      ),
-    ],
-  );
-}
-
-class _GravityDifficultyHalf extends StatelessWidget {
-  const _GravityDifficultyHalf({
-    required this.label,
-    required this.color,
-    required this.offset,
-    required this.hard,
-  });
-
-  final String label;
-  final Color color;
-  final double offset;
-  final bool hard;
-
-  @override
-  Widget build(BuildContext context) => ClipRect(
-    child: Stack(
-      fit: StackFit.expand,
-      children: [
-        const _GravitySceneBackground(
-          assetPath:
-              'assets/images/gravity_switch_v2/current_runtime_guide.png',
-        ),
-        Positioned(
-          left: hard ? 80 - offset : 132 - offset,
-          top: 0,
-          width: 48,
-          height: hard ? 144 : 96,
-          child: const _GravityObstacleModule(ceiling: true),
-        ),
-        Positioned(
-          left: hard ? 112 + offset : 152 + offset,
-          bottom: 38,
-          width: 48,
-          height: hard ? 144 : 96,
-          child: const _GravityObstacleModule(),
-        ),
-        Positioned(
-          left: 34,
-          top: hard ? 84 : 190,
-          width: 40,
-          height: 40,
-          child: _GravityPlayerFrame(frame: hard ? 2 : 0),
-        ),
-        Positioned(
-          left: 7,
-          top: 7,
-          child: _VisualLabel(label: label, color: color),
-        ),
-        Positioned(
-          right: 7,
-          top: 10,
-          child: Icon(
-            Icons.fast_forward_rounded,
-            color: color,
-            size: hard ? 27 : 19,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class _GravityTapCue extends StatelessWidget {
-  const _GravityTapCue({required this.label, this.blocked = false});
+  const _GravityTapCue({required this.label});
 
   final String label;
-  final bool blocked;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -5882,16 +5999,12 @@ class _GravityTapCue extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          blocked ? Icons.block_rounded : Icons.touch_app_rounded,
-          color: blocked ? AppColors.danger : AppColors.primary,
-          size: 22,
-        ),
+        Icon(Icons.touch_app_rounded, color: AppColors.primary, size: 22),
         const SizedBox(width: 5),
         Text(
           label,
           style: TextStyle(
-            color: blocked ? AppColors.danger : AppColors.text,
+            color: AppColors.text,
             fontFamily: 'Galmuri',
             fontSize: 11,
             fontWeight: FontWeight.w900,
@@ -5912,7 +6025,7 @@ class _GravityGamePreview extends StatefulWidget {
 class _GravityGamePreviewState extends State<_GravityGamePreview> {
   static const _frameCount = 80;
   Timer? _timer;
-  var _frame = 0;
+  final _frame = 0;
 
   @override
   void initState() {
@@ -6079,32 +6192,18 @@ class _GravityObstacleModule extends StatelessWidget {
 }
 
 class _GravityPlayerFrame extends StatelessWidget {
-  const _GravityPlayerFrame({
-    required this.frame,
-    this.gameOver = false,
-    super.key,
-  });
+  const _GravityPlayerFrame({required this.frame});
 
   final int frame;
-  final bool gameOver;
 
   @override
-  Widget build(BuildContext context) {
-    if (gameOver) {
-      return Image.asset(
-        'assets/images/gravity_switch_v2/player_game_over.png',
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.none,
-      );
-    }
-    return _GravityAtlasFrame(
-      assetPath:
-          'assets/images/gravity_switch_v2/player_magnet_mite_sheet_v3.png',
-      columns: 2,
-      rows: 2,
-      frame: frame,
-    );
-  }
+  Widget build(BuildContext context) => _GravityAtlasFrame(
+    assetPath:
+        'assets/images/gravity_switch_v2/player_magnet_mite_sheet_v3.png',
+    columns: 2,
+    rows: 2,
+    frame: frame,
+  );
 }
 
 class _GravityLandingFrame extends StatelessWidget {
@@ -6162,67 +6261,6 @@ class _GravityAtlasFrame extends StatelessWidget {
       );
     },
   );
-}
-
-class _PixelStar extends StatelessWidget {
-  const _PixelStar({required this.size});
-
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.warning_amber_rounded,
-      size: size,
-      color: AppColors.danger,
-    );
-  }
-}
-
-class _GameMeta extends StatelessWidget {
-  const _GameMeta({required this.game});
-
-  final TodayGame? game;
-
-  @override
-  Widget build(BuildContext context) {
-    final durationLabel = _durationLabel(game);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _MetaItem(icon: Icons.timer_outlined, label: durationLabel),
-        const SizedBox(width: 24),
-        const _MetaItem(icon: Icons.touch_app_outlined, label: '한 손'),
-        const SizedBox(width: 24),
-        const _MetaItem(icon: Icons.public, label: '전체 순위'),
-      ],
-    );
-  }
-}
-
-class _MetaItem extends StatelessWidget {
-  const _MetaItem({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: AppColors.reward, size: 20),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.textMuted,
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _PixelGridBackground extends StatelessWidget {
