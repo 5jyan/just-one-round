@@ -5,6 +5,7 @@ import 'package:just_one_round/app/app.dart';
 import 'package:just_one_round/core/auth/kakao_auth_service.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
+import 'package:just_one_round/features/gameplay/presentation/game_screen.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -39,6 +40,8 @@ void main() {
     expect(repository.prepareCalls, 1);
     expect(adService.showCalls, 1);
     expect(repository.claimedSessionIds, ['reward-session', 'reward-session']);
+    expect(find.byType(GameScreen), findsOneWidget);
+    expect(find.text('광고 확인 중이에요. 잠시만 기다려 주세요.'), findsNothing);
   });
 
   testWidgets('카카오 계정이 없어도 추가 플레이 광고를 시작한다', (tester) async {
@@ -70,6 +73,7 @@ void main() {
     expect(repository.prepareCalls, 1);
     expect(adService.showCalls, 1);
     expect(repository.claimedSessionIds, ['reward-session', 'reward-session']);
+    expect(find.byType(GameScreen), findsOneWidget);
   });
 
   testWidgets('두 판을 마친 뒤 연습하기는 광고를 보고 랭킹 없는 판을 시작한다', (tester) async {
@@ -103,6 +107,8 @@ void main() {
       'practice-session',
       'practice-session',
     ]);
+    expect(find.byType(GameScreen), findsOneWidget);
+    expect(find.text('광고 확인 중이에요. 잠시만 기다려 주세요.'), findsNothing);
   });
 }
 

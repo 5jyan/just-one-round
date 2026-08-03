@@ -53,6 +53,7 @@ class PlayAttempt {
     this.gameDurationSeconds,
     this.playDate,
     this.issuedAt,
+    this.resolveForSubmission,
   });
 
   factory PlayAttempt.fromJson(Map<String, dynamic> json) => PlayAttempt(
@@ -80,6 +81,13 @@ class PlayAttempt {
   final int? gameDurationSeconds;
   final DateTime? playDate;
   final DateTime? issuedAt;
+
+  // Rewarded attempts can enter the game before the server has received the
+  // provider's SSV callback. The resolver is intentionally transient and is
+  // never decoded from the API response; it lets score submission wait for
+  // the verified server attempt without treating a client-side placeholder
+  // as a real attempt.
+  final Future<PlayAttempt?> Function()? resolveForSubmission;
 
   bool get isPractice => grantType == 'practice_ad';
 }

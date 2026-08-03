@@ -19,4 +19,13 @@ void main() {
     expect(dailyGateSql, contains('kakao account required for daily play'));
     expect(dailyGateSql, contains('prepare_rewarded_ad_without_kakao'));
   });
+
+  test('즉시 시작한 추가 판은 광고 준비 시각부터 플레이 시간을 계산한다', () {
+    final sql = File(
+      'supabase/migrations/20260803000400_start_rewarded_attempt_clock_at_ad_prepare.sql',
+    ).readAsStringSync();
+
+    expect(sql, contains('issued_at'));
+    expect(sql, contains('target_grant.prepared_at'));
+  });
 }

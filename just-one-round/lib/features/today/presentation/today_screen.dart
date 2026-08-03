@@ -675,10 +675,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         _PlayStartMode.rewarded => await _claimRewardedAttempt(
           repository,
           displayedState.playDate,
+          displayedState,
         ),
         _PlayStartMode.practice => await _claimPracticeAttempt(
           repository,
           displayedState.playDate,
+          displayedState,
         ),
       };
       if (attempt == null) return;
@@ -717,7 +719,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   Future<PlayAttempt?> _claimRewardedAttempt(
     DailyGameRepository repository,
     DateTime expectedPlayDate,
+    TodayState displayedState,
   ) async => _claimAdGatedAttempt(
+    displayedState: displayedState,
+    isPractice: false,
     prepare: () => repository.prepareRewardedAd(expectedPlayDate),
     claim: repository.claimRewardedAttempt,
   );
@@ -725,12 +730,17 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   Future<PlayAttempt?> _claimPracticeAttempt(
     DailyGameRepository repository,
     DateTime expectedPlayDate,
+    TodayState displayedState,
   ) async => _claimAdGatedAttempt(
+    displayedState: displayedState,
+    isPractice: true,
     prepare: () => repository.preparePracticeAd(expectedPlayDate),
     claim: repository.claimPracticeAttempt,
   );
 
   Future<PlayAttempt?> _claimAdGatedAttempt({
+    required TodayState displayedState,
+    required bool isPractice,
     required Future<RewardedAdSession> Function() prepare,
     required Future<PlayAttempt> Function(String sessionId) claim,
   }) async {
@@ -757,16 +767,63 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       return null;
     }
 
-    _showMessage('광고 확인 중이에요. 잠시만 기다려 주세요.');
-    final verifiedAttempt = await _claimVerifiedReward(
-      claim,
-      session.id,
-      retries: _rewardVerificationRetryCount,
+    final game = displayedState.game;
+    if (game == null) return null;
+
+    final resolveForSubmission = _deferredRewardResolution(
+      claim: claim,
+      sessionId: session.id,
     );
-    if (verifiedAttempt != null) return verifiedAttempt;
-    _showMessage('광고 확인이 아직 완료되지 않았어요. 잠시 후 같은 버튼으로 다시 시도해 주세요.');
-    ref.invalidate(todayStateProvider);
-    return null;
+    // Start SSV polling immediately, but do not make the player wait for it.
+    // Practice never submits a score; the ranked path resolves this future
+    // immediately before its score is sent to the server.
+    unawaited(resolveForSubmission());
+
+    return PlayAttempt(
+      id: session.id,
+      ordinal: isPractice ? 3 : 2,
+      status: isPractice ? 'practice' : 'issued',
+      grantType: isPractice ? 'practice_ad' : 'rewarded_ad',
+      gameId: game.id,
+      gameVersion: game.version,
+      gameDurationSeconds: game.durationSeconds,
+      playDate: displayedState.playDate,
+      resolveForSubmission: isPractice ? null : resolveForSubmission,
+    );
+  }
+
+  Future<PlayAttempt?> Function() _deferredRewardResolution({
+    required Future<PlayAttempt> Function(String sessionId) claim,
+    required String sessionId,
+  }) {
+    Future<PlayAttempt?>? current;
+    return () {
+      return current ??= _verifyRewardInBackground(claim, sessionId).then((
+        attempt,
+      ) {
+        if (attempt == null) current = null;
+        return attempt;
+      });
+    };
+  }
+
+  Future<PlayAttempt?> _verifyRewardInBackground(
+    Future<PlayAttempt> Function(String sessionId) claim,
+    String sessionId,
+  ) async {
+    try {
+      return await _claimVerifiedReward(
+        claim,
+        sessionId,
+        retries: _rewardVerificationRetryCount,
+      );
+    } catch (error, stackTrace) {
+      debugPrint('[RewardedAd] Background verification failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      return null;
+    } finally {
+      if (mounted) ref.invalidate(todayStateProvider);
+    }
   }
 
   Future<PlayAttempt?> _claimVerifiedReward(

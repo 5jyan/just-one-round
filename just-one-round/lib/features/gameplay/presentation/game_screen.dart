@@ -139,8 +139,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Future<void> _submitResult(GameResult result) async {
-    final attempt = widget.attempt;
+    final attempt = await _resolveAttemptForSubmission();
     if (attempt == null || attempt.isPractice) return;
+    if (!mounted) return;
     setState(() => _isSubmitting = true);
     try {
       final rank = await _repository.submitScore(attempt.id, result);
@@ -153,6 +154,19 @@ class _GameScreenState extends ConsumerState<GameScreen>
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Future<PlayAttempt?> _resolveAttemptForSubmission() async {
+    final attempt = widget.attempt;
+    if (attempt == null) return null;
+    final resolver = attempt.resolveForSubmission;
+    if (resolver == null) return attempt;
+    final resolved = await resolver();
+    if (resolved != null) return resolved;
+    if (mounted) {
+      setState(() => _submitError = const DeferredAttemptResolutionException());
+    }
+    return null;
   }
 
   @override
@@ -170,7 +184,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _game.interrupt();
     final attempt = widget.attempt;
     if (attempt != null && !attempt.isPractice) {
-      unawaited(_repository.expireAttempt(attempt.id).catchError((_) {}));
+      unawaited(_expireActiveAttempt());
     }
     if (mounted) setState(() {});
   }
@@ -193,11 +207,25 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _game.interrupt();
       final attempt = widget.attempt;
       if (attempt != null && !attempt.isPractice) {
-        unawaited(_repository.expireAttempt(attempt.id).catchError((_) {}));
+        unawaited(_expireActiveAttempt());
       }
     }
     _game.disposeController();
     super.dispose();
+  }
+
+  Future<void> _expireActiveAttempt() async {
+    final attempt = widget.attempt;
+    if (attempt == null || attempt.isPractice) return;
+    try {
+      final resolver = attempt.resolveForSubmission;
+      final resolved = resolver == null ? attempt : await resolver();
+      if (resolved == null || resolved.isPractice) return;
+      await _repository.expireAttempt(resolved.id);
+    } catch (_) {
+      // Expiration is best effort. The server's stale-attempt cleanup is the
+      // fallback when the app is interrupted before the claim is resolved.
+    }
   }
 
   @override
@@ -1159,10 +1187,12 @@ class _ResultPanel extends StatelessWidget {
           else if (submitError != null)
             Column(
               children: [
-                const Text(
-                  '점수를 기기에 보관했어요. 서버가 복구되면 자동 전송됩니다.',
+                Text(
+                  submitError is DeferredAttemptResolutionException
+                      ? '광고 확인이 늦어 랭킹에 반영하지 못했어요. 잠시 후 다시 시도해 주세요.'
+                      : '점수를 기기에 보관했어요. 서버가 복구되면 자동 전송됩니다.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.danger, fontSize: 12),
+                  style: const TextStyle(color: AppColors.danger, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
                 PixelButton(
@@ -1185,6 +1215,10 @@ class _ResultPanel extends StatelessWidget {
       ),
     );
   }
+}
+
+class DeferredAttemptResolutionException implements Exception {
+  const DeferredAttemptResolutionException();
 }
 
 class _InterruptedOverlay extends StatelessWidget {
