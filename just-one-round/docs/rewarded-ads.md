@@ -24,10 +24,21 @@
 2. 보상은 `extra_play`, 수량은 `1`로 설정되어 있다.
 3. 사용자 경험을 위해 필수 동영상만 허용하고 광고 모음과 양방향 광고는
    사용하지 않는다.
-4. Android와 iOS 광고 단위의 서버측 확인 URL은 다음 운영 Edge Function으로
-   설정되어 있다.
+4. 운영 Android/iOS 광고 단위의 서버측 확인 URL은 운영 Edge Function으로
+   설정한다.
 
    `https://yvowpyeoaexdrycgtyri.supabase.co/functions/v1/admob-reward-callback`
+
+   로컬 Supabase를 Cloudflare Tunnel로 띄운 iPhone에서 테스트할 때는 앱이
+   세션을 로컬 DB에 만들기 때문에, 테스트 직전에 해당 광고 단위의 URL을
+   운영 Edge Function의 `/local` 경로로 잠시 바꾸고 로컬 전달 secret을
+   설정해야 한다.
+
+   `https://yvowpyeoaexdrycgtyri.supabase.co/functions/v1/admob-reward-callback/local`
+
+   로컬 테스트가 끝나면 운영 URL로 되돌리고 전달 secret을 삭제한다. SSV URL은
+   광고 단위별 설정이며 앱 코드나 Flutter 빌드 인자로 환경별 주소를 자동
+   전환할 수 없다.
 
 5. 실제 기기를 테스트 기기로 등록한 뒤에 테스트한다. 실제 광고를 개발 중에
    반복 클릭하면 안 된다.
@@ -66,6 +77,29 @@ iOS 운영 앱 ID는 `ios/Flutter/Release.xcconfig`에, 개발용 테스트 앱 
 
 ## Supabase 배포 설정
 
+### 환경별 SSV 콜백
+
+보상형 광고의 SSV 콜백은 보상 세션을 만든 Supabase 프로젝트와 같은 환경을
+가리켜야 한다.
+
+| 앱/서버 환경 | 앱의 `SUPABASE_URL` | AdMob SSV 콜백 |
+| --- | --- | --- |
+| 운영 | `https://yvowpyeoaexdrycgtyri.supabase.co` | `https://yvowpyeoaexdrycgtyri.supabase.co/functions/v1/admob-reward-callback` |
+| 로컬 iPhone 테스트 | `https://jor-api.shook.work` | `https://yvowpyeoaexdrycgtyri.supabase.co/functions/v1/admob-reward-callback/local` |
+
+AdMob 콘솔이 Cloudflare Tunnel 주소를 직접 확인하지 못할 수 있으므로, 로컬
+iPhone 테스트에서는 운영 Edge Function의 `/local` 경로를 사용한다. 이 경로는
+임시 `ADMOB_LOCAL_CALLBACK_URL`로 서명된 콜백을 로컬 함수에 전달한다. 테스트
+전에는 다음 secret을 추가하고, 완료 후에는 반드시 콜백 URL을 운영 주소로
+복구하고 secret을 삭제한다.
+
+```sh
+supabase secrets set \
+  ADMOB_LOCAL_CALLBACK_URL=https://jor-api.shook.work/functions/v1/admob-reward-callback
+# 테스트 종료 후
+supabase secrets unset ADMOB_LOCAL_CALLBACK_URL
+```
+
 운영 프로젝트:
 
 - 이름: `just-one-round`
@@ -85,9 +119,9 @@ supabase config push
 supabase functions deploy admob-reward-callback --no-verify-jwt --use-api
 ```
 
-AdMob의 URL 확인 도구는 실제 광고 단위 대신 `1234567890`을 보내므로 최초 URL
-확인 중에만 `ADMOB_ALLOW_URL_VERIFICATION=true`를 사용했다. Android와 iOS
-확인이 끝난 뒤 운영 프로젝트에는 `false`로 복구되어 있다.
+AdMob의 URL 확인 도구는 synthetic callback을 사용하므로 URL 확인 중에만
+`ADMOB_ALLOW_URL_VERIFICATION=true`를 사용한다. Android와 iOS 확인 또는 로컬
+테스트가 끝나면 운영 프로젝트에는 `false`로 복구한다.
 
 SSV 콜백은 Google 공개키의 ECDSA 서명을 확인하고, 다음 조건을 모두 만족할
 때만 보상 세션을 `verified`로 바꾼다.

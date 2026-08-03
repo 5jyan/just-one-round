@@ -133,6 +133,31 @@ Deno.serve(async (request) => {
 
   try {
     const url = new URL(request.url);
+    const allowUrlVerification =
+      Deno.env.get("ADMOB_ALLOW_URL_VERIFICATION") === "true";
+    const localCallbackUrl = Deno.env.get("ADMOB_LOCAL_CALLBACK_URL");
+    // AdMob's dashboard reachability check can send a synthetic payload that
+    // cannot be recorded as a real grant. It must never be accepted in
+    // production; the temporary flag lets the dashboard verify the endpoint
+    // without weakening real SSV callbacks after the flag is removed.
+    if (allowUrlVerification) {
+      return response("OK");
+    }
+    const localCallbackMode =
+      url.searchParams.get("callback_mode") === "local" ||
+      url.pathname.endsWith("/admob-reward-callback/local");
+    if (localCallbackMode) {
+      if (!localCallbackUrl) return response("Proxy is not configured", 503);
+      try {
+        const target = new URL(localCallbackUrl);
+        target.search = url.search;
+        const upstream = await fetch(target, { method: "GET" });
+        return response(await upstream.text(), upstream.status);
+      } catch (error) {
+        console.error("Failed to forward local AdMob callback", error);
+        return response("Callback forwarding failed", 502);
+      }
+    }
     const rawQuery = url.search.slice(1);
     const signatureMarker = "&signature=";
     const signatureOffset = rawQuery.indexOf(signatureMarker);
