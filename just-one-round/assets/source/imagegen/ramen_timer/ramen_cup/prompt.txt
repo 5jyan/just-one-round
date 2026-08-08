@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: raw 2D pixel-art prop state pack
+Primary request: Create exactly four state variants of the same small cup ramen in an exact 2x2 grid, read top-left, top-right, bottom-left, bottom-right.
+Reference: use the accepted raccoon image as the exact project style, palette-density, chunky pixel-cluster, dark-outline, lighting, and camera reference only. Do not include the raccoon.
+State order: 1) sealed cup with a slightly crooked foil lid; 2) lid partly peeled back with chopped green scallions visible; 3) same partly open cup with scallions and one intact egg yolk visible; 4) lid fully lifted and warm simple noodles visible, ready to eat.
+Identity: the same squat cream paper cup with one broad coral-orange band and a dark navy rim in every cell; no brand, letters, numbers, symbols, or face. Keep cup shape, camera distance, rim angle, palette, and lighting identical while changing only lid and contents.
+View/style: front/slight 2.5D three-quarter view from a little above, native-looking chunky 2D pixel art, hard square clusters, crisp near-black navy outline, 3 to 5 flat color steps, restrained shading, no antialiasing, smooth vector edges, painterly texture, or dithering noise.
+Grid/layout: exactly 2 columns by 2 rows with four equal invisible square cells; one complete cup centered in each cell; same bottom anchor and apparent scale; prop occupies about 60% of cell height with generous padding.
+Background: perfectly uniform solid #FF00FF across the full sheet to every edge; no gradients, floor, shadows, reflections, glow, texture, cell lines, or separators.
+Constraints: no raccoon, people, hands, utensils, clock, steam, detached particles, text, labels, logos, watermark, borders, UI, or extra objects. No face on the cup or food. Nothing crosses a cell edge; magenta margin on all four sides of every cell.

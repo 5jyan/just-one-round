@@ -1,0 +1,8 @@
+Use case: identity-preserve
+Asset type: one result-state prop sprite source for a mobile pixel-art game
+Input images: Image 1 locks the exact instant-cup identity: squat cream paper cup, coral-red band, dark near-black rim, same three-quarter camera. Image 2 is a style and state-readability reference only.
+Style: project-native ugly-cute chunky pixel art, crisp near-black outline, restrained cream/coral/amber palette, large coherent clusters, low texture noise, readable at a 64x64 source cell displayed at 128x128.
+Composition: one centered complete cup-and-noodle result prop, same camera angle and cup proportions, fills about 62% of the square canvas, generous padding on all sides.
+Backdrop: perfectly flat solid #FF00FF, no shadow, floor plane, gradient, texture, labels, cell borders, or watermark.
+Constraints: preserve cup identity and pixel density; no character, face, eyes, hair, wig, hands, clock, timer, UI, text, logo, extra container, or #FF00FF inside the prop.
+Primary request: TOO LATE result. The cup is still fully visible below. A swollen heavy mass of soggy golden-brown noodles bulges from inside the rim and sloshes over both sides in thick drooping strands, with a small dark broth drip clinging to the cup exterior. Make the noodles visibly originate inside the cup and hang over the rim; they must look like overcooked food, never hair, a wig, a head, fur, or a character. No chopsticks and no detached puddle.

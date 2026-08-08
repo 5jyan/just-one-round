@@ -1,0 +1,10 @@
+Use case: identity-preserve
+Asset type: 4-frame idle animation source sheet for a mobile pixel-art game
+Input images: Image 1 is the exact character identity and production art reference. Image 2 is a scale-and-root template made from that character and is layout-only.
+Primary request: Create exactly four frames of one subtle tired office-raccoon idle loop in an invisible 2x2 grid, read top-left, top-right, bottom-left, bottom-right.
+Frame motion: 1 neutral sleepy hunch; 2 shoulders and head settle down by a tiny amount; 3 one slow exhausted blink with the same body root; 4 returns almost to neutral with a tiny tail relaxation. The motion must loop smoothly and remain deliberately subtle.
+Identity invariants: same gray raccoon, charcoal mask, half-lidded eyes, striped curled tail, loose pale-cream office shirt, exactly one short orange-yellow noodle on the left cheek, same dopey awkward proportions and front three-quarter camera.
+Geometry: preserve Image 2's exact cell locations, fixed camera distance, standing-equivalent body scale, body-root position, grounded foot-contact line, and generous padding. Change only the idle phase. Keep the whole character in the central 66% of each cell. Never zoom individual frames. No body part or tail may cross a cell edge.
+Style: exact project-native chunky pixel-art language of Image 1; crisp near-black outlines, restrained 4-5 tone shading, large coherent clusters, sparse facial marks, no antialiasing or painterly microtexture.
+Backdrop: 100% flat solid #FF00FF, no gradients, shadows, texture, floor plane, dividers, visible boxes, safe-area marks, labels, or borders. Do not reproduce the anchor guide.
+Avoid: no watch, clock, cup, utensil, hat, tie, badge, extra accessory, extra limb, horn, crest, detached object, text, watermark, or #FF00FF inside the character.

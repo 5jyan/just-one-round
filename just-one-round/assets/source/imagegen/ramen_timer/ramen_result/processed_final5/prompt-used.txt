@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: raw 2D pixel-art result prop pack
+Primary request: Create exactly three comic final cup-ramen results in an exact 3-column by 1-row grid, read left to right.
+References: Image 1 locks the exact cream cup with coral-orange band, navy rim, camera angle, palette, and material identity. Image 2 locks the project's chunky pixel density, crisp dark outline, restrained shading, and ugly-cute comedic tone. Do not include the raccoon.
+Result order: 1) perfect noodles—same open cup with a neat modest curl of golden noodles, one tiny warm sparkle, appetizing but understated; 2) too early—same cup with one rigid square block of barely softened crunchy noodles lifted straight upward by a pair of simple dark chopsticks, awkward and stiff; 3) too late—same cup almost hidden beneath one huge lumpy swollen noodle mass spilling over the rim like a heavy blob.
+Keep the cup base the same size and bottom anchor in all three cells. Let result 2 rise taller and result 3 spread wider, but keep every silhouette fully contained.
+Style/view: front/slight 2.5D view from a little above, native-looking chunky 2D pixel art, hard square clusters, crisp near-black navy outline, 3 to 5 flat color steps, restrained shading, no antialiasing, smooth vector edges, painterly texture, or dithering noise.
+Grid/layout: exactly 3 equal invisible square cells in one horizontal row; one complete result per cell; consistent camera distance; generous padding. Background: perfectly uniform solid #FF00FF. No raccoon, people, hands, clock, text, labels, logos, watermark, borders, UI, extra cups, faces, or detached scenery. Nothing crosses a cell edge.

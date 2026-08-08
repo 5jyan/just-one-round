@@ -1,0 +1,10 @@
+Use case: identity-preserve
+Asset type: one production pose sprite source for a mobile pixel-art game
+Input image: Image 1 is the exact identity, palette, pixel-cluster language, proportions, and camera reference.
+Identity invariants: preserve the same gray raccoon, charcoal eye mask, striped curled tail, loose pale-cream office shirt, exactly one short orange-yellow noodle on the left cheek, awkward dopey office-worker personality, and front three-quarter camera.
+Style: project-native chunky pixel art, crisp near-black outline, restrained 4-5 tone shading, large coherent clusters, sparse facial marks, no antialiasing or painterly microtexture.
+Geometry: one full-body character centered, same camera distance and standing-equivalent anatomical scale as Image 1, whole silhouette inside the central 66% with generous padding.
+Backdrop: perfectly flat solid #FF00FF, no shadow, floor plane, gradient, texture, labels, border, or watermark.
+Avoid: no watch, clock, timer, cup, ramen, noodle block, utensil, lid, hat, tie, badge, extra accessory, extra limb, horn, crest, detached object or effect, text, or #FF00FF inside the character.
+Primary request: perfect-result reaction. The raccoon stands taller for once with a tiny relieved smile, eyes softened, shoulders lifted, and both empty paws raised in a restrained awkward victory pose. Keep the same ugly-cute tired identity; no sparkles, confetti, trophy, food, or detached effects.
+

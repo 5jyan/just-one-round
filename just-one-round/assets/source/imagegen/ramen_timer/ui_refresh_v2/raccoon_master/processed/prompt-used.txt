@@ -1,0 +1,10 @@
+Use case: identity-preserve
+Asset type: production master for a mobile pixel-art game character sprite
+Input image: Image 1 is the exact identity and style reference.
+Primary request: Redraw the same sleepy office raccoon as a cleaner, bolder production master that remains readable when reduced into a 48x48 source cell and displayed at 96x96.
+Subject invariants: Preserve the gray raccoon, charcoal eye mask, half-lidded tired eyes, striped curled tail, loose pale-cream office shirt, slightly hunched awkward posture, small black nose, and exactly one short orange-yellow noodle stuck to the left cheek. Preserve the dopey, slightly ugly but endearing identity. Front three-quarter view, full body, grounded.
+Style/medium: deliberate chunky project-native pixel art; crisp near-black outline; restrained 4-5 tone shading; large coherent pixel clusters; low internal-detail density; no anti-aliased painterly texture; no glossy mascot polish.
+Composition: one centered character only, stable feet line, character occupies about 58% of the square canvas height, generous clean padding.
+Scene/backdrop: perfectly flat solid #FF00FF background for chroma-key removal. No shadow, floor plane, gradient, texture, or lighting variation.
+Constraints: change only rendering clarity and cluster simplification; do not redesign anatomy, clothing, palette family, identity, camera, or pose family. No watch, clock, hat, glasses, badge, tie, extra accessories, cup, utensils, text, labels, border, watermark, extra limbs, horns, crests, or detached objects. Do not use #FF00FF anywhere in the character.
+

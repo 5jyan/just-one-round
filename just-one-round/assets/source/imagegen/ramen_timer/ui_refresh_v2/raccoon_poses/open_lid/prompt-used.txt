@@ -1,0 +1,10 @@
+Use case: identity-preserve
+Asset type: one production pose sprite source for a mobile pixel-art game
+Input image: Image 1 is the exact identity, palette, pixel-cluster language, proportions, and camera reference.
+Identity invariants: preserve the same gray raccoon, charcoal eye mask, striped curled tail, loose pale-cream office shirt, exactly one short orange-yellow noodle on the left cheek, awkward dopey office-worker personality, and front three-quarter camera.
+Style: project-native chunky pixel art, crisp near-black outline, restrained 4-5 tone shading, large coherent clusters, sparse facial marks, no antialiasing or painterly microtexture.
+Geometry: one full-body character centered, same camera distance and standing-equivalent anatomical scale as Image 1, whole silhouette inside the central 66% with generous padding.
+Backdrop: perfectly flat solid #FF00FF, no shadow, floor plane, gradient, texture, labels, border, or watermark.
+Avoid: no watch, clock, timer, cup, ramen, noodle block, utensil, lid, hat, tie, badge, extra accessory, extra limb, horn, crest, detached object or effect, text, or #FF00FF inside the character.
+Primary request: open-lid action pose. The raccoon leans forward toward screen-right, one empty paw reaching down to steady an unseen cup and the other empty paw lifted as if it has just flipped open an unseen lid. Make the reveal gesture broad and readable, but draw no lid, cup, ramen, steam, or detached prop.
+

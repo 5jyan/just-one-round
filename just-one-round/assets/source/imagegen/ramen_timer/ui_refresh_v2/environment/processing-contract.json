@@ -1,0 +1,24 @@
+{
+  "source_background": "../../office_background/raw.png",
+  "source_counter": "../../counter_front/processed/raw_transparent.png",
+  "background": {
+    "crop_ratio": [180, 400],
+    "runtime_size": [180, 400],
+    "brightness": 1.15,
+    "contrast": 1.06,
+    "color": 1.08
+  },
+  "counter": {
+    "crop_ratio": [180, 72],
+    "runtime_size": [180, 72],
+    "brightness": 1.08,
+    "contrast": 1.12,
+    "color": 1.05
+  },
+  "constraints": [
+    "preserve source geometry and perspective",
+    "preserve 360x800 world coverage",
+    "add no clock, blinking light, periodic mark, or countable timing cue"
+  ]
+}
+

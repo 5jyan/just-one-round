@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: raw 2D pixel-art gameplay FX atlas
+Primary request: Create exactly six small isolated game effects in an exact 3-column by 2-row grid, read left-to-right across row 1 then row 2.
+References: Image 1 locks the ramen palette and material context. Image 2 locks the project's chunky pixel density, crisp near-black navy accents, restrained color steps, and awkward-cute style. Do not include the cup or raccoon.
+Exact frame order: row 1 column 1) compact pale cream steam curl A bending left; row 1 column 2) compact pale cream steam curl B bending right; row 1 column 3) small pinch of bright green chopped scallions falling downward. Row 2 column 1) one intact warm orange-yellow egg yolk with a little white edge falling downward; row 2 column 2) one tiny four-point mint-and-gold success sparkle; row 2 column 3) one large cool-blue nervous sweat drop.
+Style: native-looking chunky 2D pixel art, hard square clusters, crisp silhouette, 2 to 4 flat color steps, no antialiasing, smooth vector edges, painterly texture, blur, soft transparency, or dithering noise.
+Grid/layout: exactly 3 columns by 2 rows with six equal invisible square cells; one complete effect centered in each cell; same apparent pixel size; each effect occupies about 42% to 58% of its cell with generous padding. Background: perfectly uniform solid #FF00FF. No raccoon, cup, hands, clock, noodles, text, labels, logos, watermark, borders, UI, extra objects, or faces. Nothing crosses a cell edge.

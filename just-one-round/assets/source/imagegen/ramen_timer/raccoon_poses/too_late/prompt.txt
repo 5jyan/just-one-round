@@ -1,0 +1,5 @@
+Asset type: single raw pixel-art character result pose for a mobile game.
+Create exactly one full-body pose of the accepted night-shift raccoon reacting to badly overcooked swollen noodles: body crouched and compressed as if half-buried behind an implied noodle mass, both short paws raised helplessly, only the striped tail sticks out clearly, half-lidded face resigned rather than frightened.
+Image 1 locks exact identity, proportions, palette, face mask, striped tail, cream office shirt, cheek noodle, outline, and ugly-cute style. Image 2 locks production pixel density, camera distance, and grounded anatomical scale. Change only the compressed pose; do not zoom the body larger.
+Same three-quarter view facing screen-right; body-only; no noodles, food, cup, clock, or detached effects. Keep all anatomy visible and complete despite the crouch, with the bottom contact on the same baseline, compact silhouette, generous margin.
+Native-looking chunky 2D pixel art on perfectly uniform solid #FF00FF. No grid, text, UI, watermark, props, detached effects, extra limbs, horns, hats, smartwatch, or accessories. Entire subject fits with magenta margin.

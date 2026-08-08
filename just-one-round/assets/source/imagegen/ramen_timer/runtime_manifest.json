@@ -1,0 +1,148 @@
+{
+  "version": 2,
+  "source_contract": "assets/source/imagegen/ramen_timer/ui_refresh_v2",
+  "runtime_root": "assets/images/ramen_timer",
+  "pixel_filter": "nearest",
+  "apparent_foreground_pixel": "2x2 logical pixels",
+  "assets": {
+    "office_background.png": {
+      "size": [
+        180,
+        400
+      ],
+      "display_size": [
+        360,
+        800
+      ],
+      "world_rect": [
+        0,
+        -80,
+        360,
+        800
+      ]
+    },
+    "counter_front.png": {
+      "size": [
+        180,
+        72
+      ],
+      "display_size": [
+        360,
+        144
+      ],
+      "world_rect": [
+        0,
+        432,
+        360,
+        144
+      ]
+    },
+    "raccoon_idle_sheet.png": {
+      "size": [
+        192,
+        48
+      ],
+      "layout": [
+        4,
+        1
+      ],
+      "cell": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ]
+    },
+    "raccoon_pose_atlas.png": {
+      "size": [
+        192,
+        96
+      ],
+      "layout": [
+        4,
+        2
+      ],
+      "cell": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "order": [
+        "watch_clock",
+        "steam_startle",
+        "add_scallions",
+        "add_egg",
+        "open_lid",
+        "perfect",
+        "too_early",
+        "too_late"
+      ]
+    },
+    "ramen_cup_atlas.png": {
+      "size": [
+        128,
+        32
+      ],
+      "layout": [
+        4,
+        1
+      ],
+      "cell": [
+        32,
+        32
+      ],
+      "order": [
+        "closed",
+        "scallions",
+        "egg",
+        "open"
+      ]
+    },
+    "ramen_fx_atlas.png": {
+      "size": [
+        96,
+        64
+      ],
+      "layout": [
+        3,
+        2
+      ],
+      "cell": [
+        32,
+        32
+      ],
+      "order": [
+        "steam_a",
+        "steam_b",
+        "scallion_drop",
+        "egg_drop",
+        "sparkle",
+        "sweat"
+      ]
+    },
+    "ramen_result_atlas.png": {
+      "size": [
+        192,
+        64
+      ],
+      "layout": [
+        3,
+        1
+      ],
+      "cell": [
+        64,
+        64
+      ],
+      "order": [
+        "perfect",
+        "too_early",
+        "too_late"
+      ]
+    }
+  }
+}

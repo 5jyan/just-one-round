@@ -1,0 +1,7 @@
+Asset type: single raw pixel-art character pose for a mobile game.
+Create exactly one full-body pose of the accepted night-shift raccoon startled by an implied puff of steam from screen-right: shoulders jerk upward, short arms recoil close to the chest, eyes open slightly wider, tail stiffens, but both feet stay planted.
+Image 1 locks exact identity, proportions, palette, face mask, striped tail, cream office shirt, cheek noodle, outline, and ugly-cute style. Image 2 locks production pixel density, camera distance, and grounded scale. Change only the pose.
+Same three-quarter view facing screen-right; body-only; absolutely no steam, clock, cup, food, or detached effects. Keep the complete body at the same standing-equivalent size as the production idle, feet on one bottom baseline, compact silhouette, generous margin.
+Native-looking chunky 2D pixel art, hard square clusters, crisp near-black navy outline, restrained flat shading, sparse face marks; no antialiasing, smooth vector edges, painterly texture, or dithering noise.
+Background must be perfectly uniform solid #FF00FF to every edge, with no gradient, floor, shadow, glow, or texture.
+One raccoon only. No grid, variants, text, labels, UI, logos, watermark, borders, extra props, extra limbs, horns, hats, smartwatch, or accessories. Entire ears, hands, feet, tail, and noodle strand fit inside the canvas with magenta margin on every side.

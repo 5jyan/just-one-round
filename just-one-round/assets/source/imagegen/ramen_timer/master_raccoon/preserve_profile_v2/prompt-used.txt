@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: master specimen for a mobile game pixel-art character sprite
+Primary request: Create one full-body night-shift raccoon employee in a tired clock-watching idle pose, intended to become a 48x48 source-cell game sprite displayed at exactly 2x.
+References: Image 1 and Image 2 are project style and pixel-density references only. Match their deliberately chunky pixel clusters, crisp dark outline, restrained shading, simple internal marks, awkward ugly-cute personality, and sparse facial features. Do not copy either character's species, costume, pose, or colors.
+Subject identity: one gray raccoon, three-quarter view facing screen-right toward an implied ramen cup; rounded hunched back, drooping shoulders, short limbs, visible striped tail, loose pale office shirt, half-lidded eyes, one single noodle strand stuck to the cheek. The raccoon is sleepy yet unjustifiably confident and holds its whole body comically stiff while watching time.
+Pose and silhouette: complete full body visible; feet/bottom contact on one shared baseline; tail tucked close enough for a compact readable silhouette; no separate prop and no clock in this master. Main body occupies about 62% of the square frame height and stays inside the central 70% safe area with generous empty margin.
+Style/medium: native-looking chunky 2D pixel art with hard square pixel clusters, crisp near-black navy outline, 3 to 5 flat color steps per material, no smooth vector edges, no antialiasing, no painterly texture, no dithering noise.
+Palette: cool gray and muted blue-gray fur, dark charcoal mask and tail stripes, faded warm-cream shirt, tiny coral cheek accent; avoid magenta anywhere in the subject.
+Lighting/view: front/slight 2.5D office-game view, fixed camera distance, soft warm light from screen-right, simple readable shading.
+Canvas/layout: exactly one centered sprite specimen on a square canvas, generous flat background margin; no grid and no multiple variants.
+Background: 100% solid flat #FF00FF, perfectly uniform to every edge, with no gradient, texture, floor plane, reflection, shadow, glow, or lighting variation.
+Constraints: one raccoon only; no text, labels, UI, logos, watermark, border, frame, guide marks, cup, clock, extra props, detached effects, extra limbs, horns, hats, smartwatch, or accessories. Entire ears, tail, hands, feet, and noodle strand must fit fully inside the canvas with magenta margin on all four sides. Strong clear silhouette at 48x48 downsample size.

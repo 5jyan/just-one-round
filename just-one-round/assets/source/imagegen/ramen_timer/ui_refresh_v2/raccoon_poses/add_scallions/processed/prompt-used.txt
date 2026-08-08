@@ -1,0 +1,10 @@
+Use case: identity-preserve
+Asset type: one production pose sprite source for a mobile pixel-art game
+Input image: Image 1 is the exact identity, palette, pixel-cluster language, proportions, and camera reference.
+Identity invariants: preserve the same gray raccoon, charcoal eye mask, striped curled tail, loose pale-cream office shirt, exactly one short orange-yellow noodle on the left cheek, awkward dopey office-worker personality, and front three-quarter camera.
+Style: project-native chunky pixel art, crisp near-black outline, restrained 4-5 tone shading, large coherent clusters, sparse facial marks, no antialiasing or painterly microtexture.
+Geometry: one full-body character centered, same camera distance and standing-equivalent anatomical scale as Image 1, grounded foot-contact line, whole silhouette inside the central 66% with generous padding.
+Backdrop: perfectly flat solid #FF00FF, no shadow, floor plane, gradient, texture, labels, border, or watermark.
+Avoid: no watch, clock, timer, cup, utensil, hat, tie, badge, extra accessory, extra limb, horn, crest, detached object, text, or #FF00FF inside the character.
+Primary request: add-scallions pose. The raccoon leans slightly forward and extends one empty paw down and to screen-right in a clear pinching-and-sprinkling gesture toward an unseen ramen cup. The other paw braces awkwardly near the chest. Do not draw scallions or any detached ingredient; the runtime FX supplies them.
+

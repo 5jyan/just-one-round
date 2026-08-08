@@ -1,0 +1,147 @@
+{
+  "target": "player",
+  "mode": "steam_startle",
+  "prompt": "",
+  "role": "",
+  "input": "assets/source/imagegen/ramen_timer/raccoon_poses/steam_startle/raw_center_900.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 1,
+  "cols": 1,
+  "cell_size": 48,
+  "fit_scale": 0.9,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "feet",
+  "shared_scale": true,
+  "scale_strategy": "preserve",
+  "component_mode": "all",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "steam_startle-1"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        900,
+        900
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        115,
+        48,
+        695,
+        824
+      ],
+      "source_frame_size": [
+        892,
+        892
+      ],
+      "is_empty": false,
+      "subject_area": 309418,
+      "body_core_area": 284468,
+      "body_area_fraction": 0.35752277343200145,
+      "anchor_source": [
+        421.0,
+        797.0
+      ],
+      "source_edge_touch": false,
+      "output_edge_touch": true,
+      "edge_touch": true,
+      "output_size": [
+        28,
+        38
+      ],
+      "preserved_subject_size": [
+        28,
+        38
+      ],
+      "paste_position": [
+        9,
+        10
+      ],
+      "unclamped_paste_position": [
+        9,
+        10
+      ],
+      "paste_clamped": false,
+      "aligned_bbox": [
+        9,
+        10,
+        37,
+        48
+      ],
+      "scale_adjustment": 1.0,
+      "source_to_output_scale": 0.0484304932735426,
+      "bbox_scale_applied": false,
+      "scale_changed": false,
+      "anchor_target": [
+        24.0,
+        46
+      ],
+      "scale_strategy": "preserve",
+      "shared_center_x": 24.0,
+      "shared_feet_y": 46
+    }
+  ],
+  "edge_touch_frames": [
+    [
+      0,
+      0
+    ]
+  ],
+  "source_edge_touch_frames": [],
+  "output_edge_touch_frames": [
+    [
+      0,
+      0
+    ]
+  ],
+  "empty_frames": [],
+  "paste_clamped_frames": [],
+  "qc_summary": {
+    "frame_count": 1,
+    "valid_frame_count": 1,
+    "empty_count": 0,
+    "edge_touch_count": 1,
+    "paste_clamped_count": 0,
+    "body_scale_mean": 0.5979320809523448,
+    "output_subject_height_mean": 38.0,
+    "body_scale_cv": 0.0,
+    "anchor_x_std": 0.0,
+    "anchor_y_std": 0.0,
+    "anchor_y_mean": 0.8934977578475336,
+    "profile_body_scale_drift": 0.006049044826559324
+  },
+  "output_origin": [
+    24.0,
+    46
+  ],
+  "scale_profile": {
+    "path": "assets/source/imagegen/ramen_timer/master_raccoon/raccoon-preserve-scale-profile-v2.json",
+    "version": 1,
+    "name": "ramen-raccoon-preserve-v2",
+    "reference_mode": "idle",
+    "processing_contract_applied": true
+  },
+  "qc_config": {
+    "strict_qc": true,
+    "reject_edge_touch": true,
+    "allow_source_edge_touch": false,
+    "max_body_scale_cv": 0.08,
+    "max_anchor_y_std": 0.05,
+    "max_profile_scale_drift": 0.4
+  }
+}
