@@ -1,7 +1,7 @@
 enum RamenTimerVerdict { perfect, tooEarly, tooLate }
 
 abstract final class RamenTimerRules {
-  static const rulesVersion = 1;
+  static const rulesVersion = 3;
   static const targetMilliseconds = <int>[10000, 20000, 30000];
   static const calibrationVisibleMilliseconds = 3000;
   static const inputUnlockMilliseconds = 3200;

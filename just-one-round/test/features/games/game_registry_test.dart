@@ -150,7 +150,8 @@ void main() {
     expect(definition.defaultDuration, const Duration(seconds: 45));
     expect(definition.hudStyle.name, 'ramenTimer');
     expect(definition.countdownInstruction, contains('처음 3초'));
-    expect(GameRegistry.supports('ramen_timer', 1), isTrue);
+    expect(GameRegistry.supports('ramen_timer', 3), isTrue);
     expect(GameRegistry.supports('ramen_timer', 2), isFalse);
+    expect(GameRegistry.supports('ramen_timer', 1), isFalse);
   });
 }

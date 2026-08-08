@@ -556,7 +556,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     DeveloperGame(id: 'midnight_snake', version: 2, displayName: '야식털이 뱀'),
     DeveloperGame(id: 'beat_the_dealer', version: 3, displayName: '블랙잭'),
     DeveloperGame(id: 'ten_pitch_slugger', version: 7, displayName: '홈런왕'),
-    DeveloperGame(id: 'ramen_timer', version: 1, displayName: '30초 컵라면'),
+    DeveloperGame(id: 'ramen_timer', version: 3, displayName: '30초 컵라면'),
   ];
 
   @override
@@ -824,7 +824,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     ),
     'ramen_timer' => const TodayGame(
       id: 'ramen_timer',
-      version: 1,
+      version: 3,
       displayName: '30초 컵라면',
       description: '증기가 가린 시계가 두 번 희미하게 비칠 때 감각을 다잡고 10초, 20초, 30초를 맞추세요.',
       durationSeconds: 45,

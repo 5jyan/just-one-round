@@ -33,7 +33,7 @@ void main() {
     expect(migration.existsSync(), isTrue);
     final sql = migration.readAsStringSync();
 
-    expect(sql, contains("where id = 'ramen_timer' and version = 1"));
+    expect(sql, contains("'ramen_timer',\n  2,"));
     expect(sql, contains('12~13초'));
     expect(sql, contains('22~23초'));
   });
@@ -45,7 +45,8 @@ void main() {
     expect(migration.existsSync(), isTrue);
     final sql = migration.readAsStringSync();
 
-    expect(sql, contains("display_name = '30초 컵라면'"));
-    expect(sql, contains("where id = 'ramen_timer' and version = 1"));
+    expect(sql, contains("'ramen_timer',\n  3,"));
+    expect(sql, contains("'30초 컵라면'"));
+    expect(sql, contains('active_attempt.game_version not in (1, 2, 3)'));
   });
 }
