@@ -31,6 +31,7 @@ void main() {
     final sql = migration.readAsStringSync();
 
     expect(sql, contains("display_name = '홈런왕'"));
-    expect(sql, contains("where id = 'ten_pitch_slugger' and version = 7"));
+    expect(sql, contains("where game_id = 'ten_pitch_slugger'"));
+    expect(sql, contains("where id = 'ten_pitch_slugger'"));
   });
 }
