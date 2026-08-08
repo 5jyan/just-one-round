@@ -13,9 +13,13 @@ import 'package:just_one_round/features/games/mama_duck_trail/domain/mama_duck_t
 import 'package:just_one_round/features/games/mama_duck_trail/mama_duck_trail_game.dart';
 import 'package:just_one_round/features/games/number_rush/domain/number_rush_rules.dart';
 import 'package:just_one_round/features/games/number_rush/number_rush_game.dart';
+import 'package:just_one_round/features/games/ramen_timer/domain/ramen_timer_rules.dart';
+import 'package:just_one_round/features/games/ramen_timer/ramen_timer_game.dart';
 import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
 import 'package:just_one_round/features/games/midnight_snake/midnight_snake_game.dart';
 import 'package:just_one_round/features/games/sausage_dachshund/domain/sausage_dachshund_rules.dart';
+import 'package:just_one_round/features/games/ten_pitch_slugger/domain/ten_pitch_slugger_rules.dart';
+import 'package:just_one_round/features/games/ten_pitch_slugger/ten_pitch_slugger_game.dart';
 
 abstract final class GameRegistry {
   static final _definitions = <String, MiniGameDefinition>{
@@ -183,6 +187,54 @@ abstract final class GameRegistry {
       hudStyle: MiniGameHudStyle.beatTheDealer,
       resultUnitLabel: '최종 보유 코인',
     ),
+    'ten_pitch_slugger': MiniGameDefinition(
+      id: 'ten_pitch_slugger',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required attemptOrdinal,
+            required challengeSeed,
+            required onFinished,
+          }) => TenPitchSluggerGame(
+            countdownDuration: countdownDuration,
+            watchdogDuration: gameDuration,
+            challengeSeed: challengeSeed,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '준비가 끝나면 언제든 탭해 스윙하세요',
+      playingInstruction: '뒤로 갈수록 더 빠르고, 같은 정타도 더 멀리!',
+      scoreLabel: 'MAX DISTANCE',
+      formatScore: TenPitchSluggerRules.formatScore,
+      hudScoreFormatter: TenPitchSluggerRules.formatHudScore,
+      defaultDuration: TenPitchSluggerRules.watchdogDuration,
+      hudStyle: MiniGameHudStyle.tenPitchSlugger,
+      resultUnitLabel: '10구 최대 비거리',
+    ),
+    'ramen_timer': MiniGameDefinition(
+      id: 'ramen_timer',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required attemptOrdinal,
+            required challengeSeed,
+            required onFinished,
+          }) => RamenTimerGame(
+            countdownDuration: countdownDuration,
+            challengeSeed: challengeSeed,
+            onFinished: onFinished,
+          ),
+      countdownInstruction: '처음 3초의 시간 감각을 기억하세요',
+      playingInstruction: '증기 사이 두 번의 힌트를 보며 10·20·30초에 찍기!',
+      scoreLabel: 'TOTAL ERROR',
+      formatScore: RamenTimerRules.formatRankingScore,
+      defaultDuration: const Duration(
+        milliseconds: RamenTimerRules.timeoutMilliseconds,
+      ),
+      hudStyle: MiniGameHudStyle.ramenTimer,
+      resultUnitLabel: '10·20·30초 총 오차',
+    ),
   };
 
   static const _supportedVersions = <String, int>{
@@ -193,6 +245,8 @@ abstract final class GameRegistry {
     'mama_duck_trail': 1,
     'midnight_snake': MidnightSnakeRules.rulesVersion,
     'beat_the_dealer': BeatTheDealerRules.rulesVersion,
+    'ten_pitch_slugger': TenPitchSluggerRules.rulesVersion,
+    'ramen_timer': RamenTimerRules.rulesVersion,
   };
 
   static MiniGameDefinition? tryForId(String? id) => _definitions[id];

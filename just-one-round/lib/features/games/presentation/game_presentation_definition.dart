@@ -7,6 +7,8 @@ enum GameHomePreviewKind {
   midnightSnake,
   sausageDachshund,
   beatTheDealer,
+  tenPitchSlugger,
+  ramenTimer,
 }
 
 enum GameGuideVisualKind {
@@ -44,6 +46,14 @@ enum GameGuideVisualKind {
   dealerBet,
   dealerChoice,
   dealerResult,
+  sluggerTap,
+  sluggerTiming,
+  sluggerDistance,
+  sluggerMagic,
+  sluggerScore,
+  ramenCalibration,
+  ramenCheckpoints,
+  ramenResult,
 }
 
 class GameGuidePageDefinition {

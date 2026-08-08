@@ -11,6 +11,7 @@ import 'package:just_one_round/features/gameplay/presentation/game_end_transitio
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/domain/mini_game_seed.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
+import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/ranking/presentation/nearby_ranking.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
@@ -39,6 +40,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   late final MiniGameDefinition _definition;
   late final MiniGameController _game;
   late final DailyGameRepository _repository;
+  late final RewardedAdService _rewardedAdService;
   GameResult? _result;
   GameResult? _pendingResult;
   DailyRankResult? _rankResult;
@@ -53,6 +55,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   void initState() {
     super.initState();
     _repository = ref.read(dailyGameRepositoryProvider);
+    _rewardedAdService = ref.read(rewardedAdServiceProvider);
     WidgetsBinding.instance.addObserver(this);
     _definition = GameRegistry.forId(widget.attempt?.gameId ?? 'dung_dodge_v2');
     final attempt = widget.attempt;
@@ -75,6 +78,18 @@ class _GameScreenState extends ConsumerState<GameScreen>
       challengeSeed: challengeSeed,
       onFinished: _handleFinished,
     );
+    if (attempt != null) unawaited(_preloadRewardedAdForNextPlay());
+  }
+
+  Future<void> _preloadRewardedAdForNextPlay() async {
+    try {
+      // Warm the next rewarded ad while the player is spending this attempt.
+      // The ad receives its SSV session only when it is shown after the game.
+      await _rewardedAdService.preload();
+    } catch (error, stackTrace) {
+      debugPrint('[AdWarmup] Preload from gameplay failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   Duration? _issuedAttemptDuration(PlayAttempt? attempt) {
@@ -230,60 +245,73 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundDeep,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          GameWidget(game: _game.flameGame),
-          if (_definition.id == 'number_rush' &&
-              !_wasInterrupted &&
-              _pendingResult == null &&
-              _result == null)
-            _NumberRushExitButton(onExit: _leaveGame),
-          if (_definition.id == 'beat_the_dealer' &&
-              !_wasInterrupted &&
-              _pendingResult == null &&
-              _result == null)
-            _BeatTheDealerExitButton(onExit: _leaveGame),
-          SafeArea(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                _GameHud(game: _game, definition: _definition),
-                if (_definition.id != 'number_rush' &&
-                    _definition.id != 'beat_the_dealer')
-                  Positioned(
-                    left: 8,
-                    top: 13,
-                    child: _GameExitButton(onExit: _leaveGame),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundDeep,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            GameWidget(game: _game.flameGame),
+            if (_definition.id == 'number_rush' &&
+                !_wasInterrupted &&
+                _pendingResult == null &&
+                _result == null)
+              _NumberRushExitButton(onExit: _leaveGame),
+            if (_definition.id == 'beat_the_dealer' &&
+                !_wasInterrupted &&
+                _pendingResult == null &&
+                _result == null)
+              _BeatTheDealerExitButton(onExit: _leaveGame),
+            SafeArea(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _GameHud(game: _game, definition: _definition),
+                  if (_definition.id == 'ramen_timer' &&
+                      !_wasInterrupted &&
+                      _pendingResult == null &&
+                      _result == null)
+                    Positioned(
+                      left: 24,
+                      right: 24,
+                      bottom: 18,
+                      child: _RamenTimerActionButton(game: _game),
+                    ),
+                  if (_definition.id != 'number_rush' &&
+                      _definition.id != 'beat_the_dealer')
+                    Positioned(
+                      left: 8,
+                      top: 13,
+                      child: _GameExitButton(onExit: _leaveGame),
+                    ),
+                  if (_wasInterrupted) _InterruptedOverlay(onHome: _returnHome),
+                ],
+              ),
+            ),
+            if (_pendingResult != null || _result != null)
+              GameEndTransition(
+                key: const Key('game-end-scene'),
+                endType: (_pendingResult ?? _result)!.endType,
+                onCompleted: _revealResult,
+                resultPanel: switch (_result) {
+                  final result? => _ResultPanel(
+                    result: result,
+                    definition: _definition,
+                    isPractice: widget.attempt?.isPractice ?? false,
+                    rankResult: _rankResult,
+                    isSubmitting: _isSubmitting,
+                    submitError: _submitError,
+                    isSavingNickname: _isSavingNickname,
+                    onChooseNickname: _chooseNickname,
+                    onRetrySubmit: () => _submitResult(result),
+                    onHome: _returnHome,
                   ),
-                if (_wasInterrupted) _InterruptedOverlay(onHome: _returnHome),
-              ],
-            ),
-          ),
-          if (_pendingResult != null || _result != null)
-            GameEndTransition(
-              key: const Key('game-end-scene'),
-              endType: (_pendingResult ?? _result)!.endType,
-              onCompleted: _revealResult,
-              resultPanel: switch (_result) {
-                final result? => _ResultPanel(
-                  result: result,
-                  definition: _definition,
-                  isPractice: widget.attempt?.isPractice ?? false,
-                  rankResult: _rankResult,
-                  isSubmitting: _isSubmitting,
-                  submitError: _submitError,
-                  isSavingNickname: _isSavingNickname,
-                  onChooseNickname: _chooseNickname,
-                  onRetrySubmit: () => _submitResult(result),
-                  onHome: _returnHome,
-                ),
-                null => null,
-              },
-            ),
-        ],
+                  null => null,
+                },
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -555,6 +583,12 @@ class _GameHud extends StatelessWidget {
         if (definition.hudStyle == MiniGameHudStyle.beatTheDealer) {
           return _BeatTheDealerHud(state: state, definition: definition);
         }
+        if (definition.hudStyle == MiniGameHudStyle.tenPitchSlugger) {
+          return _TenPitchSluggerHud(state: state, definition: definition);
+        }
+        if (definition.hudStyle == MiniGameHudStyle.ramenTimer) {
+          return _RamenTimerHud(state: state, definition: definition);
+        }
         return IgnorePointer(
           child: Stack(
             fit: StackFit.expand,
@@ -635,6 +669,263 @@ class _GameHud extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _RamenTimerActionButton extends StatelessWidget {
+  const _RamenTimerActionButton({required this.game});
+
+  final MiniGameController game;
+
+  @override
+  Widget build(BuildContext context) {
+    final actionGame = game is PrimaryActionMiniGameController
+        ? game as PrimaryActionMiniGameController
+        : null;
+    return ValueListenableBuilder<MiniGameHudState>(
+      valueListenable: game.hud,
+      builder: (context, state, child) => PixelButton(
+        key: const Key('ramen-timer-action-button'),
+        label: state.primaryActionLabel ?? '찍기!',
+        activateOnTapDown: true,
+        onPressed: state.primaryActionEnabled && actionGame != null
+            ? actionGame.triggerPrimaryAction
+            : null,
+      ),
+    );
+  }
+}
+
+class _RamenTimerHud extends StatelessWidget {
+  const _RamenTimerHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    final nextTarget = switch (state.distance) {
+      0 => '10초',
+      1 => '20초',
+      2 => '30초',
+      _ => '결과',
+    };
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 64,
+            right: 16,
+            top: 12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _HudValue(
+                  label: 'NEXT',
+                  value: nextTarget,
+                  valueKey: const Key('ramen-timer-next-target'),
+                ),
+                _HudValue(
+                  label: 'PROGRESS',
+                  value: '${state.distance.clamp(0, 3)} / 3',
+                  valueKey: const Key('ramen-timer-progress'),
+                  alignEnd: true,
+                ),
+              ],
+            ),
+          ),
+          if (state.phase == MiniGamePhase.playing && state.message != null)
+            Positioned(
+              left: 58,
+              right: 18,
+              top: 74,
+              child: Center(
+                child: Container(
+                  key: const Key('ramen-timer-hud-message'),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xD0122638),
+                    border: Border.all(
+                      color: const Color(0xFF49677A),
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    state.message!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFFFFE18A),
+                      fontFamily: 'Galmuri',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (state.phase == MiniGamePhase.countdown)
+            ColoredBox(
+              color: const Color(0x72061120),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      state.countdownNumber > 0
+                          ? '${state.countdownNumber}'
+                          : 'START!',
+                      style: const TextStyle(
+                        fontFamily: 'Galmuri',
+                        color: Color(0xFFFFD866),
+                        fontSize: 64,
+                        fontWeight: FontWeight.w700,
+                        shadows: [
+                          Shadow(
+                            color: Color(0xFF925144),
+                            offset: Offset(5, 5),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      definition.countdownInstruction,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFFE9F0EC),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TenPitchSluggerHud extends StatelessWidget {
+  const _TenPitchSluggerHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 64,
+            right: 16,
+            top: 12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _HudValue(
+                  label: 'MAX DISTANCE',
+                  value: definition.formatHudScore(state.score),
+                  valueKey: const Key('ten-pitch-hud-score'),
+                ),
+                _HudValue(
+                  label: 'PITCH',
+                  value: '${state.distance.clamp(1, 10)} / 10',
+                  valueKey: const Key('ten-pitch-hud-count'),
+                  alignEnd: true,
+                ),
+              ],
+            ),
+          ),
+          if (state.phase == MiniGamePhase.playing && state.message != null)
+            Positioned(
+              left: 62,
+              right: 18,
+              top: 76,
+              child: Center(
+                child: Container(
+                  key: const Key('ten-pitch-hud-message'),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 7,
+                  ),
+                  color: const Color(0xC911152A),
+                  child: Text(
+                    state.message!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFFFFE28A),
+                      fontFamily: 'Galmuri',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (state.phase == MiniGamePhase.countdown)
+            ColoredBox(
+              color: const Color(0x7A0D1227),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      state.countdownNumber > 0
+                          ? '${state.countdownNumber}'
+                          : 'PLAY BALL!',
+                      style: const TextStyle(
+                        fontFamily: 'Galmuri',
+                        color: Color(0xFFFFD866),
+                        fontSize: 62,
+                        fontWeight: FontWeight.w700,
+                        shadows: [
+                          Shadow(
+                            color: Color(0xFF9C4338),
+                            offset: Offset(5, 5),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      definition.countdownInstruction,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (state.phase == MiniGamePhase.playing)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 18,
+              child: Text(
+                definition.playingInstruction,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFFE9E0C5),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  shadows: [Shadow(color: Color(0xFF11152A), blurRadius: 3)],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -1055,6 +1346,7 @@ class _HudValue extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
+            fontFamily: 'Galmuri',
             color: AppColors.textMuted,
             fontSize: 10,
             fontWeight: FontWeight.w900,
@@ -1120,14 +1412,24 @@ class _ResultPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Text(
-            definition.formatScore(result.score),
-            key: const Key('final-score'),
-            style: const TextStyle(
-              fontFamily: 'Galmuri',
-              color: AppColors.text,
-              fontSize: 48,
-              fontWeight: FontWeight.w700,
+          SizedBox(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                definition.formatScore(result.score),
+                key: const Key('final-score'),
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Galmuri',
+                  color: AppColors.text,
+                  fontSize: 48,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 4),

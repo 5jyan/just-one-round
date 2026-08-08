@@ -82,6 +82,20 @@ void main() {
     expect(attempt.gameId, 'mama_duck_trail');
   });
 
+  test('시뮬레이터 개발자 메뉴에서 홈런왕을 선택할 수 있다', () async {
+    final repository = PreviewDailyGameRepository(
+      testMode: true,
+      initialGameId: 'ten_pitch_slugger',
+    );
+
+    final state = await repository.fetchToday();
+    final attempt = await repository.claimDailyAttempt(state.playDate);
+
+    expect(state.game?.displayName, '홈런왕');
+    expect(state.game?.version, 7);
+    expect(attempt.gameId, 'ten_pitch_slugger');
+  });
+
   testWidgets('오늘의 게임과 플레이 기회를 보여준다', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
     await tester.pump();

@@ -15,6 +15,8 @@ import 'package:just_one_round/features/games/midnight_snake/domain/midnight_sna
 import 'package:just_one_round/features/games/midnight_snake/presentation/midnight_snake_path.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_definition.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_registry.dart';
+import 'package:just_one_round/features/games/ramen_timer/presentation/ramen_timer_preview.dart';
+import 'package:just_one_round/features/games/ten_pitch_slugger/presentation/ten_pitch_slugger_preview.dart';
 import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
 import 'package:just_one_round/features/legal/legal_config.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
@@ -2518,6 +2520,38 @@ class _GuideVisual extends StatelessWidget {
     GameGuideVisualKind.dealerResult => const _BeatTheDealerVisual(
       scene: _DealerPreviewScene.result,
     ),
+    GameGuideVisualKind.sluggerTap => const TenPitchSluggerPreview(
+      scene: TenPitchSluggerPreviewScene.tap,
+      animate: false,
+    ),
+    GameGuideVisualKind.sluggerTiming => const TenPitchSluggerPreview(
+      scene: TenPitchSluggerPreviewScene.timing,
+      animate: false,
+    ),
+    GameGuideVisualKind.sluggerDistance => const TenPitchSluggerPreview(
+      scene: TenPitchSluggerPreviewScene.distance,
+      animate: false,
+    ),
+    GameGuideVisualKind.sluggerMagic => const TenPitchSluggerPreview(
+      scene: TenPitchSluggerPreviewScene.magic,
+      animate: false,
+    ),
+    GameGuideVisualKind.sluggerScore => const TenPitchSluggerPreview(
+      scene: TenPitchSluggerPreviewScene.score,
+      animate: false,
+    ),
+    GameGuideVisualKind.ramenCalibration => const RamenTimerPreview(
+      scene: RamenTimerPreviewScene.calibration,
+      animate: false,
+    ),
+    GameGuideVisualKind.ramenCheckpoints => const RamenTimerPreview(
+      scene: RamenTimerPreviewScene.checkpoints,
+      animate: false,
+    ),
+    GameGuideVisualKind.ramenResult => const RamenTimerPreview(
+      scene: RamenTimerPreviewScene.result,
+      animate: false,
+    ),
   };
 }
 
@@ -4843,6 +4877,12 @@ class _GamePreview extends StatelessWidget {
             const _MidnightSnakeHomePreview(),
           GameHomePreviewKind.beatTheDealer => const _BeatTheDealerVisual(
             scene: _DealerPreviewScene.home,
+          ),
+          GameHomePreviewKind.tenPitchSlugger => const TenPitchSluggerPreview(
+            scene: TenPitchSluggerPreviewScene.home,
+          ),
+          GameHomePreviewKind.ramenTimer => const RamenTimerPreview(
+            scene: RamenTimerPreviewScene.home,
           ),
         },
       ),

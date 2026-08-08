@@ -80,6 +80,8 @@ flutter:
     - assets/images/sausage_dachshund/
     - assets/images/midnight_snake/
     - assets/images/beat_the_dealer/
+    - assets/images/ten_pitch_slugger/
+    - assets/images/ramen_timer/
     - assets/maps/
     - assets/maps/patterns/
     - shorebird.yaml

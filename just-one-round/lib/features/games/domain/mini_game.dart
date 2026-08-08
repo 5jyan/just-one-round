@@ -11,6 +11,8 @@ enum MiniGameHudStyle {
   numberRush,
   mamaDuckTrail,
   beatTheDealer,
+  tenPitchSlugger,
+  ramenTimer,
 }
 
 class MiniGameHudState {
@@ -21,6 +23,9 @@ class MiniGameHudState {
     required this.remainingSeconds,
     required this.countdownNumber,
     this.distance = 0,
+    this.message,
+    this.primaryActionEnabled = false,
+    this.primaryActionLabel,
   });
 
   final MiniGamePhase phase;
@@ -29,6 +34,9 @@ class MiniGameHudState {
   final int? remainingSeconds;
   final int countdownNumber;
   final int distance;
+  final String? message;
+  final bool primaryActionEnabled;
+  final String? primaryActionLabel;
 }
 
 abstract interface class MiniGameController {
@@ -37,6 +45,10 @@ abstract interface class MiniGameController {
 
   void interrupt();
   void disposeController();
+}
+
+abstract interface class PrimaryActionMiniGameController {
+  void triggerPrimaryAction();
 }
 
 typedef MiniGameFactory =

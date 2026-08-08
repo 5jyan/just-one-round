@@ -11,7 +11,7 @@ void main() {
   ) async {
     await _pumpToday(tester);
 
-    expect(find.text('블랙잭 가즈아'), findsOneWidget);
+    expect(find.text('블랙잭'), findsOneWidget);
     expect(find.byKey(const Key('beat-dealer-home-animation')), findsOneWidget);
     expect(
       find.descendant(
@@ -128,7 +128,7 @@ class _BeatTheDealerRepository extends PreviewDailyGameRepository {
     game: const TodayGame(
       id: 'beat_the_dealer',
       version: 3,
-      displayName: '블랙잭 가즈아',
+      displayName: '블랙잭',
       description: '공개 카드를 보고 배팅한 뒤 21에 가까운 패를 만드세요.',
       durationSeconds: 180,
     ),

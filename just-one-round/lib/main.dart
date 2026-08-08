@@ -29,6 +29,10 @@ Future<void> main() async {
     'USE_PREVIEW_REPOSITORY',
     defaultValue: false,
   );
+  const previewGameId = String.fromEnvironment(
+    'PREVIEW_GAME_ID',
+    defaultValue: 'dung_dodge_v2',
+  );
   final appBuildInfo = await readAppBuildInfo();
   final supabaseUrl = configuredSupabaseUrl.isNotEmpty
       ? configuredSupabaseUrl
@@ -61,7 +65,7 @@ Future<void> main() async {
     }
   }
   final repository = usePreviewRepository
-      ? PreviewDailyGameRepository(testMode: true)
+      ? PreviewDailyGameRepository(testMode: true, initialGameId: previewGameId)
       : SupabaseDailyGameRepository(Supabase.instance.client);
   final rewardedAdService = AdMobRewardedAdService(
     AdMobRewardedAdConfig.fromEnvironment(),

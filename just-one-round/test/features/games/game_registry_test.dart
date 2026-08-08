@@ -110,7 +110,7 @@ void main() {
     expect(GameRegistry.supports('midnight_snake', 1), isFalse);
   });
 
-  test('블랙잭 가즈아는 10라운드 코인 점수전을 사용한다', () {
+  test('블랙잭은 10라운드 코인 점수전을 사용한다', () {
     final definition = GameRegistry.forId('beat_the_dealer');
 
     expect(definition.id, 'beat_the_dealer');
@@ -122,5 +122,35 @@ void main() {
     expect(GameRegistry.supports('beat_the_dealer', 3), isTrue);
     expect(GameRegistry.supports('beat_the_dealer', 2), isFalse);
     expect(GameRegistry.supports('beat_the_dealer', 1), isFalse);
+  });
+
+  test('홈런왕은 제한시간 표시 없는 최대 비거리 점수전이다', () {
+    final definition = GameRegistry.forId('ten_pitch_slugger');
+
+    expect(definition.scoreLabel, 'MAX DISTANCE');
+    expect(definition.formatScore(15000), '150.00m');
+    expect(definition.defaultDuration, const Duration(seconds: 300));
+    expect(definition.hudStyle.name, 'tenPitchSlugger');
+    expect(definition.countdownInstruction, contains('언제든 탭'));
+    expect(GameRegistry.supports('ten_pitch_slugger', 7), isTrue);
+    expect(GameRegistry.supports('ten_pitch_slugger', 6), isFalse);
+    expect(GameRegistry.supports('ten_pitch_slugger', 5), isFalse);
+    expect(GameRegistry.supports('ten_pitch_slugger', 4), isFalse);
+    expect(GameRegistry.supports('ten_pitch_slugger', 3), isFalse);
+    expect(GameRegistry.supports('ten_pitch_slugger', 2), isFalse);
+    expect(GameRegistry.supports('ten_pitch_slugger', 1), isFalse);
+  });
+
+  test('30초 컵라면은 45초 안에 세 시각의 총 오차를 경쟁한다', () {
+    final definition = GameRegistry.forId('ramen_timer');
+
+    expect(definition.scoreLabel, 'TOTAL ERROR');
+    expect(definition.formatScore(3599410), '총 오차 0.59초');
+    expect(definition.formatScore(0), '시간 초과');
+    expect(definition.defaultDuration, const Duration(seconds: 45));
+    expect(definition.hudStyle.name, 'ramenTimer');
+    expect(definition.countdownInstruction, contains('처음 3초'));
+    expect(GameRegistry.supports('ramen_timer', 1), isTrue);
+    expect(GameRegistry.supports('ramen_timer', 2), isFalse);
   });
 }

@@ -7,6 +7,7 @@ import 'package:just_one_round/features/economy/domain/economy_transaction.dart'
 import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_screen.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
+import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
@@ -20,6 +21,112 @@ void main() {
     expect(shouldInterruptGame(AppLifecycleState.hidden), isTrue);
     expect(shouldInterruptGame(AppLifecycleState.paused), isTrue);
     expect(shouldInterruptGame(AppLifecycleState.detached), isTrue);
+  });
+
+  testWidgets('게임이 시작되면 다음 보상형 광고를 미리 불러온다', (tester) async {
+    final adService = _PreloadTrackingRewardedAdService();
+    const attempt = PlayAttempt(
+      id: 'attempt-preload-next-ad',
+      ordinal: 1,
+      status: 'issued',
+      grantType: 'daily',
+      gameId: 'dung_dodge_v2',
+      gameVersion: 1,
+      gameDurationSeconds: 300,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [rewardedAdServiceProvider.overrideWithValue(adService)],
+        child: const MaterialApp(
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(adService.preloadCalls, 1);
+  });
+
+  testWidgets('플레이 중 시스템 뒤로가기와 스와이프 이탈을 막는다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'practice-back-guard',
+      ordinal: 1,
+      status: 'practice',
+      grantType: 'practice_ad',
+      gameId: 'dung_dodge_v2',
+      gameVersion: 1,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const GameScreen(attempt: attempt),
+                ),
+              ),
+              child: const Text('게임 시작'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('게임 시작'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(GameScreen), findsOneWidget);
+    expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(GameScreen), findsOneWidget);
+    expect(find.text('게임 시작'), findsNothing);
+  });
+
+  testWidgets('컵라면은 3.2초 후 pointer down에서 다음 목표로 넘어간다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'ramen-timer-practice',
+      ordinal: 1,
+      status: 'practice',
+      grantType: 'practice_ad',
+      gameId: 'ramen_timer',
+      gameVersion: 1,
+      gameDurationSeconds: 45,
+    );
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
+        ),
+      ),
+    );
+    await _pumpUntilFound(
+      tester,
+      find.byKey(const Key('ramen-timer-hud-message')),
+    );
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 3300)),
+    );
+    await tester.pump(const Duration(milliseconds: 16));
+
+    final action = find.byKey(const Key('ramen-timer-action-button'));
+    expect(action, findsOneWidget);
+    expect(find.text('0 / 3'), findsOneWidget);
+    expect(find.text('10초'), findsOneWidget);
+    expect(find.text('10초 지금 찍기!'), findsOneWidget);
+
+    final gesture = await tester.startGesture(tester.getCenter(action));
+    await tester.pump();
+    expect(find.text('1 / 3'), findsOneWidget);
+    expect(find.text('20초'), findsOneWidget);
+    expect(find.text('20초 지금 찍기!'), findsOneWidget);
+    expect(find.text('파 투입! 다음은 20초'), findsOneWidget);
+    await gesture.up();
   });
 
   testWidgets('제한 시간이 끝나면 결과를 보여준다', (tester) async {
@@ -59,6 +166,18 @@ void main() {
 
     expect(find.text('한 판 종료!'), findsOneWidget);
     expect(find.byKey(const Key('final-score')), findsOneWidget);
+    final finalScore = tester.widget<Text>(
+      find.byKey(const Key('final-score')),
+    );
+    expect(finalScore.maxLines, 1);
+    expect(finalScore.softWrap, isFalse);
+    expect(
+      find.ancestor(
+        of: find.byKey(const Key('final-score')),
+        matching: find.byType(FittedBox),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('0.01초'), findsNothing);
     expect(find.text('기록 단위'), findsNothing);
     expect(find.text('홈으로'), findsOneWidget);
@@ -798,5 +917,15 @@ class _FlakyRepository extends _RecordingRepository {
       nickname: '테스트',
       nearby: [],
     );
+  }
+}
+
+class _PreloadTrackingRewardedAdService extends FakeRewardedAdService {
+  var preloadCalls = 0;
+
+  @override
+  Future<void> preload() async {
+    preloadCalls++;
+    await super.preload();
   }
 }

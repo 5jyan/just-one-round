@@ -115,11 +115,11 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
 
   @override
   Future<TodayState> fetchToday() async {
-    await _ensureSignedIn();
     final compatibility = await _fetchClientCompatibility();
     if (compatibility.updateRequired) {
       return _blockedState(compatibility);
     }
+    await _ensureSignedIn();
 
     var state = TodayState.fromJson(
       Map<String, dynamic>.from(await _client.rpc('get_today_state') as Map),
@@ -538,13 +538,14 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     this.testMode = false,
     this.compatibility = const ClientCompatibility.supported(),
     this.initialEconomy = const PlayerEconomy.zero(),
-  });
+    String initialGameId = 'dung_dodge_v2',
+  }) : _selectedGameId = initialGameId;
 
   bool testMode;
   final ClientCompatibility compatibility;
   final PlayerEconomy initialEconomy;
   late PlayerEconomy _economy = initialEconomy;
-  String _selectedGameId = 'dung_dodge_v2';
+  String _selectedGameId;
 
   static const _games = [
     DeveloperGame(id: 'dung_dodge_v2', version: 1, displayName: '똥피하기'),
@@ -553,7 +554,9 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     DeveloperGame(id: 'number_rush', version: 1, displayName: '탭50'),
     DeveloperGame(id: 'mama_duck_trail', version: 1, displayName: '엄마, 어디가'),
     DeveloperGame(id: 'midnight_snake', version: 2, displayName: '야식털이 뱀'),
-    DeveloperGame(id: 'beat_the_dealer', version: 3, displayName: '블랙잭 가즈아'),
+    DeveloperGame(id: 'beat_the_dealer', version: 3, displayName: '블랙잭'),
+    DeveloperGame(id: 'ten_pitch_slugger', version: 7, displayName: '홈런왕'),
+    DeveloperGame(id: 'ramen_timer', version: 1, displayName: '30초 컵라면'),
   ];
 
   @override
@@ -563,7 +566,40 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     attempts: const [],
     adAttemptAvailable: false,
     testMode: testMode,
-    result: const DailyRankResult(
+    result: _previewRankResult(_selectedGameId),
+    nickname: testMode ? 'tester' : null,
+    compatibility: compatibility,
+    economy: _economy,
+  );
+
+  DailyRankResult _previewRankResult(String gameId) {
+    if (gameId == 'ramen_timer') {
+      return const DailyRankResult(
+        score: 3589850,
+        rank: 8,
+        participants: 24,
+        topPercent: 34,
+        nickname: 'tester',
+        bestScore: 3599920,
+        nearby: [
+          NearbyRank(rank: 7, nickname: '말랑주먹', score: 3590420, isMe: false),
+          NearbyRank(rank: 8, nickname: 'tester', score: 3589850, isMe: true),
+          NearbyRank(rank: 9, nickname: '느린번개', score: 3586260, isMe: false),
+        ],
+        leaders: [
+          NearbyRank(rank: 1, nickname: '작은공룡', score: 3599920, isMe: false),
+          NearbyRank(rank: 2, nickname: '졸린감자', score: 3599760, isMe: false),
+          NearbyRank(rank: 3, nickname: '한번만더', score: 3599410, isMe: false),
+          NearbyRank(rank: 4, nickname: '공룡발자국', score: 3598930, isMe: false),
+          NearbyRank(rank: 5, nickname: '퇴근요정', score: 3596720, isMe: false),
+          NearbyRank(rank: 6, nickname: '새벽질주', score: 3593310, isMe: false),
+          NearbyRank(rank: 7, nickname: '말랑주먹', score: 3590420, isMe: false),
+          NearbyRank(rank: 8, nickname: 'tester', score: 3589850, isMe: false),
+        ],
+      );
+    }
+
+    return const DailyRankResult(
       score: 2978,
       rank: 8,
       participants: 24,
@@ -585,11 +621,8 @@ class PreviewDailyGameRepository implements DailyGameRepository {
         NearbyRank(rank: 7, nickname: '말랑주먹', score: 3146, isMe: false),
         NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: false),
       ],
-    ),
-    nickname: testMode ? 'tester' : null,
-    compatibility: compatibility,
-    economy: _economy,
-  );
+    );
+  }
 
   @override
   Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate) async =>
@@ -725,6 +758,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
         gameVersion: switch (_selectedGameId) {
           'midnight_snake' => 2,
           'beat_the_dealer' => 3,
+          'ten_pitch_slugger' => 7,
           _ => 1,
         },
         gameDurationSeconds: _previewGame(_selectedGameId).durationSeconds,
@@ -769,7 +803,7 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     ),
     'midnight_snake' => const TodayGame(
       id: 'midnight_snake',
-      version: 2,
+      version: 3,
       displayName: '야식털이 뱀',
       description: '야식과 한 번씩 나타나는 황금 소시지·쥐를 노리고 몸과 벽을 피하세요.',
       durationSeconds: 300,
@@ -777,9 +811,23 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     'beat_the_dealer' => const TodayGame(
       id: 'beat_the_dealer',
       version: 3,
-      displayName: '블랙잭 가즈아',
+      displayName: '블랙잭',
       description: '딜러의 공개 카드를 보고 배팅한 뒤 21에 가까운 패를 만들어 코인을 불리세요.',
       durationSeconds: 180,
+    ),
+    'ten_pitch_slugger' => const TodayGame(
+      id: 'ten_pitch_slugger',
+      version: 7,
+      displayName: '홈런왕',
+      description: '점점 빨라지는 10구를 받아쳐 최대 비거리를 기록하세요. 뒤로 갈수록 같은 정타도 더 멀리 갑니다.',
+      durationSeconds: 300,
+    ),
+    'ramen_timer' => const TodayGame(
+      id: 'ramen_timer',
+      version: 1,
+      displayName: '30초 컵라면',
+      description: '증기가 가린 시계가 두 번 희미하게 비칠 때 감각을 다잡고 10초, 20초, 30초를 맞추세요.',
+      durationSeconds: 45,
     ),
     _ => throw UnsupportedError('Unsupported preview game id: $gameId'),
   };

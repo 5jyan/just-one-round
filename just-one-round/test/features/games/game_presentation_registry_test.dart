@@ -99,4 +99,20 @@ void main() {
     expect(presentation.guidePages[2].description, contains('최대 3개'));
     expect(presentation.guidePages.last.detail, contains('5분'));
   });
+
+  test('30초 컵라면 설명서는 세 탭·가림·결과 공개 순서로 안내한다', () {
+    final presentation = GamePresentationRegistry.forId('ramen_timer');
+
+    expect(presentation.durationLabel, '약 30초 · 최대 45초');
+    expect(presentation.guidePages, hasLength(3));
+    expect(presentation.guidePages.first.description, contains('체감 10초'));
+    expect(presentation.guidePages.first.description, contains('20초'));
+    expect(presentation.guidePages.first.description, contains('30초'));
+    expect(presentation.guidePages[1].description, contains('처음 3초'));
+    expect(presentation.guidePages[1].description, contains('증기'));
+    expect(presentation.guidePages[1].detail, contains('12~13초'));
+    expect(presentation.guidePages[1].detail, contains('22~23초'));
+    expect(presentation.guidePages.last.description, contains('총 오차'));
+    expect(presentation.guidePages.last.detail, contains('45초'));
+  });
 }
