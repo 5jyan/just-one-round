@@ -1,5 +1,28 @@
 # 개발 및 기기 검증
 
+## 스토어 배포 빌드 규칙
+
+스토어에 올리는 Android/iOS 빌드는 항상 Shorebird를 통해 생성한다. 일반
+Flutter 빌드나 Xcode Archive는 Shorebird 업데이트 런타임이 포함되지 않으므로
+스토어 업로드에 사용하지 않는다.
+
+```sh
+# 새 스토어 기준 버전: 먼저 dry-run으로 검증
+shorebird release android --artifact aab \
+  --build-name <version-name> --build-number <version-code> --dry-run
+shorebird release ios \
+  --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist --dry-run
+
+# 검증 후 같은 명령에서 --dry-run을 제거해 릴리스를 생성하고,
+# Shorebird가 출력한 AAB/IPA만 Play Console/App Store Connect에 업로드한다.
+```
+
+`flutter build appbundle`, `flutter build ipa`, Xcode Archive는 로컬·서명·실기기
+검증용으로만 사용한다. Shorebird 기준 릴리스를 스토어에 배포한 다음 Dart 코드만
+수정한 경우에는 해당 기준 버전을 지정해 `shorebird patch`를 실행한다. 새 버전이나
+네이티브 코드·Flutter 엔진·에셋 변경은 새 `shorebird release`와 스토어 업데이트가
+필요하다.
+
 ## 공통 검사
 
 프로젝트의 한글 상위 경로에서 Flutter 3.44.7의 `flutter analyze`가 LSP JSON 파싱 오류를 낼 수 있다. 코드 정적 검사는 다음 명령을 사용한다.

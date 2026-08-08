@@ -2,17 +2,58 @@
 
 마지막 갱신: 2026-08-04
 
+## 필수 배포 규칙
+
+이 프로젝트의 스토어 배포 빌드는 반드시 Shorebird로 만든다. `shorebird.yaml`이
+있다고 해서 `flutter build`나 Xcode Archive에 Shorebird가 자동으로 적용되지는
+않는다.
+
+- Android 스토어 제출용 AAB는 반드시 `shorebird release android`로 생성한다.
+- iOS 스토어 제출용 IPA는 반드시 `shorebird release ios`로 생성한다.
+- `flutter build appbundle`, `flutter build ipa`, 일반 Xcode Archive로 만든
+  산출물은 로컬 검증용일 뿐이며 Play Console/App Store Connect에 업로드하지
+  않는다.
+- 새 버전·빌드 번호마다 해당 플랫폼의 `shorebird release`를 한 번 실행하고,
+  생성된 AAB/IPA를 스토어에 먼저 배포한다.
+- 스토어에 Shorebird 기반 릴리스를 배포한 뒤 Dart 코드만 수정할 때만
+  `shorebird patch --release-version=<해당 버전>`을 사용한다.
+- `shorebird releases list`에서 플랫폼과 버전이 확인되지 않는 산출물은
+  OTA 기반으로 간주하지 않는다.
+
+표준 순서는 다음과 같다.
+
+```sh
+# 1. 스토어 기준 릴리스 검증
+shorebird release android --artifact aab \
+  --build-name <version-name> --build-number <version-code> --dry-run
+shorebird release ios \
+  --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist --dry-run
+
+# 2. 검증된 동일 명령에서 --dry-run을 제거해 Shorebird 릴리스 생성
+# 3. Shorebird가 출력한 AAB/IPA만 각 스토어에 업로드
+
+# 4. 이후 Dart 코드만 변경된 경우 해당 기준 릴리스에 패치
+shorebird patch --platforms=android --release-version=<version-name>+<version-code>
+shorebird patch --platforms=ios \
+  --release-version=<version-name>+<version-code> \
+  --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist
+```
+
+현재 `1.0.5+10`은 이 규칙이 적용되기 전에 일반 Flutter 빌드로 배포된
+예외 버전이다. 같은 versionCode를 Shorebird 빌드로 교체할 수 없으므로, 다음
+스토어 버전부터 반드시 Shorebird 기반으로 새 버전을 배포한다.
+
 ## Shorebird OTA
 
 - Shorebird 앱 ID: `3dd8845d-0de5-4362-b06a-ad463b923e54`
-- 이번 App Store 제출 릴리스: `1.0.5+10` (App Store Connect 업로드·심사 제출 완료, 심사 대기)
+- 이번 App Store 제출 릴리스: `1.0.5+10` (일반 Flutter 빌드, OTA 기반 아님)
 - Flutter 버전: `3.44.8`
 - 기존 스토어 기준 릴리스: Android `1.0.3+8`, iOS `1.0.2+8`
 - iOS 출시 릴리스: `1.0.4+9` (2026-08-02 App Store 공개 확인)
-- Android 내부 테스트 릴리스: `1.0.5+10` (2026-08-04 Google Play 게시 확인)
-- Android 기준 AAB:
+- Android 내부 테스트 릴리스: `1.0.5+10` (일반 Flutter 빌드, 2026-08-04 Google Play 게시 확인)
+- Android 검증용 AAB:
   `build/app/outputs/bundle/release/app-release.aab`
-- iOS 기준 IPA:
+- iOS 검증용 IPA:
   `build/ios/ipa/딱한판만-1.0.5+10-swift-support.ipa`
 
 스토어에 위 기준 릴리스를 먼저 배포한 뒤, Dart 코드만 바뀐 긴급 수정은
@@ -39,6 +80,11 @@ shorebird patch \
 
 ## 출시 차단 항목
 
+- [ ] 다음 Android 스토어 버전을 `shorebird release android`로 생성하고,
+  그 명령이 출력한 AAB를 업로드했는지 확인
+- [ ] 다음 iOS 스토어 버전을 `shorebird release ios`로 생성하고,
+  그 명령이 출력한 IPA를 업로드했는지 확인
+- [ ] 일반 `flutter build`·Xcode Archive 산출물을 스토어에 업로드하지 않았는지 확인
 - [x] 운영자명 `Saul Park` 확정
 - [x] 공개 문의 이메일 `saulpark12@gmail.com` 반영
 - [x] `legal-site`의 운영자명과 문의 정보 치환
@@ -105,9 +151,10 @@ shorebird patch \
 ## 출시 직전 검증
 
 - [x] `flutter test` (2026-08-03, 292개 통과)
-- [x] `flutter build appbundle --release --build-name 1.0.5 --build-number 10`
-  (실제 업로드 키로 서명 및 `jarsigner -verify` 확인)
-- [x] iOS Release Xcode Archive 및 앱 설정 검증
+- [x] Android 일반 Release AAB 서명 및 `jarsigner -verify` 확인
+  (참고용 검증 산출물이며 스토어 제출용 Shorebird AAB가 아님)
+- [x] iOS 일반 Release Xcode Archive 및 앱 설정 검증
+  (참고용 검증 산출물이며 스토어 제출용 Shorebird IPA가 아님)
 - [x] iOS `1.0.5 (10)` Release 앱 생성, Apple Distribution 서명·SwiftSupport 포함 IPA 검증
 - [x] Android `1.0.5 (10)` 내부 테스트 게시 상태 확인
 - [x] Shorebird iOS Release Archive·IPA 생성 및 App Store Connect 업로드
