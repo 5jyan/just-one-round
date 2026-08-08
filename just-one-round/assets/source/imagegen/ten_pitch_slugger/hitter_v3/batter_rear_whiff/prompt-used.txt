@@ -1,0 +1,5 @@
+Create exactly 12 chronological frames in a 4 columns x 3 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+Use the accepted v3 rear-view batter master as the exact identity, style, scale, costume, equipment, and camera reference. Change only the action pose.
+
+Frames left-to-right, top-to-bottom: 1 committed swing, 2 bat passes empty space, 3 over-rotation, 4 front foot slips, 5 awkward full turn, 6 off-balance lean, 7 tiny stumble, 8 embarrassed freeze, 9 regain footing, 10 pull bat inward, 11 reset shoulders, 12 return to ready. Funny and dopey but never injured. Keep the golden bat attached and visible in all frames. Stable standing-equivalent scale and body root, shared grounded line where applicable. No ball, impact, dust, shadow, detached FX, text, UI, watermark, blur, or antialiasing. Entire body and bat inside central 82% with magenta padding.

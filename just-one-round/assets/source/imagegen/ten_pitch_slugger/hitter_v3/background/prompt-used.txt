@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: full-screen mobile baseball game background master
+Primary request: rebuild the shown hitter-view night ballpark as a substantially higher-quality project-native pixel-art environment.
+Scene: empty Korean neighborhood baseball stadium at night, camera fixed directly behind home plate looking straight toward the centered pitcher mound and center field. Wide dirt foreground, green striped grass, clear mound, dark empty stands, two warm floodlights, navy sky and a few quiet clouds and stars.
+Composition: vertical portrait with genuine scenery continuing above and below the 360x640 gameplay safe core. Keep the central ball-flight lane x140..220 and the HUD zone near the top visually quiet. The mound belongs near the vertical center of the safe core. Keep the foreground continuous beneath code overlays.
+Style: the project's intentionally awkward, dopey-but-cute pixel-art style, but with twice the source fidelity of the old v2 asset. Crisp deliberate 2-pixel clusters, richer material separation, cleaner stadium architecture, controlled texture, restrained palette, no blur or painterly gradients.
+Constraints: environment only. No batter, pitcher, catcher, umpire, fielder, crowd, mascot, text, logos, UI, scoreboards with writing, home plate, batter boxes, foul lines, strike-zone rectangle, ball, watermark, or photographic rendering.

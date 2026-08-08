@@ -1,0 +1,1 @@
+One centered pixel-art baseball game sprite on a perfectly flat solid #FF00FF background. A single white baseball with two small dusty-red stitch curves, readable at 12x12 source pixels, chunky hard pixel edges, no blur, no glow, no shadow, no text, no extra objects. Very generous magenta padding and no edge contact.

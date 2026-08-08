@@ -1,0 +1,7 @@
+Create exactly 6 sequential swing-animation frames in a 2 columns × 3 rows grid on a perfectly flat solid #FF00FF magenta background.
+
+Image 1 is the accepted rear-three-quarter batter identity, pixel style, exact costume, camera distance, standing scale, body root, and feet-line reference. Image 2 is only an action-energy and bat-motion reference. Preserve Image 1 exactly and change only the swing pose.
+
+Read frames left-to-right across each row: 1 ready/load, 2 hips begin turning, 3 bat accelerates toward the centered strike zone, 4 compact contact pose, 5 full follow-through, 6 controlled recovery. The batter remains viewed from behind in the left batter's box facing the distant centered pitcher. Keep the red helmet, cream uniform, dark teal shoes, and golden wooden bat unchanged.
+
+Keep the same standing-equivalent anatomical scale as Image 1 in all cells. Keep the body root centered and both feet on one shared ground line; do not translate the whole body across a cell. Keep the bat attached to the hands and inside the central 76% width/height. No detached impact, slash arc, trail, ball, dust, shadow, or effect. Entire body and bat must fit with magenta padding on all sides. No labels, borders, separators, guide marks, text, UI, or watermark. Crisp project-native chunky pixel art only; no antialiasing, painterly shading, 3D, or smooth vector edges.

@@ -1,0 +1,3 @@
+Create exactly 6 chronological loop frames in a 3 columns x 2 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+One clean pixel-art baseball viewed head-on, same centered circular size in every frame. Cream-white leather, dark red curved stitches rotating naturally across the six frames, crisp dark rim, one restrained highlight. Readable from 7px to 30px display size. Keep the ball centered and inside the central 45%. No trail, glow, shadow, text, UI, watermark, blur, or antialiasing.

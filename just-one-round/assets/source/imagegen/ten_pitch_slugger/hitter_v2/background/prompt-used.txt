@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: portrait mobile game background
+Primary request: create a night baseball stadium from the batter's viewpoint behind home plate, matching the approved centered composition.
+Input images: Image 1 is the camera and composition reference; Image 2 is the existing game's palette, pixel cluster, lighting, and environment-style reference; Image 3 is the approved runtime geometry reference.
+Scene/backdrop: empty night stadium, quiet dark-blue sky, symmetrical unoccupied stands, two restrained light towers, green outfield, centered distant pitcher's mound, and a warm brown infield lane widening toward the bottom.
+Style/medium: project-native chunky pixel art, slightly awkward and dopey but clean and readable, effective 2-pixel cluster rhythm at 360 logical pixels wide.
+Composition/framing: exact 9:16 portrait composition, fixed hitter-facing camera; centered vanishing point and mound; generous clear central ball lane; low-detail upper area reserved for HUD.
+Lighting/mood: muted navy night with warm cream stadium lights, quiet two-person showdown mood.
+Constraints: environment only; no batter, pitcher, catcher, umpire, fielder, mascot, or crowd; no text, scoreboards with writing, logos, UI, strike-zone rectangle, home plate, batter boxes, or foul lines; those exact gameplay guides will be overlaid in code. Keep the infield material continuous beneath those overlays. No watermark. No blur, smooth vector gradients, photorealism, isometric view, side view, or broadcast camera.

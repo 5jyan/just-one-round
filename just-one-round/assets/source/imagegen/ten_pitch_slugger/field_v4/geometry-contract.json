@@ -1,0 +1,80 @@
+{
+  "coordinate_system": {
+    "unit": "inch",
+    "origin": "rear point of home plate",
+    "positive_x": "toward first base",
+    "positive_y": "toward pitcher"
+  },
+  "regulation_geometry": {
+    "home_plate": {
+      "front_width": 17.0,
+      "side_edges": 8.5,
+      "rear_diagonal_edges": 12.0
+    },
+    "batter_box": {
+      "width": 48.0,
+      "length": 72.0,
+      "inside_gap_from_plate": 6.0
+    },
+    "mound": {
+      "diameter": 216.0,
+      "center_from_home": 708.0
+    },
+    "pitching_rubber": {
+      "width": 24.0,
+      "depth": 6.0,
+      "front_edge_from_home": 726.0
+    }
+  },
+  "runtime_visual_geometry": {
+    "home_plate": {
+      "regulation_scale": 1.6,
+      "logical_bounds": [157.3, 529.2, 45.4, 35.8],
+      "extrusion_depth_logical_pixels": 4,
+      "bevel_depth_logical_pixels": 2,
+      "reason": "foreground readability and pixel-art depth at the 360x640 player camera"
+    },
+    "batter_box": {
+      "width": 63.0,
+      "length": 72.0,
+      "inside_gap_from_plate": 4.0,
+      "left_logical_corners": [[57.7, 519.4], [153.3, 519.4], [141.9, 630.0], [5.7, 630.0]],
+      "batter_horizontal_shift_logical_pixels": -12,
+      "reason": "player-scale allowance around the enlarged foreground plate and 240px rear-view batter stance"
+    },
+    "foul_guides": {
+      "left": [[105.5, 519.4], [0.0, 454.0]],
+      "right": [[254.5, 519.4], [360.0, 454.0]],
+      "surface": "foreground dirt only",
+      "reason": "stylized game composition requested to avoid crossing the grass"
+    },
+    "contact": {
+      "world": [182.0, 474.0],
+      "batter_tip_in_cell": [215.0, 136.0],
+      "reason": "moves with the batter to preserve exact bat-ball contact"
+    }
+  },
+  "projection": {
+    "viewport": [360, 640],
+    "origin": [180.0, 565.0],
+    "scale_x": 1.783,
+    "scale_y": 1.489,
+    "perspective": 0.00487,
+    "formula_x": "180 + 1.783*x/(1 + 0.00487*y)",
+    "formula_y": "565 - 1.489*y/(1 + 0.00487*y)"
+  },
+  "pixel_contract": {
+    "logical_art_pixel": 2,
+    "chalk_thickness_logical_pixels": 4,
+    "filtering": "nearest-neighbor",
+    "antialiasing": false,
+    "background_runtime_size": [360, 720],
+    "gameplay_safe_core": [0, 0, 360, 640],
+    "bottom_overscan": 80,
+    "preview_crop": [0, 105, 360, 460]
+  },
+  "sources": [
+    "https://img.mlbstatic.com/mlb-images/image/upload/mlb/ub08blsefk8wkkd2oemz.pdf",
+    "https://www.mlb.com/glossary/rules/field-dimensions"
+  ]
+}

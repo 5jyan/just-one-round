@@ -1,0 +1,5 @@
+Create exactly 12 chronological frames in a 4 columns x 3 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+Image 1 is the exact accepted rear-view batter identity and art reference. Preserve its red helmet, cream-and-red uniform, dark teal shoes, white gloves, golden bat, proportions, rear 3/4 camera, pixel cluster language, and standing-equivalent anatomical scale. Change only the pose.
+
+Frames left-to-right, top-to-bottom: 1 ready, 2 heel load, 3 short stride, 4 hips begin, 5 exact ball-contact pose with bat tip fully extended toward screen center, 6 wrists roll, 7 powerful follow-through, 8 torso rotates, 9 weight lands, 10 proud finish, 11 bat lowers, 12 recover toward ready. Frame 5 is the authored contact frame. Keep the bat attached to both hands and fully inside every cell. Stable body root and shared foot line; natural foot lift is allowed but no whole-body travel. No ball, impact, trail, dust, shadow, detached FX, text, UI, watermark, blur, or antialiasing. Entire body and bat inside central 82% with magenta padding.

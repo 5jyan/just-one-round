@@ -1,0 +1,5 @@
+Create exactly 12 chronological frames in a 4 columns x 3 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+Use the accepted v3 front-facing pitcher master as the exact identity, art, costume, glove, camera, and standing-equivalent scale reference. Change only the pose.
+
+Frames: 1 set, 2 hands gather, 3 knee lift, 4 compact coil, 5 stride, 6 arm cocks, 7 exact centered release toward camera, 8 arm follows through, 9 back leg swings, 10 torso rises, 11 feet recover, 12 returns to the set stance. Release is frame 7. The sequence must visibly continue after release rather than freezing. Keep the pelvis/root centered with consistent anatomy and grounded reference line. No visible baseball, trail, dust, mound, shadow, detached FX, text, UI, watermark, blur, or antialiasing. Entire body and limbs inside central 78% with magenta padding.

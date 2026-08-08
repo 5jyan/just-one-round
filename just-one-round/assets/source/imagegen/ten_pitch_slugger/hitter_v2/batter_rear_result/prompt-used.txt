@@ -1,0 +1,7 @@
+Create exactly 4 hit-result animation frames in a 2 columns × 2 rows grid on a perfectly flat solid #FF00FF magenta background.
+
+Image 1 is the accepted rear-three-quarter batter identity, pixel style, exact costume, camera distance, standing scale, body root, and feet-line reference. Preserve it exactly and change only the reaction pose.
+
+Frame order left-to-right, top-to-bottom: 1 compact contact follow-through, 2 surprised freeze while watching the ball, 3 tiny proud chest lift, 4 relaxed return with the bat lowered. The batter remains viewed from behind in the left batter's box facing the centered pitcher.
+
+Keep the same standing-equivalent scale, red helmet, cream uniform, dark teal shoes, golden bat, and shared feet line. Keep the body root centered. No ball, impact, detached effect, dust, shadow, text, label, border, separator, UI, or watermark. Entire character and bat must fit inside the central 76% with magenta padding. Crisp project-native chunky pixel art only.

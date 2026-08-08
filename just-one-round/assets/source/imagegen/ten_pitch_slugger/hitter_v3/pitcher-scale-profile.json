@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "ten-pitch-pitcher-front-v3",
+  "processing": {
+    "cell_size": 96,
+    "fit_scale": 0.84,
+    "trim_border": 4,
+    "edge_clean_depth": 3,
+    "align": "feet",
+    "shared_scale": true,
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "component_padding": 0,
+    "min_component_area": 1,
+    "edge_touch_margin": 0
+  },
+  "output_origin": [
+    48.0,
+    89
+  ],
+  "reference": {
+    "target": "npc",
+    "mode": "idle",
+    "rows": 3,
+    "cols": 2,
+    "body_scale_mean": 0.40241588168546333,
+    "body_scale_cv": 0.0026293594595924717,
+    "anchor_y_mean": 0.8853658536585365
+  },
+  "qc": {
+    "max_body_scale_drift": 0.1
+  }
+}

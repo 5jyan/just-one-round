@@ -1,0 +1,5 @@
+Create exactly 8 chronological frames in a 4 columns x 2 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+Use the accepted v3 rear-view batter master as the exact identity, style, scale, costume, equipment, and camera reference. Change only the pose.
+
+Frames left-to-right, top-to-bottom: 1 contact finish, 2 eyes follow the rising ball, 3 torso leans upward, 4 tiny surprised hop, 5 proud chest lift, 6 hold the golden bat over the shoulder, 7 breathe out, 8 settle toward ready. Warm restrained celebration. The bat remains attached to the gloves and fully visible in every frame. Stable standing-equivalent scale and body root. No ball, impact, dust, shadow, detached FX, text, UI, watermark, blur, or antialiasing. Entire body and bat inside central 82% with magenta padding.

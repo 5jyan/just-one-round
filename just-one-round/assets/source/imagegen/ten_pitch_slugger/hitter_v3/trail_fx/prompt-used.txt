@@ -1,0 +1,3 @@
+Create exactly 8 chronological seamless loop frames in a 4 columns x 2 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+Compact project-native pixel-art goblin magic baseball trail seen head-on: curling purple crescent and violet wisps that rotate around an empty centered ball socket. Frames build and twist then return seamlessly. Strong but compact silhouette, same center and scale, detached wisps intentional but entirely inside central 72%. No ball, character, mound, wide aura, text, UI, watermark, blur, or antialiasing.

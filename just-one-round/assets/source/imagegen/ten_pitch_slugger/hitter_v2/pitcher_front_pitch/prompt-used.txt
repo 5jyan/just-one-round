@@ -1,0 +1,7 @@
+Create exactly 6 sequential pitching-animation frames in a 2 columns × 3 rows grid on a perfectly flat solid #FF00FF magenta background.
+
+Image 1 is the accepted front-facing pitcher identity, pixel style, exact costume, camera distance, standing scale, body root, glove size, and feet-line reference. Image 2 is only an action-energy reference. Preserve Image 1 exactly and change only the pitching pose.
+
+Read frames left-to-right across each row: 1 glove set, 2 front-view leg lift, 3 compact coil, 4 arm comes forward, 5 centered release toward camera, 6 stiff follow-through. Keep the blank overconfident expression, dark teal cap, cream uniform, huge brown glove, and skinny ugly-cute proportions.
+
+Keep the standing-equivalent body scale constant. Keep the pelvis/root centered and grounded feet on one shared line; no whole-body travel across cells. No visible ball, trail, dust, shadow, detached effect, labels, borders, separators, text, UI, or watermark. Full body and limbs must remain inside the central 70% with generous magenta padding. Crisp project-native chunky pixel art only.

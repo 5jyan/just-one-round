@@ -1,0 +1,5 @@
+Create exactly 16 chronological frames in a 4 columns x 4 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+Use the accepted v3 front-facing pitcher master as the exact identity, art, costume, glove, camera, and standing-equivalent scale reference. Change only the pose and a compact purple glove glow.
+
+Frames: 1 rigid set, 2 glove tightens, 3 tiny purple pixels inside glove, 4 glow grows, 5 shoulders tense, 6 knee lift, 7 compact coil, 8 stride, 9 arm cocks, 10 exact centered release toward camera, 11 purple recoil, 12 deep follow-through, 13 back leg settles, 14 torso rises, 15 feet recover, 16 exhausted set stance. Release is frame 10. The purple energy stays tightly attached to glove/body; the separate runtime trail handles wide effects. No visible ball, wide aura, trail, dust, mound, shadow, detached FX, text, UI, watermark, blur, or antialiasing. Entire body and glow inside central 78% with magenta padding.

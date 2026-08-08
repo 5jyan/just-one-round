@@ -1,0 +1,5 @@
+Create exactly 6 chronological frames in a 2 columns x 3 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, or separators.
+
+Use the shown v2 rear-view batter as the identity reference, but redraw it at substantially higher source fidelity. Same short ugly-cute chibi batter, rear 3/4 view, oversized red helmet with one tiny hair tuft, cream uniform with dusty-red sleeves, dark teal socks and shoes, white gloves, chunky golden wooden bat. Preserve the nervous inward-knee stance and endearing awkwardness.
+
+Frames left-to-right, top-to-bottom: 1 settled stance, 2 inhale, 3 shoulders rise and bat trembles, 4 exhale, 5 tiny knee flex, 6 return seamlessly to frame 1. Keep full body and bat visible. Same camera distance, anatomy, costume, bat length, body root, standing-equivalent scale, and foot-contact line in every frame. Occupy the central 68% with generous magenta padding. Crisp project-native pixel art with deliberate mostly 2-pixel clusters and only rare 1-pixel eye/highlight marks. No shadow, ball, detached effect, text, UI, watermark, antialiasing, blur, or gradient background.

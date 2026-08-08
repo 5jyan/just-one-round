@@ -1,0 +1,21 @@
+{
+  "input": "assets/images/ten_pitch_slugger/background_hitter_v3.png",
+  "outputs": [
+    "assets/images/ten_pitch_slugger/background_hitter_v4.png",
+    "assets/images/ten_pitch_slugger/background_preview_v4.png"
+  ],
+  "method": "same-image grass sampling plus projected mound texture reuse",
+  "mound_mask_bounds": [
+    136,
+    320,
+    226,
+    340
+  ],
+  "art_pixel": 2,
+  "preview_crop": [
+    0,
+    105,
+    360,
+    460
+  ]
+}

@@ -1,0 +1,9 @@
+Create exactly 4 animation frames in a 2 columns × 2 rows grid on a perfectly flat solid #FF00FF magenta background.
+
+Use the previously shown batter sprite as the exact identity, palette, uniform, bat, outline, and project pixel-art reference. Use the baseball camera reference only for orientation: redraw the same batter from a rear three-quarter view, seen from behind in the left batter's box while facing the centered pitcher.
+
+Character: short ugly-cute chibi batter, oversized red helmet, cream uniform, dark teal socks and shoes, chunky golden wooden bat, slightly inward knees, one tiny hair tuft. The back and left side of the helmet and uniform must be visible; do not show a front-facing portrait. Keep the character intentionally awkward, nervous, and endearing.
+
+Frame order left-to-right, top-to-bottom: 1 neutral ready stance, 2 tiny inhale with shoulders raised, 3 subtle bat tremble, 4 return toward neutral for a seamless idle loop.
+
+Lock the same camera distance, body proportions, costume colors, bat length, and standing-equivalent scale in all cells. Keep both feet on one shared horizontal ground line. The full character and bat must stay inside the central 62% width and 76% height of every cell with generous magenta padding. No body part or bat may cross a cell edge. No detached effects, shadows, dust, labels, borders, cell separators, guide marks, text, UI, or watermark. Crisp chunky project-native pixel art only; no antialiasing, painterly shading, 3D rendering, or smooth vector edges.

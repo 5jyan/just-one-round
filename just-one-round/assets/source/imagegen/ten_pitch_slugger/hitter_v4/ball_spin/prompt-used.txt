@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: runtime pixel-art projectile animation atlas
+Input image: the visible V3 audit sheet is a style and scale reference; match the batter's chunky cluster language, not the old ball's soft rendering.
+
+Create exactly 6 chronological seamless rotation frames in a 3 columns x 2 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, separators, text, or watermark.
+
+Subject: one front-facing baseball, identical centered circular size in every cell. Project-native ugly-cute chunky pixel art. Use a firm two-pixel dark navy outline, warm cream leather in two flat tones, dark brick-red stitches in bold grouped marks, and one small blocky cream-white highlight. The contour and every internal mark must use deliberate 2x2-style pixel clusters that match the approved batter and pitcher assets. Keep the ball simple, slightly imperfect, and highly readable at 7px to 30px runtime size.
+
+Frame order: six visibly different stitch rotations around the same fixed ball center, returning cleanly to frame 1. Keep the complete ball inside the central 45% of every cell with generous magenta padding.
+
+Avoid: realistic leather texture, beige gradients, soft shading, thin one-pixel noise, translucent rim, blur, antialiasing, glow, trail, shadow, floor plane, extra balls, character, bat, UI, or any element crossing a cell edge.

@@ -1,0 +1,7 @@
+Create exactly 8 sequential magic-pitch animation frames in a 2 columns × 4 rows grid on a perfectly flat solid #FF00FF magenta background.
+
+Image 1 is the accepted front-facing pitcher identity, pixel style, exact costume, camera distance, standing scale, body root, glove size, and feet-line reference. Image 2 is only an action-energy reference. Preserve Image 1 exactly and change only the magic pitching pose.
+
+Read frames left-to-right across each row: 1 rigid set, 2 glove tightens, 3 tiny purple pixels leak inside the glove, 4 compact purple charge, 5 exaggerated front-view leg lift, 6 coil, 7 centered release toward camera, 8 stiff follow-through. Purple energy must remain a small tightly attached glove/body accent; the separate runtime trail handles the wide magic effect.
+
+Keep the standing-equivalent body scale constant. Keep the pelvis/root centered and grounded feet on one shared line. No visible ball, wide aura, trail, dust, shadow, detached effect, labels, borders, separators, text, UI, or watermark. Full body and compact purple accent must remain inside the central 70% with generous magenta padding. Crisp project-native chunky pixel art only.

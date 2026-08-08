@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: runtime pixel-art baseball contact impact atlas
+Input image: the visible V3 audit sheet is a style and scale reference; match the batter's chunky 2x2 cluster language while making the impact much stronger than the old sparse effect.
+
+Create exactly 8 chronological one-shot impact frames in a 4 columns x 2 rows grid on one perfectly flat solid #FF00FF background. No visible grid lines, borders, labels, separators, text, or watermark.
+
+Subject: a powerful baseball bat contact burst centered at the exact same point in every cell. Project-native chunky pixel art using deliberate 2x2-style clusters, dark navy edge accents, cream-white core, strong lemon-yellow arms, warm orange fragments, and a few brick-red accent sparks.
+
+Frame order: 1 strong compact white contact cross already clearly visible, 2 explosive yellow-white star, 3 peak oversized asymmetric starburst with a thick circular shock ring, 4 second peak with long angular speed spikes, 5 ring expanding while orange chunks separate, 6 chunks and short streaks flying outward, 7 smaller readable sparks, 8 a visible compact afterglow that is not empty. Make frames 2-5 fill roughly the central 65%, while frames 1 and 8 remain at least 20% wide. Keep every fragment inside the central 78% of its cell.
+
+Avoid: tiny ignition dot, empty fade frames, fine glitter, soft smoke, blur, antialiasing, gradients, baked ball, bat, character, ground, shadow, UI, or any element crossing a cell edge.
