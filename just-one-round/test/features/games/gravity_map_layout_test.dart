@@ -42,10 +42,10 @@ void main() {
       );
     }
 
-    expectOnlyDifficulty(44.999, 'easy');
-    expectOnlyDifficulty(45, 'medium');
-    expectOnlyDifficulty(89.999, 'medium');
-    expectOnlyDifficulty(90, 'hard');
+    expectOnlyDifficulty(34.999, 'easy');
+    expectOnlyDifficulty(35, 'medium');
+    expectOnlyDifficulty(74.999, 'medium');
+    expectOnlyDifficulty(75, 'hard');
   });
 
   test('reports a floating wall in a visual grid', () {

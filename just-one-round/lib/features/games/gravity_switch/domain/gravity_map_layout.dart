@@ -13,6 +13,9 @@ class GravityMapProfile {
 }
 
 class GravityMapPattern {
+  static const easyEndsAtSeconds = 35.0;
+  static const normalEndsAtSeconds = 75.0;
+
   const GravityMapPattern({
     required this.id,
     required this.unlockAfterSeconds,
@@ -25,12 +28,17 @@ class GravityMapPattern {
 
   bool isAvailableAt(double elapsedSeconds) {
     final tokens = id.split('_');
-    if (tokens.contains('easy') && elapsedSeconds >= 45) return false;
-    if (tokens.contains('medium') &&
-        (elapsedSeconds < 45 || elapsedSeconds >= 90)) {
+    if (tokens.contains('easy') && elapsedSeconds >= easyEndsAtSeconds) {
       return false;
     }
-    if (tokens.contains('hard') && elapsedSeconds < 90) return false;
+    if (tokens.contains('medium') &&
+        (elapsedSeconds < easyEndsAtSeconds ||
+            elapsedSeconds >= normalEndsAtSeconds)) {
+      return false;
+    }
+    if (tokens.contains('hard') && elapsedSeconds < normalEndsAtSeconds) {
+      return false;
+    }
     return unlockAfterSeconds <= elapsedSeconds;
   }
 }

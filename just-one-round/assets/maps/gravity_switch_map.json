@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "cellSize": 48,
   "baseCeilingHeight": 128,
   "baseFloorHeight": 128,
@@ -38,49 +38,49 @@
     {
       "id": "large_m_medium",
       "description": "중간 큰 M자",
-      "unlockAfterSeconds": 45,
+      "unlockAfterSeconds": 35,
       "mapFile": "patterns/large_m_medium.map"
     },
     {
       "id": "missile_medium",
       "description": "중간 미사일",
-      "unlockAfterSeconds": 45,
+      "unlockAfterSeconds": 35,
       "mapFile": "patterns/missile_medium.map"
     },
     {
       "id": "simple_medium",
       "description": "중간 기본",
-      "unlockAfterSeconds": 45,
+      "unlockAfterSeconds": 35,
       "mapFile": "patterns/simple_medium.map"
     },
     {
       "id": "snake_medium",
       "description": "중간 뱀",
-      "unlockAfterSeconds": 45,
+      "unlockAfterSeconds": 35,
       "mapFile": "patterns/snake_medium.map"
     },
     {
       "id": "tick_medium",
       "description": "중간 틱",
-      "unlockAfterSeconds": 45,
+      "unlockAfterSeconds": 35,
       "mapFile": "patterns/tick_medium.map"
     },
     {
       "id": "v_medium",
       "description": "중간 V자 협곡",
-      "unlockAfterSeconds": 45,
+      "unlockAfterSeconds": 35,
       "mapFile": "patterns/v_medium.map"
     },
     {
       "id": "small_m_hard",
       "description": "어려운 작은 M자",
-      "unlockAfterSeconds": 90,
+      "unlockAfterSeconds": 75,
       "mapFile": "patterns/small_m_hard.map"
     },
     {
       "id": "tick_hard",
       "description": "어려운 틱",
-      "unlockAfterSeconds": 90,
+      "unlockAfterSeconds": 75,
       "mapFile": "patterns/tick_hard.map"
     }
   ]
