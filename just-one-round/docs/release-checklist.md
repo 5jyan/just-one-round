@@ -1,6 +1,6 @@
 # 딱한판만 출시 체크리스트
 
-마지막 갱신: 2026-08-04
+마지막 갱신: 2026-08-09
 
 ## 필수 배포 규칙
 
@@ -39,22 +39,21 @@ shorebird patch --platforms=ios \
   --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist
 ```
 
-현재 `1.0.5+10`은 이 규칙이 적용되기 전에 일반 Flutter 빌드로 배포된
-예외 버전이다. 같은 versionCode를 Shorebird 빌드로 교체할 수 없으므로, 다음
-스토어 버전부터 반드시 Shorebird 기반으로 새 버전을 배포한다.
+`1.0.5+10`은 이 규칙이 적용되기 전에 일반 Flutter 빌드로 배포된 예외
+버전이다. 다음 버전인 `1.0.6+11`부터 Android와 iOS 모두 Shorebird 기반으로
+생성해 스토어에 업로드했다.
 
 ## Shorebird OTA
 
 - Shorebird 앱 ID: `3dd8845d-0de5-4362-b06a-ad463b923e54`
-- 이번 App Store 제출 릴리스: `1.0.5+10` (일반 Flutter 빌드, OTA 기반 아님)
+- 이번 App Store 제출 릴리스: `1.0.6+11` (Shorebird, 2026-08-09 심사 제출)
 - Flutter 버전: `3.44.8`
-- 기존 스토어 기준 릴리스: Android `1.0.3+8`, iOS `1.0.2+8`
+- 최신 Shorebird 기준 릴리스: Android `1.0.6+11`, iOS `1.0.6+11`
 - iOS 출시 릴리스: `1.0.4+9` (2026-08-02 App Store 공개 확인)
-- Android 내부 테스트 릴리스: `1.0.5+10` (일반 Flutter 빌드, 2026-08-04 Google Play 게시 확인)
+- Android 내부 테스트 릴리스: `1.0.6+11` (Shorebird, 2026-08-09 Google Play 게시 확인)
 - Android 검증용 AAB:
   `build/app/outputs/bundle/release/app-release.aab`
-- iOS 검증용 IPA:
-  `build/ios/ipa/딱한판만-1.0.5+10-swift-support.ipa`
+- iOS 검증용 IPA: `build/ios/ipa/딱한판만.ipa`
 
 스토어에 위 기준 릴리스를 먼저 배포한 뒤, Dart 코드만 바뀐 긴급 수정은
 플랫폼별로 다음 명령을 실행한다.
@@ -80,9 +79,9 @@ shorebird patch \
 
 ## 출시 차단 항목
 
-- [ ] 다음 Android 스토어 버전을 `shorebird release android`로 생성하고,
+- [x] 다음 Android 스토어 버전을 `shorebird release android`로 생성하고,
   그 명령이 출력한 AAB를 업로드했는지 확인
-- [ ] 다음 iOS 스토어 버전을 `shorebird release ios`로 생성하고,
+- [x] 다음 iOS 스토어 버전을 `shorebird release ios`로 생성하고,
   그 명령이 출력한 IPA를 업로드했는지 확인
 - [ ] 일반 `flutter build`·Xcode Archive 산출물을 스토어에 업로드하지 않았는지 확인
 - [x] 운영자명 `Saul Park` 확정
@@ -90,7 +89,7 @@ shorebird patch \
 - [x] `legal-site`의 운영자명과 문의 정보 치환
 - [x] 법적 문서 사이트를 `https://legal.shook.work`에 공개하고 앱의
   기본 법적 문서 URL로 지정
-- [ ] Android 업로드 키 생성 후 `android/key.properties` 작성
+- [x] Android 업로드 키 생성 후 `android/key.properties` 작성
 - [ ] iOS·Android 앱 아이콘과 시작 화면을 실제 브랜드 이미지로 교체
 - [x] Xcode에서 Apple Distribution 인증서와 App Store 프로비저닝 프로파일
   생성
@@ -129,11 +128,18 @@ shorebird patch \
   (SwiftSupport 포함 IPA, App Store Connect 빌드 상태 완료 확인)
 - [x] iOS `1.0.5 (10)` App Store 심사 제출
   (2026-08-04 00:26 KST, App Store Connect ‘1개의 항목 제출됨’ 및 심사 대기 상태 확인)
+- [x] Shorebird iOS `1.0.6 (11)` 업로드 및 빌드 선택
+  (2026-08-09 11:04 KST Transporter 전달, App Store Connect 처리 완료 확인)
+- [x] iOS `1.0.6 (11)` App Store 심사 제출
+  (2026-08-09 11:23 KST, 제출 ID
+  `9f028910-8415-4931-be04-8e5d52bf390f`, 심사 대기 상태 확인)
 
 ## Google Play
 
 - [x] 내부 테스트 트랙에 `1.0.5 (10)` 게시
   (2026-08-04, 출시명 `1.0.5 (10) - 광고 보상 즉시 시작`)
+- [x] Shorebird 내부 테스트 트랙에 `1.0.6 (11)` 게시
+  (2026-08-09, 출시명 `1.0.6 (11) - 홈런왕·30초 컵라면`)
 
 ## 앱과 서버에 반영된 항목
 
@@ -150,7 +156,8 @@ shorebird patch \
 
 ## 출시 직전 검증
 
-- [x] `flutter test` (2026-08-03, 292개 통과)
+- [x] `flutter test` (2026-08-09, 398개 통과)
+- [x] `dart analyze lib test` (2026-08-09, 문제 없음)
 - [x] Android 일반 Release AAB 서명 및 `jarsigner -verify` 확인
   (참고용 검증 산출물이며 스토어 제출용 Shorebird AAB가 아님)
 - [x] iOS 일반 Release Xcode Archive 및 앱 설정 검증
@@ -159,6 +166,8 @@ shorebird patch \
 - [x] Android `1.0.5 (10)` 내부 테스트 게시 상태 확인
 - [x] Shorebird iOS Release Archive·IPA 생성 및 App Store Connect 업로드
   (`1.0.4+9`, Shorebird release `744017`)
+- [x] Android/iOS `1.0.6+11` Shorebird dry-run 및 실제 릴리스 생성
+- [x] Android `1.0.6 (11)` 내부 테스트 게시 및 iOS `1.0.6 (11)` 심사 제출
 - [ ] 신규 설치 → 게임 → 광고 보상 → 점수 제출 확인
 - [ ] 닉네임 신고·차단 후 닉네임만 숨고 순위·비교 기록 수가 유지되는지 확인
 - [ ] 오전 6시 10분 이후 전날 NPC 포함 최종 결과가 한 번만 표시되는지 확인
