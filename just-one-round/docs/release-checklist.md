@@ -1,6 +1,6 @@
 # 딱한판만 출시 체크리스트
 
-마지막 갱신: 2026-08-09
+마지막 갱신: 2026-08-10
 
 ## 필수 배포 규칙
 
@@ -46,11 +46,13 @@ shorebird patch --platforms=ios \
 ## Shorebird OTA
 
 - Shorebird 앱 ID: `3dd8845d-0de5-4362-b06a-ad463b923e54`
-- 이번 App Store 제출 릴리스: `1.0.6+11` (Shorebird, 2026-08-09 심사 제출)
+- 현재 App Store 공개 릴리스: `1.0.6+11` (Shorebird, 2026-08-10 공개 확인)
 - Flutter 버전: `3.44.8`
 - 최신 Shorebird 기준 릴리스: Android `1.0.6+11`, iOS `1.0.6+11`
-- iOS 출시 릴리스: `1.0.4+9` (2026-08-02 App Store 공개 확인)
+- iOS 출시 릴리스: `1.0.6+11` (2026-08-10 App Store 공개 확인)
 - Android 내부 테스트 릴리스: `1.0.6+11` (Shorebird, 2026-08-09 Google Play 게시 확인)
+- Android 비공개 Alpha 릴리스: `1.0.6+11`
+  (2026-08-10 100% 출시 제출, Google 검토 중)
 - Android 검증용 AAB:
   `build/app/outputs/bundle/release/app-release.aab`
 - iOS 검증용 IPA: `build/ios/ipa/딱한판만.ipa`
@@ -133,6 +135,8 @@ shorebird patch \
 - [x] iOS `1.0.6 (11)` App Store 심사 제출
   (2026-08-09 11:23 KST, 제출 ID
   `9f028910-8415-4931-be04-8e5d52bf390f`, 심사 대기 상태 확인)
+- [x] iOS `1.0.6 (11)` App Store 공개 확인 및 iOS 최소 지원 빌드를
+  `11`로 상향 (iOS 빌드 10 이하 강제 업데이트)
 
 ## Google Play
 
@@ -140,6 +144,10 @@ shorebird patch \
   (2026-08-04, 출시명 `1.0.5 (10) - 광고 보상 즉시 시작`)
 - [x] Shorebird 내부 테스트 트랙에 `1.0.6 (11)` 게시
   (2026-08-09, 출시명 `1.0.6 (11) - 홈런왕·30초 컵라면`)
+- [x] Shorebird 비공개 Alpha 트랙에 `1.0.6 (11)` 100% 출시 제출
+  (2026-08-10, 출시명 `1.0.6 (11) - 홈런왕·30초 컵라면`, Google 검토 중)
+- [ ] 비공개 Alpha `1.0.6 (11)`이 테스터에게 설치 가능한지 확인한 뒤
+  Android 최소 지원 빌드를 `11`로 상향
 
 ## 앱과 서버에 반영된 항목
 
@@ -153,6 +161,8 @@ shorebird patch \
 - [x] 서버 최소 지원 빌드와 앱 강제 업데이트 화면 연결
 - [x] 실제 iOS App Store 상품 URL
   `https://apps.apple.com/app/id6794861323`을 강제 업데이트 설정에 입력
+- [x] 플랫폼별 최소 지원 빌드 적용
+  (iOS `11`, Android `10`; Android는 비공개 테스트 승인 후 `11`로 상향)
 
 ## 출시 직전 검증
 
