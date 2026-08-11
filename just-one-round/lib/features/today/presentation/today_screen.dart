@@ -1180,7 +1180,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     final challenge = PixelButton(
       key: const Key('challenge-button'),
       label: _challengeButtonLabel(state),
-      icon: Icons.emoji_events_outlined,
+      icon: Icons.play_arrow_rounded,
       onPressed: _canStartPlay(state)
           ? () => _start(mode: _PlayStartMode.challenge, displayedState: state)
           : null,
