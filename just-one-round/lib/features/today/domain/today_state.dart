@@ -214,6 +214,8 @@ class TodayState {
     this.playCount,
     this.challengeAvailable,
     this.nextPlayRequiresAd,
+    this.challengeRequiresAd,
+    this.practiceRequiresAd,
     this.requiresKakaoForDailyPlay = false,
     this.compatibility = const ClientCompatibility.supported(),
     this.economy = const PlayerEconomy.zero(),
@@ -240,6 +242,8 @@ class TodayState {
       playCount: (json['play_count'] as num?)?.toInt(),
       challengeAvailable: json['challenge_available'] as bool?,
       nextPlayRequiresAd: json['next_play_requires_ad'] as bool?,
+      challengeRequiresAd: json['challenge_requires_ad'] as bool?,
+      practiceRequiresAd: json['practice_requires_ad'] as bool?,
       requiresKakaoForDailyPlay:
           json['requires_kakao_for_daily_play'] as bool? ?? false,
       economy: _economyFromJson(json),
@@ -270,6 +274,8 @@ class TodayState {
   final int? playCount;
   final bool? challengeAvailable;
   final bool? nextPlayRequiresAd;
+  final bool? challengeRequiresAd;
+  final bool? practiceRequiresAd;
   final bool requiresKakaoForDailyPlay;
   final ClientCompatibility compatibility;
   final PlayerEconomy economy;
@@ -282,6 +288,10 @@ class TodayState {
   bool get canChoosePractice => practiceAvailable;
   bool get requiresAdForNextPlay =>
       nextPlayRequiresAd ?? (!testMode && !canClaimDaily);
+  bool get requiresAdForChallenge =>
+      !testMode && (challengeRequiresAd ?? requiresAdForNextPlay);
+  bool get requiresAdForPractice =>
+      !testMode && (practiceRequiresAd ?? requiresAdForNextPlay);
   bool get hasPlayed => result?.score != null;
   bool get isExhausted =>
       !testMode && !canChooseChallenge && !canChoosePractice;
@@ -298,6 +308,8 @@ class TodayState {
     playCount: playCount,
     challengeAvailable: challengeAvailable,
     nextPlayRequiresAd: nextPlayRequiresAd,
+    challengeRequiresAd: challengeRequiresAd,
+    practiceRequiresAd: practiceRequiresAd,
     requiresKakaoForDailyPlay: requiresKakaoForDailyPlay,
     compatibility: value,
     economy: economy,

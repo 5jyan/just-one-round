@@ -10,7 +10,7 @@ import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
-  testWidgets('보상형 광고 완료 뒤 검증 세션으로 두 번째 판을 발급한다', (tester) async {
+  testWidgets('연습 뒤 도전은 광고 완료 후 검증 세션으로 발급한다', (tester) async {
     final repository = _RewardedFlowRepository();
     final adService = _RecordingRewardedAdService();
 
@@ -75,7 +75,7 @@ void main() {
     expect(find.byType(GameScreen), findsOneWidget);
   });
 
-  testWidgets('두 판을 마친 뒤 연습하기는 광고를 보고 랭킹 없는 판을 시작한다', (tester) async {
+  testWidgets('첫 판을 도전한 뒤 첫 연습은 광고를 한 번 본다', (tester) async {
     final repository = _PracticeFlowRepository();
     final adService = _RecordingRewardedAdService();
 
@@ -153,16 +153,15 @@ class _RewardedFlowRepository extends PreviewDailyGameRepository {
       description: '테스트',
       durationSeconds: 300,
     ),
-    attempts: const [
-      PlayAttempt(
-        id: 'daily-attempt',
-        ordinal: 1,
-        status: 'completed',
-        grantType: 'daily',
-        gameId: 'dung_dodge_v2',
-      ),
-    ],
-    adAttemptAvailable: true,
+    attempts: const [],
+    adAttemptAvailable: false,
+    dailyClaimed: true,
+    playCount: 1,
+    challengeAvailable: true,
+    practiceAvailable: true,
+    nextPlayRequiresAd: true,
+    challengeRequiresAd: true,
+    practiceRequiresAd: false,
     testMode: false,
     result: const DailyRankResult(
       score: 100,
@@ -240,16 +239,15 @@ class _PracticeFlowRepository extends PreviewDailyGameRepository {
         grantType: 'daily',
         gameId: 'dung_dodge_v2',
       ),
-      PlayAttempt(
-        id: 'rewarded-attempt',
-        ordinal: 2,
-        status: 'completed',
-        grantType: 'rewarded_ad',
-        gameId: 'dung_dodge_v2',
-      ),
     ],
     adAttemptAvailable: false,
     practiceAvailable: true,
+    dailyClaimed: true,
+    playCount: 1,
+    challengeAvailable: false,
+    nextPlayRequiresAd: true,
+    challengeRequiresAd: false,
+    practiceRequiresAd: true,
     testMode: false,
     result: const DailyRankResult(
       score: 100,

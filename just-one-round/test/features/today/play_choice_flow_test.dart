@@ -40,19 +40,55 @@ void main() {
   });
 
   testWidgets('첫 플레이가 연습이면 두 번째에도 두 모드를 표시한다', (tester) async {
+    final repository = _ChoiceRepository(
+      _choiceState(playCount: 1, requiresAd: true, challengeRequiresAd: true),
+    );
+    final adService = _CountingAdService();
     await _pumpChoiceState(
       tester,
-      _choiceState(playCount: 1, requiresAd: true),
+      repository.state,
+      repository: repository,
+      adService: adService,
     );
 
     expect(find.text('연습하기'), findsOneWidget);
     expect(find.text('도전하기'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('연습하기'));
+    await tester.tap(find.text('연습하기'));
+    await tester.pumpAndSettle();
+
+    expect(repository.dailyPracticeClaims, 1);
+    expect(adService.showCalls, 0);
+  });
+
+  testWidgets('연습 없이 첫 도전을 선택하면 광고가 없다', (tester) async {
+    final repository = _ChoiceRepository(_choiceState(playCount: 0));
+    final adService = _CountingAdService();
+    await _pumpChoiceState(
+      tester,
+      repository.state,
+      repository: repository,
+      adService: adService,
+    );
+
+    await tester.ensureVisible(find.text('도전하기'));
+    await tester.tap(find.text('도전하기'));
+    await tester.pumpAndSettle();
+
+    expect(repository.dailyChallengeClaims, 1);
+    expect(adService.showCalls, 0);
   });
 
   testWidgets('첫 두 플레이가 연습이면 세 번째에는 도전만 표시한다', (tester) async {
     await _pumpChoiceState(
       tester,
-      _choiceState(playCount: 2, practiceAvailable: false, requiresAd: true),
+      _choiceState(
+        playCount: 2,
+        practiceAvailable: false,
+        requiresAd: true,
+        challengeRequiresAd: true,
+      ),
     );
 
     expect(find.text('연습하기'), findsNothing);
@@ -62,7 +98,12 @@ void main() {
   testWidgets('도전을 선택한 뒤에는 연습만 표시한다', (tester) async {
     await _pumpChoiceState(
       tester,
-      _choiceState(playCount: 1, challengeAvailable: false, requiresAd: true),
+      _choiceState(
+        playCount: 1,
+        challengeAvailable: false,
+        requiresAd: true,
+        practiceRequiresAd: true,
+      ),
     );
 
     expect(find.text('연습하기'), findsOneWidget);
@@ -70,12 +111,21 @@ void main() {
   });
 }
 
-Future<void> _pumpChoiceState(WidgetTester tester, TodayState state) async {
+Future<void> _pumpChoiceState(
+  WidgetTester tester,
+  TodayState state, {
+  _ChoiceRepository? repository,
+  _CountingAdService? adService,
+}) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        dailyGameRepositoryProvider.overrideWithValue(_ChoiceRepository(state)),
-        rewardedAdServiceProvider.overrideWithValue(_CountingAdService()),
+        dailyGameRepositoryProvider.overrideWithValue(
+          repository ?? _ChoiceRepository(state),
+        ),
+        rewardedAdServiceProvider.overrideWithValue(
+          adService ?? _CountingAdService(),
+        ),
         kakaoAuthServiceProvider.overrideWithValue(
           const _LinkedKakaoAuthService(),
         ),
@@ -91,6 +141,8 @@ TodayState _choiceState({
   bool challengeAvailable = true,
   bool practiceAvailable = true,
   bool requiresAd = false,
+  bool challengeRequiresAd = false,
+  bool practiceRequiresAd = false,
 }) => TodayState(
   playDate: DateTime(2026, 8, 11),
   game: const TodayGame(
@@ -110,6 +162,8 @@ TodayState _choiceState({
   challengeAvailable: challengeAvailable,
   practiceAvailable: practiceAvailable,
   nextPlayRequiresAd: requiresAd,
+  challengeRequiresAd: challengeRequiresAd,
+  practiceRequiresAd: practiceRequiresAd,
 );
 
 class _ChoiceRepository extends PreviewDailyGameRepository {
@@ -117,9 +171,16 @@ class _ChoiceRepository extends PreviewDailyGameRepository {
 
   final TodayState state;
   var dailyPracticeClaims = 0;
+  var dailyChallengeClaims = 0;
 
   @override
   Future<TodayState> fetchToday() async => state;
+
+  @override
+  Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate) async {
+    dailyChallengeClaims++;
+    return super.claimDailyAttempt(expectedPlayDate);
+  }
 
   @override
   Future<PlayAttempt> claimDailyPractice(DateTime expectedPlayDate) async {

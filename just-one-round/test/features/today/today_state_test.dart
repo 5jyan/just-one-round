@@ -85,12 +85,16 @@ void main() {
       'challenge_available': true,
       'practice_available': false,
       'next_play_requires_ad': true,
+      'challenge_requires_ad': true,
+      'practice_requires_ad': false,
     });
 
     expect(state.completedPlayCount, 2);
     expect(state.canChooseChallenge, isTrue);
     expect(state.canChoosePractice, isFalse);
     expect(state.requiresAdForNextPlay, isTrue);
+    expect(state.requiresAdForChallenge, isTrue);
+    expect(state.requiresAdForPractice, isFalse);
   });
 
   test('무료 연습 시도는 랭킹에 반영하지 않는다', () {

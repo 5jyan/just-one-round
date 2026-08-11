@@ -658,8 +658,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     required TodayState displayedState,
   }) async {
     if (_isClaiming) return;
-    final requiresAd =
-        !displayedState.testMode && displayedState.requiresAdForNextPlay;
+    final requiresAd = switch (mode) {
+      _PlayStartMode.challenge => displayedState.requiresAdForChallenge,
+      _PlayStartMode.practice => displayedState.requiresAdForPractice,
+    };
     if (!requiresAd &&
         displayedState.requiresKakaoForDailyPlay &&
         !ref.read(kakaoAuthServiceProvider).isLinked) {
@@ -1181,7 +1183,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       key: const Key('challenge-button'),
       label: _challengeButtonLabel(state),
       icon: Icons.play_arrow_rounded,
-      onPressed: _canStartPlay(state)
+      onPressed: _canStartPlay(state, _PlayStartMode.challenge)
           ? () => _start(mode: _PlayStartMode.challenge, displayedState: state)
           : null,
     );
@@ -1189,7 +1191,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       key: const Key('practice-button'),
       label: _practiceButtonLabel(state),
       icon: Icons.school_outlined,
-      onPressed: _canStartPlay(state)
+      onPressed: _canStartPlay(state, _PlayStartMode.practice)
           ? () => _start(mode: _PlayStartMode.practice, displayedState: state)
           : null,
     );
@@ -1212,9 +1214,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     );
   }
 
-  bool _canStartPlay(TodayState state) {
+  bool _canStartPlay(TodayState state, _PlayStartMode mode) {
     if (_isClaiming) return false;
-    if (!state.requiresAdForNextPlay) return true;
+    final requiresAd = switch (mode) {
+      _PlayStartMode.challenge => state.requiresAdForChallenge,
+      _PlayStartMode.practice => state.requiresAdForPractice,
+    };
+    if (!requiresAd) return true;
     return _rewardedAdStatus != RewardedAdStatus.disabled &&
         _rewardedAdStatus != RewardedAdStatus.loading;
   }
@@ -1224,7 +1230,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       return GamePresentationRegistry.forId(state.game?.id).loadingLabel;
     }
     if (state.testMode) return '딱 한 판만!';
-    if (!state.requiresAdForNextPlay) return '도전하기';
+    if (!state.requiresAdForChallenge) return '도전하기';
     return switch (_rewardedAdStatus) {
       RewardedAdStatus.loading => '광고 준비 중…',
       RewardedAdStatus.disabled => '도전 준비 중',
@@ -1237,7 +1243,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (_isClaiming) {
       return GamePresentationRegistry.forId(state.game?.id).loadingLabel;
     }
-    if (!state.requiresAdForNextPlay) return '연습하기';
+    if (!state.requiresAdForPractice) return '연습하기';
     return switch (_rewardedAdStatus) {
       RewardedAdStatus.loading => '광고 준비 중…',
       RewardedAdStatus.disabled => '연습 준비 중',
@@ -1250,11 +1256,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (state.testMode) return '테스트 모드 · 제한 없이 계속 플레이할 수 있어요';
     if (state.completedPlayCount == 0) return '연습하거나 오늘의 기록에 도전해 보세요';
     if (state.canChooseChallenge && state.canChoosePractice) {
-      return '광고 후 연습 또는 도전을 선택할 수 있어요';
+      if (state.requiresAdForChallenge && !state.requiresAdForPractice) {
+        return '연습은 바로, 도전은 광고 후 시작해요';
+      }
+      return '연습 또는 도전을 선택할 수 있어요';
     }
-    if (state.canChooseChallenge) return '연습 2회 완료 · 이번에는 도전만 가능해요';
+    if (state.canChooseChallenge) {
+      return state.requiresAdForChallenge
+          ? '연습 2회 완료 · 광고 후 도전해요'
+          : '연습 2회 완료 · 이번에는 도전만 가능해요';
+    }
     if (state.canChoosePractice && state.completedPlayCount < 4) {
-      return '도전 완료 · 이제 연습만 가능해요';
+      return state.requiresAdForPractice
+          ? '첫 도전 완료 · 광고 한 번 후 연습해요'
+          : '도전 완료 · 이제 광고 없이 연습할 수 있어요';
     }
     if (state.canChoosePractice) return '오늘은 계속 연습할 수 있어요';
     if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';
