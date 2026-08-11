@@ -64,7 +64,7 @@ Future<void> main() async {
       // retrying or creating the session during startup.
     }
   }
-  final repository = usePreviewRepository
+  final DailyGameRepository repository = usePreviewRepository
       ? PreviewDailyGameRepository(testMode: true, initialGameId: previewGameId)
       : SupabaseDailyGameRepository(Supabase.instance.client);
   final rewardedAdService = AdMobRewardedAdService(

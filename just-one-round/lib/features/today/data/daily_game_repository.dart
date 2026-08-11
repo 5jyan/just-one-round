@@ -48,6 +48,10 @@ abstract interface class DailyGameRepository {
   Future<void> setDeveloperGame(String gameId);
 }
 
+abstract interface class DailyPracticeRepository {
+  Future<PlayAttempt> claimDailyPractice(DateTime expectedPlayDate);
+}
+
 final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
   (ref) => PreviewDailyGameRepository(),
 );
@@ -75,7 +79,8 @@ class AppUpdateRequiredException implements Exception {
   String toString() => 'AppUpdateRequiredException: $reason';
 }
 
-class SupabaseDailyGameRepository implements DailyGameRepository {
+class SupabaseDailyGameRepository
+    implements DailyGameRepository, DailyPracticeRepository {
   SupabaseDailyGameRepository(
     this._client, {
     PendingScoreStore? pendingStore,
@@ -225,6 +230,17 @@ class SupabaseDailyGameRepository implements DailyGameRepository {
           params: {'expected_play_date': playDateParameter(expectedPlayDate)},
         ),
       );
+
+  @override
+  Future<PlayAttempt> claimDailyPractice(DateTime expectedPlayDate) async {
+    await _ensureSignedIn();
+    return _attemptFromRpc(
+      await _client.rpc(
+        'claim_daily_practice',
+        params: {'expected_play_date': playDateParameter(expectedPlayDate)},
+      ),
+    );
+  }
 
   @override
   Future<RewardedAdSession> prepareRewardedAd(DateTime expectedPlayDate) async {
@@ -533,7 +549,8 @@ Future<T> refreshStateAfterPendingRetry<T, R>({
   return recovered == null ? currentState : refresh();
 }
 
-class PreviewDailyGameRepository implements DailyGameRepository {
+class PreviewDailyGameRepository
+    implements DailyGameRepository, DailyPracticeRepository {
   PreviewDailyGameRepository({
     this.testMode = false,
     this.compatibility = const ClientCompatibility.supported(),
@@ -565,6 +582,10 @@ class PreviewDailyGameRepository implements DailyGameRepository {
     game: _previewGame(_selectedGameId),
     attempts: const [],
     adAttemptAvailable: false,
+    practiceAvailable: !testMode,
+    playCount: 0,
+    challengeAvailable: true,
+    nextPlayRequiresAd: false,
     testMode: testMode,
     result: _previewRankResult(_selectedGameId),
     nickname: testMode ? 'tester' : null,
@@ -627,6 +648,10 @@ class PreviewDailyGameRepository implements DailyGameRepository {
   @override
   Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate) async =>
       _previewAttempt('daily');
+
+  @override
+  Future<PlayAttempt> claimDailyPractice(DateTime expectedPlayDate) async =>
+      _previewAttempt('practice_daily');
 
   @override
   Future<RewardedAdSession> prepareRewardedAd(

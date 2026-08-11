@@ -41,7 +41,7 @@ class TodayScreen extends ConsumerStatefulWidget {
   ConsumerState<TodayScreen> createState() => _TodayScreenState();
 }
 
-enum _PlayStartMode { daily, rewarded, practice }
+enum _PlayStartMode { challenge, practice }
 
 class _TodayScreenState extends ConsumerState<TodayScreen>
     with WidgetsBindingObserver {
@@ -658,7 +658,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     required TodayState displayedState,
   }) async {
     if (_isClaiming) return;
-    if (mode == _PlayStartMode.daily &&
+    final requiresAd =
+        !displayedState.testMode && displayedState.requiresAdForNextPlay;
+    if (!requiresAd &&
         displayedState.requiresKakaoForDailyPlay &&
         !ref.read(kakaoAuthServiceProvider).isLinked) {
       await _showKakaoRequiredDialog(displayedState);
@@ -671,19 +673,22 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       }
       final repository = ref.read(dailyGameRepositoryProvider);
       final attempt = switch (mode) {
-        _PlayStartMode.daily => await repository.claimDailyAttempt(
-          displayedState.playDate,
-        ),
-        _PlayStartMode.rewarded => await _claimRewardedAttempt(
-          repository,
-          displayedState.playDate,
-          displayedState,
-        ),
-        _PlayStartMode.practice => await _claimPracticeAttempt(
-          repository,
-          displayedState.playDate,
-          displayedState,
-        ),
+        _PlayStartMode.challenge =>
+          requiresAd
+              ? await _claimRewardedAttempt(
+                  repository,
+                  displayedState.playDate,
+                  displayedState,
+                )
+              : await repository.claimDailyAttempt(displayedState.playDate),
+        _PlayStartMode.practice =>
+          requiresAd
+              ? await _claimPracticeAttempt(
+                  repository,
+                  displayedState.playDate,
+                  displayedState,
+                )
+              : await _claimDailyPractice(repository, displayedState.playDate),
       };
       if (attempt == null) return;
       if (!mounted) return;
@@ -702,7 +707,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         await _showDailyGameChangedDialog();
         return;
       }
-      if (mode == _PlayStartMode.daily && _isKakaoRequiredError(error)) {
+      if (!requiresAd && _isKakaoRequiredError(error)) {
         await _showKakaoRequiredDialog(displayedState);
         return;
       }
@@ -716,6 +721,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     } finally {
       if (mounted && _isClaiming) setState(() => _isClaiming = false);
     }
+  }
+
+  Future<PlayAttempt> _claimDailyPractice(
+    DailyGameRepository repository,
+    DateTime expectedPlayDate,
+  ) {
+    if (repository case final DailyPracticeRepository practiceRepository) {
+      return practiceRepository.claimDailyPractice(expectedPlayDate);
+    }
+    throw StateError('daily practice is unavailable');
   }
 
   Future<PlayAttempt?> _claimRewardedAttempt(
@@ -783,7 +798,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
 
     return PlayAttempt(
       id: session.id,
-      ordinal: isPractice ? 3 : 2,
+      ordinal: displayedState.completedPlayCount + 1,
       status: isPractice ? 'practice' : 'issued',
       grantType: isPractice ? 'practice_ad' : 'rewarded_ad',
       gameId: game.id,
@@ -1138,59 +1153,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                 ],
                               ),
                               const SizedBox(height: 18),
-                              if (state.canClaimDaily)
-                                PixelButton(
-                                  label: _isClaiming
-                                      ? GamePresentationRegistry.forId(
-                                          state.game?.id,
-                                        ).loadingLabel
-                                      : '딱 한 판만!',
-                                  icon: Icons.play_arrow_rounded,
-                                  onPressed: _isClaiming
-                                      ? null
-                                      : () => _start(
-                                          mode: _PlayStartMode.daily,
-                                          displayedState: state,
-                                        ),
-                                )
-                              else if (state.adAttemptAvailable)
-                                PixelButton(
-                                  label: _rewardedButtonLabel(state),
-                                  icon: Icons.ondemand_video_outlined,
-                                  onPressed:
-                                      _isClaiming ||
-                                          _rewardedAdStatus ==
-                                              RewardedAdStatus.disabled ||
-                                          _rewardedAdStatus ==
-                                              RewardedAdStatus.loading
-                                      ? null
-                                      : () => _start(
-                                          mode: _PlayStartMode.rewarded,
-                                          displayedState: state,
-                                        ),
-                                )
-                              else if (state.practiceAvailable)
-                                PixelButton(
-                                  label: _practiceButtonLabel(state),
-                                  icon: Icons.school_outlined,
-                                  onPressed:
-                                      _isClaiming ||
-                                          _rewardedAdStatus ==
-                                              RewardedAdStatus.disabled ||
-                                          _rewardedAdStatus ==
-                                              RewardedAdStatus.loading
-                                      ? null
-                                      : () => _start(
-                                          mode: _PlayStartMode.practice,
-                                          displayedState: state,
-                                        ),
-                                )
-                              else
-                                const PixelButton(
-                                  label: '오늘의 플레이 완료',
-                                  icon: Icons.check_rounded,
-                                  onPressed: null,
-                                ),
+                              _buildPlayActions(state),
                               const SizedBox(height: 14),
                               Text(
                                 _statusText(state),
@@ -1213,15 +1176,60 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     );
   }
 
-  String _rewardedButtonLabel(TodayState state) {
+  Widget _buildPlayActions(TodayState state) {
+    final challenge = PixelButton(
+      key: const Key('challenge-button'),
+      label: _challengeButtonLabel(state),
+      icon: Icons.emoji_events_outlined,
+      onPressed: _canStartPlay(state)
+          ? () => _start(mode: _PlayStartMode.challenge, displayedState: state)
+          : null,
+    );
+    final practice = PixelButton(
+      key: const Key('practice-button'),
+      label: _practiceButtonLabel(state),
+      icon: Icons.school_outlined,
+      onPressed: _canStartPlay(state)
+          ? () => _start(mode: _PlayStartMode.practice, displayedState: state)
+          : null,
+    );
+
+    if (state.canChooseChallenge && state.canChoosePractice) {
+      return Row(
+        children: [
+          Expanded(child: practice),
+          const SizedBox(width: 10),
+          Expanded(child: challenge),
+        ],
+      );
+    }
+    if (state.canChooseChallenge) return challenge;
+    if (state.canChoosePractice) return practice;
+    return const PixelButton(
+      label: '오늘의 플레이 완료',
+      icon: Icons.check_rounded,
+      onPressed: null,
+    );
+  }
+
+  bool _canStartPlay(TodayState state) {
+    if (_isClaiming) return false;
+    if (!state.requiresAdForNextPlay) return true;
+    return _rewardedAdStatus != RewardedAdStatus.disabled &&
+        _rewardedAdStatus != RewardedAdStatus.loading;
+  }
+
+  String _challengeButtonLabel(TodayState state) {
     if (_isClaiming) {
       return GamePresentationRegistry.forId(state.game?.id).loadingLabel;
     }
+    if (state.testMode) return '딱 한 판만!';
+    if (!state.requiresAdForNextPlay) return '도전하기';
     return switch (_rewardedAdStatus) {
       RewardedAdStatus.loading => '광고 준비 중…',
-      RewardedAdStatus.disabled => '추가 플레이 준비 중',
-      RewardedAdStatus.ready => '딱 한 판만 더!',
-      RewardedAdStatus.unavailable => '광고 다시 불러오기',
+      RewardedAdStatus.disabled => '도전 준비 중',
+      RewardedAdStatus.ready => '도전하기',
+      RewardedAdStatus.unavailable => '도전하기',
     };
   }
 
@@ -1229,6 +1237,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (_isClaiming) {
       return GamePresentationRegistry.forId(state.game?.id).loadingLabel;
     }
+    if (!state.requiresAdForNextPlay) return '연습하기';
     return switch (_rewardedAdStatus) {
       RewardedAdStatus.loading => '광고 준비 중…',
       RewardedAdStatus.disabled => '연습 준비 중',
@@ -1239,9 +1248,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
 
   String _statusText(TodayState state) {
     if (state.testMode) return '테스트 모드 · 제한 없이 계속 플레이할 수 있어요';
-    if (state.canClaimDaily) return '아직 플레이하지 않았어요 · 기회 1회';
-    if (state.adAttemptAvailable) return '첫 판 완료 · 광고로 기회 1회 추가 가능';
-    if (state.practiceAvailable) return '랭킹 플레이 완료 · 광고로 연습을 계속할 수 있어요';
+    if (state.completedPlayCount == 0) return '연습하거나 오늘의 기록에 도전해 보세요';
+    if (state.canChooseChallenge && state.canChoosePractice) {
+      return '광고 후 연습 또는 도전을 선택할 수 있어요';
+    }
+    if (state.canChooseChallenge) return '연습 2회 완료 · 이번에는 도전만 가능해요';
+    if (state.canChoosePractice && state.completedPlayCount < 4) {
+      return '도전 완료 · 이제 연습만 가능해요';
+    }
+    if (state.canChoosePractice) return '오늘은 계속 연습할 수 있어요';
     if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';
     if (state.dailyClaimed) return '이 기기의 오늘 플레이는 이미 완료됐어요';
     return '중단된 게임은 다시 시작할 수 없어요';

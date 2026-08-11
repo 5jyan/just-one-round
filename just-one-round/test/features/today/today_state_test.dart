@@ -72,4 +72,35 @@ void main() {
     expect(compatibility.minimumSupportedBuild, 2);
     expect(compatibility.storeUrl, 'https://example.com/store');
   });
+
+  test('연습과 도전 선택 상태를 파싱한다', () {
+    final state = TodayState.fromJson({
+      'play_date': '2026-08-11',
+      'game': null,
+      'attempts': <dynamic>[],
+      'ad_attempt_available': false,
+      'test_mode': false,
+      'result': null,
+      'play_count': 2,
+      'challenge_available': true,
+      'practice_available': false,
+      'next_play_requires_ad': true,
+    });
+
+    expect(state.completedPlayCount, 2);
+    expect(state.canChooseChallenge, isTrue);
+    expect(state.canChoosePractice, isFalse);
+    expect(state.requiresAdForNextPlay, isTrue);
+  });
+
+  test('무료 연습 시도는 랭킹에 반영하지 않는다', () {
+    const attempt = PlayAttempt(
+      id: 'practice-session',
+      ordinal: 1,
+      status: 'practice',
+      grantType: 'practice_daily',
+    );
+
+    expect(attempt.isPractice, isTrue);
+  });
 }

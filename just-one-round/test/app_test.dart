@@ -10,7 +10,6 @@ import 'package:just_one_round/features/today/domain/tester_activation_result.da
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
-import 'package:just_one_round/shared/widgets/pixel_button.dart';
 
 void main() {
   test('시뮬레이터용 저장소는 tester 계정으로 동작한다', () async {
@@ -104,7 +103,8 @@ void main() {
     expect(find.text('오늘의 게임'), findsOneWidget);
     expect(find.text('똥피하기'), findsOneWidget);
     expect(find.textContaining('오늘 비교 기록 24개'), findsOneWidget);
-    expect(find.text('딱 한 판만!'), findsOneWidget);
+    expect(find.text('연습하기'), findsOneWidget);
+    expect(find.text('도전하기'), findsOneWidget);
     expect(find.byKey(const Key('economy-summary')), findsNothing);
     expect(find.byKey(const Key('game-guide-button')), findsOneWidget);
     expect(find.byKey(const Key('ranking-button')), findsOneWidget);
@@ -277,7 +277,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
     await tester.pumpAndSettle();
 
-    final startButton = find.byType(PixelButton);
+    final startButton = find.byKey(const Key('challenge-button'));
     await tester.ensureVisible(startButton);
     await tester.pump();
     await tester.tap(startButton);
@@ -301,7 +301,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('똥 피하기'), findsOneWidget);
-    final startButton = find.byType(PixelButton);
+    final startButton = find.byKey(const Key('challenge-button'));
     await tester.ensureVisible(startButton);
     await tester.pump();
     await tester.tap(startButton);
@@ -351,7 +351,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: JustOneRoundApp()));
     await tester.pumpAndSettle();
 
-    final startButton = find.byType(PixelButton);
+    final startButton = find.byKey(const Key('challenge-button'));
     await tester.ensureVisible(startButton);
     await tester.pump();
     await tester.tap(startButton);
@@ -381,7 +381,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('오늘의 게임'), findsOneWidget);
-    expect(find.text('딱 한 판만!'), findsOneWidget);
+    expect(find.byKey(const Key('challenge-button')), findsOneWidget);
     expect(find.text('SURVIVE'), findsNothing);
   });
 

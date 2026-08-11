@@ -102,7 +102,8 @@ class _AppContentState extends ConsumerState<_AppContent> {
   }
 
   void _handleTodayState(TodayState state) {
-    if (!state.adAttemptAvailable && !state.practiceAvailable) {
+    if (!state.requiresAdForNextPlay ||
+        (!state.canChooseChallenge && !state.canChoosePractice)) {
       _preloadRequested = false;
       return;
     }

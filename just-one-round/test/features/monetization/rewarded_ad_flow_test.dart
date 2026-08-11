@@ -28,7 +28,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final rewardedButton = find.text('딱 한 판만 더!');
+    final rewardedButton = find.text('도전하기');
     expect(rewardedButton, findsOneWidget);
     await tester.ensureVisible(rewardedButton);
     await tester.pump();
@@ -61,7 +61,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final rewardedButton = find.text('딱 한 판만 더!');
+    final rewardedButton = find.text('도전하기');
     expect(rewardedButton, findsOneWidget);
     await tester.ensureVisible(rewardedButton);
     await tester.pump();

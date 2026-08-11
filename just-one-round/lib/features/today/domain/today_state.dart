@@ -89,7 +89,8 @@ class PlayAttempt {
   // as a real attempt.
   final Future<PlayAttempt?> Function()? resolveForSubmission;
 
-  bool get isPractice => grantType == 'practice_ad';
+  bool get isPractice =>
+      grantType == 'practice_ad' || grantType == 'practice_daily';
 }
 
 class ClientCompatibility {
@@ -210,6 +211,9 @@ class TodayState {
     required this.nickname,
     this.dailyClaimed = false,
     this.practiceAvailable = false,
+    this.playCount,
+    this.challengeAvailable,
+    this.nextPlayRequiresAd,
     this.requiresKakaoForDailyPlay = false,
     this.compatibility = const ClientCompatibility.supported(),
     this.economy = const PlayerEconomy.zero(),
@@ -233,6 +237,9 @@ class TodayState {
           (json['profile'] as Map<String, dynamic>?)?['nickname'] as String?,
       dailyClaimed: json['daily_claimed'] as bool? ?? attempts.isNotEmpty,
       practiceAvailable: json['practice_available'] as bool? ?? false,
+      playCount: (json['play_count'] as num?)?.toInt(),
+      challengeAvailable: json['challenge_available'] as bool?,
+      nextPlayRequiresAd: json['next_play_requires_ad'] as bool?,
       requiresKakaoForDailyPlay:
           json['requires_kakao_for_daily_play'] as bool? ?? false,
       economy: _economyFromJson(json),
@@ -260,17 +267,24 @@ class TodayState {
   final String? nickname;
   final bool dailyClaimed;
   final bool practiceAvailable;
+  final int? playCount;
+  final bool? challengeAvailable;
+  final bool? nextPlayRequiresAd;
   final bool requiresKakaoForDailyPlay;
   final ClientCompatibility compatibility;
   final PlayerEconomy economy;
 
   bool get requiresUpdate => compatibility.updateRequired;
   bool get canClaimDaily => testMode || (!dailyClaimed && attempts.isEmpty);
+  int get completedPlayCount => playCount ?? attempts.length;
+  bool get canChooseChallenge =>
+      challengeAvailable ?? (canClaimDaily || adAttemptAvailable);
+  bool get canChoosePractice => practiceAvailable;
+  bool get requiresAdForNextPlay =>
+      nextPlayRequiresAd ?? (!testMode && !canClaimDaily);
   bool get hasPlayed => result?.score != null;
   bool get isExhausted =>
-      (!testMode && dailyClaimed && !adAttemptAvailable) ||
-      (!testMode && attempts.length >= 2) ||
-      (attempts.isNotEmpty && !adAttemptAvailable && !canClaimDaily);
+      !testMode && !canChooseChallenge && !canChoosePractice;
 
   TodayState withCompatibility(ClientCompatibility value) => TodayState(
     playDate: playDate,
@@ -281,6 +295,9 @@ class TodayState {
     result: result,
     nickname: nickname,
     dailyClaimed: dailyClaimed,
+    playCount: playCount,
+    challengeAvailable: challengeAvailable,
+    nextPlayRequiresAd: nextPlayRequiresAd,
     requiresKakaoForDailyPlay: requiresKakaoForDailyPlay,
     compatibility: value,
     economy: economy,
