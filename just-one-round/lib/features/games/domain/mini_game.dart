@@ -64,6 +64,7 @@ class MiniGameDefinition {
   const MiniGameDefinition({
     required this.id,
     required this.create,
+    required this.startInstruction,
     required this.countdownInstruction,
     required this.playingInstruction,
     required this.scoreLabel,
@@ -76,6 +77,7 @@ class MiniGameDefinition {
 
   final String id;
   final MiniGameFactory create;
+  final String startInstruction;
   final String countdownInstruction;
   final String playingInstruction;
   final String scoreLabel;

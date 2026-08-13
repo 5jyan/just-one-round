@@ -2,6 +2,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
 
 void main() {
+  test('등록된 모든 게임에 직관적인 한 줄 시작 설명이 있다', () {
+    for (final id in GameRegistry.registeredIds) {
+      final instruction = GameRegistry.forId(id).startInstruction;
+      expect(instruction.trim(), isNotEmpty, reason: id);
+      expect(instruction.contains('\n'), isFalse, reason: id);
+    }
+
+    expect(
+      GameRegistry.forId('ramen_timer').startInstruction,
+      '본인의 직감으로 10초·20초·30초에 버튼을 누르세요!',
+    );
+    expect(
+      GameRegistry.forId('apple_game_v2').startInstruction,
+      '사과를 드래그해 숫자의 합을 10으로 만드세요!',
+    );
+  });
+
   test('등록된 게임 ID로 게임 정의를 찾는다', () {
     final definition = GameRegistry.forId('dung_dodge_v2');
 

@@ -15,6 +15,42 @@ import 'package:just_one_round/features/today/domain/tester_activation_result.da
 import 'package:just_one_round/features/today/domain/today_state.dart';
 
 void main() {
+  testWidgets('게임 시작 전 한 줄 설명을 보여주고 확인 후 시작한다', (tester) async {
+    const attempt = PlayAttempt(
+      id: 'dung-start-guide',
+      ordinal: 1,
+      status: 'practice',
+      grantType: 'practice',
+      gameId: 'dung_dodge_v2',
+      gameVersion: 1,
+    );
+
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(home: GameScreen(attempt: attempt)),
+      ),
+    );
+    await _pumpUntilFound(tester, find.byKey(const Key('game-start-guide')));
+
+    expect(find.byKey(const Key('game-start-guide')), findsOneWidget);
+    expect(find.text('게임 방법'), findsOneWidget);
+    final instruction = tester.widget<Semantics>(
+      find.byKey(const Key('game-start-instruction')),
+    );
+    expect(instruction.properties.label, '화면을 좌우로 드래그해 떨어지는 똥을 피하세요!');
+    expect(find.text('떨어지는'), findsOneWidget);
+    expect(find.text('똥을'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('game-start-guide-button')));
+    await tester.pump();
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 250)),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('game-start-guide')), findsNothing);
+  });
+
   test('복귀 상태를 제외한 모든 앱 상태에서 판을 소진한다', () {
     expect(shouldInterruptGame(AppLifecycleState.resumed), isFalse);
     expect(shouldInterruptGame(AppLifecycleState.inactive), isTrue);
@@ -306,17 +342,13 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
-          home: GameScreen(
-            attempt: attempt,
-            countdownDuration: Duration(seconds: 3),
-          ),
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
         ),
       ),
     );
 
     await tester.pump(const Duration(milliseconds: 32));
 
-    expect(find.text('탭해서 중력을 뒤집고 반대편으로 이동하세요'), findsOneWidget);
     expect(find.byKey(const Key('survival-time')), findsOneWidget);
     expect(find.text('0.00'), findsOneWidget);
     expect(find.text('0.00초'), findsNothing);
@@ -335,10 +367,7 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
-          home: GameScreen(
-            attempt: attempt,
-            countdownDuration: Duration(seconds: 3),
-          ),
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
         ),
       ),
     );
@@ -367,10 +396,7 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
-          home: GameScreen(
-            attempt: attempt,
-            countdownDuration: Duration(seconds: 3),
-          ),
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
         ),
       ),
     );
@@ -436,10 +462,7 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
-          home: GameScreen(
-            attempt: attempt,
-            countdownDuration: Duration(seconds: 3),
-          ),
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
         ),
       ),
     );
@@ -483,10 +506,7 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
-          home: GameScreen(
-            attempt: attempt,
-            countdownDuration: Duration(seconds: 3),
-          ),
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
         ),
       ),
     );
@@ -541,7 +561,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
-        child: const MaterialApp(home: GameScreen(attempt: attempt)),
+        child: const MaterialApp(
+          home: GameScreen(attempt: attempt, countdownDuration: Duration.zero),
+        ),
       ),
     );
     await tester.pump();
@@ -592,7 +614,10 @@ void main() {
         ),
         GoRoute(
           path: '/play',
-          builder: (context, state) => const GameScreen(attempt: attempt),
+          builder: (context, state) => const GameScreen(
+            attempt: attempt,
+            countdownDuration: Duration.zero,
+          ),
         ),
       ],
     );

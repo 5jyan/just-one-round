@@ -11,6 +11,12 @@ import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 
+Future<void> _pumpUntilFound(WidgetTester tester, Finder finder) async {
+  for (var i = 0; i < 100 && finder.evaluate().isEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 20));
+  }
+}
+
 void main() {
   test('시뮬레이터용 저장소는 tester 계정으로 동작한다', () async {
     final repository = PreviewDailyGameRepository(testMode: true);
@@ -286,6 +292,14 @@ void main() {
     await tester.ensureVisible(startButton);
     await tester.pump();
     await tester.tap(startButton);
+    await tester.pumpAndSettle();
+
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 250)),
+    );
+    await _pumpUntilFound(tester, find.byKey(const Key('game-start-guide')));
+    expect(find.byKey(const Key('game-start-guide')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('game-start-guide-button')));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -383,6 +397,8 @@ void main() {
     await tester.pump();
     await tester.tap(startButton);
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('game-start-guide-button')));
+    await tester.pump();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     await tester.pump();
 

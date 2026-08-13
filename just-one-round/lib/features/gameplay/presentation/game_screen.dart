@@ -50,6 +50,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   var _hasEnded = false;
   var _isSavingNickname = false;
   var _nicknamePromptShown = false;
+  late bool _showStartGuide;
+  var _isStartGuideReady = false;
+  var _isGameLoaded = false;
 
   @override
   void initState() {
@@ -58,6 +61,27 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _rewardedAdService = ref.read(rewardedAdServiceProvider);
     WidgetsBinding.instance.addObserver(this);
     _definition = GameRegistry.forId(widget.attempt?.gameId ?? 'dung_dodge_v2');
+    final attempt = widget.attempt;
+    _showStartGuide = widget.countdownDuration > Duration.zero;
+    _game = _createGame();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_finishGameSetup());
+    });
+    if (attempt != null) unawaited(_preloadRewardedAdForNextPlay());
+  }
+
+  Future<void> _finishGameSetup() async {
+    await _game.flameGame.loaded;
+    if (_showStartGuide) await _game.flameGame.ready();
+    if (!mounted) return;
+    _isGameLoaded = true;
+    if (_showStartGuide && !_hasEnded) {
+      _game.flameGame.pauseEngine();
+      setState(() => _isStartGuideReady = true);
+    }
+  }
+
+  MiniGameController _createGame() {
     final attempt = widget.attempt;
     final challengeSeed = MiniGameSeed.forAttempt(
       gameId: _definition.id,
@@ -68,7 +92,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           ? attempt?.ordinal ?? 1
           : null,
     );
-    _game = _definition.create(
+    return _definition.create(
       gameDuration:
           widget.gameDuration ??
           _issuedAttemptDuration(widget.attempt) ??
@@ -78,7 +102,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
       challengeSeed: challengeSeed,
       onFinished: _handleFinished,
     );
-    if (attempt != null) unawaited(_preloadRewardedAdForNextPlay());
+  }
+
+  Future<void> _startGame() async {
+    if (!_showStartGuide || _hasEnded) return;
+    await _game.flameGame.loaded;
+    if (!mounted || _hasEnded || !_showStartGuide) return;
+    _isGameLoaded = true;
+    setState(() => _showStartGuide = false);
+    _game.flameGame.resumeEngine();
   }
 
   Future<void> _preloadRewardedAdForNextPlay() async {
@@ -188,24 +220,25 @@ class _GameScreenState extends ConsumerState<GameScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (_hasEnded || _wasInterrupted) return;
     if (shouldInterruptGame(state)) {
-      _interruptAttempt();
+      unawaited(_interruptAttempt());
     }
   }
 
-  void _interruptAttempt() {
+  Future<void> _interruptAttempt() async {
     if (_hasEnded || _wasInterrupted) return;
     _wasInterrupted = true;
     _hasEnded = true;
-    _game.interrupt();
+    if (_isGameLoaded) _game.interrupt();
+    if (mounted) setState(() {});
     final attempt = widget.attempt;
     if (attempt != null && !attempt.isPractice) {
-      unawaited(_expireActiveAttempt());
+      await _expireActiveAttempt();
     }
-    if (mounted) setState(() {});
   }
 
-  void _leaveGame() {
-    _interruptAttempt();
+  Future<void> _leaveGame() async {
+    await _interruptAttempt();
+    if (!mounted) return;
     _returnHome();
   }
 
@@ -219,7 +252,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     WidgetsBinding.instance.removeObserver(this);
     if (!_hasEnded) {
       _hasEnded = true;
-      _game.interrupt();
+      if (_isGameLoaded) _game.interrupt();
       final attempt = widget.attempt;
       if (attempt != null && !attempt.isPractice) {
         unawaited(_expireActiveAttempt());
@@ -289,6 +322,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 ],
               ),
             ),
+            if (_showStartGuide && _isStartGuideReady)
+              _GameStartGuide(
+                instruction: _definition.startInstruction,
+                onStart: _startGame,
+              ),
+            if (_showStartGuide && !_isStartGuideReady)
+              const ColoredBox(
+                key: Key('game-start-guide-loading'),
+                color: AppColors.backgroundDeep,
+              ),
             if (_pendingResult != null || _result != null)
               GameEndTransition(
                 key: const Key('game-end-scene'),
@@ -311,6 +354,82 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 },
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GameStartGuide extends StatelessWidget {
+  const _GameStartGuide({required this.instruction, required this.onStart});
+
+  final String instruction;
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      key: const Key('game-start-guide'),
+      color: AppColors.backgroundDeep.withValues(alpha: 0.84),
+      child: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: PixelPanel(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 22),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '게임 방법',
+                      style: TextStyle(
+                        fontFamily: 'Galmuri',
+                        color: AppColors.primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Semantics(
+                      key: const Key('game-start-instruction'),
+                      label: instruction,
+                      child: ExcludeSemantics(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 7,
+                          runSpacing: 8,
+                          children: [
+                            for (final word in instruction.split(' '))
+                              Text(
+                                word,
+                                style: const TextStyle(
+                                  fontFamily: 'Galmuri',
+                                  color: AppColors.text,
+                                  fontSize: 20,
+                                  height: 1.15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: PixelButton(
+                        key: const Key('game-start-guide-button'),
+                        label: '시작하기',
+                        onPressed: onStart,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
