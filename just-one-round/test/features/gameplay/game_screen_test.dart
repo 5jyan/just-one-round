@@ -409,6 +409,13 @@ void main() {
     final time = find.byKey(const Key('mama-hud-time'));
     final livesLabel = find.byKey(const Key('mama-hud-lives-label'));
     expect(score, findsOneWidget);
+    final scoreText = tester.widget<Text>(score);
+    expect(scoreText.maxLines, 1);
+    expect(scoreText.softWrap, isFalse);
+    expect(
+      find.ancestor(of: score, matching: find.byType(FittedBox)),
+      findsOneWidget,
+    );
     expect(time, findsOneWidget);
     expect(livesLabel, findsOneWidget);
     for (var index = 0; index < 3; index++) {

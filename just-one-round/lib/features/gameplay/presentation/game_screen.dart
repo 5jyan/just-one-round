@@ -1117,6 +1117,7 @@ class _MamaDuckTrailHud extends StatelessWidget {
                     label: 'SURVIVE',
                     value: definition.formatHudScore(state.score),
                     valueKey: const Key('mama-hud-score'),
+                    scaleValueDown: true,
                   ),
                 ),
                 Expanded(
@@ -1447,6 +1448,7 @@ class _HudValue extends StatelessWidget {
     this.valueKey,
     this.alignEnd = false,
     this.isDanger = false,
+    this.scaleValueDown = false,
   });
 
   final String label;
@@ -1454,6 +1456,7 @@ class _HudValue extends StatelessWidget {
   final Key? valueKey;
   final bool alignEnd;
   final bool isDanger;
+  final bool scaleValueDown;
 
   @override
   Widget build(BuildContext context) {
@@ -1473,17 +1476,30 @@ class _HudValue extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          value,
-          key: valueKey,
-          style: TextStyle(
-            fontFamily: 'Galmuri',
-            color: isDanger ? AppColors.danger : AppColors.text,
-            fontSize: 25,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        if (scaleValueDown)
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: alignEnd ? Alignment.centerRight : Alignment.centerLeft,
+            child: _valueText(),
+          )
+        else
+          _valueText(),
       ],
+    );
+  }
+
+  Text _valueText() {
+    return Text(
+      value,
+      key: valueKey,
+      maxLines: 1,
+      softWrap: false,
+      style: TextStyle(
+        fontFamily: 'Galmuri',
+        color: isDanger ? AppColors.danger : AppColors.text,
+        fontSize: 25,
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 }
