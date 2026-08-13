@@ -197,8 +197,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           '+${outcome.reward.experienceGranted} EXP를 받았어요!',
         );
       }
-      if (mounted && outcome.action == _PreviousResultAction.history) {
-        context.push('/history');
+      if (mounted && outcome.action == _PreviousResultAction.ranking) {
+        await _showRankingForDate(
+          initialResult: DailyRankResult(
+            score: result.score,
+            rank: result.rank,
+            participants: result.participants,
+            topPercent: result.topPercent,
+            nickname: null,
+            nearby: const [],
+          ),
+          gameId: result.gameId,
+          playDate: result.playDate,
+          title: '어제의 랭킹',
+        );
       }
     } finally {
       _isPreviousResultDialogVisible = false;
@@ -983,23 +995,38 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   Future<void> _showRanking(TodayState state) {
+    return _showRankingForDate(
+      initialResult:
+          state.result ??
+          const DailyRankResult(
+            score: null,
+            rank: null,
+            participants: 0,
+            topPercent: null,
+            nickname: null,
+            nearby: [],
+          ),
+      gameId: state.game?.id,
+      playDate: state.playDate,
+      title: '오늘의 랭킹',
+    );
+  }
+
+  Future<void> _showRankingForDate({
+    required DailyRankResult initialResult,
+    required String? gameId,
+    required DateTime playDate,
+    required String title,
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _RankingSheet(
-        initialResult:
-            state.result ??
-            const DailyRankResult(
-              score: null,
-              rank: null,
-              participants: 0,
-              topPercent: null,
-              nickname: null,
-              nearby: [],
-            ),
-        gameId: state.game?.id,
-        playDate: state.playDate,
+        initialResult: initialResult,
+        gameId: gameId,
+        playDate: playDate,
+        title: title,
       ),
     );
   }
@@ -1529,10 +1556,11 @@ class _PreviousDailyResultDialogState extends State<_PreviousDailyResultDialog>
       ),
       actions: [
         TextButton(
+          key: const Key('previous-result-ranking'),
           onPressed: canClaim
-              ? () => unawaited(_claimAndClose(_PreviousResultAction.history))
+              ? () => unawaited(_claimAndClose(_PreviousResultAction.ranking))
               : null,
-          child: const Text('내 기록 보기'),
+          child: const Text('랭킹 보기'),
         ),
         FilledButton(
           key: const Key('acknowledge-previous-result'),
@@ -1677,7 +1705,7 @@ class _RewardReceived extends StatelessWidget {
   );
 }
 
-enum _PreviousResultAction { history, close }
+enum _PreviousResultAction { ranking, close }
 
 enum _SettingsAction {
   profile,
@@ -1874,11 +1902,13 @@ class _RankingSheet extends ConsumerWidget {
     required this.initialResult,
     required this.gameId,
     required this.playDate,
+    required this.title,
   });
 
   final DailyRankResult initialResult;
   final String? gameId;
   final DateTime playDate;
+  final String title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1889,18 +1919,15 @@ class _RankingSheet extends ConsumerWidget {
           error: (_, _) => initialResult,
           loading: () => initialResult,
         );
-    final rankingItems = _mergeRankingEntries(
-      leaders: result.leaders,
-      nearby: result.nearby,
-      participants: result.participants,
-    );
+    final rankingEntries = [...result.leaders]
+      ..sort((a, b) => a.rank.compareTo(b.rank));
     return _SheetFrame(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SheetHeader(
             eyebrow: 'DAILY LEADERBOARD',
-            title: '오늘의 랭킹',
+            title: title,
             onClose: () => Navigator.of(context).pop(),
           ),
           const SizedBox(height: 16),
@@ -1933,7 +1960,7 @@ class _RankingSheet extends ConsumerWidget {
           const _RankingSectionTitle(eyebrow: 'TOP SCORES', title: '전체 랭킹'),
           const SizedBox(height: 10),
           Expanded(
-            child: rankingItems.isEmpty
+            child: rankingEntries.isEmpty
                 ? const Center(
                     child: Text(
                       '아직 등록된 기록이 없어요.',
@@ -1945,23 +1972,20 @@ class _RankingSheet extends ConsumerWidget {
                     children: [
                       for (
                         var index = 0;
-                        index < rankingItems.length;
+                        index < rankingEntries.length;
                         index++
                       ) ...[
-                        if (rankingItems[index].entry == null)
-                          const _LeaderboardGapRow()
-                        else
-                          _LeaderboardRow(
-                            entry: rankingItems[index].entry!,
-                            gameId: gameId,
-                            onModerate: (action) => _moderatePlayer(
-                              context,
-                              ref,
-                              rankingItems[index].entry!,
-                              action,
-                            ),
+                        _LeaderboardRow(
+                          entry: rankingEntries[index],
+                          gameId: gameId,
+                          onModerate: (action) => _moderatePlayer(
+                            context,
+                            ref,
+                            rankingEntries[index],
+                            action,
                           ),
-                        if (index < rankingItems.length - 1)
+                        ),
+                        if (index < rankingEntries.length - 1)
                           const SizedBox(height: 6),
                       ],
                     ],
@@ -2009,80 +2033,6 @@ class _RankingSheet extends ConsumerWidget {
       }
     }
   }
-}
-
-List<_LeaderboardListItem> _mergeRankingEntries({
-  required List<NearbyRank> leaders,
-  required List<NearbyRank> nearby,
-  required int participants,
-}) {
-  const targetEntryCount = 8;
-  final sortedLeaders = [...leaders]..sort((a, b) => a.rank.compareTo(b.rank));
-  final entriesByRank = <int, NearbyRank>{};
-
-  void addEntry(NearbyRank entry) {
-    final existing = entriesByRank[entry.rank];
-    if (existing == null || entry.isMe) {
-      entriesByRank[entry.rank] = entry;
-    }
-  }
-
-  for (final entry in sortedLeaders.take(5)) {
-    addEntry(entry);
-  }
-  for (final entry in nearby) {
-    addEntry(entry);
-  }
-  for (final entry in sortedLeaders) {
-    if (entriesByRank.length >= targetEntryCount) break;
-    addEntry(entry);
-  }
-
-  final entries = entriesByRank.values.toList()
-    ..sort((a, b) => a.rank.compareTo(b.rank));
-  if (entries.isEmpty) return const [];
-
-  final items = <_LeaderboardListItem>[];
-  var previousRank = 0;
-  for (final entry in entries) {
-    if (entry.rank > previousRank + 1) {
-      items.add(const _LeaderboardListItem.gap());
-    }
-    items.add(_LeaderboardListItem.entry(entry));
-    previousRank = entry.rank;
-  }
-  if (previousRank < participants) {
-    items.add(const _LeaderboardListItem.gap());
-  }
-  return items;
-}
-
-class _LeaderboardListItem {
-  const _LeaderboardListItem.entry(this.entry);
-  const _LeaderboardListItem.gap() : entry = null;
-
-  final NearbyRank? entry;
-}
-
-class _LeaderboardGapRow extends StatelessWidget {
-  const _LeaderboardGapRow();
-
-  @override
-  Widget build(BuildContext context) => const SizedBox(
-    key: Key('leaderboard-gap'),
-    height: 22,
-    child: Center(
-      child: Text(
-        '•••',
-        style: TextStyle(
-          color: AppColors.textMuted,
-          fontSize: 13,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 4,
-        ),
-      ),
-    ),
-  );
 }
 
 class _RankingSectionTitle extends StatelessWidget {

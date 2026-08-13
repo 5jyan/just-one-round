@@ -595,14 +595,14 @@ class PreviewDailyGameRepository
 
   DailyRankResult _previewRankResult(String gameId) {
     if (gameId == 'ramen_timer') {
-      return const DailyRankResult(
+      return DailyRankResult(
         score: 3589850,
         rank: 8,
         participants: 24,
         topPercent: 34,
         nickname: 'tester',
         bestScore: 3599920,
-        nearby: [
+        nearby: const [
           NearbyRank(rank: 7, nickname: '말랑주먹', score: 3590420, isMe: false),
           NearbyRank(rank: 8, nickname: 'tester', score: 3589850, isMe: true),
           NearbyRank(rank: 9, nickname: '느린번개', score: 3586260, isMe: false),
@@ -615,19 +615,27 @@ class PreviewDailyGameRepository
           NearbyRank(rank: 5, nickname: '퇴근요정', score: 3596720, isMe: false),
           NearbyRank(rank: 6, nickname: '새벽질주', score: 3593310, isMe: false),
           NearbyRank(rank: 7, nickname: '말랑주먹', score: 3590420, isMe: false),
-          NearbyRank(rank: 8, nickname: 'tester', score: 3589850, isMe: false),
+          NearbyRank(rank: 8, nickname: 'tester', score: 3589850, isMe: true),
+          NearbyRank(rank: 9, nickname: '느린번개', score: 3586260, isMe: false),
+          for (var rank = 10; rank <= 24; rank++)
+            NearbyRank(
+              rank: rank,
+              nickname: '랭커$rank',
+              score: 3586260 - (rank - 9) * 1000,
+              isMe: false,
+            ),
         ],
       );
     }
 
-    return const DailyRankResult(
+    return DailyRankResult(
       score: 2978,
       rank: 8,
       participants: 24,
       topPercent: 34,
       nickname: 'tester',
       bestScore: 5387,
-      nearby: [
+      nearby: const [
         NearbyRank(rank: 7, nickname: '말랑주먹', score: 3146, isMe: false),
         NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: true),
         NearbyRank(rank: 9, nickname: '느린번개', score: 2811, isMe: false),
@@ -640,7 +648,15 @@ class PreviewDailyGameRepository
         NearbyRank(rank: 5, nickname: '퇴근요정', score: 3514, isMe: false),
         NearbyRank(rank: 6, nickname: '새벽질주', score: 3328, isMe: false),
         NearbyRank(rank: 7, nickname: '말랑주먹', score: 3146, isMe: false),
-        NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: false),
+        NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: true),
+        NearbyRank(rank: 9, nickname: '느린번개', score: 2811, isMe: false),
+        for (var rank = 10; rank <= 24; rank++)
+          NearbyRank(
+            rank: rank,
+            nickname: '랭커$rank',
+            score: 2811 - (rank - 9) * 100,
+            isMe: false,
+          ),
       ],
     );
   }

@@ -20,7 +20,7 @@ void main() {
     expect(state.testMode, isTrue);
     expect(state.nickname, 'tester');
     expect(state.canClaimDaily, isTrue);
-    expect(state.result?.leaders, hasLength(8));
+    expect(state.result?.leaders, hasLength(24));
   });
 
   test('비운 게임은 시뮬레이터 선택 목록에서도 제외한다', () async {
@@ -224,12 +224,17 @@ void main() {
     expect(find.text('내 주변 랭킹'), findsNothing);
     expect(find.byKey(const Key('overall-leaderboard')), findsOneWidget);
     expect(find.byKey(const Key('nearby-leaderboard')), findsNothing);
-    await tester.drag(
-      find.byKey(const Key('overall-leaderboard')),
-      const Offset(0, -220),
+    expect(find.byKey(const Key('leaderboard-gap')), findsNothing);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('my-leaderboard-rank')),
+      100,
+      scrollable: find
+          .descendant(
+            of: find.byKey(const Key('overall-leaderboard')),
+            matching: find.byType(Scrollable),
+          )
+          .first,
     );
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('leaderboard-gap')), findsOneWidget);
     expect(find.byKey(const Key('my-leaderboard-rank')), findsOneWidget);
     expect(find.byKey(const Key('my-rank-badge')), findsOneWidget);
     expect(
@@ -345,6 +350,28 @@ void main() {
     expect(repository.acknowledgedGameId, 'dung_dodge_v2');
     expect(find.byKey(const Key('previous-daily-result-dialog')), findsNothing);
     expect(find.text('+30 코인 · +30 EXP를 받았어요!'), findsOneWidget);
+  });
+
+  testWidgets('전날 결과의 랭킹 보기는 해당 날짜의 전체 랭킹을 연다', (tester) async {
+    final repository = _PreviousResultRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [dailyGameRepositoryProvider.overrideWithValue(repository)],
+        child: const MaterialApp(home: TodayScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('랭킹 보기'), findsOneWidget);
+    expect(find.text('내 기록 보기'), findsNothing);
+    await tester.tap(find.byKey(const Key('previous-result-ranking')));
+    await tester.pumpAndSettle();
+
+    expect(repository.acknowledged, isTrue);
+    expect(repository.requestedRankDate, DateTime(2026, 7, 26));
+    expect(find.text('어제의 랭킹'), findsOneWidget);
+    expect(find.byKey(const Key('overall-leaderboard')), findsOneWidget);
+    expect(find.byKey(const Key('leaderboard-gap')), findsNothing);
   });
 
   testWidgets('중단 화면의 홈 버튼은 홈으로 이동한다', (tester) async {
@@ -708,6 +735,7 @@ class _PreviousResultRepository extends PreviewDailyGameRepository {
   var unseenCalls = 0;
   DateTime? acknowledgedDate;
   String? acknowledgedGameId;
+  DateTime? requestedRankDate;
 
   @override
   Future<TodayState> fetchToday() async => TodayState(
@@ -761,6 +789,29 @@ class _PreviousResultRepository extends PreviewDailyGameRepository {
       coinsGranted: 30,
       experienceGranted: 30,
       economy: PlayerEconomy.fromTotals(coins: 30, experiencePoints: 30),
+    );
+  }
+
+  @override
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async {
+    requestedRankDate = playDate;
+    return DailyRankResult(
+      score: 12345,
+      rank: 8,
+      participants: 24,
+      topPercent: 34,
+      nickname: '플레이어',
+      bestScore: 24000,
+      nearby: const [],
+      leaders: [
+        for (var rank = 1; rank <= 24; rank++)
+          NearbyRank(
+            rank: rank,
+            nickname: rank == 8 ? '플레이어' : '랭커$rank',
+            score: 25000 - rank * 1000,
+            isMe: rank == 8,
+          ),
+      ],
     );
   }
 }
