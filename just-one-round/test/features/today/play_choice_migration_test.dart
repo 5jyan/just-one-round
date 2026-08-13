@@ -9,6 +9,10 @@ void main() {
   final singleAdSql = File(
     'supabase/migrations/20260812000100_limit_daily_rewarded_ad_to_one.sql',
   ).readAsStringSync();
+  final hardenedStartSql = File(
+    'supabase/migrations/'
+    '20260813000700_harden_play_start_state_machine.sql',
+  ).readAsStringSync();
 
   test('하루 플레이 순서와 연습·도전 모드를 서버에 기록한다', () {
     expect(sql, contains('create table public.daily_play_sessions'));
@@ -31,5 +35,34 @@ void main() {
     expect(singleAdSql, contains("'practice_requires_ad'"));
     expect(singleAdSql, contains('public.enforce_one_daily_rewarded_ad'));
     expect(singleAdSql, contains('daily rewarded ad already used'));
+  });
+
+  test('이미 소비한 연습 광고는 오래된 클라이언트 상태에서 재사용한다', () {
+    final sql = File(
+      'supabase/migrations/'
+      '20260813000600_recover_stale_practice_ad_state.sql',
+    ).readAsStringSync();
+
+    expect(sql, contains("grant_row.status = 'consumed'"));
+    expect(sql, contains('session.reward_grant_id = grant_row.id'));
+    expect(sql, contains("session.play_mode = 'practice'"));
+    expect(sql, contains('if active_grant is not null then'));
+  });
+
+  test('무료 연습 시작은 요청 ID로 멱등이고 검증된 광고를 복구한다', () {
+    expect(hardenedStartSql, contains('client_request_id uuid'));
+    expect(hardenedStartSql, contains('claim_daily_practice_v2'));
+    expect(
+      hardenedStartSql,
+      contains('session.client_request_id = play_request_id'),
+    );
+    expect(hardenedStartSql, contains("grant_row.status = 'verified'"));
+    expect(hardenedStartSql, contains("set status = 'consumed'"));
+  });
+
+  test('기기 일일 제한이 있으면 시작 버튼을 열지 않는다', () {
+    expect(hardenedStartSql, contains("'device_daily_limit_reached', true"));
+    expect(hardenedStartSql, contains("'challenge_available', false"));
+    expect(hardenedStartSql, contains("'practice_available', false"));
   });
 }

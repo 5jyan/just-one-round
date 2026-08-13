@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_one_round/app/app_environment.dart';
 import 'package:just_one_round/core/auth/anonymous_session_guard.dart';
@@ -49,7 +51,25 @@ abstract interface class DailyGameRepository {
 }
 
 abstract interface class DailyPracticeRepository {
-  Future<PlayAttempt> claimDailyPractice(DateTime expectedPlayDate);
+  Future<PlayAttempt> claimDailyPractice(
+    DateTime expectedPlayDate, {
+    required String requestId,
+  });
+}
+
+String createPlayRequestId({Random? random}) {
+  final source = random ?? Random.secure();
+  final bytes = List<int>.generate(16, (_) => source.nextInt(256));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  final hex = bytes
+      .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+      .join();
+  return '${hex.substring(0, 8)}-'
+      '${hex.substring(8, 12)}-'
+      '${hex.substring(12, 16)}-'
+      '${hex.substring(16, 20)}-'
+      '${hex.substring(20)}';
 }
 
 final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
@@ -232,12 +252,18 @@ class SupabaseDailyGameRepository
       );
 
   @override
-  Future<PlayAttempt> claimDailyPractice(DateTime expectedPlayDate) async {
+  Future<PlayAttempt> claimDailyPractice(
+    DateTime expectedPlayDate, {
+    required String requestId,
+  }) async {
     await _ensureSignedIn();
     return _attemptFromRpc(
       await _client.rpc(
-        'claim_daily_practice',
-        params: {'expected_play_date': playDateParameter(expectedPlayDate)},
+        'claim_daily_practice_v2',
+        params: {
+          'expected_play_date': playDateParameter(expectedPlayDate),
+          'play_request_id': requestId,
+        },
       ),
     );
   }
@@ -666,8 +692,10 @@ class PreviewDailyGameRepository
       _previewAttempt('daily');
 
   @override
-  Future<PlayAttempt> claimDailyPractice(DateTime expectedPlayDate) async =>
-      _previewAttempt('practice_daily');
+  Future<PlayAttempt> claimDailyPractice(
+    DateTime expectedPlayDate, {
+    required String requestId,
+  }) async => _previewAttempt('practice_daily');
 
   @override
   Future<RewardedAdSession> prepareRewardedAd(

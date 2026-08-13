@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 
 void main() {
@@ -106,5 +109,19 @@ void main() {
     );
 
     expect(attempt.isPractice, isTrue);
+  });
+
+  test('플레이 요청 ID는 UUID v4 형식으로 생성한다', () {
+    final requestId = createPlayRequestId(random: Random(42));
+
+    expect(
+      requestId,
+      matches(
+        RegExp(
+          r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-'
+          r'[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        ),
+      ),
+    );
   });
 }

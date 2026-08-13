@@ -58,6 +58,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   var _isCheckingPreviousResult = false;
   var _isPreviousResultDialogVisible = false;
   var _testerVersionTapCount = 0;
+  String? _pendingFreePracticeRequestId;
   Timer? _dailyResetTimer;
   Timer? _previousResultTimer;
   Timer? _testerVersionTapTimer;
@@ -670,39 +671,65 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     required TodayState displayedState,
   }) async {
     if (_isClaiming) return;
-    final requiresAd = switch (mode) {
-      _PlayStartMode.challenge => displayedState.requiresAdForChallenge,
-      _PlayStartMode.practice => displayedState.requiresAdForPractice,
-    };
-    if (!requiresAd &&
-        displayedState.requiresKakaoForDailyPlay &&
-        !ref.read(kakaoAuthServiceProvider).isLinked) {
-      await _showKakaoRequiredDialog(displayedState);
-      return;
-    }
     setState(() => _isClaiming = true);
+    TodayState startState = displayedState;
     try {
-      if (await _checkForDailyGameChange(displayedState: displayedState)) {
+      final latestState = await ref
+          .read(dailyGameRepositoryProvider)
+          .fetchToday()
+          .timeout(const Duration(seconds: 12));
+      if (!mounted) return;
+      if (latestState.requiresUpdate || displayedState.requiresUpdate) {
+        ref.invalidate(todayStateProvider);
+        _showMessage('새 버전이 필요해요. 업데이트 화면을 불러올게요.');
         return;
       }
+      if (!isSamePlayDate(displayedState.playDate, latestState.playDate)) {
+        await _showDailyGameChangedDialog();
+        return;
+      }
+      startState = latestState;
+      if (!_isModeAvailable(startState, mode)) {
+        _pendingFreePracticeRequestId = null;
+        ref.invalidate(todayStateProvider);
+        _showMessage('플레이 상태가 갱신됐어요. 현재 버튼에서 다시 선택해 주세요.');
+        return;
+      }
+
+      final requiresAd = switch (mode) {
+        _PlayStartMode.challenge => startState.requiresAdForChallenge,
+        _PlayStartMode.practice => startState.requiresAdForPractice,
+      };
+      if (!requiresAd &&
+          startState.requiresKakaoForDailyPlay &&
+          !ref.read(kakaoAuthServiceProvider).isLinked) {
+        await _showKakaoRequiredDialog(startState);
+        return;
+      }
+
       final repository = ref.read(dailyGameRepositoryProvider);
+      if (mode == _PlayStartMode.challenge || requiresAd) {
+        _pendingFreePracticeRequestId = null;
+      }
       final attempt = switch (mode) {
         _PlayStartMode.challenge =>
           requiresAd
               ? await _claimRewardedAttempt(
                   repository,
-                  displayedState.playDate,
-                  displayedState,
+                  startState.playDate,
+                  startState,
                 )
-              : await repository.claimDailyAttempt(displayedState.playDate),
+              : await _withTransientNetworkRetry(
+                  () => repository.claimDailyAttempt(startState.playDate),
+                ),
         _PlayStartMode.practice =>
           requiresAd
               ? await _claimPracticeAttempt(
                   repository,
-                  displayedState.playDate,
-                  displayedState,
+                  startState.playDate,
+                  startState,
                 )
-              : await _claimDailyPractice(repository, displayedState.playDate),
+              : await _claimDailyPractice(repository, startState.playDate),
       };
       if (attempt == null) return;
       if (!mounted) return;
@@ -718,11 +745,23 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         return;
       }
       if (_isDailyGameChangedError(error)) {
+        _pendingFreePracticeRequestId = null;
         await _showDailyGameChangedDialog();
         return;
       }
-      if (!requiresAd && _isKakaoRequiredError(error)) {
-        await _showKakaoRequiredDialog(displayedState);
+      if (_isKakaoRequiredError(error)) {
+        await _showKakaoRequiredDialog(startState);
+        return;
+      }
+      if (_isDeviceDailyLimitError(error)) {
+        ref.invalidate(todayStateProvider);
+        _showMessage('오늘 이 기기의 무료 플레이는 이미 사용했어요.');
+        return;
+      }
+      if (_isPlayStateChangedError(error)) {
+        _pendingFreePracticeRequestId = null;
+        ref.invalidate(todayStateProvider);
+        _showMessage('플레이 상태를 새로 불러왔어요. 다시 선택해 주세요.');
         return;
       }
       if (_isTransientNetworkError(error)) {
@@ -740,12 +779,26 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   Future<PlayAttempt> _claimDailyPractice(
     DailyGameRepository repository,
     DateTime expectedPlayDate,
-  ) {
+  ) async {
     if (repository case final DailyPracticeRepository practiceRepository) {
-      return practiceRepository.claimDailyPractice(expectedPlayDate);
+      final requestId = _pendingFreePracticeRequestId ??= createPlayRequestId();
+      final attempt = await _withTransientNetworkRetry(
+        () => practiceRepository.claimDailyPractice(
+          expectedPlayDate,
+          requestId: requestId,
+        ),
+      );
+      _pendingFreePracticeRequestId = null;
+      return attempt;
     }
     throw StateError('daily practice is unavailable');
   }
+
+  bool _isModeAvailable(TodayState state, _PlayStartMode mode) =>
+      switch (mode) {
+        _PlayStartMode.challenge => state.canChooseChallenge,
+        _PlayStartMode.practice => state.canChoosePractice,
+      };
 
   Future<PlayAttempt?> _claimRewardedAttempt(
     DailyGameRepository repository,
@@ -891,6 +944,24 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   bool _isKakaoRequiredError(Object error) =>
       error is PostgrestException &&
       error.message.contains('kakao account required');
+
+  bool _isDeviceDailyLimitError(Object error) =>
+      error is PostgrestException &&
+      error.message.contains('daily attempt already claimed on this device');
+
+  bool _isPlayStateChangedError(Object error) {
+    if (error is! PostgrestException) return false;
+    const messages = [
+      'challenge is not available',
+      'practice is not available',
+      'challenge requires rewarded ad',
+      'practice requires rewarded ad',
+      'daily rewarded ad already used',
+      'another reward is pending',
+      'first free play already claimed',
+    ];
+    return messages.any(error.message.contains);
+  }
 
   Future<T> _withTransientNetworkRetry<T>(
     Future<T> Function() operation,
@@ -1281,6 +1352,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
 
   String _statusText(TodayState state) {
     if (state.testMode) return '테스트 모드 · 제한 없이 계속 플레이할 수 있어요';
+    if (state.deviceDailyLimitReached) {
+      return '오늘 이 기기의 무료 플레이를 이미 사용했어요';
+    }
     if (state.completedPlayCount == 0) return '연습하거나 오늘의 기록에 도전해 보세요';
     if (state.canChooseChallenge && state.canChoosePractice) {
       if (state.requiresAdForChallenge && !state.requiresAdForPractice) {

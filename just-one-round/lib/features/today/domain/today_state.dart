@@ -216,6 +216,7 @@ class TodayState {
     this.nextPlayRequiresAd,
     this.challengeRequiresAd,
     this.practiceRequiresAd,
+    this.deviceDailyLimitReached = false,
     this.requiresKakaoForDailyPlay = false,
     this.compatibility = const ClientCompatibility.supported(),
     this.economy = const PlayerEconomy.zero(),
@@ -244,6 +245,8 @@ class TodayState {
       nextPlayRequiresAd: json['next_play_requires_ad'] as bool?,
       challengeRequiresAd: json['challenge_requires_ad'] as bool?,
       practiceRequiresAd: json['practice_requires_ad'] as bool?,
+      deviceDailyLimitReached:
+          json['device_daily_limit_reached'] as bool? ?? false,
       requiresKakaoForDailyPlay:
           json['requires_kakao_for_daily_play'] as bool? ?? false,
       economy: _economyFromJson(json),
@@ -276,6 +279,7 @@ class TodayState {
   final bool? nextPlayRequiresAd;
   final bool? challengeRequiresAd;
   final bool? practiceRequiresAd;
+  final bool deviceDailyLimitReached;
   final bool requiresKakaoForDailyPlay;
   final ClientCompatibility compatibility;
   final PlayerEconomy economy;
@@ -310,6 +314,7 @@ class TodayState {
     nextPlayRequiresAd: nextPlayRequiresAd,
     challengeRequiresAd: challengeRequiresAd,
     practiceRequiresAd: practiceRequiresAd,
+    deviceDailyLimitReached: deviceDailyLimitReached,
     requiresKakaoForDailyPlay: requiresKakaoForDailyPlay,
     compatibility: value,
     economy: economy,

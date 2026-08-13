@@ -60,11 +60,16 @@ select is(
   'later practice is issued without another ad'
 );
 
-select throws_ok(
-  $$ select public.prepare_practice_ad(public.current_play_date()) $$,
-  'P0001',
-  'daily rewarded ad already used',
-  'a second practice ad is rejected'
+select is(
+  public.prepare_practice_ad(public.current_play_date())->>'id',
+  (
+    select id::text
+    from public.rewarded_ad_grants
+    where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+      and grant_purpose = 'practice'
+      and status = 'consumed'
+  ),
+  'a stale client recovers the consumed practice grant without another ad'
 );
 
 select * from finish();

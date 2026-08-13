@@ -10,12 +10,14 @@ void main() {
       'ad_attempt_available': false,
       'test_mode': false,
       'daily_claimed': true,
+      'device_daily_limit_reached': true,
       'result': null,
       'nickname': 'new-account',
     });
 
     expect(state.attempts, isEmpty);
     expect(state.dailyClaimed, isTrue);
+    expect(state.deviceDailyLimitReached, isTrue);
     expect(state.canClaimDaily, isFalse);
     expect(state.isExhausted, isTrue);
   });
