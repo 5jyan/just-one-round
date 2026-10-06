@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math' show max, min, pi;
+import 'dart:math' show max, min, pi, sin;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -10,29 +10,58 @@ import 'package:just_one_round/app/app_environment.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/core/auth/kakao_auth_service.dart';
+import 'package:just_one_round/core/notifications/push_notification_service.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
+import 'package:just_one_round/features/games/bathhouse_sort/presentation/bathhouse_sort_preview.dart';
 import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
+import 'package:just_one_round/features/games/lily_frog/presentation/lily_frog_home_preview.dart';
+import 'package:just_one_round/features/games/net_boat/presentation/net_boat_preview.dart';
+import 'package:just_one_round/features/games/mole_reaction/presentation/mole_reaction_preview.dart';
+import 'package:just_one_round/features/games/western_duel/presentation/western_duel_preview.dart';
+import 'package:just_one_round/features/games/wind_darts/presentation/wind_darts_preview.dart';
 import 'package:just_one_round/features/games/midnight_snake/presentation/midnight_snake_path.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_definition.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_registry.dart';
 import 'package:just_one_round/features/games/ramen_timer/presentation/ramen_timer_preview.dart';
 import 'package:just_one_round/features/games/ten_pitch_slugger/presentation/ten_pitch_slugger_preview.dart';
 import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
+import 'package:just_one_round/features/economy/domain/daily_reward_rules.dart';
 import 'package:just_one_round/features/legal/legal_config.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
+import 'package:just_one_round/features/profile/domain/nickname_color.dart';
+import 'package:just_one_round/features/profile/presentation/nickname_color_choice_list.dart';
 import 'package:just_one_round/features/profile/presentation/profile_sheet.dart';
+import 'package:just_one_round/features/referral/domain/referral.dart';
+import 'package:just_one_round/features/shop/presentation/shop_sheet.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/daily_reset.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/mama_duck_trail_home_preview.dart';
+import 'package:just_one_round/shared/widgets/coin_mark.dart';
+import 'package:just_one_round/shared/widgets/pixel_action_dialog.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
+import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+const _previewDailyGameChangedDialog = bool.fromEnvironment(
+  'PREVIEW_DAILY_GAME_CHANGED_DIALOG',
+);
+
+bool _readAnonymousAccountStatus() {
+  try {
+    return Supabase.instance.client.auth.currentUser?.isAnonymous ?? true;
+  } on Object {
+    // Widget tests and preview repositories may not initialize Supabase.
+    return true;
+  }
+}
 
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
@@ -43,6 +72,8 @@ class TodayScreen extends ConsumerStatefulWidget {
 
 enum _PlayStartMode { challenge, practice }
 
+enum _ChallengeStartPath { free, rewardedAd, challengeTicket }
+
 class _TodayScreenState extends ConsumerState<TodayScreen>
     with WidgetsBindingObserver {
   static const _rewardVerificationRetryCount = 8;
@@ -50,18 +81,34 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   var _isSavingProfile = false;
   var _isRunningDeveloperAction = false;
   var _isLinkingKakao = false;
+  var _isOpeningShop = false;
   late final RewardedAdService _rewardedAdService;
   late RewardedAdStatus _rewardedAdStatus;
   var _accountDeleted = false;
   var _isCheckingDailyReset = false;
   var _isDailyResetDialogVisible = false;
   var _isCheckingPreviousResult = false;
+  var _showTomorrow = false;
   var _isPreviousResultDialogVisible = false;
   var _testerVersionTapCount = 0;
   String? _pendingFreePracticeRequestId;
+  final _pendingShopPurchaseRequestIds = <String, String>{};
+  String? _playActionNotice;
+  int? _practiceTicketDisplayOverride;
+  int? _practiceTicketAnimationTarget;
+  int? _challengeTicketDisplayOverride;
+  int? _challengeTicketAnimationTarget;
+  var _practiceTicketAnimationDelta = 0;
+  var _practiceTicketAnimationRevision = 0;
+  var _ticketAnimationGeneration = 0;
+  _CoinRewardEffectData? _coinRewardEffect;
   Timer? _dailyResetTimer;
+  Timer? _playActionNoticeTimer;
   Timer? _previousResultTimer;
   Timer? _testerVersionTapTimer;
+  Timer? _coinRewardEffectTimer;
+  Timer? _ticketAnimationTimer;
+  Completer<void>? _ticketAnimationWaiter;
 
   @override
   void initState() {
@@ -75,13 +122,22 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       (_, next) => next.whenData(_handleTodayState),
       fireImmediately: true,
     );
+    if (_previewDailyGameChangedDialog) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(_showDailyGameChangedDialog());
+      });
+    }
   }
 
   @override
   void dispose() {
     _dailyResetTimer?.cancel();
+    _playActionNoticeTimer?.cancel();
     _previousResultTimer?.cancel();
     _testerVersionTapTimer?.cancel();
+    _coinRewardEffectTimer?.cancel();
+    _cancelTicketAnimationWaiter();
+    _ticketAnimationGeneration++;
     WidgetsBinding.instance.removeObserver(this);
     _rewardedAdService.status.removeListener(_handleRewardedAdStatus);
     super.dispose();
@@ -95,6 +151,36 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   void _handleTodayState(TodayState state) {
+    if (_practiceTicketDisplayOverride != null &&
+        state.practiceTicketsRemaining == _practiceTicketAnimationTarget) {
+      final generation = _ticketAnimationGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted ||
+            generation != _ticketAnimationGeneration ||
+            state.practiceTicketsRemaining != _practiceTicketAnimationTarget) {
+          return;
+        }
+        setState(() {
+          _practiceTicketDisplayOverride = null;
+          _practiceTicketAnimationTarget = null;
+        });
+      });
+    }
+    if (_challengeTicketDisplayOverride != null &&
+        state.storeChallengeTickets == _challengeTicketAnimationTarget) {
+      final generation = _ticketAnimationGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted ||
+            generation != _ticketAnimationGeneration ||
+            state.storeChallengeTickets != _challengeTicketAnimationTarget) {
+          return;
+        }
+        setState(() {
+          _challengeTicketDisplayOverride = null;
+          _challengeTicketAnimationTarget = null;
+        });
+      });
+    }
     _scheduleDailyResetCheck();
     if (state.requiresUpdate) {
       _previousResultTimer?.cancel();
@@ -109,6 +195,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   Future<void> _handleAppResumed() async {
+    if (!mounted) return;
     final changed = await _checkForDailyGameChange();
     if (!changed &&
         ref.read(todayStateProvider).value?.requiresUpdate != true) {
@@ -188,35 +275,45 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           onClaim: () => ref
               .read(dailyGameRepositoryProvider)
               .acknowledgePreviousDailyResult(result.playDate, result.gameId),
+          onShowRanking: () => _showRankingForDate(
+            initialResult: DailyRankResult(
+              score: result.score,
+              rank: result.rank,
+              participants: result.participants,
+              topPercent: result.topPercent,
+              nickname: null,
+              nearby: const [],
+            ),
+            gameId: result.gameId,
+            playDate: result.playDate,
+            title: '어제의 랭킹',
+          ),
         ),
       );
       if (outcome == null) return;
       ref.invalidate(todayStateProvider);
-      if (mounted && outcome.reward.coinsGranted > 0) {
-        _showMessage(
-          '+${outcome.reward.coinsGranted} 코인 · '
-          '+${outcome.reward.experienceGranted} EXP를 받았어요!',
-        );
-      }
-      if (mounted && outcome.action == _PreviousResultAction.ranking) {
-        await _showRankingForDate(
-          initialResult: DailyRankResult(
-            score: result.score,
-            rank: result.rank,
-            participants: result.participants,
-            topPercent: result.topPercent,
-            nickname: null,
-            nearby: const [],
-          ),
-          gameId: result.gameId,
-          playDate: result.playDate,
-          title: '어제의 랭킹',
-        );
-      }
+      _showCoinRewardEffect(outcome.reward);
     } finally {
       _isPreviousResultDialogVisible = false;
       _schedulePreviousResultCheck();
     }
+  }
+
+  void _showCoinRewardEffect(RewardGrant reward) {
+    if (!mounted || reward.coinsGranted <= 0) return;
+    final targetCoins = reward.economy.coins;
+    final fromCoins = max(0, targetCoins - reward.coinsGranted);
+    _coinRewardEffectTimer?.cancel();
+    setState(() {
+      _coinRewardEffect = _CoinRewardEffectData(
+        fromCoins: fromCoins,
+        targetCoins: targetCoins,
+        delta: reward.coinsGranted,
+      );
+    });
+    _coinRewardEffectTimer = Timer(const Duration(milliseconds: 2200), () {
+      if (mounted) setState(() => _coinRewardEffect = null);
+    });
   }
 
   Future<bool> _checkForDailyGameChange({TodayState? displayedState}) async {
@@ -257,17 +354,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          backgroundColor: AppColors.surface,
-          title: const Text('오늘의 게임이 변경되었습니다.'),
-          content: const Text('새로운 오늘의 게임을 불러올게요.'),
-          actions: [
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('확인'),
-            ),
-          ],
-        ),
+        builder: (context) => const _DailyGameChangedDialog(),
       );
     } finally {
       _isDailyResetDialogVisible = false;
@@ -289,10 +376,103 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     _openSettings(state);
   }
 
+  Future<void> _openShop(TodayState state) async {
+    if (_isOpeningShop || _isClaiming) return;
+    setState(() => _isOpeningShop = true);
+    try {
+      final shopResult = await showShopSheet(
+        context,
+        economy: state.economy,
+        nickname: state.nickname?.trim().isNotEmpty == true
+            ? state.nickname!.trim()
+            : '내 닉네임',
+        nicknameColor: state.nicknameColor,
+        practiceTickets: state.storePracticeTickets,
+        challengeTickets: state.storeChallengeTickets,
+        nicknameColorTickets: state.storeNicknameColorTickets,
+        nicknameChangeTickets: state.storeNicknameChangeTickets,
+        onPurchase: (itemId) async {
+          final requestId = _pendingShopPurchaseRequestIds.putIfAbsent(
+            itemId,
+            createPlayRequestId,
+          );
+          final repository = ref.read(dailyGameRepositoryProvider);
+          final purchase = await _withTransientNetworkRetry(
+            () => repository.purchaseShopItem(
+              itemId: itemId,
+              requestId: requestId,
+            ),
+          );
+          _pendingShopPurchaseRequestIds.remove(itemId);
+          if (mounted) ref.invalidate(todayStateProvider);
+          return purchase;
+        },
+        onPurchaseNicknameColor: (color) async {
+          final requestKey = 'nickname_color:$color';
+          final requestId = _pendingShopPurchaseRequestIds.putIfAbsent(
+            requestKey,
+            createPlayRequestId,
+          );
+          final repository = ref.read(dailyGameRepositoryProvider);
+          final purchase = await _withTransientNetworkRetry(
+            () => repository.purchaseNicknameColor(
+              color: color,
+              requestId: requestId,
+            ),
+          );
+          _pendingShopPurchaseRequestIds.remove(requestKey);
+          if (mounted) ref.invalidate(todayStateProvider);
+          return purchase;
+        },
+        onSetNicknameColor: (color) =>
+            ref.read(socialRepositoryProvider).setNicknameColor(color),
+      );
+      // A purchase can be followed by a back swipe or a barrier dismissal,
+      // both of which used to return null and leave the home inventory stale.
+      // Refresh after every sheet close so a completed purchase is reflected
+      // even when the route cannot return its local result.
+      if (!mounted) return;
+      ref.invalidate(todayStateProvider);
+      if (shopResult?.editNickname != true) return;
+
+      // The purchase response is the freshest ticket count available while
+      // the provider refresh is in flight. Prefer the refreshed state for the
+      // editor and retain the response count as a safe fallback.
+      TodayState? latestState;
+      try {
+        latestState = await ref.refresh(todayStateProvider.future);
+      } catch (_) {
+        latestState = ref.read(todayStateProvider).value;
+      }
+      if (!mounted) return;
+      final editorState = latestState ?? state;
+      // The purchase response is the minimum fresh inventory for this flow.
+      // A provider refresh can still race with its own invalidation and return
+      // the pre-purchase snapshot, so retain the response count as a floor.
+      // The server remains authoritative when the editor saves.
+      final editorTicketCount = max(
+        max(
+          latestState?.storeNicknameChangeTickets ?? 0,
+          shopResult?.nicknameChangeTickets ?? 0,
+        ),
+        editorState.storeNicknameChangeTickets,
+      );
+      // The editor can still encounter a server-side inventory race. Allow
+      // its ticket-required fallback to open the shop again immediately.
+      setState(() => _isOpeningShop = false);
+      await _editNickname(
+        editorState.nickname,
+        nicknameChangeTickets: editorTicketCount,
+        sourceState: editorState,
+      );
+    } finally {
+      if (mounted) setState(() => _isOpeningShop = false);
+    }
+  }
+
   Future<void> _openSettings(TodayState state) async {
     final appBuildInfo = ref.read(appBuildInfoProvider);
-    final kakaoAuthService = ref.read(kakaoAuthServiceProvider);
-    final kakaoLinked = kakaoAuthService.isLinked;
+    final pushAuthorizationStatus = await getPushAuthorizationStatus();
     var showAdPrivacy = false;
     try {
       showAdPrivacy = await _rewardedAdService.isPrivacyOptionsRequired();
@@ -302,105 +482,174 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (!mounted) return;
     final action = await showDialog<_SettingsAction>(
       context: context,
-      builder: (context) => SimpleDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('설정'),
-        children: [
-          SimpleDialogOption(
-            key: const Key('profile-menu'),
-            onPressed: () => Navigator.of(context).pop(_SettingsAction.profile),
-            child: ListTile(
-              leading: const Icon(Icons.person_outline, color: AppColors.text),
-              title: const Text('프로필'),
-              subtitle: Text(kakaoLinked ? '카카오 계정 연결됨' : '닉네임·코인·경험치·카카오 계정'),
-            ),
+      builder: (context) {
+        final dialogWidth = (MediaQuery.sizeOf(context).width - 48)
+            .clamp(280.0, 320.0)
+            .toDouble();
+        return SimpleDialog(
+          backgroundColor: AppColors.surface,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
           ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(_SettingsAction.privacy),
-            child: const ListTile(
-              leading: Icon(Icons.privacy_tip_outlined, color: AppColors.text),
-              title: Text('개인정보처리방침'),
-            ),
-          ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(_SettingsAction.terms),
-            child: const ListTile(
-              leading: Icon(Icons.description_outlined, color: AppColors.text),
-              title: Text('서비스 이용약관'),
-            ),
-          ),
-          SimpleDialogOption(
-            onPressed: () =>
-                Navigator.of(context).pop(_SettingsAction.community),
-            child: const ListTile(
-              leading: Icon(Icons.shield_outlined, color: AppColors.text),
-              title: Text('커뮤니티 운영정책'),
-            ),
-          ),
-          if (showAdPrivacy)
-            SimpleDialogOption(
-              onPressed: () =>
-                  Navigator.of(context).pop(_SettingsAction.adPrivacy),
-              child: const ListTile(
-                leading: Icon(Icons.ads_click_outlined, color: AppColors.text),
-                title: Text('광고 개인정보 선택'),
+          title: const WordSafeText('설정'),
+          children: [
+            SizedBox(
+              width: dialogWidth,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SimpleDialogOption(
+                    key: const Key('profile-menu'),
+                    onPressed: () =>
+                        Navigator.of(context).pop(_SettingsAction.profile),
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.person_outline,
+                        color: AppColors.text,
+                      ),
+                      title: const WordSafeText('프로필'),
+                    ),
+                  ),
+                  SimpleDialogOption(
+                    key: const Key('social-push-menu'),
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pop(_SettingsAction.socialNotifications),
+                    child: ListTile(
+                      leading: Icon(
+                        state.socialNotificationsEnabled
+                            ? Icons.notifications_active_outlined
+                            : Icons.notifications_off_outlined,
+                        color: AppColors.text,
+                      ),
+                      title: const WordSafeText('소셜 푸시 알림', singleLine: true),
+                      trailing: Switch.adaptive(
+                        value: state.socialNotificationsEnabled,
+                        onChanged: (_) => Navigator.of(
+                          context,
+                        ).pop(_SettingsAction.socialNotifications),
+                      ),
+                    ),
+                  ),
+                  if (pushAuthorizationStatus.needsSystemSettings)
+                    SimpleDialogOption(
+                      key: const Key('push-device-settings-menu'),
+                      onPressed: () => Navigator.of(
+                        context,
+                      ).pop(_SettingsAction.pushDeviceSettings),
+                      child: const ListTile(
+                        leading: Icon(
+                          Icons.settings_outlined,
+                          color: AppColors.text,
+                        ),
+                        title: WordSafeText('기기 알림 설정'),
+                        subtitle: WordSafeText('기기 설정에서 알림이 차단되어 있어요'),
+                      ),
+                    ),
+                  SimpleDialogOption(
+                    key: const Key('support-menu'),
+                    onPressed: () =>
+                        Navigator.of(context).pop(_SettingsAction.support),
+                    child: const ListTile(
+                      leading: Icon(
+                        Icons.mail_outline_rounded,
+                        color: AppColors.text,
+                      ),
+                      title: WordSafeText('문의하기'),
+                    ),
+                  ),
+                  SimpleDialogOption(
+                    key: const Key('legal-menu'),
+                    onPressed: () =>
+                        Navigator.of(context).pop(_SettingsAction.legal),
+                    child: const ListTile(
+                      leading: Icon(
+                        Icons.policy_outlined,
+                        color: AppColors.text,
+                      ),
+                      title: WordSafeText('정책 및 약관'),
+                    ),
+                  ),
+                  if (showAdPrivacy)
+                    SimpleDialogOption(
+                      onPressed: () =>
+                          Navigator.of(context).pop(_SettingsAction.adPrivacy),
+                      child: const ListTile(
+                        leading: Icon(
+                          Icons.ads_click_outlined,
+                          color: AppColors.text,
+                        ),
+                        title: WordSafeText('광고 개인정보 선택'),
+                      ),
+                    ),
+                  SimpleDialogOption(
+                    onPressed: () =>
+                        Navigator.of(context).pop(_SettingsAction.delete),
+                    child: const ListTile(
+                      leading: Icon(
+                        Icons.delete_forever_outlined,
+                        color: Colors.redAccent,
+                      ),
+                      title: WordSafeText(
+                        '계정 및 데이터 삭제',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                    ),
+                  ),
+                  if (state.testMode)
+                    SimpleDialogOption(
+                      onPressed: () =>
+                          Navigator.of(context).pop(_SettingsAction.developer),
+                      child: const ListTile(
+                        key: Key('developer-mode-menu'),
+                        leading: Icon(
+                          Icons.developer_mode,
+                          color: AppColors.reward,
+                        ),
+                        title: WordSafeText('개발자 모드'),
+                        subtitle: WordSafeText('게임 변경 및 횟수 초기화'),
+                      ),
+                    ),
+                  GestureDetector(
+                    key: const Key('app-version-tap-target'),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _handleTesterVersionTap(
+                      context,
+                      isTestMode: state.testMode,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 14, 24, 18),
+                      child: WordSafeText(
+                        '앱 버전 ${appBuildInfo.version} (${appBuildInfo.buildNumber})',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(_SettingsAction.delete),
-            child: const ListTile(
-              leading: Icon(
-                Icons.delete_forever_outlined,
-                color: Colors.redAccent,
-              ),
-              title: Text(
-                '계정 및 데이터 삭제',
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          ),
-          if (state.testMode)
-            SimpleDialogOption(
-              onPressed: () =>
-                  Navigator.of(context).pop(_SettingsAction.developer),
-              child: const ListTile(
-                key: Key('developer-mode-menu'),
-                leading: Icon(Icons.developer_mode, color: AppColors.reward),
-                title: Text('개발자 모드'),
-                subtitle: Text('게임 변경 및 횟수 초기화'),
-              ),
-            ),
-          GestureDetector(
-            key: const Key('app-version-tap-target'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () =>
-                _handleTesterVersionTap(context, isTestMode: state.testMode),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(24, 14, 24, 18),
-              child: Text(
-                '앱 버전 ${appBuildInfo.version} (${appBuildInfo.buildNumber})',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
     if (!mounted) return;
     switch (action) {
       case _SettingsAction.profile:
         await _openProfile(state);
-      case _SettingsAction.privacy:
-        await _openLegalUrl(LegalConfig.privacyUri);
-      case _SettingsAction.terms:
-        await _openLegalUrl(LegalConfig.termsUri);
-      case _SettingsAction.community:
-        await _openLegalUrl(LegalConfig.communityUri);
+      case _SettingsAction.legal:
+        await _openLegalDocuments();
+      case _SettingsAction.support:
+        await _openSupportInquiry(appBuildInfo);
+      case _SettingsAction.socialNotifications:
+        await _setSocialNotificationsEnabled(!state.socialNotificationsEnabled);
+      case _SettingsAction.pushDeviceSettings:
+        await _openPushDeviceSettings();
       case _SettingsAction.adPrivacy:
         await _showAdPrivacyOptions();
       case _SettingsAction.delete:
@@ -416,23 +665,170 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     }
   }
 
+  Future<void> _setSocialNotificationsEnabled(bool enabled) async {
+    PushAuthorizationStatus? pushAuthorizationStatus;
+    if (enabled) {
+      pushAuthorizationStatus = await requestPushPermissionAndRegister(
+        ref.read(socialRepositoryProvider),
+      );
+    }
+    try {
+      await ref
+          .read(socialRepositoryProvider)
+          .setSocialNotificationsEnabled(enabled);
+      ref.invalidate(todayStateProvider);
+      if (!enabled) {
+        _showMessage('소셜 푸시 알림을 껐어요.');
+      } else if (pushAuthorizationStatus?.needsSystemSettings == true) {
+        _showMessage('앱 설정은 켰지만 기기 알림이 꺼져 있어요. 기기 설정에서 허용해 주세요.');
+      } else if (pushAuthorizationStatus ==
+          PushAuthorizationStatus.unavailable) {
+        _showMessage('앱 설정은 켰지만 기기 알림 상태를 확인하지 못했어요.');
+      } else {
+        _showMessage('소셜 푸시 알림을 켰어요.');
+      }
+    } catch (_) {
+      _showMessage('알림 설정을 변경하지 못했어요.');
+    }
+  }
+
+  Future<void> _openPushDeviceSettings() async {
+    final opened = await openPushNotificationSettings();
+    if (!opened) _showMessage('기기 알림 설정을 열지 못했어요. 시스템 설정에서 직접 확인해 주세요.');
+  }
+
   Future<void> _openProfile(TodayState state) async {
     final kakaoAuthService = ref.read(kakaoAuthServiceProvider);
+    var referralStatus = const ReferralStatus.empty();
+    try {
+      referralStatus = await ref
+          .read(referralRepositoryProvider)
+          .fetchReferralStatus()
+          .timeout(const Duration(seconds: 8));
+    } catch (error, stackTrace) {
+      debugPrint('[Referral] Status lookup failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+    if (!mounted) return;
     final action = await showProfileSheet(
       context,
       nickname: state.nickname,
       economy: state.economy,
       kakaoConfigured: kakaoAuthService.isConfigured,
       kakaoLinked: kakaoAuthService.isLinked,
+      isAnonymousAccount: _readAnonymousAccountStatus(),
+      nicknameColor: state.nicknameColor,
+      nicknameChangeTickets: state.storeNicknameChangeTickets,
+      referralStatus: referralStatus,
     );
     if (!mounted) return;
     switch (action) {
       case ProfileAction.editNickname:
-        await _editNickname(state.nickname);
+        await _editNickname(
+          state.nickname,
+          nicknameChangeTickets: state.storeNicknameChangeTickets,
+          sourceState: state,
+        );
+      case ProfileAction.nicknameColor:
+        await _chooseNicknameColor(state);
       case ProfileAction.linkKakao:
         await _linkKakaoAccount();
+      case ProfileAction.inviteFriends:
+        await _shareReferralInvite();
       case null:
         return;
+    }
+  }
+
+  Future<void> _shareReferralInvite() async {
+    try {
+      final invite = await ref
+          .read(referralRepositoryProvider)
+          .getOrCreateReferralInvite()
+          .timeout(const Duration(seconds: 12));
+      if (!mounted) return;
+      final renderBox = context.findRenderObject() as RenderBox?;
+      await SharePlus.instance.share(
+        ShareParams(
+          text: '딱한판만 같이 해요! 친구가 첫 연습 또는 도전을 시작하면 제가 도전권을 받아요.\n${invite.url}',
+          subject: '딱한판만 초대',
+          sharePositionOrigin: renderBox == null
+              ? null
+              : renderBox.localToGlobal(Offset.zero) & renderBox.size,
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('[Referral] Share failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      if (mounted) _showMessage('초대 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
+  }
+
+  Future<void> _chooseNicknameColor(TodayState state) async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      useSafeArea: true,
+      backgroundColor: AppColors.surface,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Expanded(
+                  child: WordSafeText(
+                    '닉네임 색상',
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+                  ),
+                ),
+                IconButton(
+                  tooltip: '닫기',
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close, color: AppColors.textMuted),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            WordSafeText(
+              state.storeNicknameColorTickets > 0
+                  ? '내 닉네임을 눌러 색상을 고르세요. 다시 바꾸려면 색상권이 필요해요.'
+                  : '선택한 색상은 고정돼요. 다시 바꾸려면 상점에서 색상권을 구매하세요.',
+              style: const TextStyle(color: AppColors.textMuted),
+            ),
+            const SizedBox(height: 14),
+            NicknameColorChoiceList(
+              nickname: state.nickname?.trim().isNotEmpty == true
+                  ? state.nickname!.trim()
+                  : '내 닉네임',
+              selectedColor: state.nicknameColor,
+              enabled: state.storeNicknameColorTickets > 0,
+              onSelected: (token) => Navigator.of(context).pop(token),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (selected == null || !mounted) return;
+    final confirmed = await showPixelConfirmationDialog(
+      context,
+      title: '색상을 적용할까요?',
+      message: '${NicknameColors.label(selected)} 색상으로 바꾸고 색상권 1장을 사용해요.',
+      confirmLabel: '적용하기',
+      dialogKey: const Key('profile-nickname-color-confirmation'),
+      titleKey: const Key('profile-nickname-color-confirmation-title'),
+      messageKey: const Key('profile-nickname-color-confirmation-message'),
+      cancelKey: const Key('profile-nickname-color-cancel'),
+      confirmKey: const Key('profile-nickname-color-confirm'),
+    );
+    if (!mounted || confirmed != true) return;
+    try {
+      await ref.read(socialRepositoryProvider).setNicknameColor(selected);
+      ref.invalidate(todayStateProvider);
+      _showMessage('${NicknameColors.label(selected)} 색상을 적용했어요.');
+    } catch (_) {
+      _showMessage('색상을 적용하지 못했어요. 색상권을 확인해 주세요.');
     }
   }
 
@@ -540,6 +936,65 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     }
   }
 
+  Future<void> _openLegalDocuments() async {
+    final selection = await showDialog<_LegalDocument>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        backgroundColor: AppColors.surface,
+        title: const WordSafeText('정책 및 약관'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(context).pop(_LegalDocument.privacy),
+            child: const ListTile(
+              leading: Icon(Icons.privacy_tip_outlined, color: AppColors.text),
+              title: WordSafeText('개인정보처리방침'),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(context).pop(_LegalDocument.terms),
+            child: const ListTile(
+              leading: Icon(Icons.description_outlined, color: AppColors.text),
+              title: WordSafeText('서비스 이용약관'),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () =>
+                Navigator.of(context).pop(_LegalDocument.community),
+            child: const ListTile(
+              leading: Icon(Icons.shield_outlined, color: AppColors.text),
+              title: WordSafeText('커뮤니티 운영정책'),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || selection == null) return;
+    final uri = switch (selection) {
+      _LegalDocument.privacy => LegalConfig.privacyUri,
+      _LegalDocument.terms => LegalConfig.termsUri,
+      _LegalDocument.community => LegalConfig.communityUri,
+    };
+    await _openLegalUrl(uri);
+  }
+
+  Future<void> _openSupportInquiry(AppBuildInfo appBuildInfo) async {
+    final submitted = await showDialog<bool>(
+      context: context,
+      builder: (context) => _SupportInquiryDialog(
+        onSubmit: (message) => ref
+            .read(dailyGameRepositoryProvider)
+            .submitSupportInquiry(
+              message: message,
+              appVersion: appBuildInfo.version,
+              buildNumber: appBuildInfo.buildNumber,
+            ),
+      ),
+    );
+    if (submitted == true && mounted) {
+      _showMessage('문의가 접수됐어요. 운영팀이 확인할게요.');
+    }
+  }
+
   Future<void> _showAdPrivacyOptions() async {
     final shown = await _rewardedAdService.showPrivacyOptions();
     if (mounted && !shown) {
@@ -552,8 +1007,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('계정과 데이터를 삭제할까요?'),
-        content: const Text(
+        title: const WordSafeText('계정과 데이터를 삭제할까요?'),
+        content: const WordSafeText(
           '닉네임, 모든 게임 기록과 광고 보상 기록이 영구 삭제됩니다. '
           '당일 중복 플레이를 막기 위한 익명 기기 표식만 다음 일일 초기화까지 유지됩니다. '
           '이 작업은 되돌릴 수 없어요.',
@@ -561,12 +1016,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
+            child: const WordSafeText('취소'),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('영구 삭제'),
+            child: const WordSafeText('영구 삭제'),
           ),
         ],
       ),
@@ -600,16 +1055,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: AppColors.surface,
-            title: const Text('오늘 기록을 초기화할까요?'),
-            content: const Text('테스트 계정의 오늘 시도와 점수만 삭제됩니다.'),
+            title: const WordSafeText('오늘 기록을 초기화할까요?'),
+            content: const WordSafeText('테스트 계정의 오늘 시도와 점수만 삭제됩니다.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('취소'),
+                child: const WordSafeText('취소'),
               ),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('초기화'),
+                child: const WordSafeText('초기화'),
               ),
             ],
           ),
@@ -623,7 +1078,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
+            content: WordSafeText(
               action.resetProgress ? '오늘 기록을 초기화했어요.' : '테스트 게임을 변경했어요.',
             ),
           ),
@@ -631,47 +1086,27 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       }
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('개발자 기능을 실행하지 못했어요: $error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: WordSafeText('개발자 기능을 실행하지 못했어요: $error')),
+      );
     } finally {
       if (mounted) setState(() => _isRunningDeveloperAction = false);
-    }
-  }
-
-  Future<void> _showKakaoRequiredDialog(TodayState state) async {
-    if (!mounted) return;
-    final openProfile = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        key: const Key('kakao-required-dialog'),
-        backgroundColor: AppColors.surface,
-        title: const Text('계정 연동이 필요해요'),
-        content: const Text('게임을 계속 하려면 카카오 계정을 연동해 주세요.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('나중에'),
-          ),
-          FilledButton(
-            key: const Key('kakao-required-link-button'),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('계정 연동하러 가기'),
-          ),
-        ],
-      ),
-    );
-    if (openProfile == true && mounted) {
-      await _openProfile(state);
     }
   }
 
   Future<void> _start({
     required _PlayStartMode mode,
     required TodayState displayedState,
+    _ChallengeStartPath? challengePath,
   }) async {
     if (_isClaiming) return;
     setState(() => _isClaiming = true);
+    final ticketAnimationGeneration = _beginPlayTicketAnimation(
+      mode: mode,
+      displayedState: displayedState,
+      challengePath: challengePath,
+    );
+    var keepTicketAnimation = false;
     TodayState startState = displayedState;
     try {
       final latestState = await ref
@@ -684,12 +1119,37 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         _showMessage('새 버전이 필요해요. 업데이트 화면을 불러올게요.');
         return;
       }
-      if (!isSamePlayDate(displayedState.playDate, latestState.playDate)) {
+      final isTomorrow = displayedState.isTomorrowPreview;
+      final expectedGameDate = isTomorrow
+          ? latestState.playDate.add(const Duration(days: 1))
+          : latestState.playDate;
+      if (!isSamePlayDate(displayedState.playDate, expectedGameDate)) {
         await _showDailyGameChangedDialog();
         return;
       }
-      startState = latestState;
-      if (!_isModeAvailable(startState, mode)) {
+      startState = isTomorrow
+          ? latestState.tomorrowPreview ?? latestState
+          : latestState;
+      if (startState.game == null ||
+          !GameRegistry.supports(
+            startState.game!.id,
+            startState.game!.version,
+          )) {
+        _pendingFreePracticeRequestId = null;
+        _showMessage(
+          isTomorrow
+              ? '내일 게임 업데이트를 준비 중이에요. 내일 다시 확인해 주세요.'
+              : '게임 업데이트가 필요해요. 잠시 후 다시 시도해 주세요.',
+        );
+        return;
+      }
+      final selectedChallengePath = mode == _PlayStartMode.challenge
+          ? challengePath ?? _defaultChallengeStartPath(startState)
+          : null;
+      final isAvailable = mode == _PlayStartMode.challenge
+          ? _isChallengeStartPathAvailable(startState, selectedChallengePath!)
+          : _isModeAvailable(startState, mode);
+      if (!isAvailable) {
         _pendingFreePracticeRequestId = null;
         ref.invalidate(todayStateProvider);
         _showMessage('플레이 상태가 갱신됐어요. 현재 버튼에서 다시 선택해 주세요.');
@@ -697,31 +1157,29 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       }
 
       final requiresAd = switch (mode) {
-        _PlayStartMode.challenge => startState.requiresAdForChallenge,
+        _PlayStartMode.challenge =>
+          selectedChallengePath == _ChallengeStartPath.rewardedAd,
         _PlayStartMode.practice => startState.requiresAdForPractice,
       };
-      if (!requiresAd &&
-          startState.requiresKakaoForDailyPlay &&
-          !ref.read(kakaoAuthServiceProvider).isLinked) {
-        await _showKakaoRequiredDialog(startState);
-        return;
-      }
-
       final repository = ref.read(dailyGameRepositoryProvider);
       if (mode == _PlayStartMode.challenge || requiresAd) {
         _pendingFreePracticeRequestId = null;
       }
       final attempt = switch (mode) {
-        _PlayStartMode.challenge =>
-          requiresAd
-              ? await _claimRewardedAttempt(
-                  repository,
-                  startState.playDate,
-                  startState,
-                )
-              : await _withTransientNetworkRetry(
-                  () => repository.claimDailyAttempt(startState.playDate),
-                ),
+        _PlayStartMode.challenge => switch (selectedChallengePath!) {
+          _ChallengeStartPath.free => await _withTransientNetworkRetry(
+            () => repository.claimDailyAttempt(startState.playDate),
+          ),
+          _ChallengeStartPath.rewardedAd => await _claimRewardedAttempt(
+            repository,
+            startState.playDate,
+            startState,
+          ),
+          _ChallengeStartPath.challengeTicket =>
+            await _withTransientNetworkRetry(
+              () => repository.claimChallengeTicketAttempt(startState.playDate),
+            ),
+        },
         _PlayStartMode.practice =>
           requiresAd
               ? await _claimPracticeAttempt(
@@ -729,10 +1187,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                   startState.playDate,
                   startState,
                 )
-              : await _claimDailyPractice(repository, startState.playDate),
+              : await _claimDailyPractice(
+                  repository,
+                  latestState.playDate,
+                  gameDate: startState.playDate,
+                ),
       };
       if (attempt == null) return;
       if (!mounted) return;
+      // A successful claim is now recoverable through the persisted request
+      // ID until the game confirms its start. Do not keep the same ID in this
+      // screen state: GameScreen returns home with context.go('/'), which can
+      // leave this state alive and otherwise replay the previous session.
+      _pendingFreePracticeRequestId = null;
+      keepTicketAnimation = true;
       setState(() => _isClaiming = false);
       await context.push('/play', extra: attempt);
       if (!mounted) return;
@@ -747,10 +1215,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       if (_isDailyGameChangedError(error)) {
         _pendingFreePracticeRequestId = null;
         await _showDailyGameChangedDialog();
-        return;
-      }
-      if (_isKakaoRequiredError(error)) {
-        await _showKakaoRequiredDialog(startState);
         return;
       }
       if (_isDeviceDailyLimitError(error)) {
@@ -770,25 +1234,312 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('시작하지 못했어요: $error')));
+      ).showSnackBar(SnackBar(content: WordSafeText('시작하지 못했어요: $error')));
     } finally {
+      if (!keepTicketAnimation) {
+        _cancelTicketAnimation(ticketAnimationGeneration);
+      }
       if (mounted && _isClaiming) setState(() => _isClaiming = false);
     }
   }
 
+  Future<void> _claimPracticeTicketReward(TodayState displayedState) async {
+    if (_isClaiming) return;
+    setState(() => _isClaiming = true);
+    try {
+      final repository = ref.read(dailyGameRepositoryProvider);
+      final latestState = await repository.fetchToday().timeout(
+        const Duration(seconds: 12),
+      );
+      if (!mounted) return;
+      final expectedGameDate = displayedState.isTomorrowPreview
+          ? latestState.playDate.add(const Duration(days: 1))
+          : latestState.playDate;
+      if (!isSamePlayDate(displayedState.playDate, expectedGameDate)) {
+        await _showDailyGameChangedDialog();
+        return;
+      }
+      if (!latestState.canClaimPracticeReward) {
+        ref.invalidate(todayStateProvider);
+        _showMessage('연습권 상태가 갱신됐어요. 다시 확인해 주세요.');
+        return;
+      }
+
+      final session = await _withTransientNetworkRetry(
+        () => repository.preparePracticeAd(latestState.playDate),
+      );
+      final recovered = await _claimVerifiedPracticeTickets(
+        repository,
+        session.id,
+        retries: 0,
+      );
+      if (recovered != null) {
+        await _animatePracticeTicketChange(
+          from: latestState.practiceTicketsRemaining,
+          to: latestState.practiceTicketsRemaining + recovered,
+        );
+        if (!mounted) return;
+        ref.invalidate(todayStateProvider);
+        _showMessage('연습권 $recovered장을 받았어요!');
+        return;
+      }
+
+      final outcome = await _rewardedAdService.show(
+        userId: session.userId,
+        verificationSessionId: session.id,
+      );
+      if (!mounted) return;
+      if (outcome == RewardedAdOutcome.dismissed) {
+        _showMessage('광고를 끝까지 보면 연습권 2장을 받아요.');
+        return;
+      }
+      if (outcome == RewardedAdOutcome.failed) {
+        _showMessage('광고를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      if (ref.read(localTestAdVerificationProvider) &&
+          repository is LocalPracticeAdVerificationRepository) {
+        final localVerifier =
+            repository as LocalPracticeAdVerificationRepository;
+        await localVerifier.verifyLocalPracticeAd(session.id);
+      }
+
+      final granted = await _claimVerifiedPracticeTickets(
+        repository,
+        session.id,
+        retries: 2,
+      );
+      if (!mounted) return;
+      if (granted != null) {
+        await _animatePracticeTicketChange(
+          from: latestState.practiceTicketsRemaining,
+          to: latestState.practiceTicketsRemaining + granted,
+        );
+        if (!mounted) return;
+        ref.invalidate(todayStateProvider);
+        _showMessage('연습권 $granted장을 받았어요!');
+        return;
+      }
+
+      _showMessage('연습권을 확인하고 있어요. 확인되면 자동으로 들어와요.');
+      unawaited(
+        _finishPracticeTicketRewardInBackground(repository, session.id),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      if (_isDailyGameChangedError(error)) {
+        await _showDailyGameChangedDialog();
+      } else if (_isTransientNetworkError(error)) {
+        _showMessage('인터넷 연결이 불안정해요. 잠시 후 다시 시도해 주세요.');
+      } else {
+        _showMessage('연습권을 받지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
+    } finally {
+      if (mounted) setState(() => _isClaiming = false);
+    }
+  }
+
+  Future<int?> _claimVerifiedPracticeTickets(
+    DailyGameRepository repository,
+    String sessionId, {
+    required int retries,
+  }) async {
+    for (var attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await _withTransientNetworkRetry(
+          () => repository.claimPracticeTicketReward(sessionId),
+        );
+      } on PostgrestException catch (error) {
+        if (!_isRewardPending(error)) rethrow;
+        if (attempt == retries) return null;
+        await Future<void>.delayed(Duration(seconds: attempt + 1));
+      }
+    }
+    return null;
+  }
+
+  Future<void> _finishPracticeTicketRewardInBackground(
+    DailyGameRepository repository,
+    String sessionId,
+  ) async {
+    try {
+      final granted = await _claimVerifiedPracticeTickets(
+        repository,
+        sessionId,
+        retries: _rewardVerificationRetryCount,
+      );
+      if (!mounted || granted == null) return;
+      final currentTickets =
+          ref.read(todayStateProvider).value?.practiceTicketsRemaining ?? 0;
+      await _animatePracticeTicketChange(
+        from: currentTickets,
+        to: currentTickets + granted,
+      );
+      if (!mounted) return;
+      ref.invalidate(todayStateProvider);
+      _showMessage('연습권 $granted장이 들어왔어요!');
+    } catch (error, stackTrace) {
+      debugPrint('[RewardedAd] Practice ticket verification failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
+
+  int? _beginPlayTicketAnimation({
+    required _PlayStartMode mode,
+    required TodayState displayedState,
+    _ChallengeStartPath? challengePath,
+  }) {
+    final availablePracticeTickets = max(
+      displayedState.practiceTicketsRemaining,
+      displayedState.storePracticeTickets,
+    );
+    if (mode == _PlayStartMode.practice &&
+        !displayedState.testMode &&
+        !displayedState.practicePending &&
+        !displayedState.requiresAdForPractice &&
+        availablePracticeTickets > 0) {
+      final from = availablePracticeTickets;
+      final to = max(0, from - 1);
+      final generation = _setPracticeTicketAnimation(from: from, to: to);
+      if (generation != null) {
+        unawaited(_finishPracticeTicketAnimation(generation, to));
+      }
+      return generation;
+    }
+
+    final selectedPath =
+        challengePath ?? _defaultChallengeStartPath(displayedState);
+    if (mode == _PlayStartMode.challenge &&
+        selectedPath == _ChallengeStartPath.challengeTicket &&
+        displayedState.storeChallengeTickets > 0) {
+      final from = displayedState.storeChallengeTickets;
+      final to = max(0, from - 1);
+      final generation = _setChallengeTicketAnimation(from: from, to: to);
+      if (generation != null) {
+        unawaited(_finishChallengeTicketAnimation(generation));
+      }
+      return generation;
+    }
+    return null;
+  }
+
+  Future<void> _animatePracticeTicketChange({
+    required int from,
+    required int to,
+  }) async {
+    final generation = _setPracticeTicketAnimation(from: from, to: to);
+    if (generation == null) return;
+    await _finishPracticeTicketAnimation(generation, to);
+  }
+
+  int? _setPracticeTicketAnimation({required int from, required int to}) {
+    if (!mounted || from == to) return null;
+    final generation = ++_ticketAnimationGeneration;
+    setState(() {
+      _practiceTicketDisplayOverride = from;
+      _practiceTicketAnimationTarget = to;
+      _practiceTicketAnimationDelta = to - from;
+      _practiceTicketAnimationRevision++;
+    });
+    return generation;
+  }
+
+  Future<void> _finishPracticeTicketAnimation(int generation, int to) async {
+    if (!await _waitForTicketAnimation(
+      const Duration(milliseconds: 180),
+      generation,
+    )) {
+      return;
+    }
+    setState(() => _practiceTicketDisplayOverride = to);
+    if (!await _waitForTicketAnimation(
+      const Duration(milliseconds: 470),
+      generation,
+    )) {
+      return;
+    }
+    setState(() => _practiceTicketAnimationDelta = 0);
+  }
+
+  int? _setChallengeTicketAnimation({required int from, required int to}) {
+    if (!mounted || from == to) return null;
+    final generation = ++_ticketAnimationGeneration;
+    setState(() {
+      // This optimistic override starts the badge effect before the claim RPC
+      // resolves. The server-backed state replaces it after the game returns.
+      _challengeTicketDisplayOverride = to;
+      _challengeTicketAnimationTarget = to;
+    });
+    return generation;
+  }
+
+  Future<void> _finishChallengeTicketAnimation(int generation) async {
+    await _waitForTicketAnimation(
+      _challengeTicketAnimationDuration,
+      generation,
+    );
+  }
+
+  Future<bool> _waitForTicketAnimation(
+    Duration duration,
+    int generation,
+  ) async {
+    _cancelTicketAnimationWaiter();
+    final waiter = Completer<void>();
+    _ticketAnimationWaiter = waiter;
+    _ticketAnimationTimer = Timer(duration, () {
+      if (identical(_ticketAnimationWaiter, waiter)) {
+        _ticketAnimationWaiter = null;
+        _ticketAnimationTimer = null;
+      }
+      if (!waiter.isCompleted) waiter.complete();
+    });
+    await waiter.future;
+    return mounted && generation == _ticketAnimationGeneration;
+  }
+
+  void _cancelTicketAnimationWaiter() {
+    _ticketAnimationTimer?.cancel();
+    _ticketAnimationTimer = null;
+    final waiter = _ticketAnimationWaiter;
+    _ticketAnimationWaiter = null;
+    if (waiter != null && !waiter.isCompleted) {
+      waiter.complete();
+    }
+  }
+
+  void _cancelTicketAnimation(int? generation) {
+    if (generation == null || generation != _ticketAnimationGeneration) return;
+    _ticketAnimationGeneration++;
+    _cancelTicketAnimationWaiter();
+    if (!mounted) return;
+    setState(() {
+      _practiceTicketDisplayOverride = null;
+      _practiceTicketAnimationTarget = null;
+      _practiceTicketAnimationDelta = 0;
+      _challengeTicketDisplayOverride = null;
+      _challengeTicketAnimationTarget = null;
+    });
+  }
+
   Future<PlayAttempt> _claimDailyPractice(
     DailyGameRepository repository,
-    DateTime expectedPlayDate,
-  ) async {
+    DateTime expectedPlayDate, {
+    DateTime? gameDate,
+  }) async {
     if (repository case final DailyPracticeRepository practiceRepository) {
-      final requestId = _pendingFreePracticeRequestId ??= createPlayRequestId();
+      final requestId = _pendingFreePracticeRequestId ??=
+          await practiceRepository.getOrCreatePracticeRequestId(
+            gameDate ?? expectedPlayDate,
+          );
       final attempt = await _withTransientNetworkRetry(
         () => practiceRepository.claimDailyPractice(
           expectedPlayDate,
           requestId: requestId,
+          gameDate: gameDate,
         ),
       );
-      _pendingFreePracticeRequestId = null;
       return attempt;
     }
     throw StateError('daily practice is unavailable');
@@ -799,6 +1550,29 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         _PlayStartMode.challenge => state.canChooseChallenge,
         _PlayStartMode.practice => state.canChoosePractice,
       };
+
+  _ChallengeStartPath _defaultChallengeStartPath(TodayState state) {
+    // Keep the rewarded-ad challenge first. Once it is consumed, the same
+    // primary challenge button falls through to the player's ticket balance.
+    if (state.canChooseAdChallenge) return _ChallengeStartPath.rewardedAd;
+    if (state.rankedAdAttemptUsed || state.canChooseChallengeTicket) {
+      return _ChallengeStartPath.challengeTicket;
+    }
+    return _ChallengeStartPath.free;
+  }
+
+  bool _isChallengeStartPathAvailable(
+    TodayState state,
+    _ChallengeStartPath path,
+  ) => switch (path) {
+    _ChallengeStartPath.free =>
+      state.canChooseChallenge &&
+          (state.challengePending ||
+              (!state.canChooseAdChallenge && !state.canChooseChallengeTicket)),
+    _ChallengeStartPath.rewardedAd => state.canChooseAdChallenge,
+    _ChallengeStartPath.challengeTicket =>
+      state.storeChallengeTickets > 0 && state.canChooseChallengeTicket,
+  };
 
   Future<PlayAttempt?> _claimRewardedAttempt(
     DailyGameRepository repository,
@@ -851,6 +1625,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       return null;
     }
 
+    final repository = ref.read(dailyGameRepositoryProvider);
+    if (!isPractice &&
+        ref.read(localTestAdVerificationProvider) &&
+        repository is LocalPracticeAdVerificationRepository) {
+      await (repository as LocalPracticeAdVerificationRepository)
+          .verifyLocalRewardedAd(session.id);
+    }
+
     final game = displayedState.game;
     if (game == null) return null;
 
@@ -872,7 +1654,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       gameVersion: game.version,
       gameDurationSeconds: game.durationSeconds,
       playDate: displayedState.playDate,
-      resolveForSubmission: isPractice ? null : resolveForSubmission,
+      practiceOrdinal: isPractice ? displayedState.practicePlayCount + 1 : null,
+      resolveForSubmission: resolveForSubmission,
     );
   }
 
@@ -941,10 +1724,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       (error is PostgrestException &&
           error.message.contains('app update required'));
 
-  bool _isKakaoRequiredError(Object error) =>
-      error is PostgrestException &&
-      error.message.contains('kakao account required');
-
   bool _isDeviceDailyLimitError(Object error) =>
       error is PostgrestException &&
       error.message.contains('daily attempt already claimed on this device');
@@ -953,12 +1732,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (error is! PostgrestException) return false;
     const messages = [
       'challenge is not available',
+      'extra challenge choice required',
+      'challenge ticket is not available',
       'practice is not available',
       'challenge requires rewarded ad',
       'practice requires rewarded ad',
       'daily rewarded ad already used',
+      'daily coin ad already used',
       'another reward is pending',
       'first free play already claimed',
+      'free practice ticket must be used first',
     ];
     return messages.any(error.message.contains);
   }
@@ -977,9 +1760,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   bool _isTransientNetworkError(Object error) {
+    if (error is TimeoutException) return true;
     final message = error.toString().toLowerCase();
     const markers = [
       'socketexception',
+      'timeoutexception',
       'failed host lookup',
       'connection reset',
       'connection refused',
@@ -995,18 +1780,95 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: WordSafeText(message)));
   }
 
-  Future<void> _editNickname(String? currentNickname) async {
+  bool _isGeneratedNickname(String? nickname) {
+    final normalized = nickname?.trim();
+    return normalized != null && RegExp(r'^신원미상#[0-9]+$').hasMatch(normalized);
+  }
+
+  bool _isCustomNickname(String? nickname) {
+    final normalized = nickname?.trim();
+    return normalized != null &&
+        normalized.isNotEmpty &&
+        !_isGeneratedNickname(normalized);
+  }
+
+  bool _nicknameNeedsChangeTicket(String? currentNickname, String nickname) {
+    final current = currentNickname?.trim();
+    return _isCustomNickname(current) && current != nickname;
+  }
+
+  bool _isNicknameTicketError(Object error) =>
+      error.toString().contains('nickname change ticket is not available');
+
+  Future<void> _showNicknameTicketRequired({TodayState? sourceState}) async {
+    if (!mounted) return;
+    final openShop = await showPixelConfirmationDialog(
+      context,
+      title: '닉네임 변경권이 필요해요',
+      message: '기존 닉네임을 바꾸려면 변경권 1장이 필요해요. 상점에서 500 C로 구매할까요?',
+      confirmLabel: '상점 열기',
+      cancelLabel: '닫기',
+      dialogKey: const Key('nickname-change-ticket-required'),
+      titleKey: const Key('nickname-change-ticket-required-title'),
+      messageKey: const Key('nickname-change-ticket-required-message'),
+      cancelKey: const Key('nickname-change-ticket-required-cancel'),
+      confirmKey: const Key('nickname-change-ticket-required-shop'),
+    );
+    if (openShop != true || !mounted) return;
+    final state = sourceState ?? ref.read(todayStateProvider).value;
+    if (state != null) await _openShop(state);
+  }
+
+  Future<void> _editNickname(
+    String? currentNickname, {
+    int? nicknameChangeTickets,
+    TodayState? sourceState,
+  }) async {
+    if (_isSavingProfile) return;
     var nickname = await showNicknameDialog(
       context,
       initialNickname: currentNickname,
     );
     while (nickname != null && mounted) {
+      final normalizedNickname = nickname.trim();
+      final requiresChangeTicket = _nicknameNeedsChangeTicket(
+        currentNickname,
+        normalizedNickname,
+      );
+      if (requiresChangeTicket) {
+        final availableTickets =
+            nicknameChangeTickets ??
+            ref.read(todayStateProvider).value?.storeNicknameChangeTickets ??
+            0;
+        if (availableTickets <= 0) {
+          await _showNicknameTicketRequired(sourceState: sourceState);
+          return;
+        }
+        if (!mounted) return;
+        final confirmed = await showPixelConfirmationDialog(
+          context,
+          title: '닉네임을 변경할까요?',
+          message:
+              '$currentNickname을 $normalizedNickname으로 바꾸고 닉네임 변경권 1장을 사용할까요?',
+          confirmLabel: '변경하기',
+          cancelLabel: '취소',
+          dialogKey: const Key('nickname-change-confirmation'),
+          titleKey: const Key('nickname-change-confirmation-title'),
+          messageKey: const Key('nickname-change-confirmation-message'),
+          cancelKey: const Key('nickname-change-cancel'),
+          confirmKey: const Key('nickname-change-confirm'),
+        );
+        if (confirmed != true || !mounted) return;
+      }
+
       setState(() => _isSavingProfile = true);
       try {
-        await ref.read(dailyGameRepositoryProvider).setNickname(nickname);
+        await ref
+            .read(dailyGameRepositoryProvider)
+            .setNickname(normalizedNickname);
         ref.invalidate(todayStateProvider);
         if (!mounted) return;
         setState(() => _isSavingProfile = false);
@@ -1015,15 +1877,19 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       } catch (error) {
         if (!mounted) return;
         setState(() => _isSavingProfile = false);
-        final retryNickname = showNicknameDialog(
-          context,
-          initialNickname: nickname,
-        );
+        if (_isNicknameTicketError(error)) {
+          await _showNicknameTicketRequired(sourceState: sourceState);
+          return;
+        }
         await _showProfileResultDialog(
           title: '저장 오류',
           message: _profileSaveErrorMessage(error),
         );
-        nickname = await retryNickname;
+        if (!mounted) return;
+        nickname = await showNicknameDialog(
+          context,
+          initialNickname: normalizedNickname,
+        );
       }
     }
   }
@@ -1032,6 +1898,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     final message = error.toString();
     if (message.contains('nickname already taken')) {
       return '이미 사용 중인 닉네임이에요. 다른 닉네임을 입력해 주세요.';
+    }
+    if (message.contains('nickname change ticket is not available')) {
+      return '닉네임 변경권이 필요해요. 상점에서 500 C로 구매해 주세요.';
     }
     return '닉네임을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.';
   }
@@ -1044,12 +1913,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: Text(title),
-        content: Text(message),
+        title: WordSafeText(title),
+        content: WordSafeText(message),
         actions: [
           FilledButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('확인'),
+            child: const WordSafeText('확인'),
           ),
         ],
       ),
@@ -1079,7 +1948,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           ),
       gameId: state.game?.id,
       playDate: state.playDate,
-      title: '오늘의 랭킹',
+      title: state.isTomorrowPreview ? '내일의 랭킹' : '오늘의 랭킹',
     );
   }
 
@@ -1120,7 +1989,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                       size: 48,
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    const WordSafeText(
                       '계정과 데이터가 삭제됐어요.',
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
@@ -1128,7 +1997,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    const WordSafeText(
                       '다시 시작하면 기존 기록과 연결되지 않는 새 익명 계정이 만들어집니다.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textMuted),
@@ -1166,7 +2035,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('서버에 연결하지 못했어요.'),
+                        const WordSafeText('서버에 연결하지 못했어요.'),
                         const SizedBox(height: 16),
                         PixelButton(
                           label: '다시 연결',
@@ -1179,97 +2048,159 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
               ),
               data: (state) => state.requiresUpdate
                   ? _RequiredUpdateView(compatibility: state.compatibility)
-                  : Center(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 32),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 480),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _Header(
-                                playDate: state.playDate,
-                                isSaving:
-                                    _isSavingProfile ||
-                                    _isRunningDeveloperAction ||
-                                    _isLinkingKakao,
-                                onHistory: () => context.push('/history'),
-                                onSettings: () => _handleSettingsTap(state),
-                              ),
-                              const SizedBox(height: 12),
-                              _GamePreview(gameId: state.game?.id),
-                              const SizedBox(height: 18),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                  : Builder(
+                      builder: (context) {
+                        final displayedState = _showTomorrow
+                            ? state.tomorrowPreview ?? state
+                            : state;
+                        final displayedPracticeTickets =
+                            _practiceTicketDisplayOverride ??
+                            max(
+                              displayedState.practiceTicketsRemaining,
+                              displayedState.storePracticeTickets,
+                            );
+                        final displayedChallengeTickets =
+                            _challengeTicketDisplayOverride ??
+                            displayedState.storeChallengeTickets;
+                        return Center(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(18, 10, 18, 32),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 480),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      state.game?.displayName ?? '오늘의 게임 준비 중',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleLarge,
+                                  _Header(
+                                    playDate: displayedState.playDate,
+                                    isTomorrow:
+                                        displayedState.isTomorrowPreview,
+                                    tomorrowAvailable: state.tomorrow != null,
+                                    isSaving:
+                                        _isSavingProfile ||
+                                        _isRunningDeveloperAction ||
+                                        _isLinkingKakao,
+                                    onHistory: () => context.push('/history'),
+                                    onShop: () => _openShop(state),
+                                    onSettings: () => _handleSettingsTap(state),
+                                    onTomorrow: () {
+                                      if (state.tomorrow == null) return;
+                                      setState(() {
+                                        _showTomorrow = !_showTomorrow;
+                                        _playActionNotice = null;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _GamePreview(gameId: displayedState.game?.id),
+                                  const SizedBox(height: 18),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: WordSafeText(
+                                          displayedState.game?.displayName ??
+                                              '게임 준비 중',
+                                          key: const Key('today-game-title'),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleLarge,
+                                        ),
+                                      ),
+                                      if (!displayedState.testMode) ...[
+                                        const SizedBox(width: 12),
+                                        _TicketInventory(
+                                          key: const Key('ticket-inventory'),
+                                          practiceCount:
+                                              displayedPracticeTickets,
+                                          challengeCount:
+                                              displayedChallengeTickets,
+                                          showChallengeTicketAnimation:
+                                              _challengeTicketDisplayOverride !=
+                                              null,
+                                          practiceDelta:
+                                              _practiceTicketAnimationDelta,
+                                          practiceAnimationRevision:
+                                              _practiceTicketAnimationRevision,
+                                        ),
+                                      ],
+                                      if (displayedState.testMode)
+                                        const _StatusBadge(label: 'TEST MODE'),
+                                    ],
+                                  ),
+                                  if (displayedState.result?.score
+                                      case final score?) ...[
+                                    const SizedBox(height: 10),
+                                    WordSafeText(
+                                      '내 기록 ${GameRegistry.formatScore(displayedState.game?.id, score)}'
+                                      '${displayedState.result?.rank == null ? '' : ' · ${displayedState.result!.rank}등'}',
+                                      style: const TextStyle(
+                                        color: AppColors.reward,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ],
+                                  const SizedBox(height: 18),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _HomeActionButton(
+                                          key: const Key('game-guide-button'),
+                                          label: '게임 설명',
+                                          icon: Icons.menu_book_outlined,
+                                          onPressed: () =>
+                                              _showGuide(displayedState),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: _HomeActionButton(
+                                          key: const Key('ranking-button'),
+                                          label:
+                                              displayedState.isTomorrowPreview
+                                              ? '내일의 랭킹'
+                                              : '오늘의 랭킹',
+                                          icon: Icons.emoji_events_outlined,
+                                          onPressed: () =>
+                                              _showRanking(displayedState),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  _buildPlayActions(displayedState),
+                                  const SizedBox(height: 14),
+                                  WordSafeText(
+                                    _playActionNotice ??
+                                        _statusText(displayedState),
+                                    key: const Key('play-action-status'),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: AppColors.textMuted,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                  if (state.testMode)
-                                    const _StatusBadge(label: 'TEST MODE'),
                                 ],
                               ),
-                              const SizedBox(height: 9),
-                              _TodaySummary(
-                                gameId: state.game?.id,
-                                result: state.result,
-                              ),
-                              if (state.result?.score case final score?) ...[
-                                const SizedBox(height: 10),
-                                Text(
-                                  '내 기록 ${GameRegistry.formatScore(state.game?.id, score)}'
-                                  '${state.result?.rank == null ? '' : ' · ${state.result!.rank}등'}',
-                                  style: const TextStyle(
-                                    color: AppColors.reward,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ],
-                              const SizedBox(height: 18),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _HomeActionButton(
-                                      key: const Key('game-guide-button'),
-                                      label: '게임 설명',
-                                      icon: Icons.menu_book_outlined,
-                                      onPressed: () => _showGuide(state),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: _HomeActionButton(
-                                      key: const Key('ranking-button'),
-                                      label: '오늘의 랭킹',
-                                      icon: Icons.emoji_events_outlined,
-                                      onPressed: () => _showRanking(state),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-                              _buildPlayActions(state),
-                              const SizedBox(height: 14),
-                              Text(
-                                _statusText(state),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: AppColors.textMuted,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
             ),
+            if (_coinRewardEffect case final effect?)
+              Positioned(
+                top: 72,
+                left: 18,
+                right: 18,
+                child: IgnorePointer(
+                  child: _CoinRewardEffect(
+                    key: const Key('daily-coin-reward-effect'),
+                    data: effect,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -1277,43 +2208,93 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   Widget _buildPlayActions(TodayState state) {
+    final canClaimPracticeReward = state.canClaimPracticeReward;
+    final challengePath = _defaultChallengeStartPath(state);
+    final canStartChallenge = _canStartPlay(
+      state,
+      _PlayStartMode.challenge,
+      challengePath: challengePath,
+    );
     final challenge = PixelButton(
       key: const Key('challenge-button'),
       label: _challengeButtonLabel(state),
-      icon: Icons.play_arrow_rounded,
-      onPressed: _canStartPlay(state, _PlayStartMode.challenge)
-          ? () => _start(mode: _PlayStartMode.challenge, displayedState: state)
+      icon: Icons.sports_score_rounded,
+      onPressed: canStartChallenge
+          ? () => _start(
+              mode: _PlayStartMode.challenge,
+              displayedState: state,
+              challengePath: challengePath,
+            )
+          : null,
+      onDisabledPressed: !canStartChallenge && !_isClaiming
+          ? () => _showPlayActionNotice(
+              state.isTomorrowPreview
+                  ? '내일의 도전은 내일부터 시작할 수 있어요.'
+                  : state.canChooseChallengeTicket &&
+                        !state.canChooseAdChallenge
+                  ? '도전권으로 진짜 딱 한 판만 더 도전할 수 있어요.'
+                  : state.canChooseAdChallenge && !_isRewardedAdSelectable
+                  ? '광고를 준비해 주세요.'
+                  : '오늘은 더 이상 도전할 수 없어요.',
+            )
           : null,
     );
     final practice = PixelButton(
       key: const Key('practice-button'),
-      label: _practiceButtonLabel(state),
-      icon: Icons.school_outlined,
-      onPressed: _canStartPlay(state, _PlayStartMode.practice)
-          ? () => _start(mode: _PlayStartMode.practice, displayedState: state)
+      label: canClaimPracticeReward ? '티켓 받기 +2' : _practiceButtonLabel(state),
+      icon: canClaimPracticeReward
+          ? Icons.ondemand_video_outlined
+          : Icons.confirmation_number_rounded,
+      onPressed: canClaimPracticeReward
+          ? (!_isClaiming &&
+                    _rewardedAdStatus != RewardedAdStatus.disabled &&
+                    _rewardedAdStatus != RewardedAdStatus.loading
+                ? () => _claimPracticeTicketReward(state)
+                : null)
+          : (_canStartPlay(state, _PlayStartMode.practice)
+                ? () => _start(
+                    mode: _PlayStartMode.practice,
+                    displayedState: state,
+                  )
+                : null),
+      onDisabledPressed: !state.canChoosePractice
+          ? () => _showPlayActionNotice(
+              canClaimPracticeReward
+                  ? '연습권이 없어요. 광고를 보고 2장을 받을 수 있어요.'
+                  : '오늘 사용할 수 있는 연습권을 모두 썼어요.',
+            )
           : null,
     );
 
-    if (state.canChooseChallenge && state.canChoosePractice) {
-      return Row(
-        children: [
-          Expanded(child: practice),
-          const SizedBox(width: 10),
-          Expanded(child: challenge),
-        ],
-      );
-    }
-    if (state.canChooseChallenge) return challenge;
-    if (state.canChoosePractice) return practice;
-    return const PixelButton(
-      label: '오늘의 플레이 완료',
-      icon: Icons.check_rounded,
-      onPressed: null,
+    return Row(
+      children: [
+        Expanded(child: practice),
+        const SizedBox(width: 10),
+        Expanded(child: challenge),
+      ],
     );
   }
 
-  bool _canStartPlay(TodayState state, _PlayStartMode mode) {
+  void _showPlayActionNotice(String message) {
+    _playActionNoticeTimer?.cancel();
+    setState(() => _playActionNotice = message);
+    _playActionNoticeTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _playActionNotice = null);
+    });
+  }
+
+  bool _canStartPlay(
+    TodayState state,
+    _PlayStartMode mode, {
+    _ChallengeStartPath? challengePath,
+  }) {
     if (_isClaiming) return false;
+    if (mode == _PlayStartMode.challenge) {
+      final path = challengePath ?? _defaultChallengeStartPath(state);
+      if (!_isChallengeStartPathAvailable(state, path)) return false;
+      return path != _ChallengeStartPath.rewardedAd || _isRewardedAdSelectable;
+    }
+    if (!_isModeAvailable(state, mode)) return false;
     final requiresAd = switch (mode) {
       _PlayStartMode.challenge => state.requiresAdForChallenge,
       _PlayStartMode.practice => state.requiresAdForPractice,
@@ -1323,56 +2304,58 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         _rewardedAdStatus != RewardedAdStatus.loading;
   }
 
+  bool get _isRewardedAdSelectable =>
+      _rewardedAdStatus != RewardedAdStatus.disabled &&
+      _rewardedAdStatus != RewardedAdStatus.loading;
+
   String _challengeButtonLabel(TodayState state) {
-    if (_isClaiming) {
-      return GamePresentationRegistry.forId(state.game?.id).loadingLabel;
+    if (_isClaiming) return '로딩중';
+    if (state.isTomorrowPreview) return '내일 도전 대기';
+    if (state.canChooseAdChallenge) {
+      return '진짜 딱 한판만!';
     }
-    if (state.testMode) return '딱 한 판만!';
-    if (!state.requiresAdForChallenge) return '도전하기';
-    return switch (_rewardedAdStatus) {
-      RewardedAdStatus.loading => '광고 준비 중…',
-      RewardedAdStatus.disabled => '도전 준비 중',
-      RewardedAdStatus.ready => '도전하기',
-      RewardedAdStatus.unavailable => '도전하기',
-    };
+    if (state.rankedAdAttemptUsed || state.canChooseChallengeTicket) {
+      return '도전권으로 도전!';
+    }
+    return '오늘의 도전!';
   }
 
   String _practiceButtonLabel(TodayState state) {
-    if (_isClaiming) {
-      return GamePresentationRegistry.forId(state.game?.id).loadingLabel;
-    }
-    if (!state.requiresAdForPractice) return '연습하기';
-    return switch (_rewardedAdStatus) {
-      RewardedAdStatus.loading => '광고 준비 중…',
-      RewardedAdStatus.disabled => '연습 준비 중',
-      RewardedAdStatus.ready => '연습하기',
-      RewardedAdStatus.unavailable => '연습하기',
-    };
+    if (_isClaiming) return '로딩중';
+    return '연습하기';
   }
 
   String _statusText(TodayState state) {
+    if (state.isTomorrowPreview) {
+      if (state.canChoosePractice) {
+        return '오늘과 공유하는 연습권 ${state.practiceTicketsRemaining}장 · 도전은 내일부터';
+      }
+      if (state.canClaimPracticeReward) return '연습권을 받으면 내일 게임을 연습할 수 있어요';
+      return '내일의 도전은 아직 시작할 수 없어요';
+    }
     if (state.testMode) return '테스트 모드 · 제한 없이 계속 플레이할 수 있어요';
     if (state.deviceDailyLimitReached) {
       return '오늘 이 기기의 무료 플레이를 이미 사용했어요';
     }
-    if (state.completedPlayCount == 0) return '연습하거나 오늘의 기록에 도전해 보세요';
+    if (state.completedPlayCount == 0) return '연습권 1장 · 오늘의 도전 1회';
+    if (state.canChooseAdChallenge) {
+      return '광고를 보면 진짜 딱 한 판만 더 할 수 있어요';
+    }
+    if (state.canChooseChallengeTicket) {
+      return '광고 추가 도전 완료 · 도전권 ${state.storeChallengeTickets}장으로 계속 도전할 수 있어요';
+    }
     if (state.canChooseChallenge && state.canChoosePractice) {
-      if (state.requiresAdForChallenge && !state.requiresAdForPractice) {
-        return '연습은 바로, 도전은 광고 후 시작해요';
-      }
-      return '연습 또는 도전을 선택할 수 있어요';
+      return '연습권 ${state.practiceTicketsRemaining}장 · 오늘의 도전이 남아 있어요';
     }
     if (state.canChooseChallenge) {
-      return state.requiresAdForChallenge
-          ? '연습 2회 완료 · 광고 후 도전해요'
-          : '연습 2회 완료 · 이번에는 도전만 가능해요';
+      return state.canClaimPracticeReward
+          ? '무료 연습 완료 · 연습권을 더 받거나 도전하세요'
+          : '오늘의 도전이 남아 있어요';
     }
-    if (state.canChoosePractice && state.completedPlayCount < 4) {
-      return state.requiresAdForPractice
-          ? '첫 도전 완료 · 광고 한 번 후 연습해요'
-          : '도전 완료 · 이제 광고 없이 연습할 수 있어요';
+    if (state.canChoosePractice) {
+      return '도전 완료 · 연습권 ${state.practiceTicketsRemaining}장';
     }
-    if (state.canChoosePractice) return '오늘은 계속 연습할 수 있어요';
+    if (state.canClaimPracticeReward) return '광고를 보면 연습권 2장을 받을 수 있어요';
     if (state.hasPlayed) return '오늘의 플레이를 모두 마쳤어요';
     if (state.dailyClaimed) return '이 기기의 오늘 플레이는 이미 완료됐어요';
     return '중단된 게임은 다시 시작할 수 없어요';
@@ -1393,7 +2376,7 @@ class _RequiredUpdateView extends StatelessWidget {
     }
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('스토어를 열지 못했어요. 잠시 후 다시 시도해 주세요.')),
+      const SnackBar(content: WordSafeText('스토어를 열지 못했어요. 잠시 후 다시 시도해 주세요.')),
     );
   }
 
@@ -1414,7 +2397,7 @@ class _RequiredUpdateView extends StatelessWidget {
                 size: 56,
               ),
               const SizedBox(height: 18),
-              const Text(
+              const WordSafeText(
                 '게임이 업데이트 되었어요',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -1424,7 +2407,7 @@ class _RequiredUpdateView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              const Text(
+              const WordSafeText(
                 '원활한 게임 플레이를 위해\n앱을 업데이트 해주세요',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -1448,13 +2431,282 @@ class _RequiredUpdateView extends StatelessWidget {
   );
 }
 
-class _PreviousResultDialogOutcome {
-  const _PreviousResultDialogOutcome({
-    required this.action,
-    required this.reward,
+class _DailyGameChangedDialog extends StatelessWidget {
+  const _DailyGameChangedDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      key: const Key('daily-game-changed-dialog'),
+      elevation: 0,
+      insetPadding: const EdgeInsets.all(24),
+      backgroundColor: Colors.transparent,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border.all(color: AppColors.primary, width: 3),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: const [
+              BoxShadow(color: AppColors.primaryShadow, offset: Offset(0, 7)),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const WordSafeText(
+                '오늘의 게임이 바뀌었어요',
+                key: Key('daily-game-changed-title'),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Galmuri',
+                  color: AppColors.text,
+                  fontSize: 22,
+                  height: 1.3,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 15, 16, 16),
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundDeep,
+                  border: Border.all(color: AppColors.surfaceLight),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const WordSafeText(
+                  '날짜가 바뀌어 새로운 게임을 불러올게요.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 15,
+                    height: 1.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: PixelButton(
+                  key: const Key('load-new-daily-game-button'),
+                  label: '새 게임 보기',
+                  icon: Icons.refresh_rounded,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CoinRewardEffectData {
+  const _CoinRewardEffectData({
+    required this.fromCoins,
+    required this.targetCoins,
+    required this.delta,
   });
 
-  final _PreviousResultAction action;
+  final int fromCoins;
+  final int targetCoins;
+  final int delta;
+}
+
+class _CoinRewardEffect extends StatefulWidget {
+  const _CoinRewardEffect({required this.data, super.key});
+
+  final _CoinRewardEffectData data;
+
+  @override
+  State<_CoinRewardEffect> createState() => _CoinRewardEffectState();
+}
+
+class _CoinRewardEffectState extends State<_CoinRewardEffect>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _controller,
+    builder: (context, _) {
+      final progress = Curves.easeOutCubic.transform(_controller.value);
+      final visibleCoins =
+          widget.data.fromCoins +
+          ((widget.data.targetCoins - widget.data.fromCoins) * progress)
+              .round();
+      final opacity = (1 - Curves.easeIn.transform(_controller.value * 0.7))
+          .clamp(0.0, 1.0)
+          .toDouble();
+      const particleOffsets = [
+        Offset(-24, -5),
+        Offset(24, -5),
+        Offset(-20, 8),
+        Offset(20, 8),
+      ];
+
+      return Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: Opacity(
+            opacity: opacity,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 11),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border.all(color: AppColors.primary, width: 2),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: AppColors.primaryShadow,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 30,
+                        height: 24,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            for (
+                              var index = 0;
+                              index < particleOffsets.length;
+                              index++
+                            )
+                              Transform.translate(
+                                offset: Offset(
+                                  particleOffsets[index].dx * progress,
+                                  particleOffsets[index].dy * progress,
+                                ),
+                                child: Opacity(
+                                  opacity: (1 - progress)
+                                      .clamp(0.0, 1.0)
+                                      .toDouble(),
+                                  child: Icon(
+                                    index.isEven
+                                        ? Icons.auto_awesome
+                                        : Icons.circle,
+                                    color: index.isEven
+                                        ? AppColors.primary
+                                        : AppColors.reward,
+                                    size: index.isEven ? 10 : 5,
+                                  ),
+                                ),
+                              ),
+                            Transform.scale(
+                              scale: 1 + (0.1 * (1 - progress)),
+                              child: const CoinMark(
+                                color: AppColors.primary,
+                                inkColor: AppColors.surface,
+                                size: 22,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 7),
+                      const Expanded(
+                        child: WordSafeText(
+                          '내 지갑에 코인 추가',
+                          singleLine: true,
+                          style: TextStyle(
+                            color: AppColors.text,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      WordSafeText(
+                        '+${widget.data.delta} C',
+                        key: const Key('daily-coin-reward-gain'),
+                        singleLine: true,
+                        style: const TextStyle(
+                          color: AppColors.reward,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: WordSafeText(
+                          '$visibleCoins C',
+                          key: const Key('daily-coin-reward-balance'),
+                          textAlign: TextAlign.center,
+                          singleLine: true,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontFamily: 'Galmuri',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: AppColors.textMuted,
+                        size: 16,
+                      ),
+                      Expanded(
+                        child: WordSafeText(
+                          '${widget.data.targetCoins} C',
+                          key: const Key('daily-coin-reward-target'),
+                          textAlign: TextAlign.center,
+                          singleLine: true,
+                          style: const TextStyle(
+                            color: AppColors.reward,
+                            fontFamily: 'Galmuri',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class _PreviousResultDialogOutcome {
+  const _PreviousResultDialogOutcome({required this.reward});
+
   final RewardGrant reward;
 }
 
@@ -1462,10 +2714,12 @@ class _PreviousDailyResultDialog extends StatefulWidget {
   const _PreviousDailyResultDialog({
     required this.result,
     required this.onClaim,
+    required this.onShowRanking,
   });
 
   final PreviousDailyResult result;
   final Future<RewardGrant> Function() onClaim;
+  final Future<void> Function() onShowRanking;
 
   @override
   State<_PreviousDailyResultDialog> createState() =>
@@ -1479,6 +2733,7 @@ class _PreviousDailyResultDialogState extends State<_PreviousDailyResultDialog>
   RewardGrant? _reward;
   String? _errorMessage;
   var _isClaiming = false;
+  var _isShowingRanking = false;
 
   @override
   void initState() {
@@ -1501,7 +2756,7 @@ class _PreviousDailyResultDialogState extends State<_PreviousDailyResultDialog>
     super.dispose();
   }
 
-  Future<void> _claimAndClose(_PreviousResultAction action) async {
+  Future<void> _claimAndClose() async {
     if (_isClaiming || _reward != null) return;
     setState(() {
       _errorMessage = null;
@@ -1516,9 +2771,7 @@ class _PreviousDailyResultDialogState extends State<_PreviousDailyResultDialog>
       });
       await _rewardController.forward(from: 0);
       if (!mounted) return;
-      Navigator.of(
-        context,
-      ).pop(_PreviousResultDialogOutcome(action: action, reward: reward));
+      Navigator.of(context).pop(_PreviousResultDialogOutcome(reward: reward));
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -1526,6 +2779,26 @@ class _PreviousDailyResultDialogState extends State<_PreviousDailyResultDialog>
         _errorMessage = '보상을 받지 못했어요. 잠시 후 다시 눌러 주세요.';
       });
     }
+  }
+
+  Future<void> _openRanking() async {
+    if (_isClaiming || _isShowingRanking || _reward != null) return;
+    setState(() {
+      _errorMessage = null;
+      _isShowingRanking = true;
+    });
+    try {
+      await widget.onShowRanking();
+    } finally {
+      if (mounted) setState(() => _isShowingRanking = false);
+    }
+  }
+
+  Future<void> _showRewardRules() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _DailyRewardRulesDialog(result: widget.result),
+    );
   }
 
   Widget _enterAnimation({required Widget child}) => AnimatedBuilder(
@@ -1547,164 +2820,482 @@ class _PreviousDailyResultDialogState extends State<_PreviousDailyResultDialog>
   Widget build(BuildContext context) {
     final result = widget.result;
     final reward = _reward;
-    final canClaim = !_isClaiming && reward == null;
-    return AlertDialog(
+    final canInteract = !_isClaiming && !_isShowingRanking && reward == null;
+    return Dialog(
       key: const Key('previous-daily-result-dialog'),
-      backgroundColor: AppColors.surface,
-      title: _enterAnimation(child: const Text('어제의 최종 결과')),
-      content: _enterAnimation(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              result.displayName,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              GameRegistry.formatScore(result.gameId, result.score),
-              key: const Key('previous-result-score'),
-              style: const TextStyle(
-                fontFamily: 'Galmuri',
-                color: AppColors.reward,
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '실제 기록 ${result.participants}개 중 '
-              '${result.rank}위 · 상위 ${result.topPercent}%',
-              key: const Key('previous-result-rank'),
-              style: const TextStyle(
-                color: AppColors.textMuted,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              key: const Key('previous-result-reward'),
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 11),
-              decoration: BoxDecoration(
-                color: AppColors.reward.withValues(alpha: 0.12),
-                border: Border.all(
-                  color: AppColors.reward.withValues(alpha: 0.6),
-                ),
-              ),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(scale: animation, child: child),
-                ),
-                child: reward == null
-                    ? _RewardPreview(
-                        key: const ValueKey('previous-reward-preview'),
-                        result: result,
-                      )
-                    : _RewardReceived(
-                        key: const ValueKey('previous-reward-received'),
-                        reward: reward,
-                        animation: _rewardController,
-                      ),
-              ),
-            ),
-            if (_errorMessage case final error?) ...[
-              const SizedBox(height: 10),
-              Text(
-                error,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.danger,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 360,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.84,
+        ),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border.all(color: AppColors.primary, width: 2),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [
+              BoxShadow(color: AppColors.primaryShadow, offset: Offset(0, 6)),
             ],
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          key: const Key('previous-result-ranking'),
-          onPressed: canClaim
-              ? () => unawaited(_claimAndClose(_PreviousResultAction.ranking))
-              : null,
-          child: const Text('랭킹 보기'),
-        ),
-        FilledButton(
-          key: const Key('acknowledge-previous-result'),
-          onPressed: canClaim
-              ? () => unawaited(_claimAndClose(_PreviousResultAction.close))
-              : null,
-          child: Text(
-            _isClaiming
-                ? '보상 받는 중…'
-                : reward == null
-                ? '확인'
-                : '완료',
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _enterAnimation(
+                  child: const WordSafeText(
+                    '어제의 최종 결과',
+                    singleLine: true,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.text,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                _enterAnimation(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      WordSafeText(
+                        result.displayName,
+                        singleLine: true,
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      WordSafeText(
+                        GameRegistry.formatScore(result.gameId, result.score),
+                        key: const Key('previous-result-score'),
+                        singleLine: true,
+                        style: const TextStyle(
+                          fontFamily: 'Galmuri',
+                          color: AppColors.reward,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      WordSafeText(
+                        '실제 기록 ${result.participants}개 중 '
+                        '${result.rank}위 · 상위 ${result.topPercent}%',
+                        key: const Key('previous-result-rank'),
+                        singleLine: true,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        key: const Key('previous-result-reward'),
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 11),
+                        decoration: BoxDecoration(
+                          color: AppColors.reward.withValues(alpha: 0.12),
+                          border: Border.all(
+                            color: AppColors.reward.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: animation,
+                                  child: child,
+                                ),
+                              ),
+                          child: reward == null
+                              ? _RewardPreview(
+                                  key: const ValueKey(
+                                    'previous-reward-preview',
+                                  ),
+                                  result: result,
+                                  animation: _entryController,
+                                  onHelp: canInteract
+                                      ? () => unawaited(_showRewardRules())
+                                      : null,
+                                )
+                              : _RewardReceived(
+                                  key: const ValueKey(
+                                    'previous-reward-received',
+                                  ),
+                                  reward: reward,
+                                  animation: _rewardController,
+                                  onHelp: canInteract
+                                      ? () => unawaited(_showRewardRules())
+                                      : null,
+                                ),
+                        ),
+                      ),
+                      if (_errorMessage case final error?) ...[
+                        const SizedBox(height: 10),
+                        WordSafeText(
+                          error,
+                          singleLine: true,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.danger,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      key: const Key('previous-result-ranking'),
+                      onPressed: canInteract
+                          ? () => unawaited(_openRanking())
+                          : null,
+                      child: const WordSafeText('랭킹 보기', singleLine: true),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton(
+                      key: const Key('acknowledge-previous-result'),
+                      onPressed: canInteract
+                          ? () => unawaited(_claimAndClose())
+                          : null,
+                      child: WordSafeText(
+                        _isClaiming
+                            ? '보상 받는 중…'
+                            : _isShowingRanking
+                            ? '랭킹 보는 중…'
+                            : '확인',
+                        singleLine: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
 
-class _RewardPreview extends StatelessWidget {
-  const _RewardPreview({required this.result, super.key});
+class _DailyRewardRulesDialog extends StatelessWidget {
+  const _DailyRewardRulesDialog({required this.result});
 
   final PreviousDailyResult result;
 
   @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      const Text(
-        '어제의 플레이 보상',
-        style: TextStyle(
-          color: AppColors.reward,
-          fontSize: 11,
-          fontWeight: FontWeight.w900,
-        ),
-      ),
-      const SizedBox(height: 8),
-      Row(
-        children: [
-          Expanded(
-            child: _RewardValue(
-              icon: Icons.monetization_on_outlined,
-              value: '+${result.effectiveRewardCoins}',
-              label: 'COINS',
+  Widget build(BuildContext context) => AlertDialog(
+    key: const Key('daily-reward-rules-dialog'),
+    backgroundColor: AppColors.surface,
+    title: Row(
+      children: [
+        const Icon(Icons.help_outline_rounded, color: AppColors.reward),
+        const SizedBox(width: 8),
+        const Expanded(
+          child: WordSafeText(
+            '매일 보상 기준',
+            singleLine: true,
+            style: TextStyle(
+              color: AppColors.text,
+              fontWeight: FontWeight.w900,
             ),
           ),
+        ),
+        IconButton(
+          key: const Key('daily-reward-rules-close'),
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: '닫기',
+          icon: const Icon(Icons.close, color: AppColors.text),
+        ),
+      ],
+    ),
+    content: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Container(
-            width: 1,
-            height: 30,
-            color: AppColors.reward.withValues(alpha: 0.35),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.reward.withValues(alpha: 0.1),
+              border: Border.all(
+                color: AppColors.reward.withValues(alpha: 0.45),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: WordSafeText(
+                    '이번 기록',
+                    singleLine: true,
+                    style: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                WordSafeText(
+                  '${result.rank}위 · 상위 ${result.topPercent}%',
+                  singleLine: true,
+                  style: const TextStyle(
+                    color: AppColors.reward,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
           ),
-          Expanded(
-            child: _RewardValue(
-              icon: Icons.auto_awesome_outlined,
-              value: '+${result.effectiveRewardExperiencePoints}',
-              label: 'EXP',
+          const SizedBox(height: 12),
+          const WordSafeText(
+            '매일 기본 보상에 랭킹 보너스가 더해져요.',
+            singleLine: true,
+            style: TextStyle(
+              color: AppColors.text,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const _RewardRuleRow(label: '매일 기본', rankingBonus: 0, isBase: true),
+          const SizedBox(height: 4),
+          const WordSafeText(
+            '랭킹 보너스',
+            singleLine: true,
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          _RewardRuleRow(
+            label: '1위',
+            rankingBonus: DailyRewardRules.firstPlaceRankingBonusCoins,
+          ),
+          _RewardRuleRow(
+            label: '상위 10%',
+            rankingBonus: DailyRewardRules.topTenPercentRankingBonusCoins,
+          ),
+          _RewardRuleRow(
+            label: '상위 30%',
+            rankingBonus: DailyRewardRules.topThirtyPercentRankingBonusCoins,
+          ),
+          _RewardRuleRow(
+            label: '상위 50%',
+            rankingBonus: DailyRewardRules.topHalfRankingBonusCoins,
+          ),
+          _RewardRuleRow(
+            label: '상위 70%',
+            rankingBonus: DailyRewardRules.topSeventyPercentRankingBonusCoins,
+          ),
+          _RewardRuleRow(
+            label: '그 외 참여',
+            rankingBonus: DailyRewardRules.otherRankingBonusCoins,
+          ),
+          const SizedBox(height: 10),
+          const WordSafeText(
+            '기본 보상과 랭킹 보너스는 코인·EXP에 같은 수치로 적용돼요.',
+            singleLine: true,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
       ),
-      const SizedBox(height: 7),
-      const Text(
-        '확인을 누르면 애니메이션과 함께 지갑에 들어와요',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: AppColors.textMuted,
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-        ),
+    ),
+    actions: [
+      FilledButton(
+        key: const Key('daily-reward-rules-confirm'),
+        onPressed: () => Navigator.of(context).pop(),
+        child: const WordSafeText('확인', singleLine: true),
       ),
     ],
+  );
+}
+
+class _RewardRuleRow extends StatelessWidget {
+  const _RewardRuleRow({
+    required this.label,
+    required this.rankingBonus,
+    this.isBase = false,
+  });
+
+  final String label;
+  final int rankingBonus;
+  final bool isBase;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 6),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      color: AppColors.backgroundDeep,
+      child: Row(
+        children: [
+          Expanded(
+            child: WordSafeText(
+              label,
+              singleLine: true,
+              style: const TextStyle(
+                color: AppColors.text,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              WordSafeText(
+                isBase
+                    ? '+${DailyRewardRules.dailyBaseCoins} C · '
+                          '+${DailyRewardRules.dailyBaseCoins} EXP'
+                    : rankingBonus == 0
+                    ? '없음'
+                    : '+$rankingBonus 보너스',
+                singleLine: true,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              if (!isBase)
+                WordSafeText(
+                  '총 +${DailyRewardRules.dailyBaseCoins + rankingBonus} C · '
+                  '+${DailyRewardRules.dailyBaseCoins + rankingBonus} EXP',
+                  singleLine: true,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _RewardPreview extends StatelessWidget {
+  const _RewardPreview({
+    required this.result,
+    required this.animation,
+    required this.onHelp,
+    super.key,
+  });
+
+  final PreviousDailyResult result;
+  final Animation<double> animation;
+  final VoidCallback? onHelp;
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: animation,
+    builder: (context, _) {
+      final progress = const Interval(
+        0.28,
+        1,
+        curve: Curves.easeOutCubic,
+      ).transform(animation.value);
+      final finalCoins = result.effectiveRewardCoins;
+      final baseCoins = finalCoins > 0 ? DailyRewardRules.dailyBaseCoins : 0;
+      final rankingBonus = max(0, finalCoins - baseCoins);
+      final coins = baseCoins + (rankingBonus * progress).round();
+      return Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const WordSafeText(
+                '매일 기본 + 랭킹 보너스',
+                singleLine: true,
+                style: TextStyle(
+                  color: AppColors.reward,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              IconButton(
+                key: const Key('previous-result-reward-help'),
+                onPressed: onHelp,
+                tooltip: '보상 기준 보기',
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                icon: const Icon(
+                  Icons.help_outline_rounded,
+                  color: AppColors.reward,
+                  size: 18,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          WordSafeText(
+            '기본 +$baseCoins C · 랭킹 보너스 +$rankingBonus C',
+            singleLine: true,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _RewardValue(
+                  icon: Icons.monetization_on_outlined,
+                  value: '+$coins',
+                  label: 'COINS',
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 30,
+                color: AppColors.reward.withValues(alpha: 0.35),
+              ),
+              Expanded(
+                child: _RewardValue(
+                  icon: Icons.auto_awesome_outlined,
+                  value: '+$coins',
+                  label: 'EXP',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 7),
+          const WordSafeText(
+            '확인을 누르면 바로 받고, 놓쳐도 다음날 자동 지급돼요',
+            singleLine: true,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -1712,11 +3303,13 @@ class _RewardReceived extends StatelessWidget {
   const _RewardReceived({
     required this.reward,
     required this.animation,
+    required this.onHelp,
     super.key,
   });
 
   final RewardGrant reward;
   final Animation<double> animation;
+  final VoidCallback? onHelp;
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -1730,15 +3323,47 @@ class _RewardReceived extends StatelessWidget {
         scale: scale,
         child: Column(
           children: [
-            const Text(
-              '보상 획득!',
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const WordSafeText(
+                  '보상 획득!',
+                  singleLine: true,
+                  style: TextStyle(
+                    color: AppColors.reward,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                IconButton(
+                  key: const Key('previous-result-reward-help'),
+                  onPressed: onHelp,
+                  tooltip: '보상 기준 보기',
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 28,
+                    minHeight: 28,
+                  ),
+                  icon: const Icon(
+                    Icons.help_outline_rounded,
+                    color: AppColors.reward,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            const WordSafeText(
+              '순위에 따라 코인과 EXP가 달라져요',
+              singleLine: true,
               style: TextStyle(
-                color: AppColors.reward,
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
+                color: AppColors.textMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Expanded(
@@ -1763,8 +3388,9 @@ class _RewardReceived extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 7),
-            const Text(
-              '코인과 경험치가 지갑에 추가됐어요',
+            const WordSafeText(
+              '기본 보상과 랭킹 보너스가 지갑에 추가됐어요',
+              singleLine: true,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textMuted,
@@ -1779,18 +3405,106 @@ class _RewardReceived extends StatelessWidget {
   );
 }
 
-enum _PreviousResultAction { ranking, close }
-
 enum _SettingsAction {
   profile,
-  privacy,
-  terms,
-  community,
+  socialNotifications,
+  pushDeviceSettings,
+  legal,
+  support,
   adPrivacy,
   delete,
   developer,
   testerActivation,
   testerDeactivation,
+}
+
+enum _LegalDocument { privacy, terms, community }
+
+class _SupportInquiryDialog extends StatefulWidget {
+  const _SupportInquiryDialog({required this.onSubmit});
+
+  final Future<String> Function(String message) onSubmit;
+
+  @override
+  State<_SupportInquiryDialog> createState() => _SupportInquiryDialogState();
+}
+
+class _SupportInquiryDialogState extends State<_SupportInquiryDialog> {
+  final _controller = TextEditingController();
+  var _submitting = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final message = _controller.text.trim();
+    if (_submitting || message.length < 5) return;
+    setState(() {
+      _submitting = true;
+      _errorMessage = null;
+    });
+    try {
+      await widget.onSubmit(message);
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _submitting = false;
+        _errorMessage = '문의를 접수하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    backgroundColor: AppColors.surface,
+    title: const WordSafeText('문의하기'),
+    content: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const WordSafeText('불편한 점이나 궁금한 내용을 남겨 주세요.'),
+          const SizedBox(height: 12),
+          TextField(
+            key: const Key('support-inquiry-field'),
+            controller: _controller,
+            autofocus: true,
+            minLines: 5,
+            maxLines: 8,
+            maxLength: 1000,
+            enabled: !_submitting,
+            onChanged: (_) => setState(() => _errorMessage = null),
+            decoration: InputDecoration(
+              hintText: '문의 내용을 5자 이상 입력해 주세요.',
+              errorText: _errorMessage,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: _submitting ? null : () => Navigator.of(context).pop(false),
+        child: const WordSafeText('취소'),
+      ),
+      ValueListenableBuilder<TextEditingValue>(
+        valueListenable: _controller,
+        builder: (context, value, _) => FilledButton(
+          key: const Key('submit-support-inquiry'),
+          onPressed: !_submitting && value.text.trim().length >= 5
+              ? _submit
+              : null,
+          child: WordSafeText(_submitting ? '접수 중...' : '접수하기'),
+        ),
+      ),
+    ],
+  );
 }
 
 class _DeveloperAction {
@@ -1861,7 +3575,7 @@ class _TesterPinDialogState extends State<_TesterPinDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.surface,
-      title: const Text('테스터 인증'),
+      title: const WordSafeText('테스터 인증'),
       content: TextField(
         key: const Key('tester-pin-field'),
         controller: _controller,
@@ -1883,12 +3597,12 @@ class _TesterPinDialogState extends State<_TesterPinDialog> {
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('취소'),
+          child: const WordSafeText('취소'),
         ),
         FilledButton(
           key: const Key('activate-tester-mode'),
           onPressed: _isSubmitting ? null : _submit,
-          child: Text(_isSubmitting ? '확인 중...' : '확인'),
+          child: WordSafeText(_isSubmitting ? '확인 중...' : '확인'),
         ),
       ],
     );
@@ -1918,7 +3632,7 @@ class _DeveloperToolsDialogState extends State<_DeveloperToolsDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.surface,
-      title: const Text('개발자 모드'),
+      title: const WordSafeText('개발자 모드'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1934,13 +3648,13 @@ class _DeveloperToolsDialogState extends State<_DeveloperToolsDialog> {
               for (final game in widget.games)
                 DropdownMenuItem(
                   value: game.id,
-                  child: Text('${game.displayName} v${game.version}'),
+                  child: WordSafeText('${game.displayName} v${game.version}'),
                 ),
             ],
             onChanged: (value) => setState(() => _selectedGameId = value),
           ),
           const SizedBox(height: 12),
-          const Text(
+          const WordSafeText(
             '게임 변경은 현재 테스트 계정에만 적용됩니다.',
             style: TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
@@ -1951,11 +3665,11 @@ class _DeveloperToolsDialogState extends State<_DeveloperToolsDialog> {
           key: const Key('reset-daily-progress'),
           onPressed: () =>
               Navigator.of(context).pop(const _DeveloperAction.reset()),
-          child: const Text('게임 횟수 초기화'),
+          child: const WordSafeText('게임 횟수 초기화'),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('닫기'),
+          child: const WordSafeText('닫기'),
         ),
         FilledButton(
           key: const Key('apply-developer-game'),
@@ -1964,7 +3678,7 @@ class _DeveloperToolsDialogState extends State<_DeveloperToolsDialog> {
               : () => Navigator.of(
                   context,
                 ).pop(_DeveloperAction.changeGame(_selectedGameId)),
-          child: const Text('게임 적용'),
+          child: const WordSafeText('게임 적용'),
         ),
       ],
     );
@@ -1993,6 +3707,10 @@ class _RankingSheet extends ConsumerWidget {
           error: (_, _) => initialResult,
           loading: () => initialResult,
         );
+    final previousPlayDate = previousDailyPlayDate(playDate);
+    final previousResult = isDailyResultAvailable(previousPlayDate)
+        ? ref.watch(dailyRankProvider(previousPlayDate))
+        : null;
     final rankingEntries = [...result.leaders]
       ..sort((a, b) => a.rank.compareTo(b.rank));
     return _SheetFrame(
@@ -2003,40 +3721,20 @@ class _RankingSheet extends ConsumerWidget {
             eyebrow: 'DAILY LEADERBOARD',
             title: title,
             onClose: () => Navigator.of(context).pop(),
+            closeKey: const Key('ranking-sheet-close'),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _RankSummaryValue(
-                  value: '${result.participants}개',
-                  label: '참여 기록',
-                ),
-              ),
-              Container(width: 1, height: 42, color: AppColors.surfaceLight),
-              Expanded(
-                child: _RankSummaryValue(
-                  value: result.bestScore == null
-                      ? '-'
-                      : GameRegistry.formatScore(gameId, result.bestScore!),
-                  label: '현재 최고',
-                ),
-              ),
-              if (result.rank case final rank?) ...[
-                Container(width: 1, height: 42, color: AppColors.surfaceLight),
-                Expanded(
-                  child: _RankSummaryValue(value: '$rank등', label: '내 순위'),
-                ),
-              ],
-            ],
+          _PreviousWinnerCard(
+            playDate: previousPlayDate,
+            result: previousResult,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           const _RankingSectionTitle(eyebrow: 'TOP SCORES', title: '전체 랭킹'),
           const SizedBox(height: 10),
           Expanded(
             child: rankingEntries.isEmpty
                 ? const Center(
-                    child: Text(
+                    child: WordSafeText(
                       '아직 등록된 기록이 없어요.',
                       style: TextStyle(color: AppColors.textMuted),
                     ),
@@ -2052,11 +3750,12 @@ class _RankingSheet extends ConsumerWidget {
                         _LeaderboardRow(
                           entry: rankingEntries[index],
                           gameId: gameId,
-                          onModerate: (action) => _moderatePlayer(
+                          onAction: () => _showRankActions(
                             context,
                             ref,
                             rankingEntries[index],
-                            action,
+                            canBoast:
+                                result.score != null && result.rank != null,
                           ),
                         ),
                         if (index < rankingEntries.length - 1)
@@ -2070,44 +3769,260 @@ class _RankingSheet extends ConsumerWidget {
     );
   }
 
-  Future<void> _moderatePlayer(
+  Future<void> _showRankActions(
+    BuildContext context,
+    WidgetRef ref,
+    NearbyRank entry, {
+    required bool canBoast,
+  }) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (_) => _RankActionSheet(entry: entry, canBoast: canBoast),
+    );
+    if (action == null || !context.mounted) return;
+    await _handleRankAction(context, ref, entry, action);
+  }
+
+  Future<void> _handleRankAction(
     BuildContext context,
     WidgetRef ref,
     NearbyRank entry,
-    _PlayerModerationAction action,
+    String action,
   ) async {
-    final userId = entry.userId;
-    if (userId == null) return;
-    final repository = ref.read(dailyGameRepositoryProvider);
-    try {
-      switch (action) {
-        case _PlayerModerationAction.report:
-          await repository.reportNickname(userId);
-        case _PlayerModerationAction.block:
-          await repository.blockUser(userId);
-      }
-      ref.invalidate(todayStateProvider);
-      if (!context.mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
-      Navigator.of(context).pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            action == _PlayerModerationAction.report
-                ? '닉네임을 신고했어요. 운영팀이 확인할게요.'
-                : '이 사용자의 닉네임을 숨겼어요.',
-          ),
+    final targetUserId = entry.userId;
+    if (targetUserId == null) return;
+    var chosenAction = action;
+    if (action == 'gift') {
+      final state = ref.read(todayStateProvider).value;
+      final item = await showModalBottomSheet<String>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        useSafeArea: true,
+        builder: (_) => _RankGiftSheet(
+          nickname: entry.nickname,
+          practiceTickets: state?.storePracticeTickets ?? 0,
+          challengeTickets: state?.storeChallengeTickets ?? 0,
+          nicknameChangeTickets: state?.storeNicknameChangeTickets ?? 0,
         ),
       );
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('처리하지 못했어요. 다시 시도해 주세요.')));
+      if (item == null || !context.mounted) return;
+      chosenAction = item;
+    }
+    final actionLabel = switch (action) {
+      'poke' => '찌르기',
+      'boast' => '자랑하기',
+      _ => '선물하기',
+    };
+    try {
+      final SocialRepository repository = ref.read(socialRepositoryProvider);
+      if (action == 'gift') {
+        await repository.giftShopItem(
+          targetUserId: targetUserId,
+          itemId: chosenAction,
+        );
+        ref.invalidate(todayStateProvider);
+      } else {
+        await repository.sendSocialAction(
+          targetUserId: targetUserId,
+          action: action,
+        );
       }
+      if (!context.mounted) return;
+      final successMessage = switch (action) {
+        'poke' => '${entry.nickname}님을 찔렀어요.',
+        'boast' => '${entry.nickname}님에게 내 순위를 자랑했어요.',
+        _ =>
+          '${entry.nickname}님에게 ${switch (chosenAction) {
+            'practice_ticket' => '연습권',
+            'challenge_ticket' => '도전권',
+            'nickname_change_ticket' => '닉네임 변경권',
+            _ => '아이템',
+          }} 1장을 선물했어요.',
+      };
+      await showPixelCompletionDialog(
+        context,
+        title: '$actionLabel 완료',
+        message: successMessage,
+        dialogKey: Key('social-$action-completed'),
+        titleKey: Key('social-$action-completed-title'),
+        messageKey: Key('social-$action-completed-message'),
+        confirmKey: Key('social-$action-completed-confirm'),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      final text = error is PostgrestException
+          ? error.message
+          : error.toString();
+      final message = text.contains('daily poke')
+          ? '오늘 찌르기는 3번까지 보낼 수 있어요.'
+          : text.contains('daily boast')
+          ? '오늘 자랑하기는 3번까지 보낼 수 있어요.'
+          : text.contains('daily social')
+          ? '오늘 보낼 수 있는 알림을 다 사용했어요.'
+          : text.contains('cooldown')
+          ? '자랑하기는 6시간 후에 다시 보낼 수 있어요.'
+          : text.contains('rank is not available')
+          ? '오늘의 도전 기록이 있어야 자랑할 수 있어요.'
+          : '요청을 처리하지 못했어요.';
+      await showPixelCompletionDialog(
+        context,
+        title: '$actionLabel 안내',
+        message: message,
+        dialogKey: Key('social-$action-error'),
+        titleKey: Key('social-$action-error-title'),
+        messageKey: Key('social-$action-error-message'),
+        confirmKey: Key('social-$action-error-confirm'),
+      );
     }
   }
 }
+
+class _PreviousWinnerCard extends StatelessWidget {
+  const _PreviousWinnerCard({required this.playDate, required this.result});
+
+  final DateTime playDate;
+  final AsyncValue<DailyRankResult>? result;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('previous-winner-card'),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundDeep,
+        border: Border.all(color: AppColors.surfaceLight),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            result == null
+                ? Icons.hourglass_empty_rounded
+                : Icons.emoji_events_outlined,
+            color: AppColors.primary,
+            size: 24,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const WordSafeText(
+                      '지난 1등',
+                      style: TextStyle(
+                        color: AppColors.text,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const Spacer(),
+                    WordSafeText(
+                      _formatRankingDate(playDate),
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                if (result == null)
+                  const WordSafeText(
+                    '집계 중',
+                    style: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  )
+                else
+                  result!.when(
+                    loading: () => const WordSafeText(
+                      '지난 1등 불러오는 중…',
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    error: (_, _) => const WordSafeText(
+                      '지난 1등을 불러오지 못했어요.',
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    data: (rankResult) => _previousWinnerContent(rankResult),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _previousWinnerContent(DailyRankResult rankResult) {
+    NearbyRank? winner;
+    for (final entry in rankResult.leaders) {
+      if (entry.rank == 1) {
+        winner = entry;
+        break;
+      }
+    }
+    if (winner == null) {
+      return const WordSafeText(
+        '지난 1등 기록이 없어요.',
+        style: TextStyle(
+          color: AppColors.textMuted,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      );
+    }
+    return Row(
+      children: [
+        const WordSafeText(
+          '1등',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(width: 8),
+        WordSafeText(
+          'LV.${winner.level}',
+          style: const TextStyle(
+            color: AppColors.textMuted,
+            fontFamily: 'Galmuri',
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(width: 7),
+        Flexible(
+          child: WordSafeText(
+            winner.nickname,
+            style: TextStyle(
+              color: NicknameColors.resolve(winner.nicknameColor),
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+String _formatRankingDate(DateTime date) =>
+    '${date.year.toString().padLeft(4, '0')}.'
+    '${date.month.toString().padLeft(2, '0')}.'
+    '${date.day.toString().padLeft(2, '0')}';
 
 class _RankingSectionTitle extends StatelessWidget {
   const _RankingSectionTitle({required this.eyebrow, required this.title});
@@ -2120,7 +4035,7 @@ class _RankingSectionTitle extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.end,
     children: [
       Expanded(
-        child: Text(
+        child: WordSafeText(
           title,
           style: const TextStyle(
             fontFamily: 'Galmuri',
@@ -2130,7 +4045,7 @@ class _RankingSectionTitle extends StatelessWidget {
           ),
         ),
       ),
-      Text(
+      WordSafeText(
         eyebrow,
         style: const TextStyle(
           color: AppColors.primary,
@@ -2143,18 +4058,208 @@ class _RankingSectionTitle extends StatelessWidget {
   );
 }
 
-enum _PlayerModerationAction { report, block }
+class _RankActionSheet extends StatelessWidget {
+  const _RankActionSheet({required this.entry, required this.canBoast});
+
+  final NearbyRank entry;
+  final bool canBoast;
+
+  @override
+  Widget build(BuildContext context) => _RankSheetSurface(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SheetHeader(
+          eyebrow: 'RANKING PLAYER',
+          title: entry.nickname,
+          onClose: () => Navigator.of(context).pop(),
+        ),
+        const SizedBox(height: 8),
+        const WordSafeText(
+          '오늘의 랭킹에서 가볍게 인사를 보내요.',
+          style: TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _RankActionTile(
+          key: const Key('rank-action-poke'),
+          icon: Icons.touch_app_outlined,
+          title: '찌르기',
+          subtitle: '가볍게 존재감을 알려요',
+          onTap: () => Navigator.of(context).pop('poke'),
+        ),
+        const SizedBox(height: 7),
+        _RankActionTile(
+          key: const Key('rank-action-boast'),
+          icon: Icons.campaign_outlined,
+          title: '자랑하기',
+          subtitle: canBoast ? '내 오늘 기록을 알려요' : '오늘 기록을 남긴 뒤 사용할 수 있어요',
+          enabled: canBoast,
+          onTap: canBoast ? () => Navigator.of(context).pop('boast') : null,
+        ),
+        const SizedBox(height: 7),
+        _RankActionTile(
+          key: const Key('rank-action-gift'),
+          icon: Icons.card_giftcard_outlined,
+          title: '선물하기',
+          subtitle: '보유한 아이템을 하나 보내요',
+          onTap: () => Navigator.of(context).pop('gift'),
+        ),
+      ],
+    ),
+  );
+}
+
+class _RankGiftSheet extends StatelessWidget {
+  const _RankGiftSheet({
+    required this.nickname,
+    required this.practiceTickets,
+    required this.challengeTickets,
+    required this.nicknameChangeTickets,
+  });
+
+  final String nickname;
+  final int practiceTickets;
+  final int challengeTickets;
+  final int nicknameChangeTickets;
+
+  @override
+  Widget build(BuildContext context) => _RankSheetSurface(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SheetHeader(
+          eyebrow: 'SEND A GIFT',
+          title: '$nickname님에게 선물',
+          onClose: () => Navigator.of(context).pop(),
+        ),
+        const SizedBox(height: 12),
+        _RankActionTile(
+          icon: Icons.confirmation_number_outlined,
+          title: '연습권 1장',
+          subtitle: '보유 $practiceTickets장',
+          enabled: practiceTickets > 0,
+          onTap: () => Navigator.of(context).pop('practice_ticket'),
+        ),
+        const SizedBox(height: 7),
+        _RankActionTile(
+          icon: Icons.sports_score_outlined,
+          title: '도전권 1장',
+          subtitle: '보유 $challengeTickets장',
+          enabled: challengeTickets > 0,
+          onTap: () => Navigator.of(context).pop('challenge_ticket'),
+        ),
+        const SizedBox(height: 7),
+        _RankActionTile(
+          icon: Icons.edit_outlined,
+          title: '닉네임 변경권 1장',
+          subtitle: '보유 $nicknameChangeTickets장',
+          enabled: nicknameChangeTickets > 0,
+          onTap: () => Navigator.of(context).pop('nickname_change_ticket'),
+        ),
+      ],
+    ),
+  );
+}
+
+class _RankSheetSurface extends StatelessWidget {
+  const _RankSheetSurface({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+    decoration: const BoxDecoration(
+      color: AppColors.surface,
+      border: Border(top: BorderSide(color: AppColors.border, width: 2)),
+    ),
+    child: SafeArea(top: false, child: child),
+  );
+}
+
+class _RankActionTile extends StatelessWidget {
+  const _RankActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.enabled = true,
+    super.key,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = enabled ? AppColors.text : AppColors.textMuted;
+    return Material(
+      color: AppColors.backgroundDeep,
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.surfaceLight),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: enabled ? AppColors.primary : color, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    WordSafeText(
+                      title,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    WordSafeText(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: enabled ? AppColors.textMuted : AppColors.surfaceLight,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _LeaderboardRow extends StatelessWidget {
   const _LeaderboardRow({
     required this.entry,
     required this.gameId,
-    required this.onModerate,
+    this.onAction,
   });
 
   final NearbyRank entry;
   final String? gameId;
-  final ValueChanged<_PlayerModerationAction> onModerate;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -2180,7 +4285,7 @@ class _LeaderboardRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 42,
-            child: Text(
+            child: WordSafeText(
               '${entry.rank}',
               style: TextStyle(
                 fontFamily: 'Galmuri',
@@ -2193,36 +4298,37 @@ class _LeaderboardRow extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                Flexible(
-                  child: Text(
-                    entry.nickname,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                SizedBox(
+                  key: Key('leaderboard-level-${entry.rank}'),
+                  width: 34,
+                  child: WordSafeText(
+                    'LV.${entry.level}',
+                    singleLine: true,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: entry.isMe
+                          ? AppColors.primary
+                          : AppColors.textMuted,
+                      fontFamily: 'Galmuri',
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
-                if (entry.isMe) ...[
-                  const SizedBox(width: 7),
-                  Container(
-                    key: const Key('my-rank-badge'),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    color: AppColors.primary,
-                    child: const Text(
-                      '나',
-                      style: TextStyle(
-                        color: AppColors.backgroundDeep,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                      ),
+                const SizedBox(width: 7),
+                Flexible(
+                  child: WordSafeText(
+                    entry.nickname,
+                    style: TextStyle(
+                      color: NicknameColors.resolve(entry.nicknameColor),
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                ],
+                ),
               ],
             ),
           ),
-          Text(
+          WordSafeText(
             GameRegistry.formatScore(gameId, entry.score),
             style: const TextStyle(
               fontFamily: 'Galmuri',
@@ -2230,56 +4336,43 @@ class _LeaderboardRow extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          if (!entry.isMe && !entry.isNpc && entry.userId != null)
-            PopupMenuButton<_PlayerModerationAction>(
-              tooltip: '사용자 신고 또는 차단',
-              onSelected: onModerate,
-              itemBuilder: (context) => const [
-                PopupMenuItem(
-                  value: _PlayerModerationAction.report,
-                  child: Text('닉네임 신고'),
-                ),
-                PopupMenuItem(
-                  value: _PlayerModerationAction.block,
-                  child: Text('사용자 차단'),
-                ),
-              ],
-            ),
+          SizedBox(
+            width: 48,
+            child: entry.isMe
+                ? Center(
+                    child: Container(
+                      key: const Key('my-rank-badge'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      color: AppColors.primary,
+                      child: const WordSafeText(
+                        '나',
+                        style: TextStyle(
+                          color: AppColors.backgroundDeep,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  )
+                : !entry.isNpc && entry.userId != null
+                ? IconButton(
+                    key: Key('rank-more-${entry.userId}'),
+                    tooltip: '상호작용',
+                    onPressed: onAction,
+                    icon: const Icon(
+                      Icons.more_horiz,
+                      color: AppColors.textMuted,
+                    ),
+                  )
+                : null,
+          ),
         ],
       ),
     );
   }
-}
-
-class _RankSummaryValue extends StatelessWidget {
-  const _RankSummaryValue({required this.value, required this.label});
-
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      Text(
-        value,
-        style: const TextStyle(
-          fontFamily: 'Galmuri',
-          color: AppColors.text,
-          fontSize: 18,
-          fontWeight: FontWeight.w900,
-        ),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.textMuted,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    ],
-  );
 }
 
 class _GameGuideSheet extends StatefulWidget {
@@ -2394,7 +4487,7 @@ class _GameGuideSheetState extends State<_GameGuideSheet> {
                       ),
                     ),
                     icon: const Icon(Icons.arrow_back_rounded),
-                    label: const Text('이전'),
+                    label: const WordSafeText('이전'),
                   ),
                 ),
               ),
@@ -2423,6 +4516,60 @@ class _GuidePage extends StatelessWidget {
   final int index;
   final GameGuidePageDefinition page;
 
+  bool get _usesPortraitGameplay => switch (page.visual) {
+    GameGuideVisualKind.bathhouseControls ||
+    GameGuideVisualKind.bathhouseQueue ||
+    GameGuideVisualKind.bathhouseUnlock ||
+    GameGuideVisualKind.bathhouseScoring ||
+    GameGuideVisualKind.lilyOrbit ||
+    GameGuideVisualKind.lilyTangent ||
+    GameGuideVisualKind.lilySpeed ||
+    GameGuideVisualKind.lilyScoring ||
+    GameGuideVisualKind.lilyBonus ||
+    GameGuideVisualKind.lilyFailure => true,
+    GameGuideVisualKind.netBoatTurn ||
+    GameGuideVisualKind.netBoatClose ||
+    GameGuideVisualKind.netBoatScore ||
+    GameGuideVisualKind.netBoatDifficulty ||
+    GameGuideVisualKind.netBoatFailure ||
+    GameGuideVisualKind.netBoatLimit ||
+    GameGuideVisualKind.moleReaction => true,
+    GameGuideVisualKind.westernWait ||
+    GameGuideVisualKind.westernDraw ||
+    GameGuideVisualKind.westernResult ||
+    GameGuideVisualKind.windDartsHold ||
+    GameGuideVisualKind.windDartsWind ||
+    GameGuideVisualKind.windDartsDistance ||
+    GameGuideVisualKind.windDartsScoring => true,
+    _ => false,
+  };
+
+  bool get _isWindDartsVisual => switch (page.visual) {
+    GameGuideVisualKind.windDartsHold ||
+    GameGuideVisualKind.windDartsWind ||
+    GameGuideVisualKind.windDartsDistance ||
+    GameGuideVisualKind.windDartsScoring => true,
+    _ => false,
+  };
+
+  bool get _isWesternDuelVisual => switch (page.visual) {
+    GameGuideVisualKind.westernWait ||
+    GameGuideVisualKind.westernDraw ||
+    GameGuideVisualKind.westernResult => true,
+    _ => false,
+  };
+
+  double _visualHeight(BuildContext context) {
+    if (!_usesPortraitGameplay) return 268;
+    if (_isWesternDuelVisual && MediaQuery.sizeOf(context).height <= 700) {
+      return 300;
+    }
+    if (_isWindDartsVisual && MediaQuery.sizeOf(context).height <= 700) {
+      return 240;
+    }
+    return 360;
+  }
+
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
     padding: const EdgeInsets.only(bottom: 4),
@@ -2430,17 +4577,19 @@ class _GuidePage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
-          height: 268,
+          height: _visualHeight(context),
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: AppColors.backgroundDeep,
               border: Border.all(color: AppColors.surfaceLight, width: 2),
             ),
-            child: ClipRect(child: _GuideVisual(kind: page.visual)),
+            child: ClipRect(
+              child: _GuideVisual(kind: page.visual, pageIndex: index),
+            ),
           ),
         ),
         const SizedBox(height: 16),
-        Text(
+        WordSafeText(
           '${index + 1}'.padLeft(2, '0'),
           style: const TextStyle(
             color: AppColors.primary,
@@ -2450,7 +4599,7 @@ class _GuidePage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        Text(
+        WordSafeText(
           page.title,
           style: const TextStyle(
             color: AppColors.text,
@@ -2460,7 +4609,7 @@ class _GuidePage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Text(
+        WordSafeText(
           page.description,
           style: const TextStyle(
             color: AppColors.text,
@@ -2484,7 +4633,7 @@ class _GuidePage extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
+                  child: WordSafeText(
                     page.detail,
                     style: const TextStyle(
                       color: AppColors.textMuted,
@@ -2504,9 +4653,10 @@ class _GuidePage extends StatelessWidget {
 }
 
 class _GuideVisual extends StatelessWidget {
-  const _GuideVisual({required this.kind});
+  const _GuideVisual({required this.kind, this.pageIndex = 0});
 
   final GameGuideVisualKind kind;
+  final int pageIndex;
 
   @override
   Widget build(BuildContext context) => switch (kind) {
@@ -2541,8 +4691,8 @@ class _GuideVisual extends StatelessWidget {
     GameGuideVisualKind.mamaFailure => const _MamaDuckGuideVisual(
       assetName: 'guide_failure.png',
     ),
-    GameGuideVisualKind.snakeSwipe => const _MidnightSnakeVisual(
-      scene: _SnakePreviewScene.swipe,
+    GameGuideVisualKind.snakeButtons => const _MidnightSnakeVisual(
+      scene: _SnakePreviewScene.buttons,
     ),
     GameGuideVisualKind.snakeQueue => const _MidnightSnakeVisual(
       scene: _SnakePreviewScene.queue,
@@ -2554,7 +4704,7 @@ class _GuideVisual extends StatelessWidget {
       scene: _SnakePreviewScene.collision,
     ),
     GameGuideVisualKind.sausageSwipe => const _MidnightSnakeVisual(
-      scene: _SnakePreviewScene.swipe,
+      scene: _SnakePreviewScene.buttons,
     ),
     GameGuideVisualKind.sausageGrow => const _MidnightSnakeVisual(
       scene: _SnakePreviewScene.grow,
@@ -2604,6 +4754,97 @@ class _GuideVisual extends StatelessWidget {
     ),
     GameGuideVisualKind.ramenResult => const RamenTimerPreview(
       scene: RamenTimerPreviewScene.result,
+      animate: false,
+    ),
+    GameGuideVisualKind.bathhouseControls => const BathhouseSortPreview(
+      scene: BathhouseSortPreviewScene.controls,
+    ),
+    GameGuideVisualKind.bathhouseQueue => const BathhouseSortPreview(
+      scene: BathhouseSortPreviewScene.queue,
+      animate: false,
+    ),
+    GameGuideVisualKind.bathhouseUnlock => const BathhouseSortPreview(
+      scene: BathhouseSortPreviewScene.unlock,
+      animate: false,
+    ),
+    GameGuideVisualKind.bathhouseScoring => const BathhouseSortPreview(
+      scene: BathhouseSortPreviewScene.scoring,
+    ),
+    GameGuideVisualKind.lilyOrbit => const LilyFrogRuntimePreview(
+      mode: LilyFrogRuntimePreviewMode.orbit,
+    ),
+    GameGuideVisualKind.lilyTangent => const LilyFrogRuntimePreview(
+      mode: LilyFrogRuntimePreviewMode.tangent,
+    ),
+    GameGuideVisualKind.lilySpeed => const LilyFrogRuntimePreview(
+      mode: LilyFrogRuntimePreviewMode.speed,
+    ),
+    GameGuideVisualKind.lilyScoring => const LilyFrogRuntimePreview(
+      mode: LilyFrogRuntimePreviewMode.scoring,
+    ),
+    GameGuideVisualKind.lilyBonus => const LilyFrogRuntimePreview(
+      mode: LilyFrogRuntimePreviewMode.bonus,
+    ),
+    GameGuideVisualKind.lilyFailure => const LilyFrogRuntimePreview(
+      mode: LilyFrogRuntimePreviewMode.failure,
+    ),
+    GameGuideVisualKind.netBoatTurn => const NetBoatPreview(
+      scene: NetBoatPreviewScene.turn,
+      animate: true,
+    ),
+    GameGuideVisualKind.netBoatClose => const NetBoatPreview(
+      scene: NetBoatPreviewScene.close,
+      animate: false,
+    ),
+    GameGuideVisualKind.netBoatScore => const NetBoatPreview(
+      scene: NetBoatPreviewScene.score,
+      animate: false,
+    ),
+    GameGuideVisualKind.netBoatDifficulty => const NetBoatPreview(
+      scene: NetBoatPreviewScene.difficulty,
+      animate: false,
+    ),
+    GameGuideVisualKind.netBoatFailure => const NetBoatPreview(
+      scene: NetBoatPreviewScene.failure,
+      animate: false,
+    ),
+    GameGuideVisualKind.netBoatLimit => const NetBoatPreview(
+      scene: NetBoatPreviewScene.limit,
+      animate: false,
+    ),
+    GameGuideVisualKind.moleReaction => MoleReactionPreview(
+      scene: switch (pageIndex) {
+        0 => MoleReactionPreviewScene.practice,
+        1 => MoleReactionPreviewScene.golden,
+        _ => MoleReactionPreviewScene.score,
+      },
+    ),
+    GameGuideVisualKind.westernWait => const WesternDuelPreview(
+      scene: WesternDuelPreviewScene.wait,
+      animate: false,
+    ),
+    GameGuideVisualKind.westernDraw => const WesternDuelPreview(
+      scene: WesternDuelPreviewScene.draw,
+      animate: false,
+    ),
+    GameGuideVisualKind.westernResult => const WesternDuelPreview(
+      scene: WesternDuelPreviewScene.result,
+      animate: false,
+    ),
+    GameGuideVisualKind.windDartsHold => const WindDartsPreview(
+      scene: WindDartsPreviewScene.controls,
+      animate: false,
+    ),
+    GameGuideVisualKind.windDartsWind => const WindDartsPreview(
+      scene: WindDartsPreviewScene.wind,
+      animate: false,
+    ),
+    GameGuideVisualKind.windDartsDistance => const WindDartsPreview(
+      scene: WindDartsPreviewScene.distance,
+      animate: false,
+    ),
+    GameGuideVisualKind.windDartsScoring => const WindDartsPreview(
+      scene: WindDartsPreviewScene.scoring,
       animate: false,
     ),
   };
@@ -2727,7 +4968,7 @@ class _BeatTheDealerVisualState extends State<_BeatTheDealerVisual> {
                         filterQuality: FilterQuality.none,
                       ),
                       const SizedBox(width: 5),
-                      Text(
+                      WordSafeText(
                         '$coins',
                         key: const Key('beat-dealer-preview-coins'),
                         style: const TextStyle(
@@ -2789,7 +5030,7 @@ class _BeatTheDealerVisualState extends State<_BeatTheDealerVisual> {
                 left: 28,
                 right: 28,
                 top: 307,
-                child: Text(
+                child: WordSafeText(
                   status,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
@@ -2929,7 +5170,7 @@ class _DealerPreviewCard extends StatelessWidget {
           Positioned(
             left: 6,
             top: 5,
-            child: Text(
+            child: WordSafeText(
               '$rank\n$suit',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -2944,7 +5185,7 @@ class _DealerPreviewCard extends StatelessWidget {
             ),
           ),
           Center(
-            child: Text(
+            child: WordSafeText(
               suit!,
               style: TextStyle(
                 color: suit == '♥' || suit == '♦'
@@ -2960,7 +5201,7 @@ class _DealerPreviewCard extends StatelessWidget {
             bottom: 5,
             child: RotatedBox(
               quarterTurns: 2,
-              child: Text(
+              child: WordSafeText(
                 '$rank\n$suit',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -2995,7 +5236,7 @@ class _DealerPreviewButton extends StatelessWidget {
       color: const Color(0xFF4A2F68),
       border: Border.all(color: const Color(0xFFD4B7F0), width: 2),
     ),
-    child: Text(
+    child: WordSafeText(
       label,
       textAlign: TextAlign.center,
       style: const TextStyle(
@@ -3024,7 +5265,7 @@ class _MamaDuckGuideVisual extends StatelessWidget {
   );
 }
 
-enum _SnakePreviewScene { home, swipe, queue, grow, collision }
+enum _SnakePreviewScene { home, buttons, queue, grow, collision }
 
 class _MidnightSnakeVisual extends StatefulWidget {
   const _MidnightSnakeVisual({required this.scene});
@@ -3079,6 +5320,8 @@ class _MidnightSnakeVisualState extends State<_MidnightSnakeVisual> {
   @override
   Widget build(BuildContext context) {
     final frame = _SnakePreviewFrame.at(_elapsed, scene: widget.scene);
+    final isButtonScene = widget.scene == _SnakePreviewScene.buttons;
+    final previewHeight = isButtonScene ? 680.0 : 640.0;
     final head = frame.pathPoints.first;
     final headLeft =
         _SnakePreviewFrame.boardLeft +
@@ -3096,17 +5339,21 @@ class _MidnightSnakeVisualState extends State<_MidnightSnakeVisual> {
     return FittedBox(
       fit: BoxFit.cover,
       clipBehavior: Clip.hardEdge,
-      alignment:
-          widget.scene == _SnakePreviewScene.grow && frame.goldenSausage != null
+      alignment: isButtonScene
+          ? Alignment.bottomCenter
+          : widget.scene == _SnakePreviewScene.grow &&
+                frame.goldenSausage != null
           ? Alignment.topCenter
           : Alignment.center,
       child: SizedBox(
         key: Key(keyName),
         width: 360,
-        height: 640,
+        height: previewHeight,
         child: Stack(
           children: [
-            const Positioned.fill(
+            const Positioned(
+              width: 360,
+              height: 640,
               child: Image(
                 image: AssetImage(
                   'assets/images/midnight_snake/apartment_background.png',
@@ -3189,8 +5436,6 @@ class _MidnightSnakeVisualState extends State<_MidnightSnakeVisual> {
             ),
             if (widget.scene == _SnakePreviewScene.home)
               _SnakePreviewHud(frame: frame),
-            if (widget.scene == _SnakePreviewScene.swipe)
-              _SnakeSwipeOverlay(frame: frame),
             if (widget.scene == _SnakePreviewScene.queue)
               _SnakeQueueOverlay(frame: frame),
             if (widget.scene == _SnakePreviewScene.grow)
@@ -3203,6 +5448,8 @@ class _MidnightSnakeVisualState extends State<_MidnightSnakeVisual> {
                   color: Color.fromRGBO(3, 18, 28, frame.fadeOpacity),
                 ),
               ),
+            if (widget.scene == _SnakePreviewScene.buttons)
+              const _SnakeButtonsOverlay(),
           ],
         ),
       ),
@@ -3538,7 +5785,7 @@ class _SnakePreviewHud extends StatelessWidget {
         left: 38,
         right: 38,
         bottom: 62,
-        child: _SnakePreviewCaption(text: '짧은 드래그 · 방향 3개까지 예약'),
+        child: _SnakePreviewCaption(text: '하단 방향 버튼 · 최대 3개 예약'),
       ),
     ],
   );
@@ -3561,7 +5808,7 @@ class _SnakeHudValue extends StatelessWidget {
         ? CrossAxisAlignment.end
         : CrossAxisAlignment.start,
     children: [
-      Text(
+      WordSafeText(
         eyebrow,
         style: const TextStyle(
           color: Color(0xFFB8D8DC),
@@ -3571,7 +5818,7 @@ class _SnakeHudValue extends StatelessWidget {
           letterSpacing: 2,
         ),
       ),
-      Text(
+      WordSafeText(
         value,
         style: const TextStyle(
           color: Color(0xFFFFE1A3),
@@ -3585,47 +5832,78 @@ class _SnakeHudValue extends StatelessWidget {
   );
 }
 
-class _SnakeSwipeOverlay extends StatelessWidget {
-  const _SnakeSwipeOverlay({required this.frame});
+class _SnakeButtonsOverlay extends StatelessWidget {
+  const _SnakeButtonsOverlay();
 
-  final _SnakePreviewFrame frame;
+  static const _directions = <SnakeDirection>[
+    SnakeDirection.left,
+    SnakeDirection.up,
+    SnakeDirection.down,
+    SnakeDirection.right,
+  ];
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      const Positioned(
+        left: 30,
+        right: 30,
+        top: 410,
+        child: _SnakePreviewCaption(text: '위에 ↑ · 아래에 ← ↓ →'),
+      ),
+      Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: 195,
+        child: Stack(
+          key: const Key('midnight-snake-direction-buttons'),
+          children: [
+            const Positioned.fill(
+              child: Image(
+                image: AssetImage(
+                  'assets/images/midnight_snake/arcade_controls.png',
+                ),
+                fit: BoxFit.fill,
+                filterQuality: FilterQuality.none,
+              ),
+            ),
+            for (var i = 0; i < _directions.length; i++)
+              Positioned.fromRect(
+                rect: const [
+                  Rect.fromLTWH(113, 73, 40, 39),
+                  Rect.fromLTWH(160, 31, 40, 38),
+                  Rect.fromLTWH(160, 73, 40, 39),
+                  Rect.fromLTWH(207, 73, 40, 39),
+                ][i],
+                child: _SnakeGuideDirectionButton(direction: _directions[i]),
+              ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+class _SnakeGuideDirectionButton extends StatelessWidget {
+  const _SnakeGuideDirectionButton({required this.direction});
+
+  final SnakeDirection direction;
 
   @override
   Widget build(BuildContext context) {
-    final icon = _directionIcon(frame.direction);
-    return Stack(
-      children: [
-        Positioned(
-          left: 134,
-          top: 278,
-          child: Container(
-            width: 92,
-            height: 64,
-            decoration: BoxDecoration(
-              color: const Color(0xB803121C),
-              border: Border.all(color: const Color(0xFF4ED8C7), width: 2),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.touch_app_rounded,
-                  color: Color(0xFFFFE1A3),
-                  size: 28,
-                ),
-                const SizedBox(width: 7),
-                Icon(icon, color: const Color(0xFFFFC875), size: 32),
-              ],
-            ),
-          ),
-        ),
-        const Positioned(
-          left: 40,
-          right: 40,
-          bottom: 58,
-          child: _SnakePreviewCaption(text: '짧게 끌고 놓으면 다음 칸부터 회전'),
-        ),
-      ],
+    final label = switch (direction) {
+      SnakeDirection.left => '왼쪽',
+      SnakeDirection.up => '위쪽',
+      SnakeDirection.down => '아래쪽',
+      SnakeDirection.right => '오른쪽',
+    };
+    return Semantics(
+      button: true,
+      label: '$label 방향 버튼',
+      child: SizedBox.expand(
+        key: Key('midnight-snake-guide-button-${direction.name}'),
+      ),
     );
   }
 }
@@ -3748,7 +6026,7 @@ class _SnakeGrowOverlay extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               color: const Color(0xD903121C),
-              child: Text(
+              child: WordSafeText(
                 bonusText,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
@@ -3812,7 +6090,7 @@ class _SnakePreviewCaption extends StatelessWidget {
     ),
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-      child: Text(
+      child: WordSafeText(
         text,
         textAlign: TextAlign.center,
         style: const TextStyle(
@@ -4055,7 +6333,7 @@ class _AppleResultGuideVisual extends StatelessWidget {
         child: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            WordSafeText(
               'TIME  02:00',
               style: TextStyle(
                 fontFamily: 'Galmuri',
@@ -4065,7 +6343,7 @@ class _AppleResultGuideVisual extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            Text(
+            WordSafeText(
               '48개',
               style: TextStyle(
                 fontFamily: 'Galmuri',
@@ -4075,7 +6353,7 @@ class _AppleResultGuideVisual extends StatelessWidget {
               ),
             ),
             SizedBox(height: 6),
-            Text(
+            WordSafeText(
               '많이 지울수록 높은 순위',
               style: TextStyle(
                 color: AppColors.reward,
@@ -4134,7 +6412,7 @@ class _AppleGuideTile extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         _AppleAtlasFrame(value: value),
-        Text(
+        WordSafeText(
           '$value',
           style: TextStyle(
             fontFamily: 'Galmuri',
@@ -4219,7 +6497,7 @@ class _AppleScoreExample extends StatelessWidget {
           children: [for (final value in values) _AppleGuideTile(value: value)],
         ),
         const SizedBox(height: 7),
-        Text(
+        WordSafeText(
           label,
           textAlign: TextAlign.center,
           style: const TextStyle(
@@ -4229,7 +6507,7 @@ class _AppleScoreExample extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        WordSafeText(
           score,
           style: TextStyle(
             fontFamily: 'Galmuri',
@@ -4295,7 +6573,7 @@ class _SwipeGuideVisual extends StatelessWidget {
                     size: 22,
                   ),
                   SizedBox(width: 5),
-                  Text(
+                  WordSafeText(
                     '누르고 드래그',
                     style: TextStyle(
                       color: AppColors.text,
@@ -4441,7 +6719,7 @@ class _CollisionGuideVisual extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           color: AppColors.danger.withValues(alpha: 0.92),
-          child: const Text(
+          child: const WordSafeText(
             '한 번 충돌 = 종료',
             style: TextStyle(
               color: AppColors.backgroundDeep,
@@ -4483,7 +6761,7 @@ class _SurvivalGuideVisual extends StatelessWidget {
                 size: 34,
               ),
               SizedBox(height: 8),
-              Text(
+              WordSafeText(
                 '최대 5:00',
                 style: TextStyle(
                   fontFamily: 'Galmuri',
@@ -4493,7 +6771,7 @@ class _SurvivalGuideVisual extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 5),
-              Text(
+              WordSafeText(
                 '0.01초 단위로 랭킹 경쟁',
                 style: TextStyle(
                   color: AppColors.reward,
@@ -4619,7 +6897,7 @@ class _VisualLabel extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     color: AppColors.backgroundDeep.withValues(alpha: 0.86),
-    child: Text(
+    child: WordSafeText(
       label,
       style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900),
     ),
@@ -4650,11 +6928,13 @@ class _SheetHeader extends StatelessWidget {
     required this.eyebrow,
     required this.title,
     required this.onClose,
+    this.closeKey,
   });
 
   final String eyebrow;
   final String title;
   final VoidCallback onClose;
+  final Key? closeKey;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -4671,7 +6951,7 @@ class _SheetHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                WordSafeText(
                   eyebrow,
                   style: const TextStyle(
                     color: AppColors.primary,
@@ -4681,11 +6961,15 @@ class _SheetHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(title, style: Theme.of(context).textTheme.titleLarge),
+                WordSafeText(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ],
             ),
           ),
           IconButton(
+            key: closeKey,
             tooltip: '닫기',
             onPressed: onClose,
             icon: const Icon(Icons.close, color: AppColors.text),
@@ -4694,33 +6978,6 @@ class _SheetHeader extends StatelessWidget {
       ),
     ],
   );
-}
-
-class _TodaySummary extends StatelessWidget {
-  const _TodaySummary({required this.gameId, required this.result});
-
-  final String? gameId;
-  final DailyRankResult? result;
-
-  @override
-  Widget build(BuildContext context) {
-    final participants = result?.participants ?? 0;
-    final bestScore = result?.bestScore;
-    final challengeText = participants == 0
-        ? '오늘 첫 기록에 도전해 보세요'
-        : '오늘 비교 기록 $participants개';
-    final bestText = bestScore == null
-        ? null
-        : '현재 최고 ${GameRegistry.formatScore(gameId, bestScore)}';
-    return Text(
-      bestText == null ? challengeText : '$challengeText · $bestText',
-      style: const TextStyle(
-        color: AppColors.textMuted,
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-      ),
-    );
-  }
 }
 
 class _RewardValue extends StatelessWidget {
@@ -4739,7 +6996,7 @@ class _RewardValue extends StatelessWidget {
     children: [
       Icon(icon, color: AppColors.reward, size: 16),
       const SizedBox(height: 2),
-      Text(
+      WordSafeText(
         value,
         style: const TextStyle(
           color: AppColors.reward,
@@ -4749,7 +7006,7 @@ class _RewardValue extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 2),
-      Text(
+      WordSafeText(
         label,
         style: const TextStyle(
           color: AppColors.textMuted,
@@ -4759,6 +7016,376 @@ class _RewardValue extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+class _TicketInventory extends StatelessWidget {
+  const _TicketInventory({
+    required this.practiceCount,
+    required this.challengeCount,
+    required this.showChallengeTicketAnimation,
+    required this.practiceDelta,
+    required this.practiceAnimationRevision,
+    super.key,
+  });
+
+  final int practiceCount;
+  final int challengeCount;
+  final bool showChallengeTicketAnimation;
+  final int practiceDelta;
+  final int practiceAnimationRevision;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      _PracticeTicketBadge(
+        key: const Key('practice-ticket-badge'),
+        count: practiceCount,
+        delta: practiceDelta,
+        animationRevision: practiceAnimationRevision,
+      ),
+      if (challengeCount > 0 || showChallengeTicketAnimation) ...[
+        const SizedBox(width: 8),
+        _ChallengeTicketBadge(count: challengeCount),
+      ],
+    ],
+  );
+}
+
+const _ticketBadgeHeight = 25.0;
+const _ticketBadgeIconBoxSize = 24.0;
+const _ticketBadgeIconSize = 20.0;
+const _ticketBadgeIconGap = 4.0;
+const _challengeTicketAnimationDuration = Duration(milliseconds: 600);
+const _ticketBadgeCountTextStyle = TextStyle(
+  fontFamily: 'Galmuri',
+  fontSize: 13,
+  fontWeight: FontWeight.w900,
+  height: 1,
+);
+
+class _PracticeTicketBadge extends StatefulWidget {
+  const _PracticeTicketBadge({
+    required this.count,
+    required this.delta,
+    required this.animationRevision,
+    super.key,
+  });
+
+  final int count;
+  final int delta;
+  final int animationRevision;
+
+  @override
+  State<_PracticeTicketBadge> createState() => _PracticeTicketBadgeState();
+}
+
+class _PracticeTicketBadgeState extends State<_PracticeTicketBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  var _activeDelta = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 650),
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed && mounted) {
+            setState(() => _activeDelta = 0);
+          }
+        });
+  }
+
+  @override
+  void didUpdateWidget(covariant _PracticeTicketBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animationRevision != oldWidget.animationRevision &&
+        widget.delta != 0) {
+      _activeDelta = widget.delta;
+      _controller.forward(from: 0);
+    } else if (widget.delta == 0 &&
+        oldWidget.delta == 0 &&
+        widget.count != oldWidget.count) {
+      // Gift confirmations refresh the server-backed inventory after the
+      // dialog closes. Animate that count change even though it does not use
+      // the rewarded-ad animation path above.
+      _activeDelta = widget.count - oldWidget.count;
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  double _interval(double value, double start, double end) =>
+      ((value - start) / (end - start)).clamp(0.0, 1.0).toDouble();
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _controller,
+    builder: (context, child) {
+      final progress = Curves.easeOutCubic.transform(_controller.value);
+      final isGain = _activeDelta > 0;
+      final shake = _activeDelta < 0
+          ? sin(_controller.value * pi * 6) * (1 - progress) * 3
+          : 0.0;
+      final pulse = isGain
+          ? 1 + sin(_controller.value * pi) * 0.16
+          : 1 - sin(_controller.value * pi) * 0.05;
+
+      return Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          if (isGain)
+            for (var index = 0; index < 2; index++)
+              Builder(
+                builder: (context) {
+                  final particleProgress = Curves.easeInBack.transform(
+                    _interval(
+                      _controller.value,
+                      index * 0.12,
+                      0.62 + index * 0.12,
+                    ),
+                  );
+                  return Transform.translate(
+                    offset: Offset(
+                      (index == 0 ? -22 : 22) * (1 - particleProgress),
+                      28 * (1 - particleProgress),
+                    ),
+                    child: Opacity(
+                      opacity: _interval(
+                        _controller.value,
+                        index * 0.12,
+                        0.25 + index * 0.12,
+                      ),
+                      child: const Icon(
+                        Icons.confirmation_number_rounded,
+                        key: Key('practice-ticket-gain-particle'),
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                    ),
+                  );
+                },
+              ),
+          Transform.translate(
+            offset: Offset(shake, 0),
+            child: Transform.scale(scale: pulse, child: child),
+          ),
+          if (_activeDelta != 0)
+            Transform.translate(
+              offset: Offset(0, -8 - progress * 25),
+              child: Opacity(
+                opacity: (1 - progress).clamp(0.0, 1.0).toDouble(),
+                child: Row(
+                  key: const Key('practice-ticket-delta'),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_activeDelta < 0)
+                      const Icon(
+                        Icons.confirmation_number_rounded,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
+                    WordSafeText(
+                      _activeDelta > 0 ? '+$_activeDelta' : '$_activeDelta',
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontFamily: 'Galmuri',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      );
+    },
+    child: Semantics(
+      label: '연습권 ${widget.count}장',
+      excludeSemantics: true,
+      child: SizedBox(
+        key: const Key('practice-ticket-inline'),
+        height: _ticketBadgeHeight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              key: const Key('practice-ticket-icon-box'),
+              width: _ticketBadgeIconBoxSize,
+              height: _ticketBadgeIconBoxSize,
+              child: const Center(
+                child: Icon(
+                  Icons.confirmation_number_rounded,
+                  color: AppColors.primary,
+                  size: _ticketBadgeIconSize,
+                ),
+              ),
+            ),
+            const SizedBox(width: _ticketBadgeIconGap),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: animation,
+                child: FadeTransition(opacity: animation, child: child),
+              ),
+              child: WordSafeText(
+                '${widget.count}',
+                key: ValueKey(widget.count),
+                style: _ticketBadgeCountTextStyle.copyWith(
+                  color: widget.count == 0
+                      ? AppColors.textMuted
+                      : AppColors.text,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _ChallengeTicketBadge extends StatefulWidget {
+  const _ChallengeTicketBadge({required this.count});
+
+  final int count;
+
+  @override
+  State<_ChallengeTicketBadge> createState() => _ChallengeTicketBadgeState();
+}
+
+class _ChallengeTicketBadgeState extends State<_ChallengeTicketBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  var _activeDelta = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: _challengeTicketAnimationDuration,
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed && mounted) {
+            setState(() => _activeDelta = 0);
+          }
+        });
+  }
+
+  @override
+  void didUpdateWidget(covariant _ChallengeTicketBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.count == oldWidget.count) return;
+    _activeDelta = widget.count - oldWidget.count;
+    _controller.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _controller,
+    builder: (context, child) {
+      final progress = Curves.easeOutCubic.transform(_controller.value);
+      final isGain = _activeDelta > 0;
+      final pulse = isGain
+          ? 1 + sin(_controller.value * pi) * 0.14
+          : 1 - sin(_controller.value * pi) * 0.05;
+      return Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Transform.scale(scale: pulse, child: child),
+          if (_activeDelta != 0)
+            Transform.translate(
+              offset: Offset(0, -8 - progress * 22),
+              child: Opacity(
+                opacity: (1 - progress).clamp(0.0, 1.0).toDouble(),
+                child: Row(
+                  key: const Key('challenge-ticket-delta'),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_activeDelta < 0)
+                      const Icon(
+                        Icons.sports_score_rounded,
+                        color: AppColors.primary,
+                        size: 16,
+                      ),
+                    WordSafeText(
+                      _activeDelta > 0 ? '+$_activeDelta' : '$_activeDelta',
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontFamily: 'Galmuri',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      );
+    },
+    child: Semantics(
+      label: '도전권 ${widget.count}장',
+      excludeSemantics: true,
+      child: SizedBox(
+        key: const Key('challenge-ticket-badge'),
+        height: _ticketBadgeHeight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              key: const Key('challenge-ticket-icon-box'),
+              width: _ticketBadgeIconBoxSize,
+              height: _ticketBadgeIconBoxSize,
+              child: const Center(
+                child: Icon(
+                  Icons.sports_score_rounded,
+                  color: AppColors.primary,
+                  size: _ticketBadgeIconSize,
+                ),
+              ),
+            ),
+            const SizedBox(width: _ticketBadgeIconGap),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: animation,
+                child: FadeTransition(opacity: animation, child: child),
+              ),
+              child: WordSafeText(
+                '${widget.count}',
+                key: ValueKey(widget.count),
+                style: _ticketBadgeCountTextStyle.copyWith(
+                  color: widget.count == 0
+                      ? AppColors.textMuted
+                      : AppColors.text,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 
@@ -4774,7 +7401,7 @@ class _StatusBadge extends StatelessWidget {
       color: AppColors.reward.withValues(alpha: 0.16),
       border: Border.all(color: AppColors.reward),
     ),
-    child: Text(
+    child: WordSafeText(
       label,
       style: const TextStyle(
         color: AppColors.reward,
@@ -4802,7 +7429,7 @@ class _HomeActionButton extends StatelessWidget {
   Widget build(BuildContext context) => OutlinedButton.icon(
     onPressed: onPressed,
     icon: Icon(icon, size: 18),
-    label: Text(label),
+    label: WordSafeText(label),
     style: OutlinedButton.styleFrom(
       foregroundColor: AppColors.text,
       minimumSize: const Size.fromHeight(50),
@@ -4816,15 +7443,23 @@ class _HomeActionButton extends StatelessWidget {
 class _Header extends StatelessWidget {
   const _Header({
     required this.playDate,
+    required this.isTomorrow,
+    required this.tomorrowAvailable,
     required this.onSettings,
     required this.onHistory,
+    required this.onShop,
     required this.isSaving,
+    required this.onTomorrow,
   });
 
   final DateTime playDate;
+  final bool isTomorrow;
+  final bool tomorrowAvailable;
   final VoidCallback onSettings;
   final VoidCallback onHistory;
+  final VoidCallback onShop;
   final bool isSaving;
+  final VoidCallback onTomorrow;
 
   @override
   Widget build(BuildContext context) {
@@ -4835,15 +7470,22 @@ class _Header extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                '오늘의 게임',
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineLarge?.copyWith(fontSize: 28),
+              Flexible(
+                fit: FlexFit.loose,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: WordSafeText(
+                    isTomorrow ? '내일의 게임' : '오늘의 게임',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineLarge?.copyWith(fontSize: 28),
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
+                child: WordSafeText(
                   '${_monthName(playDate.month)} ${playDate.day}',
                   style: const TextStyle(
                     color: AppColors.primary,
@@ -4859,15 +7501,52 @@ class _Header extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Tooltip(
+              message: !tomorrowAvailable
+                  ? '내일 게임 준비 중'
+                  : isTomorrow
+                  ? '오늘 게임으로 돌아가기 (-1일)'
+                  : '내일 미리보기 (+1일)',
+              child: IconButton(
+                key: const Key('tomorrow-selector'),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints.tightFor(
+                  width: 36,
+                  height: 40,
+                ),
+                padding: const EdgeInsets.all(6),
+                onPressed: tomorrowAvailable ? onTomorrow : null,
+                icon: _TomorrowIcon(
+                  selected: isTomorrow,
+                  enabled: tomorrowAvailable,
+                ),
+              ),
+            ),
+            IconButton(
+              key: const Key('shop-button'),
+              tooltip: '코인 상점',
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints.tightFor(width: 36, height: 40),
+              padding: const EdgeInsets.all(6),
+              onPressed: isSaving ? null : onShop,
+              icon: const Icon(
+                Icons.storefront_outlined,
+                color: AppColors.primary,
+              ),
+            ),
             IconButton(
               tooltip: '내 기록',
               visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints.tightFor(width: 36, height: 40),
+              padding: const EdgeInsets.all(6),
               onPressed: onHistory,
               icon: const Icon(Icons.history, color: AppColors.text),
             ),
             IconButton(
               tooltip: '설정',
               visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints.tightFor(width: 36, height: 40),
+              padding: const EdgeInsets.all(6),
               onPressed: isSaving ? null : onSettings,
               icon: isSaving
                   ? const SizedBox.square(
@@ -4879,6 +7558,63 @@ class _Header extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _TomorrowIcon extends StatelessWidget {
+  const _TomorrowIcon({required this.selected, required this.enabled});
+
+  final bool selected;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected
+        ? AppColors.primary
+        : enabled
+        ? AppColors.text
+        : AppColors.textMuted.withValues(alpha: 0.45);
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: !enabled
+          ? '내일 게임 준비 중'
+          : selected
+          ? '오늘 게임으로 돌아가기 (-1일)'
+          : '내일 미리보기 (+1일)',
+      child: SizedBox(
+        width: 24,
+        height: 24,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(Icons.calendar_today_outlined, color: color, size: 22),
+            Positioned(
+              right: -6,
+              top: -6,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: enabled ? AppColors.primary : AppColors.surfaceLight,
+                  border: Border.all(color: AppColors.backgroundDeep, width: 1),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                  child: WordSafeText(
+                    selected ? '-1' : '+1',
+                    style: TextStyle(
+                      color: AppColors.backgroundDeep,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w900,
+                      height: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -4938,6 +7674,18 @@ class _GamePreview extends StatelessWidget {
           GameHomePreviewKind.ramenTimer => const RamenTimerPreview(
             scene: RamenTimerPreviewScene.home,
           ),
+          GameHomePreviewKind.bathhouseSort => const BathhouseSortPreview(
+            scene: BathhouseSortPreviewScene.home,
+          ),
+          GameHomePreviewKind.lilyFrog => const LilyFrogHomePreview(),
+          GameHomePreviewKind.netBoat => const NetBoatPreview(
+            scene: NetBoatPreviewScene.home,
+          ),
+          GameHomePreviewKind.moleReaction => const MoleReactionPreview(),
+          GameHomePreviewKind.westernDuel => const WesternDuelPreview(
+            animate: true,
+          ),
+          GameHomePreviewKind.windDarts => const WindDartsPreview(),
         },
       ),
     );
@@ -5087,7 +7835,7 @@ class _NumberRushHomePreviewState extends State<_NumberRushHomePreview> {
                 child: ColoredBox(
                   color: const Color(0xFF020715),
                   child: Center(
-                    child: Text(
+                    child: WordSafeText(
                       elapsed.toStringAsFixed(2),
                       key: const Key('number-rush-home-time-value'),
                       style: const TextStyle(
@@ -5129,7 +7877,7 @@ class _NumberRushHomePreviewState extends State<_NumberRushHomePreview> {
                 child: ColoredBox(
                   color: const Color(0xFF020715),
                   child: Center(
-                    child: Text(
+                    child: WordSafeText(
                       '$expected',
                       key: const Key('number-rush-home-next-value'),
                       style: const TextStyle(
@@ -5183,7 +7931,7 @@ class _NumberRushHomeTapTile extends StatelessWidget {
           frame: frame,
         ),
         Center(
-          child: Text(
+          child: WordSafeText(
             '$number',
             style: TextStyle(
               fontFamily: 'Galmuri',
@@ -5452,7 +8200,7 @@ class _NumberRushPreviewState extends State<_NumberRushPreview> {
                       vertical: 10,
                     ),
                     color: const Color(0xF2050A19),
-                    child: const Text(
+                    child: const WordSafeText(
                       'CLEAR!',
                       style: TextStyle(
                         fontFamily: 'Galmuri',
@@ -5489,7 +8237,7 @@ class _NumberRushPreviewHud extends StatelessWidget {
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       const FittedBox(
-        child: Text(
+        child: WordSafeText(
           'TAP 50',
           style: TextStyle(
             fontFamily: 'Galmuri',
@@ -5530,11 +8278,9 @@ class _NumberRushPreviewHud extends StatelessWidget {
           color: const Color(0xFF030713),
           border: Border.all(color: const Color(0xFF3C255D)),
         ),
-        child: Text(
+        child: WordSafeText(
           caption,
           textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Color(0xFFFFD84A),
             fontSize: 9,
@@ -5562,7 +8308,7 @@ class _NumberRushHudValue extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      Text(
+      WordSafeText(
         label,
         style: TextStyle(
           fontFamily: 'Galmuri',
@@ -5573,7 +8319,7 @@ class _NumberRushHudValue extends StatelessWidget {
       ),
       const SizedBox(height: 3),
       FittedBox(
-        child: Text(
+        child: WordSafeText(
           value,
           style: TextStyle(
             fontFamily: 'Galmuri',
@@ -5639,7 +8385,7 @@ class _NumberRushPreviewTile extends StatelessWidget {
           ),
           Center(
             child: FittedBox(
-              child: Text(
+              child: WordSafeText(
                 '$number',
                 style: TextStyle(
                   fontFamily: 'Galmuri',
@@ -5913,7 +8659,7 @@ class _AppleGameV2PreviewState extends State<_AppleGameV2Preview> {
                   key: Key('apple-home-score-burst'),
                   left: 88,
                   top: 132,
-                  child: Text(
+                  child: WordSafeText(
                     '+2',
                     style: TextStyle(
                       fontFamily: 'Galmuri',
@@ -5942,7 +8688,7 @@ class _AppleGameV2PreviewState extends State<_AppleGameV2Preview> {
                     ),
                   ),
                   child: Center(
-                    child: Text(
+                    child: WordSafeText(
                       caption,
                       key: const Key('apple-home-caption'),
                       style: TextStyle(
@@ -5979,7 +8725,7 @@ class _AppleHomeHudValue extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      Text(
+      WordSafeText(
         label,
         style: const TextStyle(
           fontFamily: 'Galmuri',
@@ -5990,7 +8736,7 @@ class _AppleHomeHudValue extends StatelessWidget {
       ),
       const SizedBox(height: 2),
       FittedBox(
-        child: Text(
+        child: WordSafeText(
           value,
           style: const TextStyle(
             fontFamily: 'Galmuri',
@@ -6037,7 +8783,7 @@ class _AppleHomeTile extends StatelessWidget {
           child: Center(
             child: Transform.translate(
               offset: const Offset(0, 4),
-              child: Text(
+              child: WordSafeText(
                 '$value',
                 style: const TextStyle(
                   fontFamily: 'Galmuri',
@@ -6234,7 +8980,7 @@ class _GravityTapCue extends StatelessWidget {
       children: [
         Icon(Icons.touch_app_rounded, color: AppColors.primary, size: 22),
         const SizedBox(width: 5),
-        Text(
+        WordSafeText(
           label,
           style: TextStyle(
             color: AppColors.text,
@@ -6371,7 +9117,7 @@ class _GravityGamePreviewState extends State<_GravityGamePreview> {
                 left: 0,
                 right: 0,
                 top: 16,
-                child: Text(
+                child: WordSafeText(
                   timer.toStringAsFixed(2),
                   key: const Key('gravity-home-time'),
                   textAlign: TextAlign.center,
