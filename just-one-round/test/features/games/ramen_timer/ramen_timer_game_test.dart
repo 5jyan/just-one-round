@@ -88,9 +88,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 2400));
     expect(game.resultRevealProgress, 1);
     expect(finishCount, 0);
-    await tester.pump(const Duration(milliseconds: 5500));
-    expect(finishCount, 0);
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 500));
     expect(finishCount, 1);
     expect(result!.score, 3599410);
     expect(result!.duration, const Duration(milliseconds: 29900));
@@ -99,6 +97,98 @@ void main() {
     expect(result!.endType, GameEndType.clear);
     await tester.pump(const Duration(seconds: 2));
     expect(finishCount, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('재료 연출 뒤에는 닫히고 마지막 탭은 열린 컵을 유지한다', (tester) async {
+    final clock = FakeRamenTimerClock();
+    final game = RamenTimerGame(
+      countdownDuration: Duration.zero,
+      clock: clock,
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+
+    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+    await _waitUntilLoaded(tester, game);
+
+    clock.setMilliseconds(10000);
+    await tester.pump();
+    game.triggerPrimaryAction();
+    expect(game.cupFrame, 1);
+    game.update(0.73);
+    expect(game.cupFrame, 0);
+
+    clock.setMilliseconds(20000);
+    game.triggerPrimaryAction();
+    expect(game.cupFrame, 2);
+    game.update(0.73);
+    expect(game.cupFrame, 0);
+
+    clock.setMilliseconds(30000);
+    game.triggerPrimaryAction();
+    expect(game.gamePhase, RamenTimerPhase.resultReveal);
+    expect(game.cupFrame, 3);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('첫 두 입력은 목표와의 오차만 2초 동안 공개한다', (tester) async {
+    final clock = FakeRamenTimerClock();
+    final game = RamenTimerGame(
+      countdownDuration: Duration.zero,
+      clock: clock,
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+
+    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+    await _waitUntilLoaded(tester, game);
+
+    clock.setMilliseconds(9820);
+    await tester.pump();
+    game.triggerPrimaryAction();
+    expect(game.checkpointFeedbackText, '-0.18초');
+    expect(game.hud.value.message, isNull);
+    game.update(1.99);
+    expect(game.checkpointFeedbackText, '-0.18초');
+    game.update(0.02);
+    expect(game.checkpointFeedbackText, isNull);
+
+    clock.setMilliseconds(20310);
+    game.triggerPrimaryAction();
+    expect(game.checkpointFeedbackText, '+0.31초');
+    game.update(2.01);
+    expect(game.checkpointFeedbackText, isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('완료 직후 중단해도 결과 콜백을 한 번만 보낸다', (tester) async {
+    final clock = FakeRamenTimerClock();
+    final results = <GameResult>[];
+    final game = RamenTimerGame(
+      countdownDuration: Duration.zero,
+      clock: clock,
+      onFinished: results.add,
+    );
+    addTearDown(game.disposeController);
+
+    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+    await _waitUntilLoaded(tester, game);
+    for (final milliseconds in [10000, 20000, 30000]) {
+      clock.setMilliseconds(milliseconds);
+      game.triggerPrimaryAction();
+    }
+
+    expect(game.gamePhase, RamenTimerPhase.resultReveal);
+    game.interrupt();
+    game.interrupt();
+
+    expect(game.gamePhase, RamenTimerPhase.finishedClear);
+    expect(results, hasLength(1));
+    expect(results.single.endType, GameEndType.clear);
+    expect(results.single.score, RamenTimerRules.rankingCeilingMilliseconds);
+    await tester.pump(const Duration(seconds: 3));
+    expect(results, hasLength(1));
     await tester.pumpWidget(const SizedBox.shrink());
   });
 

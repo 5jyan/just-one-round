@@ -6,13 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const assets = <String, (int, int, int, int)>{
-    'office_background.png': (180, 400, 1, 1),
-    'counter_front.png': (180, 72, 1, 1),
-    'raccoon_idle_sheet.png': (192, 48, 4, 1),
-    'raccoon_pose_atlas.png': (192, 96, 4, 2),
-    'ramen_cup_atlas.png': (128, 32, 4, 1),
-    'ramen_fx_atlas.png': (96, 64, 3, 2),
-    'ramen_result_atlas.png': (192, 64, 3, 1),
+    'office_background.png': (720, 1600, 1, 1),
+    'counter_front.png': (720, 288, 1, 1),
+    'raccoon_idle_sheet.png': (1024, 256, 4, 1),
+    'raccoon_pose_atlas.png': (1024, 512, 4, 2),
+    'ramen_cup_atlas.png': (1024, 256, 4, 1),
+    'ramen_fx_atlas.png': (768, 512, 3, 2),
+    'ramen_result_atlas.png': (768, 256, 3, 1),
   };
 
   test('runtime asset set is complete at the contracted dimensions', () async {
@@ -126,11 +126,26 @@ void main() {
                 File('$sourceRoot/runtime_manifest.json').readAsStringSync(),
               )
               as Map<String, dynamic>;
-      expect(manifest['version'], 2);
+      expect(manifest['version'], 3);
       expect(
         manifest['source_contract'],
-        'assets/source/imagegen/ramen_timer/ui_refresh_v2',
+        'assets/source/imagegen/ramen_timer/cartoon_refresh_v3',
       );
+      expect(manifest['pixel_filter'], 'medium');
+      expect(manifest['game_rules_version'], 4);
+      const cartoonRoot = '$sourceRoot/cartoon_refresh_v3';
+      for (final family in [
+        'master',
+        'background',
+        'idle',
+        'poses',
+        'cups',
+        'fx',
+      ]) {
+        expect(File('$cartoonRoot/$family/raw.png').existsSync(), isTrue);
+        expect(File('$cartoonRoot/$family/prompt.txt').existsSync(), isTrue);
+      }
+      expect(File('$cartoonRoot/pipeline-meta.json').existsSync(), isTrue);
     },
   );
 }

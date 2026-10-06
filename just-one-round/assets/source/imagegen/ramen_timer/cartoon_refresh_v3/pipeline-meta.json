@@ -1,0 +1,286 @@
+{
+  "version": 3,
+  "source_contract": "assets/source/imagegen/ramen_timer/cartoon_refresh_v3",
+  "runtime_root": "assets/images/ramen_timer",
+  "style": "clean_hd_2d_cartoon",
+  "approved_exception": "User approved replacing pixel art with crisp 2D cartoon on 2026-09-19.",
+  "pixel_filter": "medium",
+  "assembly_resampling": "LANCZOS",
+  "source_rectangles": {
+    "idle": [
+      [
+        58,
+        6,
+        593,
+        609
+      ],
+      [
+        665,
+        6,
+        1211,
+        609
+      ],
+      [
+        58,
+        635,
+        595,
+        1237
+      ],
+      [
+        666,
+        634,
+        1206,
+        1237
+      ]
+    ],
+    "poses": [
+      [
+        49,
+        9,
+        426,
+        434
+      ],
+      [
+        474,
+        11,
+        848,
+        436
+      ],
+      [
+        28,
+        449,
+        455,
+        862
+      ],
+      [
+        477,
+        449,
+        871,
+        862
+      ],
+      [
+        37,
+        877,
+        473,
+        1296
+      ],
+      [
+        477,
+        873,
+        867,
+        1297
+      ],
+      [
+        49,
+        1329,
+        415,
+        1749
+      ],
+      [
+        480,
+        1338,
+        836,
+        1748
+      ]
+    ],
+    "cups": [
+      [
+        173,
+        20,
+        455,
+        326
+      ],
+      [
+        696,
+        13,
+        974,
+        326
+      ],
+      [
+        173,
+        347,
+        457,
+        667
+      ],
+      [
+        694,
+        331,
+        1006,
+        667
+      ],
+      [
+        130,
+        674,
+        499,
+        1015
+      ],
+      [
+        702,
+        646,
+        1022,
+        1013
+      ],
+      [
+        174,
+        1036,
+        458,
+        1341
+      ],
+      [
+        692,
+        1036,
+        973,
+        1341
+      ]
+    ],
+    "fx": [
+      [
+        139,
+        72,
+        432,
+        475
+      ],
+      [
+        601,
+        102,
+        916,
+        494
+      ],
+      [
+        124,
+        539,
+        426,
+        951
+      ],
+      [
+        585,
+        589,
+        944,
+        931
+      ],
+      [
+        86,
+        1031,
+        439,
+        1376
+      ],
+      [
+        563,
+        1003,
+        930,
+        1440
+      ]
+    ]
+  },
+  "safe_core": [
+    0,
+    0,
+    360,
+    640
+  ],
+  "authored_overscan": [
+    0,
+    -80,
+    360,
+    800
+  ],
+  "game_rules_version": 4,
+  "assets": {
+    "office_background.png": {
+      "size": [
+        720,
+        1600
+      ],
+      "world_rect": [
+        0,
+        -80,
+        360,
+        800
+      ],
+      "reviewed_source_crop": [
+        53,
+        0,
+        788,
+        1633
+      ]
+    },
+    "counter_front.png": {
+      "size": [
+        720,
+        288
+      ],
+      "world_rect": [
+        0,
+        432,
+        360,
+        144
+      ]
+    },
+    "raccoon_idle_sheet.png": {
+      "size": [
+        1024,
+        256
+      ],
+      "layout": [
+        4,
+        1
+      ],
+      "cell_size": 256
+    },
+    "raccoon_pose_atlas.png": {
+      "size": [
+        1024,
+        512
+      ],
+      "layout": [
+        4,
+        2
+      ],
+      "cell_size": 256
+    },
+    "ramen_cup_atlas.png": {
+      "size": [
+        1024,
+        256
+      ],
+      "layout": [
+        4,
+        1
+      ],
+      "cell_size": 256
+    },
+    "ramen_fx_atlas.png": {
+      "size": [
+        768,
+        512
+      ],
+      "layout": [
+        3,
+        2
+      ],
+      "cell_size": 256
+    },
+    "ramen_result_atlas.png": {
+      "size": [
+        768,
+        256
+      ],
+      "layout": [
+        3,
+        1
+      ],
+      "cell_size": 256
+    }
+  },
+  "lid_print_edit": {
+    "source": "cartoon_refresh_v3/lid_print/corrected-raw.png",
+    "prompt": "cartoon_refresh_v3/lid_print/corrected-prompt.txt",
+    "text": "辛",
+    "layout": [
+      4,
+      1
+    ],
+    "cell_size": 256,
+    "method": "Built-in ImageGen; full-rim closed lid, silver undersides on peeled lids; process.py uses shared .43 scale and bottom244."
+  }
+}

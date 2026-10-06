@@ -1,15 +1,14 @@
 enum RamenTimerVerdict { perfect, tooEarly, tooLate }
 
 abstract final class RamenTimerRules {
-  static const rulesVersion = 3;
+  static const rulesVersion = 4;
   static const targetMilliseconds = <int>[10000, 20000, 30000];
+  static const culinaryActionLabels = <String>['파 넣기', '계란 넣기', '뚜껑 열기'];
   static const calibrationVisibleMilliseconds = 3000;
   static const inputUnlockMilliseconds = 3200;
   static const inputLockMilliseconds = 250;
-  static const clockPeekWindowsMilliseconds = <(int, int)>[
-    (12000, 13000),
-    (22000, 23000),
-  ];
+  static const ingredientEventMilliseconds = 720;
+  static const checkpointFeedbackMilliseconds = 2000;
   static const timeoutMilliseconds = 45000;
   static const rankingCeilingMilliseconds = 3600000;
   static const timeoutRankingScore = 0;
@@ -129,9 +128,22 @@ abstract final class RamenTimerRules {
   }
 
   static String formatSignedError(int signedErrorMilliseconds) {
-    if (signedErrorMilliseconds == 0) return '정확';
-    final direction = signedErrorMilliseconds < 0 ? '빠름' : '느림';
+    if (signedErrorMilliseconds == 0) return '정확!';
+    final direction = signedErrorMilliseconds < 0 ? '빠름' : '늦음';
     return '${formatMilliseconds(signedErrorMilliseconds)} $direction';
+  }
+
+  static String formatSignedDelta(int signedErrorMilliseconds) {
+    if (signedErrorMilliseconds == 0) return '±0.00초';
+    final sign = signedErrorMilliseconds > 0 ? '+' : '-';
+    return '$sign${formatMilliseconds(signedErrorMilliseconds)}';
+  }
+
+  static int signedErrorForTap(int tapIndex, int tapMilliseconds) {
+    if (tapIndex < 0 || tapIndex >= targetMilliseconds.length) {
+      throw RangeError.index(tapIndex, targetMilliseconds, 'tapIndex');
+    }
+    return quantizeMilliseconds(tapMilliseconds) - targetMilliseconds[tapIndex];
   }
 
   static String formatRankingScore(int score) {
@@ -144,13 +156,10 @@ abstract final class RamenTimerRules {
     return '${targetMilliseconds[safeIndex] ~/ 1000}초';
   }
 
-  static double clockPeekStrength(int elapsedMilliseconds) {
-    for (final (start, end) in clockPeekWindowsMilliseconds) {
-      if (elapsedMilliseconds < start || elapsedMilliseconds >= end) continue;
-      final progress = (elapsedMilliseconds - start) / (end - start);
-      return progress <= 0.5 ? progress * 2 : (1 - progress) * 2;
-    }
-    return 0;
+  static String culinaryActionLabelForTapCount(int tapCount) {
+    final safeIndex = tapCount.clamp(0, targetMilliseconds.length - 1);
+    return '${targetLabelForTapCount(safeIndex)} · '
+        '${culinaryActionLabels[safeIndex]}';
   }
 
   static void _checkTapCount(List<int> taps) {

@@ -60,8 +60,8 @@ class RamenTimerGame extends FlameGame
 
   static final logicalSize = Vector2(360, 640);
   static const maxVisibleHeight = 800.0;
-  static const resultTimelineRevealDuration = 2.3;
-  static const resultRevealDuration = 8.0;
+  static const resultTimelineRevealDuration = 1.5;
+  static const resultRevealDuration = 2.8;
 
   final ValueChanged<GameResult> onFinished;
   final Duration countdownDuration;
@@ -100,13 +100,11 @@ class RamenTimerGame extends FlameGame
   @override
   FlameGame get flameGame => this;
 
-  @visibleForTesting
   RamenTimerPhase get gamePhase => _phase;
 
   @visibleForTesting
   bool get assetsReady => _assetsReady;
 
-  @visibleForTesting
   List<int> get tapMilliseconds => List<int>.unmodifiable(_tapMilliseconds);
 
   @visibleForTesting
@@ -116,13 +114,41 @@ class RamenTimerGame extends FlameGame
   RamenTimerVerdict? get resultVerdict => _verdict;
 
   @visibleForTesting
+  int get cupFrame {
+    if (_phase == RamenTimerPhase.resultReveal ||
+        _tapMilliseconds.length >= 3) {
+      return 3;
+    }
+    final eventIndex = _eventTapIndex;
+    final eventActive =
+        eventIndex >= 0 &&
+        eventIndex < 2 &&
+        eventAge >= 0 &&
+        eventAge <= RamenTimerRules.ingredientEventMilliseconds / 1000;
+    return eventActive ? eventIndex + 1 : 0;
+  }
+
+  @visibleForTesting
   bool get canTap => _isWaitingPhase && _inputLockExpired;
 
   double get visualElapsed => _visualElapsed;
   double get eventAge => _visualElapsed - _eventStartedAt;
   int get eventTapIndex => _eventTapIndex;
+
   double get resultRevealProgress =>
       (_resultRevealElapsed / resultTimelineRevealDuration).clamp(0.0, 1.0);
+
+  String? get checkpointFeedbackText {
+    final index = _eventTapIndex;
+    if (index < 0 || index > 1 || index >= _tapMilliseconds.length) return null;
+    if (eventAge < 0 ||
+        eventAge >= RamenTimerRules.checkpointFeedbackMilliseconds / 1000) {
+      return null;
+    }
+    return RamenTimerRules.formatSignedDelta(
+      RamenTimerRules.signedErrorForTap(index, _tapMilliseconds[index]),
+    );
+  }
 
   bool get _isWaitingPhase => switch (_phase) {
     RamenTimerPhase.waitingFor10 ||
@@ -373,17 +399,18 @@ class RamenTimerGame extends FlameGame
       message: switch (_phase) {
         RamenTimerPhase.calibrationVisible => '1초 감각을 눈에 담으세요',
         RamenTimerPhase.clockCovering => '증기가 시계를 가렸어요',
-        RamenTimerPhase.waitingFor20 when eventAge < 1.2 => '파 투입! 다음은 20초',
-        RamenTimerPhase.waitingFor30 when eventAge < 1.2 => '계란 투입! 다음은 30초',
         RamenTimerPhase.finishedTimeout => '시간 초과',
         RamenTimerPhase.finishedClear => '조리 완료!',
         _ => null,
       },
       primaryActionEnabled: canTap,
       primaryActionLabel: switch (_phase) {
-        RamenTimerPhase.waitingFor10 => '10초 지금 찍기!',
-        RamenTimerPhase.waitingFor20 => '20초 지금 찍기!',
-        RamenTimerPhase.waitingFor30 => '30초 지금 찍기!',
+        RamenTimerPhase.waitingFor10 =>
+          RamenTimerRules.culinaryActionLabelForTapCount(0),
+        RamenTimerPhase.waitingFor20 =>
+          RamenTimerRules.culinaryActionLabelForTapCount(1),
+        RamenTimerPhase.waitingFor30 =>
+          RamenTimerRules.culinaryActionLabelForTapCount(2),
         RamenTimerPhase.resultReveal => '기록 확인 중',
         RamenTimerPhase.calibrationVisible ||
         RamenTimerPhase.clockCovering => '감각 익히는 중...',
@@ -395,6 +422,11 @@ class RamenTimerGame extends FlameGame
   @override
   void interrupt() {
     if (_hasFinished) return;
+    if (_phase == RamenTimerPhase.resultReveal &&
+        _tapMilliseconds.length == RamenTimerRules.targetMilliseconds.length) {
+      _finishClear();
+      return;
+    }
     _hasFinished = true;
     clock.stop();
     _phase = RamenTimerPhase.interrupted;
@@ -438,13 +470,13 @@ class _RamenTimerScene extends PositionComponent {
   final ui.Image ramenResult;
 
   final Paint _paint = Paint()
-    ..isAntiAlias = false
-    ..filterQuality = FilterQuality.none;
+    ..isAntiAlias = true
+    ..filterQuality = FilterQuality.medium;
 
-  static const _raccoonRect = Rect.fromLTWH(94, 330, 96, 96);
-  static const _cupRect = Rect.fromLTWH(202, 362, 64, 64);
-  static const _timerDisplayRect = Rect.fromLTWH(96, 153, 168, 39);
-
+  static const _raccoonRect = Rect.fromLTWH(30, 230, 190, 214);
+  static const _cupRect = Rect.fromLTWH(207, 340, 126, 126);
+  static const _cupContactShadowRect = Rect.fromLTWH(228, 454, 98, 14);
+  static const _timerDisplayRect = Rect.fromLTWH(94, 146, 172, 36);
   @override
   void render(Canvas canvas) {
     super.render(canvas);
@@ -461,6 +493,8 @@ class _RamenTimerScene extends PositionComponent {
     );
 
     _drawTimer(canvas);
+    _drawSteam(canvas);
+    _drawCheckpointFeedback(canvas);
     _drawRaccoon(canvas);
     canvas.drawImageRect(
       counter,
@@ -473,7 +507,6 @@ class _RamenTimerScene extends PositionComponent {
       Paint()..color = const Color(0xFF9CA9A0),
     );
     _drawCupAndEffects(canvas);
-    _drawSteam(canvas);
     if (game.gamePhase == RamenTimerPhase.resultReveal) {
       _drawResultTimeline(canvas);
     }
@@ -482,63 +515,60 @@ class _RamenTimerScene extends PositionComponent {
   void _drawTimer(Canvas canvas) {
     if (game.gamePhase == RamenTimerPhase.resultReveal) return;
     final panel = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(82, 128, 196, 92),
+      const Rect.fromLTWH(80, 120, 200, 88),
       const Radius.circular(4),
     );
     canvas.drawRRect(
       panel.shift(const Offset(4, 5)),
       Paint()..color = const Color(0xB3000710),
     );
-    canvas.drawRRect(panel, Paint()..color = const Color(0xFF13283B));
+    canvas.drawRRect(panel, Paint()..color = const Color(0xFFF0DEB2));
     canvas.drawRRect(
       panel,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3
-        ..color = const Color(0xFF37536A),
+        ..color = const Color(0xFF2C7473),
     );
 
     _text(
       canvas,
-      'RAMEN TIMER',
-      const Offset(180, 136),
-      color: const Color(0xFF91ABBA),
-      size: 10,
+      '조리 타이머',
+      const Offset(180, 127),
+      color: const Color(0xFF286563),
+      size: 11,
       anchor: Alignment.topCenter,
     );
 
     canvas.drawRect(
       _timerDisplayRect,
-      Paint()..color = const Color(0xFF081621),
+      Paint()..color = const Color(0xFF174B51),
     );
     canvas.drawRect(
       _timerDisplayRect,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2
-        ..color = const Color(0xFF29485B),
+        ..color = const Color(0xFF2C7473),
     );
 
     final elapsed = game.clock.elapsed.inMilliseconds;
     final visible = game.gamePhase == RamenTimerPhase.calibrationVisible;
-    final peekStrength = RamenTimerRules.clockPeekStrength(elapsed);
     final coverProgress = ((elapsed - 3000) / 360).clamp(0.0, 1.0);
-    final timer = visible || peekStrength > 0 || coverProgress < 1
+    final timer = visible || coverProgress < 1
         ? RamenTimerRules.formatMilliseconds(elapsed)
         : '??.??초';
     final timerColor = visible
         ? const Color(0xFFFFE18A)
-        : peekStrength > 0
-        ? const Color(0xFFFFE18A).withValues(alpha: 0.26 + peekStrength * 0.58)
         : coverProgress < 1
         ? const Color(0xFFFFE18A).withValues(alpha: 1 - coverProgress * 0.78)
         : const Color(0xFFCED7DB);
     _text(
       canvas,
       timer,
-      const Offset(180, 157),
+      const Offset(180, 149),
       color: timerColor,
-      size: 29,
+      size: 27,
       anchor: Alignment.topCenter,
     );
 
@@ -546,7 +576,7 @@ class _RamenTimerScene extends PositionComponent {
       final beat = (elapsed ~/ 1000).clamp(0, 3);
       for (var index = 0; index < 3; index++) {
         final active = index < beat;
-        final rect = Rect.fromLTWH(132 + index * 34, 201, 24, 8);
+        final rect = Rect.fromLTWH(132 + index * 34, 195, 24, 8);
         canvas.drawRect(
           rect,
           Paint()
@@ -571,11 +601,10 @@ class _RamenTimerScene extends PositionComponent {
 
     final steamElapsed =
         (elapsed - RamenTimerRules.calibrationVisibleMilliseconds) / 1000;
-    final peekStrength = RamenTimerRules.clockPeekStrength(elapsed);
     final coverProgress = (steamElapsed / 0.72).clamp(0.0, 1.0);
     final seedOffset = (game.challengeSeed.abs() % 97) / 97;
 
-    const targetXs = <double>[132, 158, 184, 212, 238, 172, 224];
+    const targetXs = <double>[148, 176, 204, 232, 218];
     for (var index = 0; index < targetXs.length; index++) {
       final lifetime = 1.28 + (index % 4) * 0.17;
       final rawProgress =
@@ -586,8 +615,8 @@ class _RamenTimerScene extends PositionComponent {
       final drift =
           math.sin((rawProgress + index * 0.41) * math.pi * 2) *
           (5 + index % 3 * 2);
-      final x = ui.lerpDouble(234, targetXs[index], rise)! + drift;
-      final y = ui.lerpDouble(374, 126 + (index % 3) * 10, rise)!;
+      final x = ui.lerpDouble(270, targetXs[index], rise)! + drift;
+      final y = ui.lerpDouble(416, 126 + (index % 3) * 10, rise)!;
       final size = ui.lerpDouble(22, 42 + (index % 2) * 6, rise)!;
       final fade = math.sin(progress * math.pi).clamp(0.0, 1.0);
       _drawFrame(
@@ -601,14 +630,13 @@ class _RamenTimerScene extends PositionComponent {
           width: size,
           height: size,
         ),
-        opacity: fade * (0.66 - peekStrength * 0.14),
+        opacity: fade * 0.66,
       );
     }
 
     canvas.save();
     canvas.clipRect(_timerDisplayRect.inflate(-2));
-    final veilAlpha =
-        coverProgress * (0.38 - peekStrength * 0.30).clamp(0.0, 1.0);
+    final veilAlpha = coverProgress * 0.38;
     canvas.drawRect(
       _timerDisplayRect,
       Paint()..color = const Color(0xFFD3DDD7).withValues(alpha: veilAlpha),
@@ -627,14 +655,15 @@ class _RamenTimerScene extends PositionComponent {
         Offset(x, y),
         radius,
         Paint()
-          ..isAntiAlias = false
+          ..isAntiAlias = true
+          ..filterQuality = FilterQuality.medium
           ..color = const Color(
             0xFFE7ECE8,
-          ).withValues(alpha: coverProgress * (0.28 - peekStrength * 0.22)),
+          ).withValues(alpha: coverProgress * 0.28),
       );
     }
 
-    for (var index = 0; index < 3; index++) {
+    for (var index = 0; index < 2; index++) {
       final drift =
           math.sin(
             (steamElapsed * (0.8 + index * 0.13) + index) * math.pi * 2,
@@ -652,10 +681,31 @@ class _RamenTimerScene extends PositionComponent {
           40,
           40,
         ),
-        opacity: coverProgress * (0.58 - peekStrength * 0.40),
+        opacity: coverProgress * 0.58,
       );
     }
     canvas.restore();
+  }
+
+  void _drawCheckpointFeedback(Canvas canvas) {
+    final feedback = game.checkpointFeedbackText;
+    if (feedback == null) return;
+    _text(
+      canvas,
+      feedback,
+      const Offset(181, 92),
+      color: const Color(0xFF321418),
+      size: 23,
+      anchor: Alignment.topCenter,
+    );
+    _text(
+      canvas,
+      feedback,
+      const Offset(180, 90),
+      color: const Color(0xFFFF5B57),
+      size: 23,
+      anchor: Alignment.topCenter,
+    );
   }
 
   void _drawRaccoon(Canvas canvas) {
@@ -704,6 +754,13 @@ class _RamenTimerScene extends PositionComponent {
   }
 
   void _drawCupAndEffects(Canvas canvas) {
+    canvas.drawOval(
+      _cupContactShadowRect,
+      Paint()
+        ..isAntiAlias = true
+        ..color = const Color(0x40000A0B),
+    );
+
     if (game.gamePhase == RamenTimerPhase.resultReveal) {
       final resultIndex = switch (game.resultVerdict) {
         RamenTimerVerdict.perfect => 0,
@@ -717,25 +774,32 @@ class _RamenTimerScene extends PositionComponent {
         columns: 3,
         rows: 1,
         frameIndex: resultIndex,
-        destination: const Rect.fromLTWH(196, 304, 128, 128),
+        destination: _cupRect,
       );
       return;
     }
 
-    final cupIndex = game.tapMilliseconds.length.clamp(0, 3);
     _drawFrame(
       canvas,
       ramenCup,
       columns: 4,
       rows: 1,
-      frameIndex: cupIndex,
+      frameIndex: game.cupFrame,
       destination: _cupRect,
     );
 
     final age = game.eventAge;
-    if (age < 0 || age > 0.58 || game.eventTapIndex > 1) return;
-    final progress = (age / 0.58).clamp(0.0, 1.0);
-    final y = ui.lerpDouble(286, 362, Curves.easeIn.transform(progress))!;
+    if (age < 0 ||
+        age > RamenTimerRules.ingredientEventMilliseconds / 1000 ||
+        game.eventTapIndex > 1) {
+      return;
+    }
+    final progress =
+        (age / (RamenTimerRules.ingredientEventMilliseconds / 1000)).clamp(
+          0.0,
+          1.0,
+        );
+    final y = ui.lerpDouble(310, 386, Curves.easeIn.transform(progress))!;
     _drawFrame(
       canvas,
       ramenFx,
@@ -743,7 +807,7 @@ class _RamenTimerScene extends PositionComponent {
       rows: 2,
       frameIndex: game.eventTapIndex == 0 ? 2 : 3,
       destination: Rect.fromCenter(
-        center: Offset(246, y),
+        center: Offset(270, y),
         width: 48,
         height: 48,
       ),
@@ -752,12 +816,11 @@ class _RamenTimerScene extends PositionComponent {
 
   void _drawResultTimeline(Canvas canvas) {
     final taps = game.tapMilliseconds;
-    if (taps.length != 3) return;
+    if (taps.length != RamenTimerRules.targetMilliseconds.length) return;
     final errors = RamenTimerRules.signedErrorsMilliseconds(taps);
-    final largest = RamenTimerRules.largestErrorIndex(taps);
-    final revealCount = (game.resultRevealProgress * 4.2).floor().clamp(0, 4);
+    final revealCount = (game.resultRevealProgress * 3.4).floor().clamp(0, 3);
     final panel = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(18, 84, 324, 222),
+      const Rect.fromLTWH(18, 84, 324, 202),
       const Radius.circular(6),
     );
     canvas.drawRRect(
@@ -774,104 +837,59 @@ class _RamenTimerScene extends PositionComponent {
     );
     _text(
       canvas,
-      '10·20·30 기록 공개',
+      '조리 기록표',
       const Offset(180, 98),
       color: const Color(0xFFFFDE78),
       size: 19,
       anchor: Alignment.topCenter,
     );
-
     _text(
       canvas,
-      '목표',
-      const Offset(42, 128),
+      '회차',
+      const Offset(40, 130),
       color: const Color(0xFF8EA9B8),
       size: 10,
     );
     _text(
       canvas,
-      '기록',
-      const Offset(180, 128),
-      color: const Color(0xFF8EA9B8),
-      size: 10,
-      anchor: Alignment.topCenter,
-    );
-    _text(
-      canvas,
-      '오차',
-      const Offset(326, 128),
+      '목표 대비 오차',
+      const Offset(322, 130),
       color: const Color(0xFF8EA9B8),
       size: 10,
       anchor: Alignment.topRight,
     );
     canvas.drawRect(
-      const Rect.fromLTWH(32, 143, 296, 2),
+      const Rect.fromLTWH(32, 145, 296, 2),
       Paint()..color = const Color(0xFF38576A),
     );
 
-    for (var index = 0; index < math.min(3, revealCount); index++) {
-      final y = 151.0 + index * 33;
-      if (index == largest) {
-        canvas.drawRect(
-          Rect.fromLTWH(32, y - 4, 296, 28),
-          Paint()..color = const Color(0xFF203F51),
-        );
-        canvas.drawRect(
-          Rect.fromLTWH(32, y - 4, 4, 28),
-          Paint()..color = const Color(0xFFFF9A72),
-        );
-      }
+    for (var index = 0; index < revealCount; index++) {
+      final y = 158.0 + index * 39;
       _text(
         canvas,
-        '${RamenTimerRules.targetMilliseconds[index] ~/ 1000}초',
-        Offset(42, y),
+        '${index + 1}차',
+        Offset(40, y),
         color: const Color(0xFFE9F0EC),
-        size: 14,
-      );
-      _text(
-        canvas,
-        RamenTimerRules.formatMilliseconds(taps[index]),
-        Offset(180, y),
-        color: const Color(0xFFFFF0B0),
-        size: 14,
-        anchor: Alignment.topCenter,
+        size: 15,
       );
       _text(
         canvas,
         RamenTimerRules.formatSignedError(errors[index]),
-        Offset(326, y),
+        Offset(322, y),
         color: errors[index] < 0
             ? const Color(0xFF6FD8D2)
             : errors[index] > 0
             ? const Color(0xFFFF8E79)
             : const Color(0xFFFFD86A),
-        size: 13,
+        size: 16,
         anchor: Alignment.topRight,
       );
-    }
-
-    if (revealCount >= 4) {
-      canvas.drawRect(
-        const Rect.fromLTWH(32, 249, 296, 2),
-        Paint()..color = const Color(0xFF38576A),
-      );
-      _text(
-        canvas,
-        '총 오차',
-        const Offset(42, 264),
-        color: const Color(0xFFB8C8CE),
-        size: 12,
-      );
-      _text(
-        canvas,
-        RamenTimerRules.formatMilliseconds(
-          RamenTimerRules.totalErrorMilliseconds(taps),
-        ),
-        const Offset(326, 257),
-        color: const Color(0xFFFFD45F),
-        size: 22,
-        anchor: Alignment.topRight,
-      );
+      if (index < 2) {
+        canvas.drawRect(
+          Rect.fromLTWH(32, y + 27, 296, 1),
+          Paint()..color = const Color(0xFF2D4A5B),
+        );
+      }
     }
   }
 
@@ -892,8 +910,8 @@ class _RamenTimerScene extends PositionComponent {
     final paint = opacity >= 0.999
         ? _paint
         : (Paint()
-            ..isAntiAlias = false
-            ..filterQuality = FilterQuality.none
+            ..isAntiAlias = true
+            ..filterQuality = FilterQuality.medium
             ..color = const Color(
               0xFFFFFFFF,
             ).withValues(alpha: opacity.clamp(0.0, 1.0)));

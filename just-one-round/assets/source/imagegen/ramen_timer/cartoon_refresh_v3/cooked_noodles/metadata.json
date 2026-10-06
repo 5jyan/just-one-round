@@ -1,0 +1,7 @@
+{
+  "edited_frame": 1,
+  "columns": 3,
+  "cell": 256,
+  "bottom_anchor": 244,
+  "processing": "Middle third crop, connected alpha cleanup, fit195x223 Lanczos. Preserve other runtime frames byte-for-byte."
+}

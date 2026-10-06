@@ -30,16 +30,17 @@ void main() {
     );
   });
 
-  testWidgets('steam thins enough to show the 12-second hint faintly', (
+  testWidgets('12.5 seconds stays hidden after tap feedback expires', (
     tester,
   ) async {
     await _renderRuntime(
       tester,
       size: const Size(360, 640),
-      captureName: 'runtime-smoke-peek-360x640.png',
+      captureName: 'runtime-no-automatic-peek-360x640.png',
       arrange: (clock, game) {
         clock.setMilliseconds(10000);
         game.triggerPrimaryAction();
+        game.update(2.01);
         clock.setMilliseconds(12500);
       },
     );
@@ -59,7 +60,7 @@ void main() {
     );
   });
 
-  testWidgets('three signed errors and total error are visible in result', (
+  testWidgets('three checkpoint errors are visible before ranking', (
     tester,
   ) async {
     await _renderRuntime(
@@ -97,7 +98,7 @@ void main() {
                 status: 'practice',
                 grantType: 'practice_ad',
                 gameId: 'ramen_timer',
-                gameVersion: 1,
+                gameVersion: 4,
                 gameDurationSeconds: 45,
               ),
               countdownDuration: Duration.zero,
@@ -125,7 +126,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 80));
 
     expect(find.byKey(const Key('ramen-timer-action-button')), findsOneWidget);
-    expect(find.text('10초 지금 찍기!'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('ramen-timer-action-button')),
+        matching: find.text('10초 · 파 넣기'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('다음 목표 · 10초'), findsNothing);
     expect(tester.takeException(), isNull);
     if (Platform.environment['CAPTURE_RAMEN_TIMER'] == '1') {
@@ -198,7 +205,7 @@ void main() {
             child: RamenTimerPreview(
               scene: RamenTimerPreviewScene.home,
               animate: false,
-              initialFrame: 45,
+              initialFrame: 41,
             ),
           ),
         ),
@@ -214,8 +221,15 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('ramen-timer-preview-result')), findsNothing);
-    expect(find.text('10초 지금 찍기!'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('ramen-timer-preview-demo-button')),
+        matching: find.text('30초·뚜껑 열기'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('??.??초'), findsOneWidget);
+    expect(find.text('+0.31초'), findsOneWidget);
     expect(tester.takeException(), isNull);
     if (Platform.environment['CAPTURE_RAMEN_TIMER'] == '1') {
       await expectLater(

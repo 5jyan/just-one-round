@@ -4,71 +4,114 @@ import 'package:just_one_round/features/games/ramen_timer/presentation/ramen_tim
 import 'package:just_one_round/features/games/ramen_timer/presentation/ramen_timer_preview.dart';
 
 void main() {
-  test('three guide pages cover every valuable-attempt rule', () {
+  test('three guide pages cover the approved valuable-attempt rules', () {
     final pages = ramenTimerPresentation.guidePages;
     final copy = pages
         .expand((page) => [page.title, page.description, page.detail])
         .join(' ');
 
     expect(pages, hasLength(3));
-    expect(pages.first.title, '10·20·30초에 찍기');
     expect(pages.first.visual.name, 'ramenCheckpoints');
-    expect(pages[1].title, '연기 사이 힌트 보기');
     expect(pages[1].visual.name, 'ramenCalibration');
+    expect(pages[2].visual.name, 'ramenResult');
+    expect(copy, contains('10초·파 넣기'));
+    expect(copy, contains('20초·계란 넣기'));
+    expect(copy, contains('30초·뚜껑 열기'));
     expect(copy, contains('처음 3초'));
     expect(copy, contains('3.2초'));
-    expect(copy, contains('12~13초'));
-    expect(copy, contains('22~23초'));
-    expect(copy, contains('10·20·30초'));
-    expect(copy, contains('마지막까지 알려주지 않아요'));
+    expect(copy, contains('목표보다 몇 초 빠르거나 늦었는지'));
+    expect(copy, isNot(contains('12~13초')));
+    expect(copy, isNot(contains('22~23초')));
     expect(copy, contains('세 기록'));
     expect(copy, contains('45초'));
-    expect(copy, contains('점수 없이 오늘 기회가 소진'));
+    expect(copy, contains('일시정지는 다시 이어도'));
+    expect(copy, contains('스톱워치가 계속 흐르고'));
+    expect(copy, contains('명시적 나가기는 미완료 시도로 끝나요'));
   });
 
-  test('home loop only teaches 1, 2, 3 and the first 10-second target', () {
-    final one = RamenTimerPreviewSnapshot.forFrame(0);
-    final two = RamenTimerPreviewSnapshot.forFrame(10);
-    final three = RamenTimerPreviewSnapshot.forFrame(20);
-    final covered = RamenTimerPreviewSnapshot.forFrame(40);
+  test('home loop derives the full recipe from one wrapped frame', () {
+    final initial = RamenTimerPreviewSnapshot.forFrame(0);
+    final clockVisible = RamenTimerPreviewSnapshot.forFrame(5);
+    final hiddenBeforeUnlock = RamenTimerPreviewSnapshot.forFrame(6);
+    final ready = RamenTimerPreviewSnapshot.forFrame(7);
+    final firstAction = RamenTimerPreviewSnapshot.forFrame(20);
+    final secondAction = RamenTimerPreviewSnapshot.forFrame(40);
+    final thirdAction = RamenTimerPreviewSnapshot.forFrame(60);
+    final result = RamenTimerPreviewSnapshot.forFrame(64);
 
-    expect(one.timerText, '1.00초');
-    expect(two.timerText, '2.00초');
-    expect(three.timerText, '3.00초');
-    expect(covered.clockCovered, isTrue);
-    expect(covered.smokeProgress, 1);
-    expect(covered.clockPeekStrength, 0);
-    expect(covered.timerText, '??.??초');
-    expect(covered.tapCount, 0);
-    expect(covered.resultVisible, isFalse);
-    expect(covered.ingredientFrame, -1);
+    expect(initial.elapsedMilliseconds, 0);
+    expect(initial.timerText, '0.00초');
+    expect(initial.clockCovered, isFalse);
+    expect(initial.inputReady, isFalse);
+    expect(initial.stageLabel, '10초·파 넣기');
+
+    expect(clockVisible.timerText, '2.50초');
+    expect(clockVisible.clockCovered, isFalse);
+    expect(hiddenBeforeUnlock.timerText, '??.??초');
+    expect(hiddenBeforeUnlock.clockCovered, isTrue);
+    expect(hiddenBeforeUnlock.inputReady, isFalse);
+    expect(ready.inputReady, isTrue);
+
+    expect(firstAction.tapCount, 1);
+    expect(firstAction.cupFrame, 1);
+    expect(firstAction.ingredientFrame, 2);
+    expect(firstAction.poseFrame, 2);
+    expect(firstAction.caption, '10초 · 파 넣기');
+    expect(RamenTimerPreviewSnapshot.forFrame(22).cupFrame, 0);
+    expect(secondAction.tapCount, 2);
+    expect(secondAction.cupFrame, 2);
+    expect(secondAction.ingredientFrame, 3);
+    expect(secondAction.poseFrame, 3);
+    expect(secondAction.caption, '20초 · 계란 넣기');
+    expect(RamenTimerPreviewSnapshot.forFrame(42).cupFrame, 0);
+    expect(thirdAction.tapCount, 3);
+    expect(thirdAction.cupFrame, 3);
+    expect(thirdAction.resultVisible, isFalse);
+    expect(thirdAction.poseFrame, 4);
+    expect(thirdAction.caption, '30초 · 뚜껑 열기');
+    expect(result.resultVisible, isTrue);
+    expect(result.tapCount, 3);
+    expect(result.cupFrame, 3);
+    expect(result.poseFrame, 5);
+    expect(result.caption, '세 오차를 더해요');
   });
 
-  test('guide keeps the faint 12-second smoke hint outside the home loop', () {
-    final hint = RamenTimerPreviewSnapshot.calibrationGuide;
+  test('each checkpoint shows only its signed error, then hides again', () {
+    final firstFeedback = RamenTimerPreviewSnapshot.forFrame(20);
+    final firstHidden = RamenTimerPreviewSnapshot.forFrame(24);
+    final secondFeedback = RamenTimerPreviewSnapshot.forFrame(40);
+    final secondHidden = RamenTimerPreviewSnapshot.forFrame(44);
 
-    expect(hint.clockCovered, isTrue);
-    expect(hint.smokeProgress, 1);
-    expect(hint.clockPeekStrength, 1);
-    expect(hint.timerText, '12.50초');
+    expect(firstFeedback.clockCovered, isTrue);
+    expect(firstFeedback.timerText, '??.??초');
+    expect(firstFeedback.checkpointDeltaText, '-0.18초');
+    expect(firstHidden.timerText, '??.??초');
+    expect(firstHidden.checkpointDeltaText, isNull);
+    expect(secondFeedback.timerText, '??.??초');
+    expect(secondFeedback.checkpointDeltaText, '+0.31초');
+    expect(secondHidden.timerText, '??.??초');
+    expect(secondHidden.checkpointDeltaText, isNull);
   });
 
   test('home loop resets every dependent state at the boundary', () {
-    final before = RamenTimerPreviewSnapshot.forFrame(59);
-    final after = RamenTimerPreviewSnapshot.forFrame(60);
+    final before = RamenTimerPreviewSnapshot.forFrame(79);
+    final after = RamenTimerPreviewSnapshot.forFrame(80);
 
-    expect(before.clockCovered, isTrue);
-    expect(before.smokeProgress, 1);
-    expect(before.timerText, '??.??초');
-    expect(before.resultVisible, isFalse);
-    expect(before.tapCount, 0);
+    expect(before.resultVisible, isTrue);
+    expect(before.tapCount, 3);
+    expect(after.frame, 0);
+    expect(after.elapsedMilliseconds, 0);
     expect(after.resultVisible, isFalse);
     expect(after.tapCount, 0);
     expect(after.poseFrame, -1);
     expect(after.ingredientFrame, -1);
     expect(after.clockCovered, isFalse);
     expect(after.smokeProgress, 0);
-    expect(after.timerText, '1.00초');
+    expect(after.timerText, '0.00초');
+    expect(
+      RamenTimerPreviewSnapshot.forFrame(160).frame,
+      RamenTimerPreviewSnapshot.forFrame(0).frame,
+    );
   });
 
   testWidgets('all guide scenes fit short and tall guide viewports', (
@@ -93,7 +136,7 @@ void main() {
     }
   });
 
-  testWidgets('home preview labels its compressed timing as a demo', (
+  testWidgets('home preview shows the compressed full-sequence label', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -104,7 +147,7 @@ void main() {
           child: RamenTimerPreview(
             scene: RamenTimerPreviewScene.home,
             animate: false,
-            initialFrame: 45,
+            initialFrame: 41,
           ),
         ),
       ),
@@ -116,8 +159,10 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('ramen-timer-preview-result')), findsNothing);
-    expect(find.text('10초 지금 찍기!'), findsOneWidget);
+    expect(find.text('30초·뚜껑 열기'), findsNWidgets(2));
+    expect(find.text('빠르게 보는 플레이 예시 · 실제 30초 압축'), findsOneWidget);
     expect(find.text('??.??초'), findsOneWidget);
+    expect(find.text('+0.31초'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

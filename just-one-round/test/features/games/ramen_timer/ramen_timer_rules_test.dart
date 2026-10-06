@@ -94,20 +94,27 @@ void main() {
     test('결과 포맷과 방향을 표시한다', () {
       expect(RamenTimerRules.formatRankingScore(0), '시간 초과');
       expect(RamenTimerRules.formatSignedError(-180), '0.18초 빠름');
-      expect(RamenTimerRules.formatSignedError(310), '0.31초 느림');
-      expect(RamenTimerRules.formatSignedError(0), '정확');
+      expect(RamenTimerRules.formatSignedError(310), '0.31초 늦음');
+      expect(RamenTimerRules.formatSignedError(0), '정확!');
+      expect(RamenTimerRules.formatSignedDelta(-180), '-0.18초');
+      expect(RamenTimerRules.formatSignedDelta(310), '+0.31초');
+      expect(RamenTimerRules.formatSignedDelta(0), '±0.00초');
     });
 
-    test('12~13초와 22~23초에만 시계가 부드럽게 희미해진다', () {
-      expect(RamenTimerRules.clockPeekStrength(11999), 0);
-      expect(RamenTimerRules.clockPeekStrength(12000), 0);
-      expect(RamenTimerRules.clockPeekStrength(12250), closeTo(0.5, 0.001));
-      expect(RamenTimerRules.clockPeekStrength(12500), 1);
-      expect(RamenTimerRules.clockPeekStrength(12750), closeTo(0.5, 0.001));
-      expect(RamenTimerRules.clockPeekStrength(13000), 0);
-      expect(RamenTimerRules.clockPeekStrength(22500), 1);
-      expect(RamenTimerRules.clockPeekStrength(23000), 0);
-      expect(RamenTimerRules.clockPeekStrength(30000), 0);
+    test('누적 목표와 조리 행동을 함께 표시한다', () {
+      expect(RamenTimerRules.culinaryActionLabelForTapCount(0), '10초 · 파 넣기');
+      expect(RamenTimerRules.culinaryActionLabelForTapCount(1), '20초 · 계란 넣기');
+      expect(RamenTimerRules.culinaryActionLabelForTapCount(2), '30초 · 뚜껑 열기');
+    });
+
+    test('각 입력의 누적 목표 대비 오차를 계산한다', () {
+      expect(RamenTimerRules.signedErrorForTap(0, 9820), -180);
+      expect(RamenTimerRules.signedErrorForTap(1, 20310), 310);
+      expect(RamenTimerRules.signedErrorForTap(2, 30000), 0);
+      expect(
+        () => RamenTimerRules.signedErrorForTap(3, 30000),
+        throwsRangeError,
+      );
     });
 
     test('완벽 범위를 벗어나면 최종 탭 방향으로 면 상태를 고른다', () {
