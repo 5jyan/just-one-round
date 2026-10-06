@@ -27,6 +27,9 @@
 - [기술 구조](docs/architecture.md)
 - [도트 UI/UX 방향](docs/design-system.md)
 - [개발 및 기기 검증](docs/development.md)
+- [Android 서명 및 배포 런북](docs/android-release.md)
+- [푸시 알림 일반 가이드](docs/PUSH_NOTIFICATIONS_GUIDE.md)
+- [프로젝트별 푸시 알림 설정](docs/PUSH_NOTIFICATIONS_SETUP.md)
 - [출시 체크리스트와 Shorebird OTA 규칙](docs/release-checklist.md)
 - [미결정 사항](docs/open-questions.md)
 
@@ -34,4 +37,4 @@
 
 첫 번째 미니게임 하나를 선택해 다음 흐름을 실제 기기에서 끝까지 실행한다.
 
-`앱 실행 → 익명 사용자 생성 → 오늘의 게임 → 한 판 플레이 → 점수 제출 → 오늘의 순위 → 광고 대체 버튼 → 추가 한 판`
+`앱 실행 → 익명 사용자 생성 → 무료 연습권 1장 → 오늘의 도전 → 점수 제출 → 오늘의 순위 → 선택형 광고 → 연습권 2장`

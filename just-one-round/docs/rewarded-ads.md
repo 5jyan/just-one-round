@@ -1,10 +1,13 @@
 # 보상형 광고 운영 가이드
 
-현재 구현은 AdMob 보상형 광고 한 종류만 사용한다. 사용자가 첫 판을 끝낸 뒤
-직접 버튼을 누른 경우에만 전체 화면 광고를 연다. 다음 보상형 광고는 게임
-플레이가 시작될 때 미리 불러오며, 광고를 끝까지 본 뒤 닫으면 SSV 완료를
-기다리지 않고 바로 다음 게임을 시작한다. 점수 제출 전에는 AdMob 서버 검증
-(SSV)을 백그라운드에서 확인하고, 검증된 세션만 실제 랭킹 시도로 확정한다.
+현재 구현은 AdMob 보상형 광고 한 종류만 사용한다. 사용자의 연습권이
+0장이 되면 `광고 보고 +2장` 버튼을 직접 누른 경우에만 전체 화면 광고를
+연다. 광고를 끝까지 본 뒤에는 게임을 자동으로 시작하지 않고, AdMob 서버
+검증(SSV)이 확인되면 당일 연습권 2장을 지급한다. 2장을 모두 사용해
+다시 0장이 되면 동일한 방식으로 반복 충전할 수 있다. 공식 도전은 하루 한 번
+무료로 제공하고, 완료 후 보상형 광고로 딱 한 판을 추가로 제공한다.
+이 광고 추가 도전까지 사용한 뒤에는 같은 도전 버튼에서 구매한 도전권을 보유량만큼 사용할 수 있다.
+상점에서는 별도의 보상형 광고를 하루 1회 보고 50코인을 받을 수 있다.
 
 ## 개발 상태
 
@@ -15,15 +18,18 @@
   - iOS 앱: `ca-app-pub-8518567556283844~1939296419`
   - iOS 보상형: `ca-app-pub-8518567556283844/8947557896`
 - 공식 테스트 광고 단위는 프로젝트의 SSV 주소를 설정할 수 없으므로 광고
-  화면까지만 확인할 수 있다. 보상 발급까지 확인하려면 실제 광고 단위를 만들고
-  해당 기기를 AdMob 테스트 기기로 등록해야 한다.
-- 광고는 앱 전체 음소거와 `PG` 콘텐츠 등급 제한으로 요청한다.
+  운영 SSV를 직접 보내지 않는다. 로컬 검증 DB에서는
+  `local_test_ad_verification_enabled` 서버 스위치가 켜져 있을 때만 디버그
+  클라이언트가 광고 완료를 로컬 SSV로 전환한다. 운영의 기본값은 항상
+  `false`이며 릴리스 빌드는 이 경로를 사용하지 않는다.
+- 광고는 `PG` 콘텐츠 등급 제한으로 요청한다. 앱 전체 음소거는 동영상 광고
+  적격성을 낮출 수 있으므로 사용하지 않는다.
 - UMP 동의 정보 갱신과 필요한 동의 화면을 거친 뒤에만 광고를 요청한다.
 
 ## AdMob에서 준비할 값
 
 1. Android/iOS 앱과 `보상형` 광고 단위는 등록되어 있다.
-2. 보상은 `extra_play`, 수량은 `1`로 설정되어 있다.
+2. 보상은 `practice_ticket`, 수량은 `2`로 설정한다.
 3. 사용자 경험을 위해 필수 동영상만 허용하고 광고 모음과 양방향 광고는
    사용하지 않는다.
 4. 운영 Android/iOS 광고 단위의 서버측 확인 URL은 운영 Edge Function으로
@@ -91,7 +97,7 @@ iOS 운영 앱 ID는 `ios/Flutter/Release.xcconfig`에, 개발용 테스트 앱 
 | 앱/서버 환경 | 앱의 `SUPABASE_URL` | AdMob SSV 콜백 |
 | --- | --- | --- |
 | 운영 | `https://yvowpyeoaexdrycgtyri.supabase.co` | `https://yvowpyeoaexdrycgtyri.supabase.co/functions/v1/admob-reward-callback` |
-| 로컬 iPhone 테스트 | `https://jor-api.shook.work` | `https://yvowpyeoaexdrycgtyri.supabase.co/functions/v1/admob-reward-callback/local` |
+| 로컬 iPhone 테스트 | `https://jor-api.shook.party` | `https://yvowpyeoaexdrycgtyri.supabase.co/functions/v1/admob-reward-callback/local` |
 
 AdMob 콘솔이 Cloudflare Tunnel 주소를 직접 확인하지 못할 수 있으므로, 로컬
 iPhone 테스트에서는 운영 Edge Function의 `/local` 경로를 사용한다. 이 경로는
@@ -101,7 +107,7 @@ iPhone 테스트에서는 운영 Edge Function의 `/local` 경로를 사용한�
 
 ```sh
 supabase secrets set \
-  ADMOB_LOCAL_CALLBACK_URL=https://jor-api.shook.work/functions/v1/admob-reward-callback
+  ADMOB_LOCAL_CALLBACK_URL=https://jor-api.shook.party/functions/v1/admob-reward-callback
 # 테스트 종료 후
 supabase secrets unset ADMOB_LOCAL_CALLBACK_URL
 ```
@@ -143,8 +149,9 @@ SSV 콜백은 Google 공개키의 ECDSA 서명을 확인하고, 다음 조건을
 - 광고 심사 센터를 주기적으로 확인하고 조잡하거나 오해를 유도하는 소재를
   차단한다.
 - 시작 단계에서는 미디에이션, 광고 포드, 보상형 전면 광고를 켜지 않는다.
-- 버튼 문구와 보상은 항상 명확하게 유지하고, 광고를 보지 않아도 기본 한 판은
-  온전히 즐길 수 있게 둔다.
+- 버튼 문구는 항상 `광고 보고 +2장`처럼 행동과 보상을 함께
+  표시하고, 광고를 보지 않아도 무료 연습 1회와 공식 도전 1회를 온전히 즐길
+  수 있게 둔다.
 
 ## 나중에 다른 광고사로 교체하기
 

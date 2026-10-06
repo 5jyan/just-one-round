@@ -8,7 +8,8 @@ Flutter 빌드나 Xcode Archive는 Shorebird 업데이트 런타임이 포함되
 
 ```sh
 # 새 스토어 기준 버전: 먼저 dry-run으로 검증
-shorebird release android --artifact aab \
+tool/with_android_signing.sh -- \
+  shorebird release android --artifact aab \
   --build-name <version-name> --build-number <version-code> --dry-run
 shorebird release ios \
   --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist --dry-run
@@ -23,6 +24,13 @@ shorebird release ios \
 네이티브 코드·Flutter 엔진·에셋 변경은 새 `shorebird release`와 스토어 업데이트가
 필요하다.
 
+Android 스토어 서명은 `android/key.properties`가 없어도 된다. 완전한 파일이 없으면
+프로젝트 전용 macOS Keychain 항목과 `android/app/upload-keystore.jks`를 자동으로
+사용한다. 상세 명령과 Play Console 대상 고정 규칙은
+[Android 서명 및 배포 런북](android-release.md)을 따른다.
+Dart-only Android OTA에서 Keychain 조회가 실패하면 해당 문서의
+`tool/with_shorebird_ota_signing.sh` 임시 서명 fallback을 사용한다.
+
 ## 공통 검사
 
 프로젝트의 한글 상위 경로에서 Flutter 3.44.7의 `flutter analyze`가 LSP JSON 파싱 오류를 낼 수 있다. 코드 정적 검사는 다음 명령을 사용한다.
@@ -31,6 +39,19 @@ shorebird release ios \
 dart analyze
 flutter test
 ```
+
+## 텍스트 줄바꿈 규칙
+
+앱에서 보이는 모든 문자열은 `Text` 대신
+`lib/shared/widgets/word_safe_text.dart`의 `WordSafeText`를 사용한다.
+기본 동작은 공백 기준으로 어절을 다음 줄로 넘기며, 한 어절이 화면보다
+긴 경우에도 잘라내거나 말줄임표를 붙이지 않고 해당 어절 안에서 안전하게
+줄바꿈한다. `TextOverflow.ellipsis`, `TextOverflow.clip`,
+`TextOverflow.fade`는 런타임 UI에서 사용하지 않는다.
+
+점수 HUD나 `FittedBox` 안의 버튼처럼 정말 한 줄이어야 하는 값만
+`singleLine: true`를 명시한다. 새 화면을 만들 때 이 규칙은
+`test/shared/widgets/text_wrapping_policy_test.dart`가 자동으로 검사한다.
 
 Android 및 iOS 빌드는 한글 경로에서도 정상 동작한다.
 
@@ -43,14 +64,19 @@ npm run supabase:reset
 
 iOS Simulator도 실제 Supabase 저장소를 사용하며, 기본값인 `http://127.0.0.1:54321`로 로컬 서버에 바로 연결한다. Android Emulator는 호스트 주소가 다르므로 실행할 때 지정한다.
 
+로컬 DB의 `app_runtime_config.local_test_ad_verification_enabled`를 켜면
+디버그 시뮬레이터에서 Google 테스트 광고 완료를 로컬 SSV로 검증한다.
+이 우회는 릴리스 빌드에서 비활성화되고, 서버 스위치의 기본값도
+`false`이다.
+
 ```sh
 flutter run -d <android-emulator-id> \
   --dart-define=SUPABASE_URL=http://10.0.2.2:54321
 ```
 
-실기기는 Mac의 같은 Wi-Fi LAN 주소를 `SUPABASE_URL`로 지정한다. 운영 빌드에서는 반드시 Supabase Cloud의 HTTPS 주소와 publishable key를 지정한다.
+실기기는 Mac의 같은 Wi-Fi LAN 주소를 `SUPABASE_URL`로 지정한다. 운영·프로필 빌드에서는 반드시 Supabase Cloud의 HTTPS 주소와 publishable key를 지정한다.
 
-별도 값을 전달하지 않은 디버그 빌드는 로컬 Supabase를 사용하고, 릴리스
+별도 값을 전달하지 않은 디버그 빌드는 로컬 Supabase를 사용하고, 릴리스·프로필
 빌드는 운영 프로젝트 `https://yvowpyeoaexdrycgtyri.supabase.co`와 코드에
 포함된 공개 publishable key를 자동 사용한다. 필요하면 기존
 `SUPABASE_URL`/`SUPABASE_ANON_KEY` dart-define으로 어느 빌드에서든 덮어쓸 수
@@ -65,8 +91,9 @@ Supabase 계정의 기록을 유지하면서 Kakao identity를 연결한다.
    번들 ID `com.justoneround.app`을 등록하고 Native app key를 발급한다.
 2. Kakao Login을 켜고 OpenID Connect와 `openid` 동의항목을 활성화한다.
 3. Supabase Dashboard의 Authentication > Providers > Kakao에 REST API key와
-   client secret을 등록하고, Authentication 설정에서 manual linking을 켠다.
-   로컬 Supabase는 `supabase/config.toml`에 이미 활성화되어 있다.
+   client secret을 등록하고 `Allow users without an email`을 켠다. Authentication
+   설정에서 manual linking도 켠다. 로컬 Supabase는
+   `supabase/config.toml`에 두 설정이 이미 활성화되어 있다.
 4. Kakao Developers의 Platform key에 표시된 custom scheme을
    `ios/Flutter/Debug.xcconfig`와 `ios/Flutter/Release.xcconfig`의
    `KAKAO_CUSTOM_SCHEME` 값에 넣는다.
@@ -86,12 +113,47 @@ Android는 두 dart-define 값을 빌드 manifest에 자동 반영한다. iOS는
 단, 이미 다른 Supabase 계정에 연결된 카카오 계정이면 해당 계정으로 전환하며
 새 익명 세션의 기록은 자동 병합하지 않는다.
 
-전날 플레이를 완료한 익명 계정이 다음 날 첫 판을 시작하려면 카카오 계정 연결이
-필수다. 연결하지 않은 상태에서는 홈의 기본 플레이 버튼이 프로필 화면을 열고,
-서버의 `claim_daily_attempt` RPC도 Kakao identity가 없으면 거부한다. 보상형 광고
-추가 플레이는 익명 계정에도 열려 있으며, `prepare_rewarded_ad`/
-`claim_rewarded_attempt` RPC는 Kakao 여부와 무관하게 AdMob 서버 검증과 일일
-시도 제한을 적용한다.
+카카오 계정 연결은 기기 변경 시 기록을 복원하기 위한 선택 기능이다. 미연결
+익명 계정도 기본 플레이와 보상형 광고 플레이를 동일하게 사용하며,
+`claim_daily_attempt`, `prepare_rewarded_ad`, `claim_rewarded_attempt` RPC는
+Kakao 연결 여부를 플레이 조건으로 검사하지 않는다.
+
+## 친구 초대 보상
+
+프로필의 `친구 초대하고 도전권 받기`는 Supabase에 사용자별로 한 번만
+생성되는 초대 코드를 `https://legal.shook.party/invite/<code>` 링크로
+공유한다. 링크를 받은 사용자는 앱을 설치하기 전에 웹 페이지에서 카카오로
+초대를 수락한다. 웹 페이지는 `accept_referral` RPC를 호출해 카카오 identity에
+초대를 연결하고, 설치 후 같은 카카오 계정을 앱 프로필에서 연결하면 해당
+Supabase 사용자 기록으로 복원된다.
+
+초대 보상은 링크 방문이나 앱 설치 시점에 지급하지 않는다. 초대받은 사용자의
+`daily_play_sessions.started_at`이 처음 기록되는 순간(연습 또는 도전) 서버
+트리거가 초대 상태를 완료로 바꾸고 초대한 사용자 프로필의
+`store_challenge_tickets`를 1장 증가시킨다. 초대받은 사용자 1명당 한 번만
+처리되며, 같은 시작 요청이 재전송돼도 중복 지급되지 않는다. 테스트 계정은
+보상 대상에서 제외한다. 수락 시 저장하는 카카오 identity 일방향 해시는
+Supabase 계정 삭제로 지워지지 않으므로, 같은 카카오 계정으로 다시 가입해도
+새 초대를 수락할 수 없다.
+
+운영 배포 전 다음 설정을 확인한다.
+
+1. 운영 Supabase에 `20260911000200_referral_invites.sql` 마이그레이션을
+   먼저 적용하고, `referral_invites_test.sql`의 핵심 수락·플레이·삭제 후 재가입
+   시나리오를 운영과 같은 권한으로 점검한다.
+2. 운영 Supabase Dashboard의 Authentication > URL Configuration > Redirect
+   URLs에 `https://legal.shook.party/invite/callback`과
+   `https://legal.shook.work/invite/callback`을 추가하고 Kakao provider를
+   활성화한다. 로컬 개발은 `http://127.0.0.1:3001/invite/callback`을 사용한다.
+3. `legal-site`를 `npm run build`로 빌드·배포한다. 다른 Supabase 프로젝트를
+   사용할 때는 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `NEXT_PUBLIC_IOS_STORE_URL`, `NEXT_PUBLIC_ANDROID_STORE_URL` 환경변수로
+   웹 기본값을 덮어쓴다. 배포 후 실제 초대 링크에서 Kakao 수락 화면과 앱 설치
+   버튼을 확인한다.
+
+웹·앱을 따로 설치해도 카카오 계정이 같으면 초대가 이어진다. 카카오 연결을
+하지 않은 익명 계정은 초대 수락 대상이 아니므로, 웹 완료 화면과 앱 프로필에서
+계정 연결 안내를 함께 표시한다.
 
 하드코딩된 미리보기 저장소가 필요할 때만 다음 플래그를 명시한다.
 
@@ -100,6 +162,14 @@ flutter run -d <device-id> --dart-define=USE_PREVIEW_REPOSITORY=true
 ```
 
 ## iOS Simulator
+
+시뮬레이터와 개인 iPhone은 [공용 개발 테스트 프로필](shared-test-profile.md)을
+사용한다. 일반 `flutter run` 대신 아래 래퍼를 사용하면 두 기기의 기록과
+개발자 게임 선택이 같은 Supabase 프로필로 유지된다.
+
+```sh
+tool/run_shared_test_profile.sh <device-id>
+```
 
 ```sh
 flutter build ios --simulator

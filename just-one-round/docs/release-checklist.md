@@ -1,12 +1,19 @@
 # 딱한판만 출시 체크리스트
 
-마지막 갱신: 2026-08-10
+마지막 갱신: 2026-08-27
 
 ## 필수 배포 규칙
 
 이 프로젝트의 스토어 배포 빌드는 반드시 Shorebird로 만든다. `shorebird.yaml`이
 있다고 해서 `flutter build`나 Xcode Archive에 Shorebird가 자동으로 적용되지는
 않는다.
+
+Android 서명은 [Android 서명 및 배포 런북](android-release.md)을 따른다.
+`android/key.properties`는 선택사항이며, 없는 경우 프로젝트 전용 macOS Keychain
+fallback을 자동 사용한다.
+
+Dart-only Android OTA에서 Keychain 조회가 실패하면
+`tool/with_shorebird_ota_signing.sh`의 실행 중 임시 서명 fallback을 사용한다.
 
 - Android 스토어 제출용 AAB는 반드시 `shorebird release android`로 생성한다.
 - iOS 스토어 제출용 IPA는 반드시 `shorebird release ios`로 생성한다.
@@ -24,7 +31,8 @@
 
 ```sh
 # 1. 스토어 기준 릴리스 검증
-shorebird release android --artifact aab \
+tool/with_android_signing.sh -- \
+  shorebird release android --artifact aab \
   --build-name <version-name> --build-number <version-code> --dry-run
 shorebird release ios \
   --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist --dry-run
@@ -33,7 +41,8 @@ shorebird release ios \
 # 3. Shorebird가 출력한 AAB/IPA만 각 스토어에 업로드
 
 # 4. 이후 Dart 코드만 변경된 경우 해당 기준 릴리스에 패치
-shorebird patch --platforms=android --release-version=<version-name>+<version-code>
+tool/with_android_signing.sh -- \
+  shorebird patch --platforms=android --release-version=<version-name>+<version-code>
 shorebird patch --platforms=ios \
   --release-version=<version-name>+<version-code> \
   --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist
@@ -46,13 +55,12 @@ shorebird patch --platforms=ios \
 ## Shorebird OTA
 
 - Shorebird 앱 ID: `3dd8845d-0de5-4362-b06a-ad463b923e54`
-- 현재 App Store 공개 릴리스: `1.0.6+11` (Shorebird, 2026-08-10 공개 확인)
+- 현재 OTA base release: `1.0.11+18` (2026-08-27 기준)
+- Android stable 최신 patch: `11` (build `621034`)
+- iOS stable 최신 patch: `12` (build `621044`)
 - Flutter 버전: `3.44.8`
-- 최신 Shorebird 기준 릴리스: Android `1.0.6+11`, iOS `1.0.6+11`
-- iOS 출시 릴리스: `1.0.6+11` (2026-08-10 App Store 공개 확인)
-- Android 내부 테스트 릴리스: `1.0.6+11` (Shorebird, 2026-08-09 Google Play 게시 확인)
-- Android 비공개 Alpha 릴리스: `1.0.6+11`
-  (2026-08-10 100% 출시 제출, Google 검토 중)
+- critical OTA 재시작 안내: 운영 비활성화 (2026-08-27)
+- 이전 스토어 공개 확인 기록: `1.0.6+11` (2026-08-10)
 - Android 검증용 AAB:
   `build/app/outputs/bundle/release/app-release.aab`
 - iOS 검증용 IPA: `build/ios/ipa/딱한판만.ipa`
@@ -61,18 +69,41 @@ shorebird patch --platforms=ios \
 플랫폼별로 다음 명령을 실행한다.
 
 ```sh
-upload_secret=$(security find-generic-password \
-  -a upload \
-  -s just-one-round-android-upload-key-20260731 \
-  -w)
-ANDROID_UPLOAD_STORE_PASSWORD="$upload_secret" \
-  shorebird patch --platforms=android --release-version=1.0.4+9
+tool/with_android_signing.sh -- \
+  shorebird patch --platforms=android --release-version=1.0.11+18
 
 shorebird patch \
   --platforms=ios \
-  --release-version=1.0.4+9 \
+  --release-version=1.0.11+18 \
   --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist
 ```
+
+Android Keychain 조회가 실패하고 변경이 Dart-only라면 Android 명령 대신 다음
+fallback을 사용한다.
+
+```sh
+tool/with_shorebird_ota_signing.sh -- \
+  shorebird patch --platforms=android \
+  --release-version=1.0.11+18 \
+  --track=stable --dry-run
+```
+
+dry-run 통과 후 `--dry-run`을 제거해 게시한다. 임시 키는 Play Console용 AAB나
+`shorebird release android`에 사용하지 않는다. 자세한 제한과 정리 동작은
+`docs/android-release.md`를 따른다.
+
+iOS와 Android를 함께 배포할 때는 동일한 base release와 `stable` track으로 두 플랫폼의
+dry-run을 먼저 끝낸다. iOS 코드서명이 불가능한 Dart-only patch는 다음처럼
+`--no-codesign`을 붙여 진행할 수 있다.
+
+```sh
+shorebird patch --platforms=ios \
+  --release-version=1.0.11+18 \
+  --export-options-plist=ios/ExportOptions-Shorebird-AppStore.plist \
+  --no-codesign --track=stable
+```
+
+두 dry-run이 모두 통과한 뒤에만 실제 Android/iOS patch를 각각 게시한다.
 
 네이티브 코드, Flutter 엔진, 새 파일을 포함한 에셋 변경은 OTA 대상이
 아니므로 버전과 빌드 번호를 올린 뒤 새 `shorebird release`와 스토어
@@ -89,9 +120,10 @@ shorebird patch \
 - [x] 운영자명 `Saul Park` 확정
 - [x] 공개 문의 이메일 `saulpark12@gmail.com` 반영
 - [x] `legal-site`의 운영자명과 문의 정보 치환
-- [x] 법적 문서 사이트를 `https://legal.shook.work`에 공개하고 앱의
+- [x] 법적 문서 사이트를 `https://legal.shook.party`에 공개하고 앱의
   기본 법적 문서 URL로 지정
-- [x] Android 업로드 키 생성 후 `android/key.properties` 작성
+- [x] Android 업로드 키 생성·검증 및 macOS Keychain fallback 자동화
+  (`android/key.properties`는 선택사항)
 - [ ] iOS·Android 앱 아이콘과 시작 화면을 실제 브랜드 이미지로 교체
 - [x] Xcode에서 Apple Distribution 인증서와 App Store 프로비저닝 프로파일
   생성
@@ -154,7 +186,7 @@ shorebird patch \
 
 - [x] 앱 설정에서 약관·개인정보처리방침·운영정책 접근
 - [x] 앱 안에서 익명 계정과 연결 데이터 삭제
-- [x] 닉네임 자동 필터, 신고, 사용자 차단
+- [x] 닉네임 자동 필터
 - [x] PIN 검증 없이 일반 사용자가 테스트 계정으로 승격할 수 있던 RPC 제거
 - [x] 설정의 버전 7회 터치와 서버 PIN 검증을 통과한 계정만 테스트 모드 활성화
 - [x] iOS 릴리즈 설정에서 개발용 로컬 네트워크 권한 제거
@@ -181,16 +213,14 @@ shorebird patch \
 - [x] Android/iOS `1.0.6+11` Shorebird dry-run 및 실제 릴리스 생성
 - [x] Android `1.0.6 (11)` 내부 테스트 게시 및 iOS `1.0.6 (11)` 심사 제출
 - [ ] 신규 설치 → 게임 → 광고 보상 → 점수 제출 확인
-- [ ] 닉네임 신고·차단 후 닉네임만 숨고 순위·비교 기록 수가 유지되는지 확인
 - [ ] 오전 6시 10분 이후 전날 NPC 포함 최종 결과가 한 번만 표시되는지 확인
 - [ ] 계정 삭제 후 Supabase Auth와 연결 데이터 삭제 확인
-- [ ] Kakao Login/OIDC와 Supabase manual linking 설정 확인
+- [ ] Kakao Login/OIDC, 이메일 없는 사용자 허용, Supabase manual linking 설정 확인
 - [ ] Android/iOS Native app key, package/bundle ID, custom scheme 설정 확인
-- [ ] 전날 플레이를 완료한 카카오 미연결 계정의 다음 날 기본 플레이가 프로필 연결 화면에서 차단되는지 확인
+- [ ] 전날 플레이를 완료한 카카오 미연결 계정도 다음 날 기본 플레이가 가능한지 확인
 - [ ] 카카오 미연결 계정도 광고 검증을 거쳐 두 번째 시도를 받을 수 있는지 확인
 - [ ] 개인정보 선택 메뉴가 필요한 지역에서 Google UMP 화면 확인
 - [ ] 공개 법적 문서 URL이 앱과 스토어 등록정보에서 모두 열리는지 확인
-- [ ] 신고 큐 운영 담당자와 확인 주기 지정
 
 ## 새 게임 출시 순서
 
