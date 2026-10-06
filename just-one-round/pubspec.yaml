@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.6+11
+version: 1.0.20+28
 
 environment:
   sdk: ^3.12.2
@@ -44,7 +44,11 @@ dependencies:
   shared_preferences: ^2.5.5
   google_mobile_ads: ^9.0.0
   kakao_flutter_sdk_user: ^2.0.0+1
+  share_plus: ^11.1.0
+  shorebird_code_push: ^2.0.7
   url_launcher: ^6.3.2
+  firebase_core: 4.13.0
+  firebase_messaging: 16.5.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +66,10 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # Firebase 11.x supports iOS 13, but its SwiftPM manifest mishandles this
+  # workspace's Unicode path. CocoaPods avoids that generated-path bug.
+  config:
+    enable-swift-package-manager: false
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -82,6 +90,58 @@ flutter:
     - assets/images/beat_the_dealer/
     - assets/images/ten_pitch_slugger/
     - assets/images/ramen_timer/
+    - assets/images/bathhouse_sort/
+    - assets/images/lily_frog/
+    - assets/images/net_boat/
+    - assets/images/mole_reaction/
+    - assets/images/western_duel/background/
+    - assets/images/wind_darts/pub_interior.png
+    - assets/images/wind_darts/board_face.png
+    - assets/images/wind_darts/board_numbers.png
+    - assets/images/wind_darts/dart_atlas.png
+    - assets/images/wind_darts/score_parchment.png
+    - assets/images/wind_darts/aim_gauge_frame.png
+    - assets/images/wind_darts/aim_gauge_fill.png
+    # Keep the original 56x80-cell preview art for existing guide snapshots.
+    - assets/images/western_duel/first_person/opponent_idle/
+    - assets/images/western_duel/first_person/opponent_draw_fire/
+    - assets/images/western_duel/first_person/opponent_hit_fall/
+    - assets/images/western_duel/first_person/opponent_idle_detail/
+    - assets/images/western_duel/first_person/opponent_draw_fire_detail/
+    - assets/images/western_duel/first_person/opponent_hit_fall_detail/
+    - assets/images/western_duel/first_person/player_foreground_master/
+    - assets/images/western_duel/first_person/player_action_recoil/
+    - assets/images/western_duel/first_person/opponent_idle_close/
+    - assets/images/western_duel/first_person/opponent_draw_fire_close/
+    - assets/images/western_duel/first_person/opponent_hit_fall_close/
+    - assets/images/western_duel/first_person/opponent_victory_v14/
+    - assets/images/western_duel/first_person/player_right_body_v3/
+    - assets/images/western_duel/first_person/player_right_hand_draw_v3/
+    - assets/images/western_duel/first_person/player_left_upperbody_draw_v4/
+    - assets/images/western_duel/first_person/player_full_body_draw_v5/
+    - assets/images/western_duel/first_person/player_pixel_action_v7/
+    - assets/images/western_duel/first_person/player_pixel_idle_v8/
+    - assets/images/western_duel/first_person/player_pixel_action_v8/
+    - assets/images/western_duel/first_person/player_detail_idle_v9/
+    - assets/images/western_duel/first_person/player_detail_action_v9/
+    - assets/images/western_duel/first_person/player_detail_action_v10/
+    - assets/images/western_duel/first_person/player_detail_idle_v11/
+    - assets/images/western_duel/first_person/player_detail_action_v11/
+    - assets/images/western_duel/first_person/player_forward_fall_v12/
+    - assets/images/western_duel/first_person/player_forward_fall_v13/
+    - assets/images/western_duel/first_person/player_victory_v14/
+    - assets/images/western_duel/first_person/player_upperbody_draw_v6/
+    - assets/images/western_duel/first_person/player_right_hand_wait/
+    - assets/images/western_duel/first_person/player_right_hand_draw/
+    - assets/images/western_duel/fx/muzzle_flash/
+    - assets/images/western_duel/fx/miss_dust/
+    - assets/images/western_duel/fx/hit_spark/
+    - assets/images/western_duel/fx/standoff_wind/
+    - assets/images/western_duel/fx/standoff_leaf/
+    - assets/images/western_duel/fx/victory_smoke_v14/
+    - assets/images/mole_reaction/high_res/
+    - assets/images/mole_reaction/high_res/01_honey/
+    - assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference/
     - assets/maps/
     - assets/maps/patterns/
     - shorebird.yaml

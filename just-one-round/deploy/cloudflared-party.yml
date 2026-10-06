@@ -1,0 +1,7 @@
+tunnel: e5f83923-5497-4cf4-bc5d-e33085666889
+credentials-file: /Users/saulpark/.cloudflared/e5f83923-5497-4cf4-bc5d-e33085666889.json
+
+ingress:
+  - hostname: jor-api.shook.party
+    service: http://127.0.0.1:54321
+  - service: http_status:404

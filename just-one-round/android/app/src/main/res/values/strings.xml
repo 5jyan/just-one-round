@@ -1,0 +1,5 @@
+<resources>
+    <string name="default_notification_channel_id">social_notifications</string>
+    <string name="social_notifications_channel_name">친구 알림</string>
+    <string name="social_notifications_channel_description">친구의 찌르기, 기록 자랑, 선물 알림</string>
+</resources>
