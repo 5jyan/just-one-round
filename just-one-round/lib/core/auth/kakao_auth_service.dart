@@ -146,8 +146,6 @@ class SupabaseKakaoAuthService implements KakaoAuthService {
       );
     }
 
-    await _makeAnonymousUserLinkable();
-
     try {
       await _client.auth.linkIdentityWithIdToken(
         provider: OAuthProvider.kakao,
@@ -169,24 +167,6 @@ class SupabaseKakaoAuthService implements KakaoAuthService {
       await _client.auth.getUser();
       return KakaoAccountLinkResult.signedIntoExistingAccount;
     }
-  }
-
-  Future<void> _makeAnonymousUserLinkable() async {
-    final user = _client.auth.currentUser;
-    if (user == null ||
-        !user.isAnonymous ||
-        (user.email?.isNotEmpty ?? false)) {
-      return;
-    }
-
-    // GoTrue's ID-token identity-linking path assumes the target user already
-    // has an email. Kakao personal apps cannot request account_email, so give
-    // the anonymous user an internal, confirmed placeholder first. This keeps
-    // the same Supabase user ID and prevents GoTrue from trying to send a
-    // confirmation email to an empty address.
-    await _client.auth.updateUser(
-      UserAttributes(email: 'anonymous-${user.id}@no-email.shook.invalid'),
-    );
   }
 
   String _platformErrorMessage(PlatformException error) {
