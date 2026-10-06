@@ -278,8 +278,9 @@ class GravitySwitchGame extends FlameGame
   }
 
   ({double floorTop, double ceilingBottom})? _supportAtPlayer() {
-    final left = playerX - _player.hitbox.width / 2;
-    final right = playerX + _player.hitbox.width / 2;
+    final hitbox = _player.hitbox;
+    final left = hitbox.left;
+    final right = hitbox.right;
     final supporting = _columns.where(
       (column) =>
           column.position.x < right &&
@@ -287,10 +288,18 @@ class GravitySwitchGame extends FlameGame
     );
     if (supporting.isEmpty) return null;
     return (
-      floorTop: supporting.map((column) => column.floorTop).reduce(min),
-      ceilingBottom: supporting
-          .map((column) => column.ceilingBottom)
-          .reduce(max),
+      floorTop: [
+        for (final column in supporting) column.floorTop,
+        for (final column in supporting)
+          for (final wall in column.interiorWalls)
+            if (hitbox.bottom <= wall.top) wall.top,
+      ].reduce(min),
+      ceilingBottom: [
+        for (final column in supporting) column.ceilingBottom,
+        for (final column in supporting)
+          for (final wall in column.interiorWalls)
+            if (hitbox.top >= wall.bottom) wall.bottom,
+      ].reduce(max),
     );
   }
 
@@ -299,6 +308,7 @@ class GravitySwitchGame extends FlameGame
     final column = _MazeColumn(
       floorTop: profile.floorTop,
       ceilingBottom: profile.ceilingBottom,
+      interiorWalls: profile.interiorWalls,
       columnWidth: _map.columnWidth,
       position: Vector2(x, 0),
       terrainIndex: _nextTerrainColumnIndex++,
@@ -560,6 +570,7 @@ class _MazeColumn extends PositionComponent {
   _MazeColumn({
     required this.floorTop,
     required this.ceilingBottom,
+    required this.interiorWalls,
     required this.columnWidth,
     required this.terrainIndex,
     required super.position,
@@ -570,6 +581,7 @@ class _MazeColumn extends PositionComponent {
 
   final double floorTop;
   final double ceilingBottom;
+  final List<GravityMapWall> interiorWalls;
   final double columnWidth;
   final int terrainIndex;
   bool wasPassed = false;
@@ -585,7 +597,15 @@ class _MazeColumn extends PositionComponent {
     );
     final ceilingRect = Rect.fromLTWH(x, 0, width, ceilingBottom);
     return floorRect.overlaps(player.hitbox) ||
-        ceilingRect.overlaps(player.hitbox);
+        ceilingRect.overlaps(player.hitbox) ||
+        interiorWalls.any(
+          (wall) => Rect.fromLTWH(
+            x,
+            wall.top,
+            width,
+            wall.bottom - wall.top,
+          ).overlaps(player.hitbox),
+        );
   }
 }
 
@@ -660,11 +680,18 @@ class _TerrainPlacement {
 }
 
 class _TerrainBlockLayout {
-  const _TerrainBlockLayout({required this.ceiling, required this.floor});
+  const _TerrainBlockLayout({
+    required this.ceiling,
+    required this.floor,
+    required this.interior,
+  });
 
   final List<_TerrainPlacement> ceiling;
   final List<_TerrainPlacement> floor;
+  final List<_TerrainPlacement> interior;
 }
+
+enum _TerrainLayer { ceiling, floor, interior }
 
 class _TerrainRenderer extends Component {
   _TerrainRenderer({required this.columns, required this.assets})
@@ -717,6 +744,12 @@ class _TerrainRenderer extends Component {
           ((anchorColumn.terrainIndex - blockStart) * _cell);
       _renderPlacements(canvas, layout.ceiling, blockX: blockX, ceiling: true);
       _renderPlacements(canvas, layout.floor, blockX: blockX, ceiling: false);
+      _renderPlacements(
+        canvas,
+        layout.interior,
+        blockX: blockX,
+        ceiling: false,
+      );
     }
   }
 
@@ -732,8 +765,9 @@ class _TerrainRenderer extends Component {
 
   _TerrainBlockLayout _buildLayout(int blockIndex, List<_MazeColumn> block) =>
       _TerrainBlockLayout(
-        ceiling: _pack(blockIndex, block, ceiling: true),
-        floor: _pack(blockIndex, block, ceiling: false),
+        ceiling: _pack(blockIndex, block, layer: _TerrainLayer.ceiling),
+        floor: _pack(blockIndex, block, layer: _TerrainLayer.floor),
+        interior: _pack(blockIndex, block, layer: _TerrainLayer.interior),
       );
 
   void _renderPlacements(
@@ -772,7 +806,7 @@ class _TerrainRenderer extends Component {
   List<_TerrainPlacement> _pack(
     int blockIndex,
     List<_MazeColumn> block, {
-    required bool ceiling,
+    required _TerrainLayer layer,
   }) {
     const rowCount = _maximumRow - _minimumRow + 1;
     final occupied = List.generate(
@@ -789,9 +823,13 @@ class _TerrainRenderer extends Component {
       for (var row = _minimumRow; row <= _maximumRow; row++) {
         final top = _gridOriginY + row * _cell;
         final bottom = top + _cell;
-        occupied[column][row - _minimumRow] = ceiling
-            ? bottom <= profile.ceilingBottom
-            : top >= profile.floorTop;
+        occupied[column][row - _minimumRow] = switch (layer) {
+          _TerrainLayer.ceiling => bottom <= profile.ceilingBottom,
+          _TerrainLayer.floor => top >= profile.floorTop,
+          _TerrainLayer.interior => profile.interiorWalls.any(
+            (wall) => wall.top <= top && wall.bottom >= bottom,
+          ),
+        };
       }
     }
 
@@ -839,7 +877,13 @@ class _TerrainRenderer extends Component {
             .toList();
         final chosenName = _usageBalancer.chooseLeastUsedAsset(
           assetNames: familyCandidates.map((asset) => asset.spec.name),
-          stableValue: _stableValue(blockIndex, row, column, family, ceiling),
+          stableValue: _stableValue(
+            blockIndex,
+            row,
+            column,
+            family,
+            layer == _TerrainLayer.ceiling,
+          ),
         );
         final chosen = familyCandidates.firstWhere(
           (asset) => asset.spec.name == chosenName,

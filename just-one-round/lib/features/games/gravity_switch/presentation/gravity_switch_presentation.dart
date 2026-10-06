@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const gravitySwitchPresentation = GamePresentationDefinition(
   id: 'gravity_switch',
-  loadingLabel: '고철 수집 중...',
   durationLabel: '최대 5분',
   guideDurationText: '최대 5분 동안 도전할 수 있어요.',
   homeAspectRatio: 0.78,

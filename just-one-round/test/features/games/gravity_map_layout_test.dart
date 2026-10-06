@@ -22,13 +22,23 @@ void main() {
 
     expect(layout.columnWidth, 48);
     expect(layout.initialColumnCount, 12);
-    expect(layout.patterns, hasLength(13));
+    expect(layout.patterns, hasLength(20));
     expect(layout.patterns.first.id, 'basic_easy');
     expect(layout.patterns.first.columns, hasLength(15));
 
     final v = layout.patterns.singleWhere((pattern) => pattern.id == 'v_easy');
     expect(v.unlockAfterSeconds, 0);
     expect(v.columns, hasLength(15));
+
+    final testPattern = layout.patterns.singleWhere(
+      (pattern) => pattern.id == 'test',
+    );
+    expect(testPattern.testOnly, isTrue);
+    expect(testPattern.isAvailableAt(0), isFalse);
+    expect(testPattern.columns[3].interiorWalls, isEmpty);
+    expect(testPattern.columns[4].interiorWalls, hasLength(1));
+    expect(testPattern.columns[4].interiorWalls.single.top, 320);
+    expect(testPattern.columns[4].interiorWalls.single.bottom, 368);
 
     void expectOnlyDifficulty(double elapsedSeconds, String difficulty) {
       final available = layout.patterns
@@ -48,7 +58,7 @@ void main() {
     expectOnlyDifficulty(75, 'hard');
   });
 
-  test('reports a floating wall in a visual grid', () {
+  test('reports a column with no open corridor', () {
     const source = '''
 {
   "cellSize": 48,
@@ -68,13 +78,13 @@ void main() {
     expect(
       () => GravityMapLayout.fromJsonString(
         source,
-        mapFiles: const {"patterns/broken.map": "□\n■\n□"},
+        mapFiles: const {"patterns/broken.map": "■\n■\n■"},
       ),
       throwsA(
         isA<FormatException>().having(
           (error) => error.message,
           'message',
-          contains('floating wall'),
+          contains('no open corridor'),
         ),
       ),
     );

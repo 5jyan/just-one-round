@@ -6,10 +6,19 @@ class GravityMapProfile {
   const GravityMapProfile({
     required this.floorTop,
     required this.ceilingBottom,
+    this.interiorWalls = const [],
   });
 
   final double floorTop;
   final double ceilingBottom;
+  final List<GravityMapWall> interiorWalls;
+}
+
+class GravityMapWall {
+  const GravityMapWall({required this.top, required this.bottom});
+
+  final double top;
+  final double bottom;
 }
 
 class GravityMapPattern {
@@ -20,13 +29,16 @@ class GravityMapPattern {
     required this.id,
     required this.unlockAfterSeconds,
     required this.columns,
+    this.testOnly = false,
   });
 
   final String id;
   final double unlockAfterSeconds;
   final List<GravityMapProfile> columns;
+  final bool testOnly;
 
   bool isAvailableAt(double elapsedSeconds) {
+    if (testOnly) return false;
     final tokens = id.split('_');
     if (tokens.contains('easy') && elapsedSeconds >= easyEndsAtSeconds) {
       return false;
@@ -44,6 +56,8 @@ class GravityMapPattern {
 }
 
 class GravityMapLayout {
+  static const maxGridRows = 12;
+
   const GravityMapLayout({
     required this.columnWidth,
     required this.initialProfile,
@@ -100,7 +114,6 @@ class GravityMapLayout {
     }
     final patterns = <GravityMapPattern>[];
     final ids = <String>{};
-    int? gridHeight;
     for (final raw in rawPatterns) {
       if (raw is! Map<String, dynamic>) {
         throw const FormatException('Every pattern must be an object.');
@@ -110,6 +123,10 @@ class GravityMapLayout {
         throw FormatException('Pattern id "$id" is empty or duplicated.');
       }
       final unlock = _nonNegativeNumber(raw, 'unlockAfterSeconds');
+      final testOnly = raw['testOnly'];
+      if (testOnly != null && testOnly is! bool) {
+        throw FormatException('Pattern "$id" testOnly must be a boolean.');
+      }
       final mapFile = raw['mapFile'];
       if (mapFile is! String || mapFile.isEmpty) {
         throw FormatException('Pattern "$id" needs a mapFile.');
@@ -120,14 +137,11 @@ class GravityMapLayout {
         throw FormatException('Pattern "$id" map file "$mapFile" is missing.');
       }
       final grid = _readMapRows(mapSource, patternId: id);
-      gridHeight ??= grid.length;
-      if (grid.length != gridHeight) {
-        throw FormatException('Pattern "$id" must have $gridHeight grid rows.');
-      }
       patterns.add(
         GravityMapPattern(
           id: id,
           unlockAfterSeconds: unlock,
+          testOnly: testOnly == true,
           columns: _parseGrid(
             grid,
             patternId: id,
@@ -138,9 +152,11 @@ class GravityMapLayout {
         ),
       );
     }
-    if (patterns.every((pattern) => pattern.unlockAfterSeconds > 0)) {
+    if (!patterns.any(
+      (pattern) => !pattern.testOnly && pattern.unlockAfterSeconds == 0,
+    )) {
       throw const FormatException(
-        'At least one pattern must unlock at 0 seconds.',
+        'At least one playable pattern must unlock at 0 seconds.',
       );
     }
 
@@ -190,6 +206,11 @@ class GravityMapLayout {
     required double baseCeilingHeight,
     required double baseFloorHeight,
   }) {
+    if (rows.length > maxGridRows) {
+      throw FormatException(
+        'Pattern "$patternId" may have at most $maxGridRows grid rows.',
+      );
+    }
     final width = rows.first.runes.length;
     if (width == 0 || rows.any((row) => row.runes.length != width)) {
       throw FormatException(
@@ -212,10 +233,19 @@ class GravityMapLayout {
       );
     }
 
+    final missingRows = maxGridRows - rows.length;
+    final topPadding = missingRows ~/ 2;
+    final solidRow = List.filled(width, wall).join();
+    final grid = [
+      for (var i = 0; i < topPadding; i++) solidRow,
+      ...rows,
+      for (var i = topPadding; i < missingRows; i++) solidRow,
+    ];
+
     final screenHeight =
-        baseCeilingHeight + (rows.length * cellSize) + baseFloorHeight;
+        baseCeilingHeight + (maxGridRows * cellSize) + baseFloorHeight;
     return List.generate(width, (column) {
-      final cells = rows
+      final cells = grid
           .map((row) => String.fromCharCode(row.runes.elementAt(column)))
           .toList(growable: false);
       var topWalls = 0;
@@ -227,15 +257,40 @@ class GravityMapLayout {
           cells[cells.length - 1 - bottomWalls] == wall) {
         bottomWalls++;
       }
+      final openEnd = cells.length - bottomWalls;
       if (topWalls + bottomWalls == cells.length ||
-          cells.sublist(topWalls, cells.length - bottomWalls).contains(wall)) {
+          cells.sublist(topWalls, openEnd).every((cell) => cell == wall)) {
         throw FormatException(
-          'Pattern "$patternId" column ${column + 1} has a floating wall or no open corridor.',
+          'Pattern "$patternId" column ${column + 1} has no open corridor.',
+        );
+      }
+      final interiorWalls = <GravityMapWall>[];
+      int? wallStart;
+      for (var row = topWalls; row < openEnd; row++) {
+        if (cells[row] == wall) {
+          wallStart ??= row;
+        } else if (wallStart != null) {
+          interiorWalls.add(
+            GravityMapWall(
+              top: baseCeilingHeight + wallStart * cellSize,
+              bottom: baseCeilingHeight + row * cellSize,
+            ),
+          );
+          wallStart = null;
+        }
+      }
+      if (wallStart != null) {
+        interiorWalls.add(
+          GravityMapWall(
+            top: baseCeilingHeight + wallStart * cellSize,
+            bottom: baseCeilingHeight + openEnd * cellSize,
+          ),
         );
       }
       return GravityMapProfile(
         floorTop: screenHeight - baseFloorHeight - (bottomWalls * cellSize),
         ceilingBottom: baseCeilingHeight + (topWalls * cellSize),
+        interiorWalls: interiorWalls,
       );
     }, growable: false);
   }

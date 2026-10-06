@@ -19,6 +19,10 @@ class GravitySwitchPreviewApp extends StatelessWidget {
         body: GameWidget(
           game: GravitySwitchGame(
             countdownDuration: Duration.zero,
+            captureConfig: const GravitySwitchCaptureConfig(
+              patternIds: ['test'],
+              tapAtSeconds: [2.0, 4.0],
+            ),
             onFinished: (_) {},
           ),
         ),
