@@ -1,0 +1,8 @@
+Built-in Image Gen, final palette correction from the accepted 2x2 golden lily source.
+
+Preserve the exact top-down lily silhouettes, V notches, veins, droplets,
+layout, pixel scale, and solid #FF00FF background. Render unmistakable polished
+24K gold: rich gold midtones, broad champagne highlights, small saturated
+golden-orange recesses, and dark brown only as a very thin contour. Avoid large
+brown, bronze, copper, lemon-yellow, green, cyan, blurred, or smooth areas.
+

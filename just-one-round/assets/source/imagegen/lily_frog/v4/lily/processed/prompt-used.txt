@@ -1,0 +1,7 @@
+Create a production-ready 3 rows × 4 columns sprite sheet of strict top-down lily pads for a portrait mobile frog game, using the supplied mobile game screenshot only as scale and silhouette inspiration and the supplied grid image only as a 3×4 layout guide.
+
+Every lily pad must be an almost-complete circular disc. Each leaf may have only one shallow V-shaped rim indentation, 12–18 degrees wide maximum and no deeper than the outermost 20% of the radius. The center must remain solid and continuous. Never create a Pac-Man wedge, radial center cut, heart shape, giant triangular missing sector, split leaf, cropped leaf, or cut-off edge. Keep every complete contour centered with safe rotation margin.
+
+Exactly 3 rows and 4 columns. Each row is a subtle circular silhouette and vein family; columns progress through small, medium, large, extra-large. Use crisp effective 2-pixel clusters, a dark teal-green contour, bright yellow-green upper-left highlights, cool deep-green lower-right shadows, strong radial veins, a waxy surface, and optional tiny water droplets. No blur, smear, painterly softness, or baked shadow.
+
+Solid flat #FF00FF background. No text, labels, UI, arrows, water, flowers, insects, borders, separators, shadows, or extra objects.

@@ -1,0 +1,1 @@
+Create a polished 2×2 hover loop for one readable top-down fly pickup. Preserve a dark blue-teal head and thorax, warm yellow abdomen, pale blue-gray wings, cream eyes, and crisp chunky clusters. The fly occupies about 58 percent of each cell and stays centered through four wing-flap phases. Use a flat #FF00FF background with safe margins and no detached effects.

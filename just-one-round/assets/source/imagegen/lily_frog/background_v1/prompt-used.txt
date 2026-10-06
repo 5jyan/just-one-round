@@ -1,0 +1,7 @@
+Create one finished opaque vertical pixel-art background for a top-down mobile game set on a quiet rural pond at blue hour. Use the shown marsh only as a reference for low-contrast teal mood and environmental detail density, and use the frog only to match the chunky apparent pixel size. Make a new distinct environment.
+
+Tall authored-overscan canvas corresponding to 180x480 source pixels displayed at 360x960. Strict top-down water surface throughout. The central 72% width is a clear low-contrast gameplay field with no large focal objects. Genuine continuous pond art fills every edge and all overscan; no flat padding, mirrored repetition, duplicated border rows, or empty bands.
+
+Water is deep blue-teal with broad irregular color clusters and sparse horizontal glints. Along the far margins only, include quiet submerged plant shadows, varied reeds, underwater stems, subtle fish shadows, and irregular tiny ripple motifs. Vary contour, scale, orientation, and spacing; avoid rows and wallpaper patterns. Keep the upper HUD region and central playfield quiet.
+
+No frog, lily pads, flies, boats, people, text, UI, shoreline, collision-bearing object, or bright focal landmark. Opaque chunky pixel art with restrained clusters and no fine noise or smoothing.

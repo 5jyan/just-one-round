@@ -1,0 +1,9 @@
+Create a raw 2D pixel-art animation sheet of the exact same frog identity shown in the reference.
+
+Identity lock: preserve the same green pear-shaped body, very long folded rear legs, tiny orange front toes, two protruding eyes looking slightly different directions, rigid straight mouth, exactly one pink cheek spot on the frog's left cheek, near-black teal outline, palette, pixel density, and intentionally awkward ugly-cute personality. Exactly four legs. No tail, horns, clothes, hat, accessories, new markings, shadows, or detached effects.
+
+View: same strict top-down / slightly readable top-down game-sprite view, frog facing straight upward. Action: four-frame jump sequence only: compact anticipation, rear legs extend in place, airborne body with legs trailing but contained, compact pre-landing pose. Read top-left, top-right, bottom-left, bottom-right. The body root stays centered; show movement through pose, never translate or zoom the frog across the cell.
+
+Layout: exactly 2 rows by 2 columns, four equal invisible cells, no borders, separators, labels, text, or UI. Same camera distance and anatomical scale as the reference in every frame. Full frog inside central 62% of each cell with generous margin. No limb touches a cell edge.
+
+Style: identical project-native chunky pixel art, crisp deliberate clusters, low detail, no smoothing. Background is 100% solid flat #FF00FF magenta, no gradient, texture, or transparency.

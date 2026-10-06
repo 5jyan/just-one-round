@@ -1,0 +1,13 @@
+Create a raw 2D pixel-art animation sheet for the main player of a Korean mobile minigame.
+
+Use the two shown project sprites only as style, pixel-density, silhouette-readability, outline, and ugly-cute character-language references. Do not copy either character.
+
+Subject: one small green frog seen from a strict top-down view, facing straight upward in every frame. It has a flattened pear-shaped body, comically overlong folded rear legs, tiny front feet, two protruding eyes that look in slightly different directions, a rigid overconfident straight mouth, and exactly one small pink cheek spot on its left cheek. Intentionally awkward and dopey but endearing. Exactly four legs, no tail, no horns, no clothes, no hat, no accessories, no unexplained bumps.
+
+Action: a four-frame continuous orbiting/scuttling loop. The frog's body root and optical center stay fixed while only the feet paddle and the body compresses very slightly. Frame order reads top-left, top-right, bottom-left, bottom-right and loops smoothly.
+
+Layout: exactly 2 rows by 2 columns, four equal invisible cells, no borders, no separators, no labels. Same frog identity, camera distance, anatomical scale, and center in all cells. Full body must remain inside the central 62% of each cell with generous empty margin on every side. Nothing may touch or cross a cell edge. No detached effects or shadows.
+
+Style: project-native chunky pixel art, crisp near-black teal 1-source-pixel outline, restrained 8–12 color palette, compact highlight and shadow clusters, cool upper-left pond light, low internal detail, deliberate pixels, no smoothing, no painterly texture.
+
+Background: 100% solid flat #FF00FF magenta across the entire image. No gradient, no texture, no transparency, no text, no UI.

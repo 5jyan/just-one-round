@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "lily-frog-v2",
+  "processing": {
+    "cell_size": 40,
+    "fit_scale": 0.88,
+    "trim_border": 4,
+    "edge_clean_depth": 3,
+    "align": "center",
+    "shared_scale": true,
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "component_padding": 8,
+    "min_component_area": 1,
+    "edge_touch_margin": 0
+  },
+  "output_origin": [
+    20.0,
+    20.0
+  ],
+  "reference": {
+    "target": "player",
+    "mode": "orbit",
+    "rows": 2,
+    "cols": 2,
+    "body_scale_mean": 0.49529785010631816,
+    "body_scale_cv": 0.005368118168062792,
+    "anchor_y_mean": 0.5034329563812601
+  },
+  "qc": {
+    "max_body_scale_drift": 0.1
+  }
+}

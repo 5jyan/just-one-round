@@ -1,0 +1,322 @@
+{
+  "frog": {
+    "path": "assets/images/lily_frog/frog_actions_atlas.png",
+    "size": [
+      224,
+      224
+    ],
+    "grid": [
+      4,
+      4
+    ],
+    "average_opaque_luminance": 137.02,
+    "palette": "deep emerald body, warm pale belly"
+  },
+  "lilies": {
+    "path": "assets/images/lily_frog/lily_pad_atlas.png",
+    "size": [
+      1280,
+      768
+    ],
+    "grid": [
+      3,
+      5
+    ],
+    "occupied_bounds": [
+      [
+        66,
+        66,
+        190,
+        189
+      ],
+      [
+        50,
+        51,
+        206,
+        205
+      ],
+      [
+        42,
+        43,
+        214,
+        213
+      ],
+      [
+        34,
+        35,
+        222,
+        221
+      ],
+      [
+        26,
+        27,
+        230,
+        228
+      ],
+      [
+        66,
+        66,
+        190,
+        189
+      ],
+      [
+        50,
+        51,
+        206,
+        205
+      ],
+      [
+        42,
+        43,
+        214,
+        213
+      ],
+      [
+        34,
+        35,
+        222,
+        221
+      ],
+      [
+        26,
+        28,
+        230,
+        228
+      ],
+      [
+        66,
+        66,
+        190,
+        189
+      ],
+      [
+        50,
+        51,
+        206,
+        205
+      ],
+      [
+        42,
+        43,
+        214,
+        213
+      ],
+      [
+        34,
+        35,
+        222,
+        221
+      ],
+      [
+        26,
+        27,
+        230,
+        227
+      ]
+    ],
+    "rotation_radii": [
+      63.044,
+      78.476,
+      86.536,
+      94.744,
+      102.9,
+      63.044,
+      78.476,
+      86.536,
+      94.744,
+      102.9,
+      63.044,
+      78.361,
+      86.675,
+      94.744,
+      102.774
+    ],
+    "source_bounds": [
+      [
+        100,
+        249,
+        518,
+        642
+      ],
+      [
+        676,
+        249,
+        1094,
+        642
+      ],
+      [
+        1252,
+        249,
+        1671,
+        642
+      ]
+    ],
+    "source_version": "v5",
+    "contour_cleanup": "inscribed-circle alpha trim",
+    "average_opaque_luminance": 210.23,
+    "palette": "pale yellow-green"
+  },
+  "golden_lilies": {
+    "path": "assets/images/lily_frog/golden_lily_pad_atlas.png",
+    "size": [
+      768,
+      256
+    ],
+    "grid": [
+      1,
+      3
+    ],
+    "occupied_display_diameter": 128,
+    "occupied_bounds": [
+      [
+        69,
+        69,
+        186,
+        187
+      ],
+      [
+        69,
+        67,
+        187,
+        188
+      ],
+      [
+        68,
+        67,
+        188,
+        188
+      ]
+    ],
+    "rotation_radii": [
+      62.502,
+      62.933,
+      62.901
+    ],
+    "source_version": "golden_lily_v1",
+    "palette": "polished 24K gold",
+    "average_opaque_rgb": [
+      230.84,
+      183.84,
+      35.67
+    ],
+    "average_opaque_luminance": 185.97
+  },
+  "fly": {
+    "path": "assets/images/lily_frog/fly_sheet.png",
+    "size": [
+      128,
+      32
+    ],
+    "frames": 4,
+    "subject_extent": 24,
+    "occupied_bounds": [
+      [
+        8,
+        7,
+        23,
+        25
+      ],
+      [
+        5,
+        11,
+        27,
+        21
+      ],
+      [
+        6,
+        8,
+        25,
+        23
+      ],
+      [
+        5,
+        10,
+        27,
+        21
+      ]
+    ]
+  },
+  "fly_collect_fx": {
+    "path": "assets/images/lily_frog/fly_collect_fx_atlas.png",
+    "size": [
+      320,
+      64
+    ],
+    "frames": 5,
+    "duration_ms": 280,
+    "occupied_bounds": [
+      [
+        22,
+        22,
+        41,
+        41
+      ],
+      [
+        11,
+        16,
+        52,
+        47
+      ],
+      [
+        9,
+        11,
+        55,
+        52
+      ],
+      [
+        21,
+        19,
+        43,
+        44
+      ],
+      [
+        22,
+        24,
+        42,
+        39
+      ]
+    ],
+    "anchor": "center"
+  },
+  "water_fx": {
+    "path": "assets/images/lily_frog/water_fx_atlas.png",
+    "size": [
+      256,
+      128
+    ],
+    "grid": [
+      2,
+      4
+    ]
+  },
+  "background": {
+    "path": "assets/images/lily_frog/pond_background.png",
+    "size": [
+      180,
+      480
+    ],
+    "source_crop": [
+      24,
+      0,
+      768,
+      1983
+    ],
+    "world_rect": [
+      0,
+      -160,
+      360,
+      960
+    ]
+  },
+  "art_pixel_world_size": 2,
+  "filter": "nearest-neighbor",
+  "approved_replacements": [
+    "frog_actions_atlas.png",
+    "lily_pad_atlas.png",
+    "golden_lily_pad_atlas.png",
+    "fly_sheet.png",
+    "fly_collect_fx_atlas.png",
+    "water_fx_atlas.png"
+  ],
+  "palette_luminance_gap": 73.21
+}

@@ -1,0 +1,1 @@
+Create a 2×2 strict top-down fly pickup loop matching the v3 frog and lily art. Golden body, navy-teal head, pale cyan wings, four wing positions, stable body scale and center, crisp effective 2-pixel clusters at final 32×32. Solid #FF00FF background, full containment, no extras.

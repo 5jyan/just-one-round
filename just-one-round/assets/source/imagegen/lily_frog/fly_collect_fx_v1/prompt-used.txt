@@ -1,0 +1,7 @@
+Built-in Image Gen, five-frame fly pickup burst on solid #FF00FF.
+
+Reading order in a 2x3 source grid: compressed fly/contact flash, winged
+yellow-white starburst, large golden pop, smaller amber spark cluster, fading
+gold-and-blue square sparks; the sixth cell remains empty. Project-native chunky
+pixel art, fixed center anchor, no blur, smoke, fire, text, or cell separators.
+

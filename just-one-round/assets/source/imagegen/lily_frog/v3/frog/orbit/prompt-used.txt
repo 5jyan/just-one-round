@@ -1,0 +1,5 @@
+Create a production-ready 2×2 orbit/idle animation grid for the main frog. Preserve the original identity only: yellow-green squat frog, wide cream eyes, tiny pupils, straight deadpan mouth, oversized hind legs, tiny forelegs, and exactly one pink cheek on viewer-right. Redesign at native 80×80 quality in the new lily-pad rendering language.
+
+Polished modern pixel-inspired sprite with deliberate effective 2-pixel clusters, dark teal contour, controlled layered greens, compact upper-left highlights, and no blur. Strict top-down/slight 3/4-from-above view. Frog always faces screen-up. Four subtle loop phases with tiny foreleg paddle, compression, eye shift, and rebound. Stable body center, anatomy, camera distance, and scale.
+
+Exactly 2×2 equal cells. Entire frog contained with generous magenta margin. Solid #FF00FF background. No text, borders, separators, shadows, water, lily pads, arrows, particles, or extra objects.

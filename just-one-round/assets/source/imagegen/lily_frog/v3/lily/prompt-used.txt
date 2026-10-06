@@ -1,0 +1,7 @@
+Create a production-ready 3 rows × 4 columns sprite sheet of strict top-down lily pads for a portrait mobile frog game. Use the provided layout guide only for 12 equal invisible slots, spacing, centering, and safe padding; never reproduce guide marks.
+
+Premium modern pixel-inspired 2D game art at final native display size: crisp deliberate effective 2-pixel clusters, dark teal-green contour, controlled green shading, warm yellow-green upper-left rim highlights, cool deep-green shadows, subtle waxy texture, strong radial veins, and a natural deep V notch. No blur, smear, painterly rendering, or baked shadow.
+
+Exactly 3 rows and 4 columns. Each row is one silhouette family; columns progress through small, medium, large, extra-large. Author every size separately. Keep every complete leaf centered with generous margin and safe under rotation. Row 1 classic round, row 2 broad heart-like, row 3 rugged round with subtle natural rim nicks.
+
+Background must be solid flat #FF00FF. No text, labels, UI, arrows, water, flowers, insects, borders, separators, shadows, or extra objects.

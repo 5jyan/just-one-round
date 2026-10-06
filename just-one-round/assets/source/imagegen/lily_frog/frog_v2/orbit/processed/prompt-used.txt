@@ -1,0 +1,9 @@
+Create a higher-quality 2×2 orbiting/scuttling animation grid for the established lily frog.
+
+Identity: a screen-up-facing green frog with a broad pear-shaped body, clearly separated long folded rear legs, tiny front feet, cream-rimmed mismatched eyes, a rigid straight mouth, and exactly one pink cheek mark on the frog's left cheek (viewer-right). Preserve the project's awkward, serious, dopey-cute character language.
+
+Frames: both feet tucked; left rear foot paddles outward; right rear foot paddles outward; both feet settle with subtle body squash. The body root and facing direction remain fixed.
+
+Use polished project-native chunky pixel art, a clean dark blue-teal outline, restrained green palette, coherent upper-left light, deliberate clusters, and no micro-noise. Keep the full frog inside the central safe area of four equal invisible cells. Use a flat #FF00FF background with no labels, borders, separators, shadows, effects, or extra objects.
+
+The accepted correction removes the viewer-left cheek mark, leaving exactly one viewer-right pink cheek in every frame.

@@ -1,0 +1,1 @@
+Create a 2×2 compact top-down belly-flop splash sequence: contact crown, radial splash, peak round crown, collapsed broken ring. Crisp cyan/turquoise/mint pixel-inspired clusters for final 64×64. Fixed origin, solid #FF00FF background, full containment, no extras.

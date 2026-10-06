@@ -1,0 +1,18 @@
+{
+  "authored_canvas": {"world_rect": [0, -160, 360, 960]},
+  "gameplay_safe_core": {"world_rect": [0, 0, 360, 640]},
+  "camera_center": [180, 320],
+  "layers": [
+    {
+      "name": "pond_background",
+      "world_rect": [0, -160, 360, 960],
+      "color": "#07384a"
+    }
+  ],
+  "collision_lines": [],
+  "viewports": [
+    {"name": "short", "size": [360, 640]},
+    {"name": "canonical", "size": [360, 720]},
+    {"name": "tall", "size": [360, 800]}
+  ]
+}

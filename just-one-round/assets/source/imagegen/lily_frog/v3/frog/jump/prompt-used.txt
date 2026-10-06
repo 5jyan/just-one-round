@@ -1,0 +1,1 @@
+Using the accepted v3 frog as the exact identity, palette, anatomy, camera, scale, and rendering reference, create a 2×2 screen-up jump sequence: load, leg extension, compact airborne pose, descending preparation. Pose changes only; no rotation, travel, effects, or zoom. Exactly one pink cheek on viewer-right. Solid #FF00FF background and complete containment.

@@ -1,0 +1,5 @@
+Create a raw 2D pixel-art animation sheet for one tiny fly pickup matching the shown frog's chunky project-native pixel scale and cool pond lighting.
+
+Exactly four frames in a 2 rows x 2 columns invisible grid. Same tiny fly identity in all frames: warm yellow oval abdomen, dark teal round head, two pale blue-gray wings, two tiny eyes, simple readable silhouette. Four-frame hovering wing-flap loop with a very small bob. No legs, trail, glow, shadow, text, UI, or detached particles.
+
+Same camera distance and scale in all cells. Fly occupies about 38% of each cell and stays centered with generous empty margin. Nothing touches or crosses a cell edge. No borders or separators. Background requested as solid flat #FF00FF magenta; generator returned equivalent transparent empty background. Crisp low-detail chunky pixel art with deliberate clusters and no smoothing.

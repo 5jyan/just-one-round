@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: raw source sheet for a mobile game's top-down rotating lily-pad sprites
+Primary request: create a fresh horizontal 3-column sprite sheet containing exactly three distinct complete lily pads, one centered in each equal column. The existing image is style and palette reference only; do not preserve its clipped silhouettes.
+Subject: three nearly circular lime-green lily pads seen strict top-down, each with one shallow narrow V-shaped notch (15–20 degrees), readable radial veins, chunky dew drops, and small controlled variation in vein layout and dew placement. Every silhouette must be a complete closed leaf shape except for the intentional shallow V notch.
+Style/medium: crisp slightly awkward cute chunky pixel art matching the reference's neon lime palette, dark teal/purple outline, simple highlights, and apparent 2x2 logical-pixel clusters. No smooth vector rendering and no fine noisy texture.
+Composition/framing: exact 3 columns in one row; one same-sized pad centered per column; each leaf occupies at most 68% of its column width and height; at least 16% empty padding on every side of every leaf; no subject may touch or cross a column boundary or image edge. All three leaves must be fully contained.
+Scene/backdrop: perfectly flat solid #FF00FF chroma-key background, one uniform color with no shadows, gradients, texture, reflections, floor plane, or lighting variation.
+Constraints: exactly three lily pads and nothing else; full uncut silhouettes; equal scale; strict top-down; shallow notch only; no labels, text, grid lines, borders, cell separators, cast shadows, water, frog, flowers, insects, or detached decoration. Do not use #FF00FF in the subjects.
+Avoid: straight cut-off edges, cropped discs, large missing wedges, deep Pac-Man mouths, edge contact, blur, antialiasing haze, photorealism, smooth vector gradients, watermark.
+
+Generation: built-in image_gen using assets/images/lily_frog/lily_pad_atlas.png as a style and palette reference only.
