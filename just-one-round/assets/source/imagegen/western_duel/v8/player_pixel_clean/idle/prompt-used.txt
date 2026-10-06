@@ -1,0 +1,31 @@
+Generate one 2 columns x 2 rows raw pixel-art animation sheet for the same Western Duel player cowboy shown in the reference images.
+
+Reference roles:
+- Image 1 is the accepted v8 identity/style master. Preserve this exact cowboy: broad brown hat, dark hair, partial right-facing bearded face, red/orange rolled-sleeve shirt, warm brown vest, brass bullet bandolier and belt, right-side leather holster with visible revolver grip, full trousers and boots.
+- Image 2 is a layout-only character anchor sheet made from the accepted master. Preserve its exact invisible 2x2 slot geometry, centered body root, standing-equivalent camera distance, subject scale, feet baseline, and generous padding. Do not reproduce visible boxes or guides.
+- Image 3 is the opponent's runtime style reference. Match its muted dark-brown/plum outline, restrained warm palette, chunky intentional clusters, and low texture density.
+
+Animation and frame order:
+- exactly four consecutive neutral idle frames, read left-to-right on row 1 then left-to-right on row 2.
+- frame 1 neutral ready stance.
+- frame 2 very small chest/shoulder rise and right-hand settling closer to the holster.
+- frame 3 subtle opposite breathing phase with a tiny hat/shoulder bob; feet and pelvis planted.
+- frame 4 returns toward neutral with a tiny hand/coat settling motion.
+- Make the loop readable but restrained, total loop about 0.56 seconds.
+- Change only the idle pose phase. Keep the same identity, camera, silhouette family, costume, holster, revolver, and body scale in every cell.
+- Keep the head and torso root fixed. Do not translate the whole body left/right. Both feet stay planted on one shared baseline.
+
+Pixel-art and cleanup contract:
+- clean intentional pixel art on a 2x2 logical-pixel grid, nearest-looking hard stepped contours, deliberately grouped clusters, restrained 24–32 color warm palette
+- no saturated magenta or purple fringe; use muted dark brown/plum outlines like the opponent
+- no blur, anti-aliasing, smoothing, painterly gradients, noisy microtexture, dithering, or high-frequency texture
+- no anatomy changes, no extra limbs, no missing fingers/feet, no amputated legs, no floating accessories
+- body-only sprite; no shadow, no glow, no detached FX, no muzzle flash, no dust
+
+Sheet and background:
+- exactly 2 columns x 2 rows, four equal portrait cells, no borders or separators
+- each cell is an invisible 270x540 portrait delivery slot (eventual display 540x1080 at integer 2x)
+- entire full-body character including hat, holster, revolver, boots fits in the central safe area of each cell with magenta margin on all four sides
+- solid flat #FF00FF background only
+- no text, labels, UI, speech bubbles, guide marks, boxes, borders, or visible template artifacts
+- do not crop or cut the legs in any cell; the runtime viewport will crop the intact sheet later

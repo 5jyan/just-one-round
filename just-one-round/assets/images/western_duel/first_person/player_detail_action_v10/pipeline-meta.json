@@ -1,0 +1,460 @@
+{
+  "variant": "player_detail_action_v10",
+  "source_batches": {
+    "a": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_a_draw_2x2_generated.png",
+      "sha256": "5df41380d77295cb119525aed494e299ae0376c1b2e53b119693fef6fd5dbe67"
+    },
+    "b": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_b_near_aim_2x2_generated.png",
+      "sha256": "6c7422e9a904356223792086c2c7a9ae3ace82ada1a290aa22c0dbc5b3590311"
+    },
+    "c": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_c_recoil_2x2_generated.png",
+      "sha256": "6e096c6d3e81aaf2fb78a3964a7cab02f28a2d8881eb40c9848cf9e3dc20d03c"
+    },
+    "d": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_d_recovery_2x2_generated.png",
+      "sha256": "1dd33ccd157530c8f46b88eddf0b6e1153e25ede7e177e22ed41b2398556ee09"
+    },
+    "e": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_e_draw_progression_2x2_generated.png",
+      "sha256": "9e5060c7fece2a2532f777fa3cdb1a7fe74351995f8d25e0efd6a9d0e5b56eb3"
+    },
+    "f": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_f_damped_return_2x2_generated.png",
+      "sha256": "43afc85f1a383d260d64aeb7b114357a0f225b89199b605c16c2a267dfad007b"
+    }
+  },
+  "source_master": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_idle_v9/frame_01.png",
+  "source_exact_aim": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_04.png",
+  "source_raw_sheet_size": [
+    887,
+    1774
+  ],
+  "source_raw_cell_size_approx": [
+    443.5,
+    887
+  ],
+  "runtime_static_body_source_size": [
+    540,
+    1080
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_size": [
+    540,
+    1080
+  ],
+  "display_size": [
+    540,
+    1080
+  ],
+  "display_scale": [
+    1,
+    1
+  ],
+  "filter": "nearest",
+  "frame_order": [
+    "ready",
+    "grip_tighten",
+    "draw_low",
+    "draw_mid",
+    "draw_high",
+    "near_aim",
+    "aim_settle",
+    "fire_exact_v9",
+    "recoil_1",
+    "recoil_2",
+    "recoil_3",
+    "recoil_4",
+    "return_1",
+    "return_2",
+    "return_3",
+    "return_stable"
+  ],
+  "frame_duration_ms": [
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40
+  ],
+  "fire_frame_index": 7,
+  "fire_frame_number": 8,
+  "body_root": "accepted_v9_master_fixed",
+  "composition": "ImageGen arm-and-revolver pixels composited over fixed v9 body; v9 aim reused exactly for frame 8",
+  "muzzle_contract": {
+    "aim_reference": [
+      410,
+      365
+    ],
+    "breech_reference": [
+      381,
+      404
+    ],
+    "direction": "compact diagonal lower-left to upper-right toward centered opponent",
+    "recoil_max_displacement_px": 10
+  },
+  "qc": {
+    "frame_count": 16,
+    "cell_size": [
+      540,
+      1080
+    ],
+    "grid": [
+      4,
+      4
+    ],
+    "source_labels": [
+      "v9_idle:1",
+      "a:2",
+      "e:1",
+      "e:2",
+      "a:3",
+      "a:4",
+      "b:3",
+      "v9_aim:1",
+      "c:2",
+      "f:3",
+      "f:4",
+      "d:2",
+      "d:3",
+      "d:4",
+      "b:4",
+      "f:4"
+    ],
+    "delivery_bboxes": [
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        432,
+        1040
+      ],
+      [
+        115,
+        306,
+        430,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ],
+      [
+        115,
+        306,
+        424,
+        1040
+      ]
+    ],
+    "body_root_bboxes": [
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ],
+      [
+        115,
+        306,
+        410,
+        1040
+      ]
+    ],
+    "body_root_head_y": [
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306
+    ],
+    "body_root_feet_y": [
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040
+    ],
+    "empty_frames": [],
+    "output_edge_touch_frames": [],
+    "pose_transforms_xy": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        -10,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        -15,
+        0
+      ],
+      [
+        -18,
+        -2
+      ],
+      [
+        -25,
+        -3
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        -35,
+        0
+      ],
+      [
+        -36,
+        -8
+      ],
+      [
+        -37,
+        -8
+      ],
+      [
+        -42,
+        -5
+      ],
+      [
+        -46,
+        -7
+      ],
+      [
+        -39,
+        -7
+      ],
+      [
+        -29,
+        -7
+      ],
+      [
+        -37,
+        -12
+      ]
+    ]
+  },
+  "frame_sha256": [
+    "0409ea03bc6ff6416267b24b2f1d23e8ce393312cb2677856a405fb5fa8e00cf",
+    "e2a5c301f4c4e63e5d2a3a200fb0ddd1eea45eeaf800033b51483b9e26d7e3fa",
+    "ca369482f49d0c113d97202cd9b4c8ac30bcbd96dc5f97b37d43bab1bcd7361d",
+    "7285916678841bd029c8a73ce1ca919de1a6e29dc34fae1438765158e7b1ef69",
+    "a9338dc011d9a221b38bd235307916f8c8babe9b57e1305335989ba987fd7bc1",
+    "9a3557368bcb825ef787e8f4575056d19a031c91d2cb68c8d000f33efabf9af0",
+    "2aafd7fbf6418b060cd5b154c84d2ae38700fed2e9394eb31a5e465b44f0cc0a",
+    "3b08ee4d9d8a35dd9024a724f04a2726179f774b01ecdf2310316471ad9e9f06",
+    "7c82746f8ab5c09f39ceda49c35ec253fd5d621625d112a17928cfe648541521",
+    "06f88312545ff39bc02c2a1fa4e24ead81a2c3c088b72a1f19cb2e19611328bf",
+    "c172eb19a6d69970fff18dc3144c48040d310bab48bfe5db5aaeccb23993b564",
+    "21754240bebaaba7e5980432710677a56894ac4cadd57c28c2dac8dedc7f52d8",
+    "0dc69dad003dbd20d48b630007fb1c282723d1f1552a1b07e8b35a4b7357064b",
+    "352d2765102d8ec2e78a6b4b1eb8111657ed3593644368871f19df2ead5643b9",
+    "01fdfae2dd239551b2d69976ae01ec77cb84026e8ebc44be430e2657a3c991b5",
+    "4e16c0c84d52d45e514e1a511f60bd94046e3c3f28e9bd08b5440ca813066a5c"
+  ],
+  "unique_frame_count": 16
+}

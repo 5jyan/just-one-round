@@ -1,0 +1,58 @@
+{
+  "input": "assets/source/imagegen/western_duel/v3/player_right_body/raw-generated.png",
+  "source_sheet_size": [
+    941,
+    1672
+  ],
+  "grid": [
+    1,
+    1
+  ],
+  "cell_size": [
+    80,
+    240
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "alpha_threshold": 8,
+  "fit": 0.9,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        236,
+        115,
+        711,
+        1573
+      ],
+      "source_subject_size": [
+        475,
+        1458
+      ],
+      "output_bbox": [
+        5,
+        22,
+        75,
+        238
+      ],
+      "output_subject_size": [
+        70,
+        216
+      ],
+      "scale": 0.14814814814814814,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        0
+      ],
+      "output": "frame_01.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 1,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

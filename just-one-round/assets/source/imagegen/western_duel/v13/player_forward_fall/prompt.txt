@@ -1,0 +1,16 @@
+Use case: identity-preserve.
+Asset type: detailed pixel-art cowboy death sprite animation, one continuous 8-frame action.
+Use the images just shown as visual references. Image 1 is the exact accepted identity, proportions, brown hat, dark hair/beard, orange rolled-sleeve shirt, stitched tan leather vest, brass cartridge belt, brown trousers/boots and holster. Image 2 only confirms the same right shoulder and revolver; do not shoot in this sheet.
+Exact grid: FOUR columns, TWO rows, EIGHT equal portrait 1:2 cells, square whole canvas. Read chronological frames left-to-right, then down. Flat solid magenta #FF00FF background, no gradients, labels, borders, text or separators.
+Same rear three-quarter camera, facing RIGHT and away slightly into depth. Keep the exact crisp pixel clusters, leather stitching and shading quality from the reference. Fixed camera distance and identical anatomical scale across all frames: head/hat dimensions, shoulder width, arm thickness and leg thickness MUST NOT grow when kneeling or fallen. Do not zoom any pose. The upright first body fills 68% of cell height, boots near96% cell height and hat near28%, body root nearcenter. Later poses descend naturally into the lower cell, never enlarge to fill available space.
+This is a lifeless death collapse, NOT crawling, pushups, or a tactical prone pose. BOTH HANDS NEVER REACH FORWARD TO BRACE THE FLOOR. Arms are limp, drifting BACKWARD toward his rear/hips (LEFT relative to facing RIGHT), palms relaxed; shoulders and arms remain naturally attached.
+Eight poses:
+1. Standing, sudden weakness, right hand near hip.
+2. Knees buckle, shoulders sag, arms loosen downward/back.
+3. Dropping onto both knees, torso still mostly upright, hands trailing beside and slightly behind hips.
+4. Both knees touch ground, sitting low on heels, torso slumps slightly forward, BOTH arms hanging behind the torso; no hand touching floor in front.
+5. Almost the same kneeling pose, a short helpless pause with head dipping and arms settling backward.
+6. Torso tips forward from knees, gravity pulls chest/head toward ground; loose arms trail behind hips, not in front of face.
+7. Chest lands forward face-down, knees/legs folded naturally into depth, both arms along/back of body, hands behind shoulders toward hips.
+8. Settled dead face-down, head/hat toward RIGHT, limp arms backward alongside torso, fingers near hips, absolutely no hands under or ahead of head. Hat remains on.
+Make the brief knees-first pause unambiguous in frames4-5, followed by the forward flop in6-8. Maintain a modest, compact silhouette and foreshortened depth so complete body fits portrait slots; do not spread arms sideways or make prone torso extra wide. Whole subject fully inside every cell with magenta margins on all4sides (at least8% horizontal); no clipped feet, hands, hat or weapon, no neighboring-cell overlap. No blood, muzzleflash, smoke, dust, scenery, ground, shadow or detached effects. Same single cowboy in all8cells.

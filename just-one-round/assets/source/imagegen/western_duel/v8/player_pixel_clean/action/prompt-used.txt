@@ -1,0 +1,33 @@
+Generate one 3 columns x 2 rows raw pixel-art body animation sheet for the same Western Duel player cowboy shown in the reference images.
+
+Reference roles:
+- Image 1 is the accepted v8 identity/style master. Preserve the same cowboy, costume, face direction, holster, revolver, full trousers, boots, silhouette, palette, and cluster language.
+- Image 2 is a layout-only 3x2 character anchor sheet. Preserve its invisible cell positions, camera distance, body scale, body root, feet line, and padding. Do not reproduce guide marks.
+- Image 3 is the opponent runtime style reference. Match its muted dark-brown/plum outline and restrained warm pixel clusters.
+
+Exact frame order, left-to-right row 1 then row 2:
+1 ready: neutral, right hand beside holster
+2 grip: hand closed on holster grip, gun still seated
+3 draw: gun leaving holster, elbow close to body
+4 aim: arm extends horizontally toward screen-right
+5 fire: same horizontal aim, barrel clearly visible
+6 recoil: arm and shoulder kick back slightly, lower body planted
+
+Critical geometry:
+- This is one continuous body-only quick-draw action, not unrelated designs.
+- Keep full-body subject height and torso/head scale identical to the anchor in every cell. Keep hat, head, pelvis, knees, boots, and feet on one shared root/baseline.
+- The revolver remains attached and must stay within the central 60% of the cell. In frames 4, 5, and 6, the complete gun barrel and muzzle must have at least 12% solid magenta margin to the right cell edge. Do not let the gun, hand, hat, boots, or any limb touch a cell edge.
+- Make horizontal aim by bending/settling the elbow and forearm inside the safe area; do not zoom the body down to fit the gun.
+- No source-cell edge touch, no clipped barrel tip, no crop.
+
+Pixel-art contract:
+- clean intentional 2x2 logical-pixel clusters, crisp hard stepped contours, limited warm 24–32 color palette
+- dark brown/plum outlines only; no saturated magenta, red, green, yellow, blue, or purple fringe
+- no blur, anti-aliasing, smoothing, gradients, noisy microtexture, dithering, or painterly rendering
+- no extra limbs, anatomy glitches, floating accessories, missing fingers, cropped legs, muzzle flash, smoke, projectile, dust, impact, or detached FX
+
+Sheet/background:
+- exactly 3 columns x 2 rows, six equal invisible portrait cells
+- each cell is a 270x540 delivery slot, eventual display 540x1080 at integer 2x
+- solid flat #FF00FF background with generous margin
+- no text, labels, UI, borders, separators, boxes, or guides

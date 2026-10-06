@@ -1,0 +1,27 @@
+Create one single representative full-body character master sprite for a mobile western quick-draw game.
+
+Use the three reference images just shown:
+- the first image is the current player's identity reference; preserve the same cowboy identity and costume cues.
+- the second image is the opponent's actual runtime pixel-art style reference; match its crisp outline, restrained palette, chunky deliberate pixel clusters, and low texture density.
+- the third image is the current player's delivery-scale reference; preserve the side-facing composition and right-facing face.
+
+Subject and pose:
+- one full-body cowboy gunslinger, 3/4 rear view facing screen-right
+- neutral ready/idle stance, both feet planted, shoulders relaxed, right arm and hand visible near the holster
+- clearly visible belt and a complete holstered revolver at the waist
+- preserve the same identity cues: broad brown cowboy hat, dark brown hair, partial right-facing face and beard, red/orange rolled-sleeve shirt, warm brown vest, brass bandolier and belt, brown trousers, boots, right-side leather holster with revolver grip
+- slightly awkward, dopey-but-cute western game character, not heroic or glossy
+
+Pixel-art contract:
+- clean intentional pixel art on a 2x2 logical-pixel grid, crisp stepped contours, hard-edged clusters, no anti-aliasing, no blur, no smoothing, no painterly gradients, no noisy microtexture, no dithering
+- match the opponent's apparent pixel scale and limited warm palette: deep brown outline, muted ochre/tan highlights, red shirt accent, restrained 24–32 color palette
+- simplify folds and highlights into readable grouped clusters; keep silhouette stronger than texture
+- keep anatomy complete and coherent; no amputated limbs, no missing feet, no cropped body, no extra limbs, no floating accessories
+- no glow, no cast shadow outside the character, no muzzle flash, no dust, no weapon effect
+
+Canvas and background:
+- one tall portrait slot with approximately 1:2 aspect ratio, subject fully contained with generous solid magenta #FF00FF margin on all four sides
+- no sheet, no multiple poses, no grid, no cell separators, no labels, no text, no UI, no border
+- transparent is not needed for raw generation; background must be 100% flat #FF00FF
+- keep the body centered, feet on a stable bottom anchor line, character occupying about 68% of the slot height so it can later be delivered as one 270x540 cell and rendered at 2x (540x1080)
+- clean production sprite reference, not a screenshot or concept sheet

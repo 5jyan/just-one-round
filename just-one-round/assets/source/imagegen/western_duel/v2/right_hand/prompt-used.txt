@@ -1,0 +1,15 @@
+Use case: precise-object-edit / game sprite reference generation
+Asset type: first-person pixel-art game sprite, single waiting frame for a western duel player
+Input images: Image 1 is the existing first-person player foreground style and revolver/sleeve identity reference; Image 2 is the existing draw-action sheet reference for the same camera and clothing. Preserve the same warm tan leather sleeve, cream cuff, dark brown outlines, chunky pixel clusters, and aged silver 19th-century six-shooter identity.
+
+Primary request: Create one clean high-resolution raw sprite frame for the player waiting before DRAW. Fixed first-person viewpoint from the player's eyes, camera looking down toward the lower-right holster. Only the player's RIGHT forearm, right hand, cuff, sleeve, holster, and revolver are visible. The right hand rests naturally on the holstered revolver grip, fingers curled around the grip but the gun remains seated in the holster; wrist and elbow are relaxed. No left hand anywhere, no second arm, no extra fingers or limbs. The hand and gun occupy the lower-right quadrant and point diagonally up-left only enough to read as a holstered draw-ready pose; leave the center and upper area empty for the duel scene.
+
+Scene/backdrop: flat pure solid magenta chroma-key background #FF00FF covering the whole canvas.
+Subject: one right hand resting on one holstered old-west revolver, same brown leather sleeve and cream cuff as the references.
+Style/medium: deliberate chunky western pixel art, project 2-logical-pixel cluster language, readable silhouette, sharp hard-edged pixel clusters; not smooth digital painting.
+Composition/framing: one square source frame, generous safe magenta padding on every side, subject fully contained and not touching any edge; same camera distance and visual scale as the existing player foreground; lower-right placement matches a 360-wide first-person game composite.
+Lighting/mood: warm saloon light from upper-left, restrained highlights, dark brown/black pixel outline.
+Color palette: warm tan skin, cream cuff, dark brown leather sleeve and holster, aged brass and gunmetal revolver, muted sepia western palette.
+Materials/textures: simple clustered leather folds, a few readable hand creases, compact revolver geometry; no micro-noise.
+Constraints: generate raster art only; preserve the reference identity/style but change the pose to right-hand-only resting on the holstered gun. Exact single frame, no sheet grid, no labels, no text, no borders, no cell separators, no watermark. Background must be uniform #FF00FF for later chroma-key processing. Keep the subject inside the central safe area and do not crop it.
+Avoid: left hand, left arm, second gun, dual-wielding, hands already aiming, gun already raised, muzzle flash, smoke, dust, sparks, bullet, detached FX, face, body, UI, scenery, realistic smooth shading, anti-aliased edges, gradients, extra fingers, anatomy errors, floating sleeve, cropped subject.

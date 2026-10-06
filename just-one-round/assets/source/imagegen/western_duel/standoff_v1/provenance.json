@@ -1,0 +1,126 @@
+{
+  "wind": {
+    "cell": [
+      128,
+      32
+    ],
+    "grid": [
+      2,
+      2
+    ],
+    "frames": [
+      {
+        "frame": 1,
+        "bounds": [
+          22,
+          9,
+          103,
+          23
+        ]
+      },
+      {
+        "frame": 2,
+        "bounds": [
+          23,
+          7,
+          105,
+          22
+        ]
+      },
+      {
+        "frame": 3,
+        "bounds": [
+          24,
+          13,
+          106,
+          27
+        ]
+      },
+      {
+        "frame": 4,
+        "bounds": [
+          12,
+          11,
+          105,
+          27
+        ]
+      }
+    ],
+    "raw_sha256": "4e822d30d795ab242a9f4ef191427c42672d8823cf549650406d5d3af641e2c9",
+    "source": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/standoff_v1/wind/processed/raw-sheet.png",
+    "method": "Built-in ImageGen + generate2dsprite processor; nearest export",
+    "generated_original": "/Users/saulpark/.codex/generated_images/01a0e7e9-6965-7fd1-a6b0-3339f3ecf0fe/exec-243d4e35-c9cb-4cf9-83c2-50198729ffd7.png",
+    "prompt": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/standoff_v1/wind/prompt-used.txt",
+    "runtime": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/fx/standoff_wind/sheet-transparent.png",
+    "display_size": [
+      256,
+      64
+    ],
+    "scale": 2,
+    "calibration": "western_duel/background/saloon_day_180x480.png",
+    "non_colliding": true,
+    "phase": "standoff only"
+  },
+  "leaf": {
+    "cell": [
+      16,
+      16
+    ],
+    "grid": [
+      2,
+      2
+    ],
+    "frames": [
+      {
+        "frame": 1,
+        "bounds": [
+          2,
+          5,
+          13,
+          11
+        ]
+      },
+      {
+        "frame": 2,
+        "bounds": [
+          5,
+          3,
+          10,
+          13
+        ]
+      },
+      {
+        "frame": 3,
+        "bounds": [
+          3,
+          4,
+          13,
+          11
+        ]
+      },
+      {
+        "frame": 4,
+        "bounds": [
+          3,
+          5,
+          13,
+          10
+        ]
+      }
+    ],
+    "raw_sha256": "580ab3f8fb0b892b13e657ec3d600cd213ddbf623933d5065b3e29f2fe5da6d4",
+    "source": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/standoff_v1/leaf/processed/raw-sheet.png",
+    "method": "Built-in ImageGen + generate2dsprite processor; nearest export",
+    "generated_original": "/Users/saulpark/.codex/generated_images/01a0e7e9-6965-7fd1-a6b0-3339f3ecf0fe/exec-0fe25179-8551-40ae-9817-55826f40bdf9.png",
+    "prompt": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/standoff_v1/leaf/prompt-used.txt",
+    "runtime": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/fx/standoff_leaf/sheet-transparent.png",
+    "display_size": [
+      32,
+      32
+    ],
+    "scale": 2,
+    "calibration": "western_duel/background/saloon_day_180x480.png",
+    "non_colliding": true,
+    "phase": "standoff only"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "input": "assets/source/imagegen/western_duel/v1/background/saloon_raw.png",
+  "source_size": [
+    793,
+    1983
+  ],
+  "crop_box": [
+    24,
+    0,
+    768,
+    1983
+  ],
+  "output": "assets/images/western_duel/background/saloon_day_180x480.png",
+  "output_size": [
+    180,
+    480
+  ],
+  "filter": "nearest",
+  "qc": {
+    "aspect_matches_contract": true,
+    "passed": true
+  }
+}

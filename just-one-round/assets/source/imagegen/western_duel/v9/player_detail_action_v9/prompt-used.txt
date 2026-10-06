@@ -1,0 +1,7 @@
+Create one single high-resolution pixel-art full-body action specimen for the exact accepted Western Duel gunslinger master.
+
+Preserve the master identity, fine pixel density, face, hat, beard, red shirt, tan vest, cartridge belt, holster, trousers, boots, rear three-quarter camera, and grounded body proportions. Keep torso, pelvis, legs, left arm, shoulder root and feet planted. Change only the right arm and pistol into a compact aim/fire pose.
+
+In the intended 540x1080 delivery cell, keep the right elbow close to the torso around x=300,y=520, raise the forearm steeply up-right around 65 degrees, place the hand/breech around x=330,y=470, and place the short foreshortened revolver muzzle around x=370-390,y=390-425. The full gun must remain left of x=434 and within the master body/holster envelope. The projected barrel is short, roughly 45-75 pixels, with a readable muzzle cap. It must point lower-left to upper-right toward the centered opponent, never horizontally to screen-right and never as a long side profile.
+
+Use fine deliberate pixel clusters with readable eyes, nose, beard, fingers, trigger, cylinder, cloth seams and warm controlled shading. Use crisp nearest-neighbor authored edges, no blur, smoothing, vector or photo rendering, no thick pure-black outline. Use a flat #FF00FF background or transparency, no text, labels, borders, guide marks, muzzle flash, projectile, smoke, dust, detached effects, extra limbs, duplicate hands or extra pistols.

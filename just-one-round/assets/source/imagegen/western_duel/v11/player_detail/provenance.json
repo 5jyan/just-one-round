@@ -1,0 +1,170 @@
+{
+  "schema": "western_duel.player_detail_v11.provenance.v1",
+  "generation_method": "built-in image_gen edit",
+  "scope": "detail-upgraded neutral master plus four raw 2x2 action source batches",
+  "source_assets": {
+    "neutral_master": {
+      "raw_source": "/Users/saulpark/.codex/generated_images/01a0ecf5-b055-7853-af16-d3ad988b265b/exec-37ba08b6-fa91-493c-9d8f-06eb16d1dbe3.png",
+      "copied_raw": "assets/source/imagegen/western_duel/v11/player_detail/raw_generated/master_generated.png",
+      "raw_dimensions": [887, 1774],
+      "raw_mode": "RGBA",
+      "raw_sha256": "98e750547dcc3c219bca03b484ba2926f3d68c1617e96757bd81b5e4f185da44",
+      "delivery_frame": "assets/source/imagegen/western_duel/v11/player_detail/master_540x1080/frame_01.png",
+      "delivery_dimensions": [540, 1080],
+      "delivery_sha256": "1c35de8580029765e9fe62281c8196c4c00aaa4facd53f194caeb327a2e4eaaf",
+      "raw_alpha16_bbox": [203, 414, 742, 1673],
+      "delivery_alpha_bbox": [113, 306, 427, 1040],
+      "uniform_nearest_scale": 0.5830023828435266,
+      "anchor_policy": "head y=306, feet y=1040, waist root retained from approved v9 placement"
+    },
+    "action_batches": [
+      {
+        "batch": 1,
+        "pose_range": [1, 4],
+        "raw_source": "/Users/saulpark/.codex/generated_images/01a0ecf5-b055-7853-af16-d3ad988b265b/exec-ba2b09dc-8e93-4579-a85a-a8ce1b9b54b3.png",
+        "copied_raw": "assets/source/imagegen/western_duel/v11/player_detail/batch_1/player_detail_action_v11_batch_1_raw.png",
+        "dimensions": [887, 1774],
+        "mode": "RGBA",
+        "sha256": "75025891acddcaf8a06d9932c0079df7c770f5dba46c55c595e92cd493b9edc4",
+        "edit_target": "/tmp/western_v11_pose_template_1.png",
+        "prompt_file": "assets/source/imagegen/western_duel/v11/player_detail/batch_1/prompt-used.txt"
+      },
+      {
+        "batch": 2,
+        "pose_range": [5, 8],
+        "raw_source": "worker-preserved ImageGen output; original generated path is recorded in batch_2/metadata.json when available",
+        "copied_raw": "assets/source/imagegen/western_duel/v11/player_detail/batch_2/player_detail_action_v11_batch_2_raw.png",
+        "dimensions": [887, 1774],
+        "mode": "RGB",
+        "sha256": "4edc6acfd2818db739ba0f97a16b4c86c533ce895ec0df5c0285412d8c312f63",
+        "edit_target": "/tmp/western_v11_pose_template_2.png",
+        "prompt_file": "assets/source/imagegen/western_duel/v11/player_detail/batch_2/prompt-used.txt",
+        "worker_metadata": "assets/source/imagegen/western_duel/v11/player_detail/batch_2/metadata.json"
+      },
+      {
+        "batch": 3,
+        "pose_range": [9, 12],
+        "raw_source": "/Users/saulpark/.codex/generated_images/01a0ecfe-7e3c-7b23-b27f-04fccd9f1ae7/exec-2f3011a1-d052-4dc8-84e8-bfa98dd295a9.png",
+        "copied_raw": "assets/source/imagegen/western_duel/v11/player_detail/batch_3/player_detail_batch_3_raw.png",
+        "dimensions": [887, 1774],
+        "mode": "RGB",
+        "sha256": "525802aad7ef3abc1f073582c07b2b3e6aa1aba06f253c0671a3827cb158a549",
+        "edit_target": "/tmp/western_v11_pose_template_3.png",
+        "prompt_file": "assets/source/imagegen/western_duel/v11/player_detail/batch_3/prompt-used.txt",
+        "worker_metadata": "assets/source/imagegen/western_duel/v11/player_detail/batch_3/metadata.json",
+        "cleanup_note": "detached shell in first cell is removed by largest-component chroma cleanup"
+      },
+      {
+        "batch": 4,
+        "pose_range": [13, 16],
+        "raw_source": "/Users/saulpark/.codex/generated_images/01a0ecf5-b055-7853-af16-d3ad988b265b/exec-dd0791a9-72e3-48d1-862d-d4481e240893.png",
+        "copied_raw": "assets/source/imagegen/western_duel/v11/player_detail/batch_4/player_detail_action_v11_batch_4_raw.png",
+        "dimensions": [887, 1774],
+        "mode": "RGB",
+        "sha256": "a6c718296b4dd44cd8a17ff8c79c1cfb346b589a28d992e83391fc59cf6619de",
+        "edit_target": "/tmp/western_v11_pose_template_4.png",
+        "prompt_file": "assets/source/imagegen/western_duel/v11/player_detail/batch_4/prompt-used.txt"
+      }
+    ]
+  },
+  "references": [
+    {
+      "role": "player_identity_edit_target",
+      "path": "assets/images/western_duel/first_person/player_detail_idle_v9/frame_01.png",
+      "dimensions": [540, 1080],
+      "contract": "preserve identity, rear three-quarter view, pose, equipment, and anchors"
+    },
+    {
+      "role": "detailed_pixel_style_reference",
+      "path": "assets/source/imagegen/western_duel/v1/first_person/opponent_master/opponent_master_raw.png",
+      "dimensions": [1071, 1469],
+      "contract": "match controlled pixel clusters, material separation, and readable detail"
+    },
+    {
+      "role": "active_runtime_scale_reference",
+      "path": "assets/images/western_duel/first_person/opponent_idle_close/frame_01.png",
+      "dimensions": [128, 184],
+      "contract": "match apparent detail density at the live opponent scale"
+    }
+  ],
+  "approved_delivery_contract": {
+    "neutral_master_cell": [540, 1080],
+    "idle_grid": [2, 2],
+    "action_grid": [4, 4],
+    "action_cell": [540, 1080],
+    "raw_source_canvas": [887, 1774],
+    "display_size": [540, 1080],
+    "display_scale": [1, 1],
+    "filter": "nearest",
+    "frame_order": [
+      "neutral",
+      "grip_preparation",
+      "low_draw",
+      "draw_continuation",
+      "draw_rise_1",
+      "draw_rise_2",
+      "near_aim",
+      "aim_fire",
+      "recoil_1",
+      "recoil_2",
+      "recoil_3",
+      "recovery_1",
+      "recovery_2",
+      "recovery_3",
+      "recovery_4",
+      "return_stable"
+    ],
+    "frame_durations_ms": [30, 30, 30, 30, 30, 30, 30, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+    "fire_frame_index_zero_based": 7,
+    "fire_frame_number": 8,
+    "muzzle_anchors_source_px": {
+      "frame_7": [410, 365],
+      "frame_8": [413, 360],
+      "frame_9": [412, 365],
+      "frame_10": [411, 365]
+    },
+    "placement": {
+      "x": -254,
+      "y": "height - 680",
+      "waist_source_y": 650,
+      "feet_source_y": 1040
+    }
+  },
+  "composition_contract": {
+    "static_body_source": "assets/source/imagegen/western_duel/v11/player_detail/master_540x1080/frame_01.png",
+    "action_regions": "generated detail batches 1-4, with the master providing the shared static head, torso root, lower body, and legs",
+    "normalization": "one shared uniform mapping per raw 887x1774 batch to the approved 540x1080 cell; no per-frame bbox fitting",
+    "background_cleanup": "magenta chroma cleanup with edge-fringe removal; batch 3 detached shell removed by largest-component cleanup",
+    "body_policy": "preserve the approved full-body silhouette and anchors; improve visible internal detail in face, hat, sleeve, hand, gun, vest, belt, and holster",
+    "runtime_behavior": "asset-only quality variant; existing game rules, timing, scoring, placement, and FX remain unchanged"
+  },
+  "prompt_files": [
+    {
+      "path": "assets/source/imagegen/western_duel/v11/player_detail/prompt-used.txt",
+      "sha256": "41c4fde7692a2ccce06c9939d1b7e6f5389462e8deaa034839ae83bc0026e038"
+    },
+    {
+      "path": "assets/source/imagegen/western_duel/v11/player_detail/batch_1/prompt-used.txt",
+      "sha256": "99e001360cd019ab8cd8a61797eb1035a2e407035d8e0fe92006a3a16c700e48"
+    },
+    {
+      "path": "assets/source/imagegen/western_duel/v11/player_detail/batch_2/prompt-used.txt",
+      "sha256": "7ef6f2f71a59403b5392b58be636e9203d4f7973bba9ffa4f30028e2120c1942"
+    },
+    {
+      "path": "assets/source/imagegen/western_duel/v11/player_detail/batch_3/prompt-used.txt",
+      "sha256": "2f42880fb32b96650fa7354a70e8f4e7ad07bdd65640a5a34d580113cff4b9c7"
+    },
+    {
+      "path": "assets/source/imagegen/western_duel/v11/player_detail/batch_4/prompt-used.txt",
+      "sha256": "a76bbb624a5b0da5a0ccbd1400a489a04a16315319fbd8f3fc7a48cf22c601c4"
+    }
+  ],
+  "qc_observations": {
+    "master_native_review": "accepted: face/beard, hat material, orange sleeve folds, fingers, holster, and revolver read with visibly stronger controlled pixel detail",
+    "master_runtime_crop": "reviewed at the approved x=-254, y=height-680 foreground crop; face, hat, sleeve, hand, belt and gun remain readable",
+    "action_generation": "all four 2x2 groups use the accepted v11 master as the material reference and preserve the existing pose geometry",
+    "source_preservation": "v9/v10 assets and runtime files were not modified in this source-only pass",
+    "runtime_images_created_by_this_worker": false
+  }
+}

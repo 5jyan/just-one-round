@@ -1,0 +1,147 @@
+{
+  "input": "assets/source/imagegen/western_duel/v1/first_person/opponent_idle/raw-sheet.png",
+  "source_sheet_size": [
+    1070,
+    1470
+  ],
+  "grid": [
+    2,
+    2
+  ],
+  "cell_size": [
+    128,
+    184
+  ],
+  "filter": "nearest",
+  "key": "magenta",
+  "fit": 0.9,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        151,
+        23,
+        454,
+        715
+      ],
+      "source_subject_size": [
+        303,
+        692
+      ],
+      "output_bbox": [
+        28,
+        17,
+        100,
+        182
+      ],
+      "output_subject_size": [
+        72,
+        165
+      ],
+      "scale": 0.2384393063583815,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        0
+      ],
+      "output": "frame_01.png"
+    },
+    {
+      "source_bbox": [
+        76,
+        23,
+        379,
+        715
+      ],
+      "source_subject_size": [
+        303,
+        692
+      ],
+      "output_bbox": [
+        28,
+        17,
+        100,
+        182
+      ],
+      "output_subject_size": [
+        72,
+        165
+      ],
+      "scale": 0.2384393063583815,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        1
+      ],
+      "output": "frame_02.png"
+    },
+    {
+      "source_bbox": [
+        134,
+        6,
+        461,
+        700
+      ],
+      "source_subject_size": [
+        327,
+        694
+      ],
+      "output_bbox": [
+        25,
+        17,
+        103,
+        182
+      ],
+      "output_subject_size": [
+        78,
+        165
+      ],
+      "scale": 0.2377521613832853,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        0
+      ],
+      "output": "frame_03.png"
+    },
+    {
+      "source_bbox": [
+        77,
+        5,
+        384,
+        700
+      ],
+      "source_subject_size": [
+        307,
+        695
+      ],
+      "output_bbox": [
+        27,
+        17,
+        100,
+        182
+      ],
+      "output_subject_size": [
+        73,
+        165
+      ],
+      "scale": 0.23741007194244604,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        1
+      ],
+      "output": "frame_04.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 4,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "input": "assets/source/imagegen/western_duel/v1/first_person/opponent_master/opponent_master_raw.png",
+  "source_sheet_size": [
+    1071,
+    1469
+  ],
+  "grid": [
+    1,
+    1
+  ],
+  "cell_size": [
+    56,
+    80
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "fit": 0.9,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        25,
+        16,
+        980,
+        1469
+      ],
+      "source_subject_size": [
+        955,
+        1453
+      ],
+      "output_bbox": [
+        15,
+        6,
+        44,
+        76
+      ],
+      "output_subject_size": [
+        47,
+        72
+      ],
+      "scale": 0.04955264969029594,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        0
+      ],
+      "output": "frame_01.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 1,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

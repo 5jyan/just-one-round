@@ -1,0 +1,16 @@
+{
+  "asset": "western_duel/player_detail_v11",
+  "batch": "batch_3",
+  "purpose": "detail-enhanced raw 2x2 source for poses 9-12",
+  "raw_source": "/Users/saulpark/.codex/generated_images/01a0ecfe-7e3c-7b23-b27f-04fccd9f1ae7/exec-2f3011a1-d052-4dc8-84e8-bfa98dd295a9.png",
+  "copied_output": "player_detail_batch_3_raw.png",
+  "sha256": "525802aad7ef3abc1f073582c07b2b3e6aa1aba06f253c0671a3827cb158a549",
+  "dimensions": [887, 1774],
+  "requested_layout": {"rows": 2, "columns": 2, "cell_width": 540, "cell_height": 1080},
+  "pose_order": [9, 10, 11, 12],
+  "muzzle_tips": {"9": [413, 360], "10": [412, 365], "11": [411, 365]},
+  "background": "#FF00FF",
+  "edit_target": "/tmp/western_v11_pose_template_3.png",
+  "material_reference": "assets/source/imagegen/western_duel/v11/player_detail/master_540x1080/frame_01.png",
+  "generation_policy": "single built-in ImageGen edit; preserve geometry and improve internal detail only"
+}

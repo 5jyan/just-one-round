@@ -1,0 +1,290 @@
+{
+  "input": "assets/source/imagegen/western_duel/v8/player_pixel_clean/action/raw_generated/action_raw_generated.png",
+  "source_size": [
+    1086,
+    1448
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "cell_size": [
+    270,
+    540
+  ],
+  "filter": "nearest",
+  "alpha_threshold": 32,
+  "locked_scale": 0.7414141414,
+  "feet_y": 520,
+  "duration_ms": 53,
+  "frame_order": [
+    "ready",
+    "grip",
+    "draw",
+    "aim",
+    "fire",
+    "recoil"
+  ],
+  "frames": [
+    {
+      "output": "frame_01.png",
+      "grid": [
+        0,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        0,
+        362,
+        724
+      ],
+      "source_bbox": [
+        75,
+        203,
+        288,
+        698
+      ],
+      "source_size": [
+        213,
+        495
+      ],
+      "source_edge_touch": false,
+      "output_bbox": [
+        56,
+        153,
+        214,
+        520
+      ],
+      "output_size": [
+        158,
+        367
+      ],
+      "component_count": 3,
+      "locked_scale": 0.7414141414,
+      "feet_y": 520
+    },
+    {
+      "output": "frame_02.png",
+      "grid": [
+        0,
+        1
+      ],
+      "source_cell_rect": [
+        362,
+        0,
+        724,
+        724
+      ],
+      "source_bbox": [
+        75,
+        203,
+        288,
+        698
+      ],
+      "source_size": [
+        213,
+        495
+      ],
+      "source_edge_touch": false,
+      "output_bbox": [
+        56,
+        153,
+        214,
+        520
+      ],
+      "output_size": [
+        158,
+        367
+      ],
+      "component_count": 1,
+      "locked_scale": 0.7414141414,
+      "feet_y": 520
+    },
+    {
+      "output": "frame_03.png",
+      "grid": [
+        0,
+        2
+      ],
+      "source_cell_rect": [
+        724,
+        0,
+        1086,
+        724
+      ],
+      "source_bbox": [
+        74,
+        204,
+        288,
+        698
+      ],
+      "source_size": [
+        214,
+        494
+      ],
+      "source_edge_touch": false,
+      "output_bbox": [
+        55,
+        154,
+        214,
+        520
+      ],
+      "output_size": [
+        159,
+        366
+      ],
+      "component_count": 1,
+      "locked_scale": 0.7414141414,
+      "feet_y": 520
+    },
+    {
+      "output": "frame_04.png",
+      "grid": [
+        1,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        724,
+        362,
+        1448
+      ],
+      "source_bbox": [
+        43,
+        182,
+        362,
+        673
+      ],
+      "source_size": [
+        319,
+        491
+      ],
+      "source_edge_touch": true,
+      "output_bbox": [
+        16,
+        156,
+        253,
+        520
+      ],
+      "output_size": [
+        237,
+        364
+      ],
+      "component_count": 1,
+      "locked_scale": 0.7414141414,
+      "feet_y": 520
+    },
+    {
+      "output": "frame_05.png",
+      "grid": [
+        1,
+        1
+      ],
+      "source_cell_rect": [
+        362,
+        724,
+        724,
+        1448
+      ],
+      "source_bbox": [
+        54,
+        182,
+        362,
+        673
+      ],
+      "source_size": [
+        308,
+        491
+      ],
+      "source_edge_touch": true,
+      "output_bbox": [
+        21,
+        156,
+        249,
+        520
+      ],
+      "output_size": [
+        228,
+        364
+      ],
+      "component_count": 2,
+      "locked_scale": 0.7414141414,
+      "feet_y": 520
+    },
+    {
+      "output": "frame_06.png",
+      "grid": [
+        1,
+        2
+      ],
+      "source_cell_rect": [
+        724,
+        724,
+        1086,
+        1448
+      ],
+      "source_bbox": [
+        54,
+        182,
+        336,
+        673
+      ],
+      "source_size": [
+        282,
+        491
+      ],
+      "source_edge_touch": false,
+      "output_bbox": [
+        30,
+        156,
+        239,
+        520
+      ],
+      "output_size": [
+        209,
+        364
+      ],
+      "component_count": 2,
+      "locked_scale": 0.7414141414,
+      "feet_y": 520
+    }
+  ],
+  "qc": {
+    "empty_frames": [],
+    "output_edge_touch_frames": [],
+    "source_edge_touch_frames_reviewed": [
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "body_scale_locked": true,
+    "body_scale_samples": [
+      0.6796296296296296,
+      0.6796296296296296,
+      0.6777777777777778,
+      0.674074074074074,
+      0.674074074074074,
+      0.674074074074074
+    ],
+    "body_scale_mean": 0.6765432098765433,
+    "body_scale_cv": 0.0037619576876073498,
+    "anchor_y_samples": [
+      0.9629629629629629,
+      0.9629629629629629,
+      0.9629629629629629,
+      0.9629629629629629,
+      0.9629629629629629,
+      0.9629629629629629
+    ],
+    "anchor_y_mean": 0.9629629629629629,
+    "anchor_y_std": 0.0,
+    "max_body_scale_cv": 0.08,
+    "max_anchor_y_std": 0.05,
+    "passed": true
+  }
+}

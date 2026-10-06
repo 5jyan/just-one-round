@@ -1,0 +1,32 @@
+{
+  "variant": "western_duel_player_detail_v9",
+  "pipeline": "built-in-imagegen-plus-deterministic-pixel-processing",
+  "master_raw": "player_detail_idle_v9/raw_generated/master_generated.png",
+  "action_raw": "player_detail_action_v9/raw_generated/aim_fire_generated.png",
+  "references": {
+    "identity": "assets/source/imagegen/western_duel/v8/player_pixel_clean/raw_generated/master_raw_clean_270.png",
+    "style": "assets/images/western_duel/first_person/opponent_idle_detail/sheet-transparent.png",
+    "composition": "assets/source/imagegen/western_duel/v8/player_pixel_clean/qc/master_vs_opponent_native_2x.png"
+  },
+  "rejected_candidates": [
+    {
+      "path": "player_detail_action_v9/raw_generated/action_generated.png",
+      "reason": "barrel extended too far toward the right and read as a side-profile shot"
+    },
+    {
+      "path": "player_detail_action_v9/raw_generated/action_compact_grid_generated.png",
+      "reason": "compact but lower per-cell source resolution than the accepted single high-resolution action specimen"
+    }
+  ],
+  "contract": {
+    "source_cell": [540, 1080],
+    "display_size": [540, 1080],
+    "display_scale": [1, 1],
+    "logical_art_pixel": [2, 2],
+    "view": "rear_three_quarter_facing_right_up",
+    "full_body_preserved": true,
+    "background": "solid_#FF00FF_raw_then_alpha",
+    "runtime_x": -254,
+    "runtime_y_from_bottom": -680
+  }
+}

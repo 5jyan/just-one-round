@@ -1,0 +1,78 @@
+{
+  "input": "just-one-round/assets/source/imagegen/western_duel/v8/player_pixel_clean/raw_generated/master_raw_clean_240.png",
+  "source_sheet_size": [
+    887,
+    1774
+  ],
+  "grid": [
+    1,
+    1
+  ],
+  "cell_size": [
+    270,
+    540
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "alpha_threshold": 0,
+  "fit": 0.68,
+  "anchor": "bottom",
+  "post_transform": {
+    "scale_x": 1,
+    "scale_y": 1,
+    "offset_x": 0,
+    "offset_y": -18
+  },
+  "frames": [
+    {
+      "source_bbox": [
+        197,
+        286,
+        741,
+        1568
+      ],
+      "source_subject_size": [
+        544,
+        1282
+      ],
+      "output_bbox": [
+        57,
+        153,
+        213,
+        520
+      ],
+      "output_subject_size": [
+        156,
+        367
+      ],
+      "scale": 0.28627145085803435,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 1,
+        "scale_y": 1,
+        "offset_x": 0,
+        "offset_y": -18
+      },
+      "output_edge_touch": false,
+      "alpha_components": 26,
+      "removed_component_pixels": 213,
+      "grid": [
+        0,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        0,
+        887,
+        1774
+      ],
+      "output": "frame_01.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 1,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

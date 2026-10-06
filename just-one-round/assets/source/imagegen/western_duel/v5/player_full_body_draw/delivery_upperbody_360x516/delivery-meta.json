@@ -1,0 +1,117 @@
+{
+  "asset": "western_duel_player_upperbody_draw_v6",
+  "source_asset": "western_duel_player_full_body_draw_v5",
+  "source_delivery": "assets/source/imagegen/western_duel/v5/player_full_body_draw/delivery_360x720",
+  "crop_from_source_cell": [
+    0,
+    0,
+    360,
+    507
+  ],
+  "transparent_bottom_padding_px": 9,
+  "excluded_content": "lower legs and boots; crop ends at upper hip immediately below holster",
+  "delivery_cell": [
+    360,
+    516
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "delivery_size": [
+    1080,
+    1032
+  ],
+  "filter": "nearest",
+  "runtime_display_size": [
+    360,
+    928.8
+  ],
+  "runtime_scale": [
+    1,
+    1.8
+  ],
+  "runtime_origin": {
+    "x": -42,
+    "y": "viewport_height / 2 - 514"
+  },
+  "muzzle_anchor_cell_local": [
+    288,
+    280
+  ],
+  "muzzle_anchor_screen": [
+    246,
+    "viewport_height / 2 - 10"
+  ],
+  "lower_edge_crop_is_intentional": true,
+  "timing_seconds_per_frame": 0.0525,
+  "fire_frame_index": 4,
+  "frames": [
+    {
+      "frame": 1,
+      "source_frame": "assets/source/imagegen/western_duel/v5/player_full_body_draw/delivery_360x720/frame_01.png",
+      "output_bbox": [
+        78,
+        113,
+        282,
+        507
+      ],
+      "output_edge_touch": false
+    },
+    {
+      "frame": 2,
+      "source_frame": "assets/source/imagegen/western_duel/v5/player_full_body_draw/delivery_360x720/frame_02.png",
+      "output_bbox": [
+        80,
+        112,
+        271,
+        507
+      ],
+      "output_edge_touch": false
+    },
+    {
+      "frame": 3,
+      "source_frame": "assets/source/imagegen/western_duel/v5/player_full_body_draw/delivery_360x720/frame_03.png",
+      "output_bbox": [
+        69,
+        114,
+        291,
+        507
+      ],
+      "output_edge_touch": false
+    },
+    {
+      "frame": 4,
+      "source_frame": "assets/source/imagegen/western_duel/v5/player_full_body_draw/delivery_360x720/frame_04.png",
+      "output_bbox": [
+        54,
+        109,
+        305,
+        507
+      ],
+      "output_edge_touch": false
+    },
+    {
+      "frame": 5,
+      "source_frame": "assets/source/imagegen/western_duel/v5/player_full_body_draw/delivery_360x720/frame_05.png",
+      "output_bbox": [
+        66,
+        109,
+        293,
+        507
+      ],
+      "output_edge_touch": false
+    },
+    {
+      "frame": 6,
+      "source_frame": "assets/source/imagegen/western_duel/v5/player_full_body_draw/delivery_360x720/frame_06.png",
+      "output_bbox": [
+        62,
+        108,
+        297,
+        507
+      ],
+      "output_edge_touch": false
+    }
+  ]
+}

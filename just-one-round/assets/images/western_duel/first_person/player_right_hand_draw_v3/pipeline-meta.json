@@ -1,0 +1,220 @@
+{
+  "input": "assets/source/imagegen/western_duel/v3/player_right_hand_draw/raw-generated-hand-only.png",
+  "source_sheet_size": [
+    1536,
+    1024
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "cell_size": [
+    180,
+    200
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "alpha_threshold": 8,
+  "fit": 0.9,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        224,
+        286,
+        512,
+        512
+      ],
+      "source_subject_size": [
+        288,
+        226
+      ],
+      "output_bbox": [
+        9,
+        71,
+        171,
+        198
+      ],
+      "output_subject_size": [
+        162,
+        127
+      ],
+      "scale": 0.5625,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 6,
+      "removed_component_pixels": 5,
+      "grid": [
+        0,
+        0
+      ],
+      "output": "frame_01.png"
+    },
+    {
+      "source_bbox": [
+        207,
+        277,
+        508,
+        512
+      ],
+      "source_subject_size": [
+        301,
+        235
+      ],
+      "output_bbox": [
+        9,
+        72,
+        171,
+        198
+      ],
+      "output_subject_size": [
+        162,
+        126
+      ],
+      "scale": 0.5382059800664452,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 4,
+      "removed_component_pixels": 1522,
+      "grid": [
+        0,
+        1
+      ],
+      "output": "frame_02.png"
+    },
+    {
+      "source_bbox": [
+        76,
+        117,
+        493,
+        512
+      ],
+      "source_subject_size": [
+        417,
+        395
+      ],
+      "output_bbox": [
+        9,
+        45,
+        171,
+        198
+      ],
+      "output_subject_size": [
+        162,
+        153
+      ],
+      "scale": 0.38848920863309355,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 4,
+      "removed_component_pixels": 3,
+      "grid": [
+        0,
+        2
+      ],
+      "output": "frame_03.png"
+    },
+    {
+      "source_bbox": [
+        81,
+        159,
+        512,
+        474
+      ],
+      "source_subject_size": [
+        431,
+        315
+      ],
+      "output_bbox": [
+        9,
+        80,
+        171,
+        198
+      ],
+      "output_subject_size": [
+        162,
+        118
+      ],
+      "scale": 0.37587006960556846,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 3,
+      "removed_component_pixels": 161,
+      "grid": [
+        1,
+        0
+      ],
+      "output": "frame_04.png"
+    },
+    {
+      "source_bbox": [
+        36,
+        179,
+        507,
+        474
+      ],
+      "source_subject_size": [
+        471,
+        295
+      ],
+      "output_bbox": [
+        9,
+        97,
+        171,
+        198
+      ],
+      "output_subject_size": [
+        162,
+        101
+      ],
+      "scale": 0.34394904458598724,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 7,
+      "removed_component_pixels": 2369,
+      "grid": [
+        1,
+        1
+      ],
+      "output": "frame_05.png"
+    },
+    {
+      "source_bbox": [
+        46,
+        147,
+        493,
+        475
+      ],
+      "source_subject_size": [
+        447,
+        328
+      ],
+      "output_bbox": [
+        9,
+        79,
+        171,
+        198
+      ],
+      "output_subject_size": [
+        162,
+        119
+      ],
+      "scale": 0.3624161073825503,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 7,
+      "removed_component_pixels": 306,
+      "grid": [
+        1,
+        2
+      ],
+      "output": "frame_06.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 6,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

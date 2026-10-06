@@ -1,0 +1,19 @@
+Use case: stylized-concept
+Asset type: six-frame full-body player shooting animation sheet for a first-person Western duel game
+Primary request: Animate the approved foreground gunslinger through one compact, physically readable right-hand draw-and-fire action.
+Input images:
+- Image 1: exact accepted character identity, pixel-art rendering, costume, palette, anatomy, and view reference. Preserve them; change pose only.
+- Image 2: exact geometry template. It repeats the accepted character in six invisible slots and locks each 360×720 portrait cell, equal camera distance, scale, root, and shared planted sole baseline. Replace each repeated pose with the corresponding action pose; do not reproduce any visible guide or add dividers.
+- Image 3: opponent sprite's crisp pixel-cluster size and detail-density reference only. Do not copy its costume, identity, face, or pose.
+Subject: The same adult cowboy in all six cells, rear three-quarter side view facing screen-right; dark wide-brim hat, visible side-profile cheek/beard edge, rust-orange rolled sleeve, brown/taupe vest, dark cartridge belt, holster at the character's right hip, and one revolver. Entire hat, head, torso, both legs, and both boots remain visible in every cell. The character's physical right hand performs the draw; the left hand remains low and relaxed. The arm, hand, and revolver stay anatomically connected to the single full-body figure; no detached hand.
+Style/medium: Crisp native pixel-art game sprite, preserving the accepted master image's sharp dark contours and restrained warm palette, with fine but controlled clusters comparable to Image 3 at runtime. No painterly blur, soft shading, photorealism, excessive fabric microtexture, or scattered noise.
+Composition/framing: Exact 3-column by 2-row grid, read left-to-right then top-to-bottom. Each invisible portrait cell is 360×720 pixels (whole sheet 1080×1440). Body-only sprite atlas on a perfectly flat solid #FF00FF background. Keep every part inside the central 70% of its own cell with generous magenta margin. Same camera, standing-equivalent body scale, centerline, and root in all frames. Both boot soles stay on the same exact horizontal baseline, and their planted positions remain stable from frame to frame. Do not translate the complete body up, down, left, or right; express the action through the connected arm, shoulder, and restrained torso pose.
+Frame order, exactly six:
+1. Ready: upright, both boots planted, right hand hovering naturally above the right-hip holster.
+2. Grip: right hand closes around the revolver grip; elbow stays near the side; boots unchanged.
+3. Clear: right hand lifts the revolver cleanly from the holster with a natural bent elbow; boots unchanged.
+4. Raise/aim: right forearm rises and points the revolver toward screen-right; restrained shoulder/torso turn, boots unchanged.
+5. Fire: full-body firing pose with connected physical right arm extended toward screen-right; place the revolver muzzle close to cell-local coordinate (x=303, y=298), with a natural one-handed grip and accurate perspective. Do not include muzzle flash, sparks, bullet, or smoke; those remain separate runtime FX.
+6. Recoil/settle: small connected shoulder/torso recoil after the shot, revolver still in the right hand, both boots planted on the same baseline.
+Lighting/mood: Consistent warm late-afternoon Western light and the same restrained contrast in every pose.
+Constraints: Preserve the accepted character identity and outfit exactly; only animate the pose. No missing or cropped legs, boots, hat, hand, or revolver. No raised left hand, detached body parts, extra fingers, extra limbs, duplicated weapons, changing body size, foot sliding, background scene, frame borders, cell separators, labels, UI, text, muzzle flash, projectile, dust, or watermark. Keep every silhouette fully within its own cell.

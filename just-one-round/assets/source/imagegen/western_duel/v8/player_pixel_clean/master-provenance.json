@@ -1,0 +1,47 @@
+{
+  "asset": "western_duel_player_clean_master",
+  "stage": "single_representative_neutral_master_only",
+  "generated_image_path": "/Users/saulpark/.codex/generated_images/01a0e893-fdb2-7f72-ad82-05472f2db2f3/exec-44aad6e3-84ea-445f-9390-72c39e37da4a.png",
+  "copied_raw_path": "just-one-round/assets/source/imagegen/western_duel/v8/player_pixel_clean/raw_generated/master_raw.png",
+  "references": {
+    "identity": "just-one-round/assets/source/imagegen/western_duel/v7/player_pixel_action/master_character_raw.png",
+    "style": "just-one-round/assets/images/western_duel/first_person/opponent_idle_close/frame_01.png",
+    "delivery_scale": "just-one-round/assets/source/imagegen/western_duel/v7/player_pixel_action/delivery_270x540/frame_01.png"
+  },
+  "contract": {
+    "source_cell": [270, 540],
+    "display_size": [540, 1080],
+    "display_scale": [2, 2],
+    "logical_art_pixel": [2, 2],
+    "view": "rear_three_quarter_facing_right",
+    "pose": "neutral_ready_idle",
+    "full_body_preserved": true,
+    "background": "solid_#FF00FF_raw_then_alpha",
+    "sheet_expansion": "not_done_in_this_stage"
+  },
+  "processing": {
+    "keying": "generate2dsprite.remove_bg_magenta(threshold=100, edge_threshold=210)",
+    "layout_processor": "assets/source/imagegen/western_duel/v1/first_person/process_first_person_sheet.py",
+    "layout_command": "--cell-width 270 --cell-height 540 --rows 1 --cols 1 --fit 0.68 --anchor bottom --offset-y -18 --keep-largest-component --key alpha",
+    "resampling": "nearest",
+    "final_magenta_cleanup": "recolored 376 boundary pixels with saturated magenta/purple chroma to nearest interior muted brown/plum cluster; silhouette and alpha bounds preserved",
+    "halo_cleanup": {
+      "candidate_rule": "HSV hue 280–330 degrees, saturation >= 0.30, blue >= 0.65*red, blue >= 1.35*green, within 2 pixels of transparent boundary",
+      "replacement": "nearest non-halo opaque source pixel within radius 4, prioritizing nearest dark material cluster",
+      "pre_cleanup_backup": "just-one-round/assets/source/imagegen/western_duel/v8/player_pixel_clean/qc/pre_halo_cleanup/master_processed_270x540.png"
+    },
+    "final_master": "just-one-round/assets/source/imagegen/western_duel/v8/player_pixel_clean/master_processed_270x540.png"
+  },
+  "qc": {
+    "final_size": [270, 540],
+    "subject_bbox": [57, 153, 213, 520],
+    "subject_size": [156, 367],
+    "subject_height_ratio": 0.6796,
+    "subject_width_ratio": 0.5778,
+    "output_edge_touch": false,
+    "empty_frame": false,
+    "alpha_components": 1,
+    "visual_review": "passed_native_and_2x_nearest_contact_review_against_opponent_idle_close",
+    "review_artifact": "just-one-round/assets/source/imagegen/western_duel/v8/player_pixel_clean/qc/master_vs_opponent_native_2x.png"
+  }
+}

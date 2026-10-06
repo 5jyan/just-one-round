@@ -1,0 +1,207 @@
+{
+  "input": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v1/first_person/opponent_hit_fall/raw-sheet.png",
+  "source_sheet_size": [
+    1536,
+    1024
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "cell_size": [
+    112,
+    160
+  ],
+  "filter": "nearest",
+  "key": "magenta",
+  "fit": 0.9,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        115,
+        21,
+        379,
+        512
+      ],
+      "source_subject_size": [
+        264,
+        491
+      ],
+      "output_bbox": [
+        17,
+        14,
+        94,
+        158
+      ],
+      "output_subject_size": [
+        77,
+        144
+      ],
+      "scale": 0.29327902240325865,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        0
+      ],
+      "output": "frame_01.png"
+    },
+    {
+      "source_bbox": [
+        114,
+        30,
+        425,
+        512
+      ],
+      "source_subject_size": [
+        311,
+        482
+      ],
+      "output_bbox": [
+        9,
+        14,
+        102,
+        158
+      ],
+      "output_subject_size": [
+        93,
+        144
+      ],
+      "scale": 0.2987551867219917,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        1
+      ],
+      "output": "frame_02.png"
+    },
+    {
+      "source_bbox": [
+        95,
+        78,
+        439,
+        512
+      ],
+      "source_subject_size": [
+        344,
+        434
+      ],
+      "output_bbox": [
+        6,
+        32,
+        106,
+        158
+      ],
+      "output_subject_size": [
+        100,
+        126
+      ],
+      "scale": 0.29069767441860467,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        2
+      ],
+      "output": "frame_03.png"
+    },
+    {
+      "source_bbox": [
+        62,
+        0,
+        469,
+        482
+      ],
+      "source_subject_size": [
+        407,
+        482
+      ],
+      "output_bbox": [
+        6,
+        40,
+        106,
+        158
+      ],
+      "output_subject_size": [
+        100,
+        118
+      ],
+      "scale": 0.2457002457002457,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        0
+      ],
+      "output": "frame_04.png"
+    },
+    {
+      "source_bbox": [
+        5,
+        0,
+        512,
+        463
+      ],
+      "source_subject_size": [
+        507,
+        463
+      ],
+      "output_bbox": [
+        6,
+        67,
+        99,
+        158
+      ],
+      "output_subject_size": [
+        100,
+        91
+      ],
+      "scale": 0.19723865877712032,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        1
+      ],
+      "output": "frame_05.png"
+    },
+    {
+      "source_bbox": [
+        0,
+        0,
+        474,
+        465
+      ],
+      "source_subject_size": [
+        474,
+        465
+      ],
+      "output_bbox": [
+        6,
+        60,
+        106,
+        158
+      ],
+      "output_subject_size": [
+        100,
+        98
+      ],
+      "scale": 0.2109704641350211,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        2
+      ],
+      "output": "frame_06.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 6,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

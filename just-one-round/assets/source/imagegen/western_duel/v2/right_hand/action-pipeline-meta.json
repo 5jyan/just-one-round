@@ -1,0 +1,46 @@
+{
+  "asset": "western_duel_player_right_hand_draw",
+  "source_file": "action-raw-generated.png",
+  "initial_source_file": "action-initial-raw-generated.png",
+  "raw_sheet": "action-raw-sheet.png",
+  "raw_dimensions": [1536, 1024],
+  "raw_background": "#FF00FF",
+  "generated_background_mode": "transparent output composited onto chroma-key magenta for processor input",
+  "references": [
+    "assets/source/imagegen/western_duel/v2/right_hand/raw-generated.png",
+    "assets/source/imagegen/western_duel/v1/first_person/player_action_recoil/raw-sheet.png"
+  ],
+  "grid": [2, 3],
+  "frame_count": 6,
+  "frame_semantics": [
+    "ready/grip",
+    "pull",
+    "clear",
+    "aim",
+    "fire: one muzzle-flash trigger",
+    "recoil/recover"
+  ],
+  "runtime_cell": [180, 100],
+  "runtime_display": [360, 200],
+  "runtime_filter": "nearest",
+  "processor": {
+    "tool": "generate2dsprite.py",
+    "output_cell": 180,
+    "fit_scale": 0.72,
+    "align": "feet",
+    "scale_strategy": "preserve",
+    "component_mode": "largest",
+    "strict_qc": true,
+    "body_scale_cv": 0.04094,
+    "anchor_y_std": 0.03058,
+    "output_edge_touch_frames": [],
+    "paste_clamped_frames": [],
+    "empty_frames": []
+  },
+  "muzzle": {
+    "coordinate_space": "runtime source-cell pixels, 180x100",
+    "shot_frame": 5,
+    "shot_point": [103, 6],
+    "shot_display_point": [206, 12]
+  }
+}

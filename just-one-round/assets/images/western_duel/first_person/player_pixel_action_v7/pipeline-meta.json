@@ -1,0 +1,38 @@
+{
+  "source_sheet": "just-one-round/assets/source/imagegen/western_duel/v7/player_pixel_action/processed_native_540_fit90/sheet-transparent.png",
+  "source_cell": {
+    "width": 540,
+    "height": 540
+  },
+  "delivery_cell": {
+    "width": 270,
+    "height": 540
+  },
+  "crop": {
+    "left": 135,
+    "top": 0,
+    "right": 405,
+    "bottom": 540
+  },
+  "sheet": {
+    "columns": 3,
+    "rows": 2,
+    "width": 810,
+    "height": 1080
+  },
+  "frames": [
+    "ready",
+    "grip",
+    "draw",
+    "aim",
+    "fire",
+    "recoil"
+  ],
+  "duration_ms": 53,
+  "display_scale": {
+    "x": 2,
+    "y": 2
+  },
+  "raw_body_preserved": true,
+  "crop_policy": "centered transparent-only crop; reject any opaque pixel loss"
+}

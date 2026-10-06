@@ -1,0 +1,66 @@
+{
+  "input": "assets/source/imagegen/western_duel/v4/player_left_upperbody_draw/player-left-upperbody-master-raw.png",
+  "source_sheet_size": [
+    1024,
+    1536
+  ],
+  "grid": [
+    1,
+    1
+  ],
+  "cell_size": [
+    180,
+    280
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "alpha_threshold": 24,
+  "fit": 0.95,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        203,
+        163,
+        799,
+        1358
+      ],
+      "source_subject_size": [
+        596,
+        1195
+      ],
+      "output_bbox": [
+        23,
+        12,
+        156,
+        278
+      ],
+      "output_subject_size": [
+        133,
+        266
+      ],
+      "scale": 0.22259414225941423,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "output": "frame_01.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 1,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

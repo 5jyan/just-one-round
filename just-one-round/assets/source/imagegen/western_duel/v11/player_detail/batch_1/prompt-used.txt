@@ -1,0 +1,6 @@
+Use case: precise-object-edit.
+Asset type: Western Duel player quick-draw body animation, action batch 1 of 4.
+Input images: Image 1 is the exact 2x2 pose/layout edit target; Image 2 is the accepted v11 neutral master identity/material/detail reference.
+Primary request: repaint only internal pixel rendering of the four existing poses. Preserve exact 1080x2160 sheet layout, 540x1080 cells, pose geometry, camera, silhouette, body root, foot line, head and waist anchors, and the existing first four quick-draw phases: neutral hold, grip preparation, low draw, and draw continuation.
+Style/medium: crisp controlled Western pixel art matching the v11 master: dense deliberate clusters, stepped contours, compact directional shading, warm brown/orange/tan materials, readable face/beard, hat felt planes, vest seams, sleeve folds, fingers, brass cartridges, holster stitching, and revolver metal.
+Constraints: keep the exact action movement and equipment. Preserve the solid #FF00FF background, full body, padding, identity, proportions, and cell positions. No new accessories, pose redesign, shifted body, extra limbs/fingers, cropped parts, detached effects, labels, text, UI, blur, gradients, or smooth illustrative shading.

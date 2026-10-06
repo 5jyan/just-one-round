@@ -1,0 +1,130 @@
+{
+  "asset": "western_duel_player_full_body_draw_v5",
+  "source_images": [
+    "assets/source/imagegen/western_duel/v5/player_full_body_draw/player_draw_shoot_raw_v3.png",
+    "assets/source/imagegen/western_duel/v5/player_full_body_draw/player_shot_frame_raw.png"
+  ],
+  "processor": "generate2dsprite.py process; strict QC; largest connected body component",
+  "source_processor_cell": [
+    720,
+    720
+  ],
+  "delivery_cell": [
+    360,
+    720
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "delivery_size": [
+    1080,
+    1440
+  ],
+  "filter": "nearest",
+  "runtime_display_size": [
+    360,
+    720
+  ],
+  "runtime_scale": 1,
+  "crop_from_processed_square_cell": [
+    180,
+    0,
+    540,
+    720
+  ],
+  "approved_safe_bounds": [
+    54,
+    108,
+    306,
+    612
+  ],
+  "feet_baseline_y": 612,
+  "muzzle_anchor_cell_local": [
+    288,
+    280
+  ],
+  "muzzle_anchor_note": "Measured from the separate, strict-QC single-frame firing pose; FX is placed at the barrel tip.",
+  "timing_seconds_per_frame": 0.0525,
+  "fire_frame_index": 4,
+  "frames": [
+    {
+      "frame": 1,
+      "source": "assets/source/imagegen/western_duel/v5/player_full_body_draw/processed_360x720_candidate_v3/full_body_draw-1.png",
+      "output_bbox": [
+        78,
+        113,
+        282,
+        612
+      ],
+      "output_edge_touch": false,
+      "feet_baseline_y": 612,
+      "baseline_shift_y": 0
+    },
+    {
+      "frame": 2,
+      "source": "assets/source/imagegen/western_duel/v5/player_full_body_draw/processed_360x720_candidate_v3/full_body_draw-2.png",
+      "output_bbox": [
+        80,
+        112,
+        280,
+        612
+      ],
+      "output_edge_touch": false,
+      "feet_baseline_y": 612,
+      "baseline_shift_y": 0
+    },
+    {
+      "frame": 3,
+      "source": "assets/source/imagegen/western_duel/v5/player_full_body_draw/processed_360x720_candidate_v3/full_body_draw-3.png",
+      "output_bbox": [
+        68,
+        114,
+        291,
+        612
+      ],
+      "output_edge_touch": false,
+      "feet_baseline_y": 612,
+      "baseline_shift_y": 0
+    },
+    {
+      "frame": 4,
+      "source": "assets/source/imagegen/western_duel/v5/player_full_body_draw/processed_360x720_candidate_v3/full_body_draw-4.png",
+      "output_bbox": [
+        54,
+        109,
+        305,
+        612
+      ],
+      "output_edge_touch": false,
+      "feet_baseline_y": 612,
+      "baseline_shift_y": 0
+    },
+    {
+      "frame": 5,
+      "source": "assets/source/imagegen/western_duel/v5/player_full_body_draw/shot_frame_processed_720_candidate/shot_pose-1.png",
+      "output_bbox": [
+        66,
+        109,
+        293,
+        612
+      ],
+      "output_edge_touch": false,
+      "feet_baseline_y": 612,
+      "baseline_shift_y": 1
+    },
+    {
+      "frame": 6,
+      "source": "assets/source/imagegen/western_duel/v5/player_full_body_draw/processed_360x720_candidate_v3/full_body_draw-6.png",
+      "output_bbox": [
+        62,
+        108,
+        297,
+        612
+      ],
+      "output_edge_touch": false,
+      "feet_baseline_y": 612,
+      "baseline_shift_y": 0
+    }
+  ]
+}

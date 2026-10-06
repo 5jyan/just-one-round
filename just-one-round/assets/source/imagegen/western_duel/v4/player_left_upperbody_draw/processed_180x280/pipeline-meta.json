@@ -1,0 +1,298 @@
+{
+  "input": "assets/source/imagegen/western_duel/v4/player_left_upperbody_draw/player-left-upperbody-action-raw.png",
+  "source_sheet_size": [
+    1160,
+    1355
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "cell_size": [
+    180,
+    280
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "alpha_threshold": 24,
+  "fit": 0.95,
+  "anchor": "bottom",
+  "post_transform": {
+    "scale_x": 0.75,
+    "scale_y": 0.8,
+    "offset_x": 30,
+    "offset_y": 4
+  },
+  "frames": [
+    {
+      "source_bbox": [
+        16,
+        72,
+        278,
+        662
+      ],
+      "source_subject_size": [
+        262,
+        590
+      ],
+      "output_bbox": [
+        53,
+        14,
+        142,
+        226
+      ],
+      "output_subject_size": [
+        118,
+        266
+      ],
+      "scale": 0.45084745762711864,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 0.75,
+        "scale_y": 0.8,
+        "offset_x": 30,
+        "offset_y": 4
+      },
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        0,
+        387,
+        678
+      ],
+      "output": "frame_01.png"
+    },
+    {
+      "source_bbox": [
+        24,
+        72,
+        284,
+        662
+      ],
+      "source_subject_size": [
+        260,
+        590
+      ],
+      "output_bbox": [
+        53,
+        14,
+        141,
+        226
+      ],
+      "output_subject_size": [
+        117,
+        266
+      ],
+      "scale": 0.45084745762711864,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 0.75,
+        "scale_y": 0.8,
+        "offset_x": 30,
+        "offset_y": 4
+      },
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        1
+      ],
+      "source_cell_rect": [
+        387,
+        0,
+        773,
+        678
+      ],
+      "output": "frame_02.png"
+    },
+    {
+      "source_bbox": [
+        32,
+        72,
+        359,
+        662
+      ],
+      "source_subject_size": [
+        327,
+        590
+      ],
+      "output_bbox": [
+        42,
+        14,
+        152,
+        226
+      ],
+      "output_subject_size": [
+        147,
+        266
+      ],
+      "scale": 0.45084745762711864,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 0.75,
+        "scale_y": 0.8,
+        "offset_x": 30,
+        "offset_y": 4
+      },
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        2
+      ],
+      "source_cell_rect": [
+        773,
+        0,
+        1160,
+        678
+      ],
+      "output": "frame_03.png"
+    },
+    {
+      "source_bbox": [
+        4,
+        66,
+        387,
+        610
+      ],
+      "source_subject_size": [
+        383,
+        544
+      ],
+      "output_bbox": [
+        33,
+        32,
+        161,
+        226
+      ],
+      "output_subject_size": [
+        171,
+        243
+      ],
+      "scale": 0.4464751958224543,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 0.75,
+        "scale_y": 0.8,
+        "offset_x": 30,
+        "offset_y": 4
+      },
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        1,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        678,
+        387,
+        1355
+      ],
+      "output": "frame_04.png"
+    },
+    {
+      "source_bbox": [
+        22,
+        69,
+        386,
+        610
+      ],
+      "source_subject_size": [
+        364,
+        541
+      ],
+      "output_bbox": [
+        33,
+        23,
+        161,
+        226
+      ],
+      "output_subject_size": [
+        171,
+        254
+      ],
+      "scale": 0.4697802197802198,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 0.75,
+        "scale_y": 0.8,
+        "offset_x": 30,
+        "offset_y": 4
+      },
+      "output_edge_touch": false,
+      "alpha_components": 2,
+      "removed_component_pixels": 810,
+      "grid": [
+        1,
+        1
+      ],
+      "source_cell_rect": [
+        387,
+        678,
+        773,
+        1355
+      ],
+      "output": "frame_05.png"
+    },
+    {
+      "source_bbox": [
+        4,
+        68,
+        380,
+        610
+      ],
+      "source_subject_size": [
+        376,
+        542
+      ],
+      "output_bbox": [
+        33,
+        30,
+        161,
+        226
+      ],
+      "output_subject_size": [
+        171,
+        246
+      ],
+      "scale": 0.45478723404255317,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 0.75,
+        "scale_y": 0.8,
+        "offset_x": 30,
+        "offset_y": 4
+      },
+      "output_edge_touch": false,
+      "alpha_components": 2,
+      "removed_component_pixels": 430,
+      "grid": [
+        1,
+        2
+      ],
+      "source_cell_rect": [
+        773,
+        678,
+        1160,
+        1355
+      ],
+      "output": "frame_06.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 6,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

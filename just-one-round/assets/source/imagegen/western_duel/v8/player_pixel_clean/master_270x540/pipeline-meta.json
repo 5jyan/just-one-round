@@ -1,0 +1,87 @@
+{
+  "input": "just-one-round/assets/source/imagegen/western_duel/v8/player_pixel_clean/raw_generated/master_raw.png",
+  "source_sheet_size": [
+    887,
+    1774
+  ],
+  "grid": [
+    1,
+    1
+  ],
+  "cell_size": [
+    270,
+    540
+  ],
+  "filter": "nearest",
+  "key": "generate2dsprite.remove_bg_magenta(threshold=100, edge_threshold=210), then alpha-key layout",
+  "alpha_threshold": 0,
+  "fit": 0.68,
+  "anchor": "bottom",
+  "post_transform": {
+    "scale_x": 1,
+    "scale_y": 1,
+    "offset_x": 0,
+    "offset_y": -18
+  },
+  "resampling": "nearest",
+  "residual_magenta_pixels_removed": 2,
+  "halo_cleanup": {
+    "recolored_boundary_pixels": 376,
+    "candidate_rule": "HSV hue 280–330 degrees, saturation >= 0.30, blue >= 0.65*red, blue >= 1.35*green, within 2 pixels of transparent boundary",
+    "replacement": "nearest non-halo opaque source pixel within radius 4, prioritizing nearest dark material cluster",
+    "pre_cleanup_backup": "../qc/pre_halo_cleanup/frame_01.png"
+  },
+  "raw_body_preserved": true,
+  "frames": [
+    {
+      "source_bbox": [
+        196,
+        286,
+        741,
+        1569
+      ],
+      "source_subject_size": [
+        545,
+        1283
+      ],
+      "output_bbox": [
+        57,
+        153,
+        213,
+        520
+      ],
+      "output_subject_size": [
+        156,
+        367
+      ],
+      "scale": 0.2860483242400624,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 1,
+        "scale_y": 1,
+        "offset_x": 0,
+        "offset_y": -18
+      },
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        0,
+        887,
+        1774
+      ],
+      "output": "frame_01.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 1,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

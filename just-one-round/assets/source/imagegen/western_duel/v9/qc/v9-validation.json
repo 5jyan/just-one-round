@@ -1,0 +1,312 @@
+{
+  "cell_size": [
+    540,
+    1080
+  ],
+  "idle_sheet_size": [
+    1080,
+    2160
+  ],
+  "action_sheet_size": [
+    1620,
+    2160
+  ],
+  "idle_frames_identical": true,
+  "expected_action_order": [
+    "ready",
+    "grip_hold",
+    "draw_hold",
+    "aim",
+    "fire",
+    "recoil_hold"
+  ],
+  "expected_bboxes": [
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ]
+  ],
+  "actual_bboxes": [
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ]
+  ],
+  "feet_anchor_y": [
+    1040
+  ],
+  "muzzle_anchor_delivery": [
+    410,
+    365
+  ],
+  "breech_anchor_delivery": [
+    381,
+    404
+  ],
+  "muzzle_x_less_than_npc_bound": true,
+  "frames": [
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_idle_v9/frame_01.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        115,
+        306,
+        424,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_idle_v9/frame_02.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        115,
+        306,
+        424,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_idle_v9/frame_03.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        115,
+        306,
+        424,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_idle_v9/frame_04.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        115,
+        306,
+        424,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_01.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        115,
+        306,
+        424,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_02.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        115,
+        306,
+        424,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_03.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        115,
+        306,
+        424,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_04.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        114,
+        306,
+        426,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_05.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        114,
+        306,
+        426,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    },
+    {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_06.png",
+      "size": [
+        540,
+        1080
+      ],
+      "bbox": [
+        114,
+        306,
+        426,
+        1040
+      ],
+      "output_edge_touch": false,
+      "opaque_magenta_pixels": 0
+    }
+  ],
+  "passed": true
+}

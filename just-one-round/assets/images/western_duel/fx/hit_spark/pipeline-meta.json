@@ -1,0 +1,147 @@
+{
+  "input": "assets/source/imagegen/western_duel/v1/fx/hit_spark/raw-sheet.png",
+  "source_sheet_size": [
+    1448,
+    1086
+  ],
+  "grid": [
+    2,
+    2
+  ],
+  "cell_size": [
+    16,
+    16
+  ],
+  "filter": "nearest",
+  "key": "magenta",
+  "fit": 0.9,
+  "anchor": "center",
+  "frames": [
+    {
+      "source_bbox": [
+        342,
+        235,
+        497,
+        398
+      ],
+      "source_subject_size": [
+        155,
+        163
+      ],
+      "output_bbox": [
+        1,
+        1,
+        14,
+        15
+      ],
+      "output_subject_size": [
+        13,
+        14
+      ],
+      "scale": 0.08588957055214724,
+      "anchor": "center",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        0
+      ],
+      "output": "frame_01.png"
+    },
+    {
+      "source_bbox": [
+        168,
+        180,
+        441,
+        457
+      ],
+      "source_subject_size": [
+        273,
+        277
+      ],
+      "output_bbox": [
+        1,
+        1,
+        15,
+        15
+      ],
+      "output_subject_size": [
+        14,
+        14
+      ],
+      "scale": 0.05054151624548736,
+      "anchor": "center",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        1
+      ],
+      "output": "frame_02.png"
+    },
+    {
+      "source_bbox": [
+        301,
+        168,
+        546,
+        367
+      ],
+      "source_subject_size": [
+        245,
+        199
+      ],
+      "output_bbox": [
+        1,
+        2,
+        15,
+        13
+      ],
+      "output_subject_size": [
+        14,
+        11
+      ],
+      "scale": 0.05714285714285714,
+      "anchor": "center",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        0
+      ],
+      "output": "frame_03.png"
+    },
+    {
+      "source_bbox": [
+        231,
+        193,
+        403,
+        328
+      ],
+      "source_subject_size": [
+        172,
+        135
+      ],
+      "output_bbox": [
+        1,
+        2,
+        15,
+        13
+      ],
+      "output_subject_size": [
+        14,
+        11
+      ],
+      "scale": 0.08139534883720931,
+      "anchor": "center",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        1
+      ],
+      "output": "frame_04.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 4,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

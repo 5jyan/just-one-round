@@ -1,0 +1,12 @@
+Use case: precise-object-edit
+Asset type: pixel-art player character animation sheet for a Western Duel mobile game.
+Input roles:
+- Image 1 is the EDIT TARGET and the sole geometry/layout authority.
+- Image 2 is the MATERIAL/TEXTURE reference for the accepted higher-detail player master.
+- Image 3 is SUPPORTING STYLE reference only for crisp Western pixel-art rendering quality.
+
+Edit Image 1 only. Return exactly one 1080x2160 RGBA PNG sprite sheet with a 2x2 layout of four portrait cells, each cell exactly 540x1080, row-major. Preserve every pose's camera distance, cell position, body root, feet line, silhouette, facing direction, hand locations, gun angle, empty magnum holster position, and exact frame geometry from Image 1. Preserve the subject's brown cowboy hat, side-profile face, dark beard, orange-red shirt, tan/brown vest, belt cartridges, brown pants, boots, and Western identity. Pose 8 (bottom-right) must keep the muzzle tip at approximately source cell coordinate (410,365) and breech at (381,404), pointing toward the opponent.
+
+Upgrade only the visual detail quality to match the richer pixel-art finish of Image 2 and the controlled crisp detail density of Image 3: add clean clustered pixel shading, stronger but restrained face planes, hat crown and brim texture, beard strands, orange cloth tension folds, sleeve and cuff seams, readable finger anatomy and knuckles, vest stitching and leather grain, cartridge highlights, holster edge and buckle detail, and clear revolver cylinder, grip, barrel and metal highlight shapes. Keep the same silhouette and same pose while enriching surface detail. Use deliberate hard-edged pixel clusters, limited warm Western palette, crisp nearest-neighbor style, strong readable outlines, and clean local contrast. No blur, no smooth vector gradients, no random speckled noise.
+
+The background in every cell must be a perfectly flat solid chroma magenta #FF00FF. No transparency. No shadows or floor. No muzzle flash, smoke, sparks, dust, effects, text, labels, borders, dividers, guide boxes, watermark, or extra characters. Do not zoom, crop, rotate, mirror, reposition, redesign, add/remove limbs, change anatomy, alter the weapon angle, alter feet placement, or invent a new pose. Keep all four unchanged pose silhouettes and their exact 2x2 cell positions from Image 1.

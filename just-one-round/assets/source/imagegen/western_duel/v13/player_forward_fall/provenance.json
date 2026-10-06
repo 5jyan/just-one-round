@@ -1,0 +1,379 @@
+{
+  "schema": "western_duel.player_forward_fall_v13.provenance.v1",
+  "generation_method": "built-in image_gen source; deterministic postprocess only",
+  "prompt": "Use case: identity-preserve.\nCreate a corrected detailed pixel-art 8-frame cowboy death animation sheet. Image 1 is the EXACT accepted standing cowboy identity/master. Image 2 is an earlier attempt showing the desired knees-first pause and arms-trailing death action, but its LAST THREE FRAMES HAVE CLIPPED FEET: use it only as action reference, DO NOT copy its clipping.\nExactly FOUR columns and TWO rows, 8 equal portrait slots in a square overall image, chronological left-right then next row. Each entire full-body pose MUST fit WITHIN ITS OWN INVISIBLE SLOT with AT LEAST 20% EMPTY MARGIN ON LEFT AND RIGHT and 8% top/bottom. Solid flat magenta #FF00FF background, no borders/text/lines. CRITICAL: frames 6,7,8 must have both complete boot soles, both complete arms/hands, hat, and revolver/holster entirely inside their slots. No subject anywhere touches any slot edge or crosses into neighbor. Ensure the character in fallen poses is oriented diagonally AWAY INTO DEPTH (from lower-left toward upper-right), with KNEES AND FEET TUCKED UNDER/BEHIND HIM; NOT horizontally stretched across the entire cell. This foreshortened compact fall should occupy no more horizontal width than the first standing character plus 15%; if needed the prone figure is shown three-quarter foreshortened, NOT shrunk/zoomed.\nThe same brown felt hat, dark hair/beard, orange rolled-sleeve shirt, stitched tan vest, brass bullet belt, brown trousers/boots and holster; same detailed crisp pixel clusters, palette and rear three-quarter camera facing right. Lock character's anatomical/camera scale: same head width, shoulders, arm thickness, costume detail in all frames; NO INCREASE IN APPARENT SIZE, no frame-specific zoom. First standing body fills about68% cell height, boots near lower slot margin, same body root; natural bbox shrink as he kneels.\nFrame1 standing and weakened. Frame2 knees buckle and arms loosen backward. Frame3 dropping to both knees. Frame4 fully kneeling, torso still mostly upright, arms hang behind hips. Frame5 almost same kneel with head drooping, a visibly held beat. Frame6 torso tips forward from the knees, arms limp/trailing backward. Frame7 chest falls diagonally forward, knees/boots still bent beneath him in depth, arms trail along body BACK toward hip, no bracing. Frame8 settled face-down, arms and palms limp behind head/shoulders toward hip, legs folded in depth, BOTH BOOTS COMPLETE INSIDE SLOT. The right hand never touches floor in front of the head. No crawl, push-up or pose supporting weight. NO gore, effects, floor, shadows, other actors, labels. Eight unique connected whole-body poses, no disconnected limbs.\n",
+  "prompt_sha256": "7be2da7c4c23cae557113011dd4e7f075ae02db1c1f0c0f71690caa1b76399eb",
+  "source": {
+    "raw_source": "/Users/saulpark/.codex/generated_images/01a0e7e9-6965-7fd1-a6b0-3339f3ecf0fe/exec-b5fe239a-33f2-4dfe-8679-a6dd8294320a.png",
+    "copied_raw": "assets/source/imagegen/western_duel/v13/player_forward_fall/raw_generated/player_forward_fall_v13_retry_raw.png",
+    "raw_dimensions": [
+      1254,
+      1254
+    ],
+    "raw_mode": "RGBA",
+    "raw_sha256": "eebc434579bc1b631ece1140f7ffb2c012bad5772076ed96ec1a503d4381fcec",
+    "raw_alpha_bbox": [
+      19,
+      21,
+      1238,
+      1236
+    ],
+    "cleaned_sha256": "36ca2d07d1dce55f6e0a3f95412f90d9dfe30126fd54d0108c096b196c29cbd0",
+    "raw_tail_source": "/Users/saulpark/.codex/generated_images/01a0e7e9-6965-7fd1-a6b0-3339f3ecf0fe/exec-0789e697-e493-41e8-a716-c8f3e8368b13.png",
+    "copied_tail_raw": "assets/source/imagegen/western_duel/v13/player_forward_fall/raw_generated/player_forward_fall_v13_tail_raw.png",
+    "tail_raw_sha256": "190914e1d5b44e9ac5973d215b4771ea8c78a09b8417f5d82d76300574ee48cf",
+    "tail_cleaned_sha256": "8aedcf08056c08facc797977274daf764a07d48b4bc1a897a156066d30abe8bc",
+    "tail_prompt": "assets/source/imagegen/western_duel/v13/player_forward_fall/prompt-tail.txt",
+    "tail_prompt_sha256": "efeb9790edf67d8ab3dabac22a76a3c086f5085ba7b6a36675290d3227e6e50d"
+  },
+  "layout": {
+    "source_grid": [
+      2,
+      4
+    ],
+    "source_order": "left_to_right_then_down",
+    "source_cell_bounds_x": [
+      0,
+      314,
+      627,
+      940,
+      1254
+    ],
+    "source_cell_bounds_y": [
+      0,
+      627,
+      1254
+    ],
+    "source_cell_sizes": [
+      [
+        314,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        314,
+        627
+      ],
+      [
+        314,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        314,
+        627
+      ]
+    ],
+    "delivery_grid": [
+      4,
+      2
+    ],
+    "delivery_cell": [
+      540,
+      1080
+    ],
+    "delivery_atlas": [
+      1080,
+      4320
+    ],
+    "tail_source_grid": [
+      2,
+      2
+    ],
+    "delivery_sources": [
+      "retry_4x2",
+      "retry_4x2",
+      "retry_4x2",
+      "retry_4x2",
+      "retry_4x2",
+      "tail_2x2",
+      "tail_2x2",
+      "tail_2x2"
+    ]
+  },
+  "scale": {
+    "common_scale": 1.387523629489603,
+    "first_frame_source_bbox": [
+      45,
+      66,
+      287,
+      595
+    ],
+    "first_frame_source_height": 529,
+    "reference_bbox": [
+      113,
+      306,
+      427,
+      1040
+    ],
+    "x_translation": 39.6710775047259,
+    "y_translation": 214.42344045368623,
+    "target_body_center_x": 270.0,
+    "baseline_y": 1040,
+    "per_frame_scale": [
+      1.387523629489603,
+      1.387523629489603,
+      1.387523629489603,
+      1.387523629489603,
+      1.387523629489603,
+      1.387523629489603,
+      1.387523629489603,
+      1.387523629489603
+    ]
+  },
+  "anchors": {
+    "reference_asset": "assets/images/western_duel/first_person/player_detail_idle_v11/frame_01.png",
+    "reference_bbox": [
+      113,
+      306,
+      427,
+      1040
+    ],
+    "policy": "one scale from cleaned frame 1; one shared x/y mapping from frame 1 body center and grounded baseline; later fall poses retain natural source-coordinate descent and bbox shrink",
+    "common_x_translation": 39.6710775047259,
+    "common_y_translation": 214.42344045368623,
+    "source_bboxes": [
+      [
+        45,
+        66,
+        287,
+        595
+      ],
+      [
+        33,
+        121,
+        268,
+        595
+      ],
+      [
+        19,
+        176,
+        259,
+        596
+      ],
+      [
+        54,
+        222,
+        266,
+        597
+      ],
+      [
+        45,
+        172,
+        257,
+        539
+      ],
+      [
+        7,
+        232,
+        313,
+        538
+      ],
+      [
+        0,
+        312,
+        313,
+        548
+      ],
+      [
+        0,
+        331,
+        289,
+        555
+      ]
+    ],
+    "output_bboxes": [
+      [
+        102,
+        306,
+        438,
+        1040
+      ],
+      [
+        85,
+        382,
+        411,
+        1040
+      ],
+      [
+        66,
+        459,
+        399,
+        1042
+      ],
+      [
+        115,
+        522,
+        409,
+        1042
+      ],
+      [
+        102,
+        453,
+        396,
+        962
+      ],
+      [
+        61,
+        511,
+        451,
+        962
+      ],
+      [
+        75,
+        547,
+        529,
+        852
+      ],
+      [
+        40,
+        567,
+        491,
+        851
+      ]
+    ],
+    "tail_source_bboxes": [
+      [
+        161,
+        121,
+        437,
+        589
+      ],
+      [
+        126,
+        174,
+        485,
+        589
+      ],
+      [
+        139,
+        207,
+        556,
+        487
+      ],
+      [
+        107,
+        226,
+        522,
+        487
+      ]
+    ],
+    "tail_output_bboxes": [
+      [
+        61,
+        511,
+        451,
+        962
+      ],
+      [
+        75,
+        547,
+        529,
+        852
+      ],
+      [
+        40,
+        567,
+        491,
+        851
+      ]
+    ],
+    "tail_common_scale": 1.0876068376068375,
+    "tail_translation": [
+      -76.1944444444444,
+      321.39957264957275
+    ]
+  },
+  "cleanup": {
+    "processor": "/Users/saulpark/.codex/skills/generate2dsprite/scripts/generate2dsprite.py",
+    "processor_operation": "remove_bg_magenta",
+    "magenta_threshold": 100,
+    "edge_threshold": 150,
+    "alpha_floor": 32,
+    "alpha_floor_removed_pixels": 61325,
+    "magenta_like_removed_pixels": 0,
+    "component_filter": "none; generated body remains intact",
+    "resampling": "nearest",
+    "creative_redraw": false
+  },
+  "runtime": {
+    "placement": {
+      "x": -254,
+      "y": "height - 680",
+      "fall_display_scale": 0.65,
+      "fall_scale_anchor_source": [
+        270,
+        306
+      ]
+    },
+    "frame_duration_ms": [
+      80,
+      80,
+      100,
+      160,
+      220,
+      100,
+      120,
+      100
+    ],
+    "frame_count": 8,
+    "fall_travel": {
+      "x": 45,
+      "y": 40
+    },
+    "visual_contract": "kneel, hold, then collapse with arms trailing behind"
+  },
+  "qc": {
+    "source_edge_touch_frames": [],
+    "output_edge_touch_frames": [],
+    "empty_frames": [],
+    "common_scale": 1.387523629489603,
+    "first_frame_source_height": 529,
+    "output_widths": [
+      336,
+      326,
+      333,
+      294,
+      294,
+      390,
+      454,
+      451
+    ],
+    "output_heights": [
+      734,
+      658,
+      583,
+      520,
+      509,
+      451,
+      305,
+      284
+    ],
+    "max_output_width": 454,
+    "min_horizontal_margin": 11,
+    "frame_sha256": [
+      "1bc3754eaecb3ee59292abdc6e4a6c628e4aaf21b00d9e5c5bd75614db58ed96",
+      "6f7d695e377ca1e648e0a633fb928344c0145cbdf6d26a7325942fdd689c6ffa",
+      "d34b15d289e48b049b8905fd99814f0ffa210fd448a10a024f74d90a4e8299c7",
+      "ff36155e503905e61ef387a9cb1b9be561b93a1c33ad6f752bf28fb9f3ea7173",
+      "293cb36706800171d8d4877e6d6a04b73be32b1139a55fd7f3ef72f2d7354b9e",
+      "8fcc5fd51646064a09ce32f129e863110df4a177c828d4ea8d5228122af79750",
+      "e4d2be7d0e5bd854e6198cec330a80f84635aff8fbd1239da508fb8aafa594f4",
+      "7293783811d5c191e4912cd22e474bddd45135126c08fbf746089014682a3fda"
+    ]
+  }
+}

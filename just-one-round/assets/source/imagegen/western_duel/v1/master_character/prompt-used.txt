@@ -1,0 +1,8 @@
+Character profile:
+Serious authentic 19th-century Texas gunslinger, adult realistic simplified proportions, strict full-body side profile facing right, worn wide cowboy hat, dusty vest and shirt, gun belt, single holstered revolver, trousers and boots. Tense restrained expression. Not cute, not chibi, not comedic.
+
+Style profile:
+Cinematic classic-western 2D pixel-art sprite. Limited faded ochre, dusty brown, rust red and muted teal palette; dark plum-brown outline; strong noon light from upper left; 2–3 shade steps; crisp large pixel clusters, no smoothing, no painterly rendering, no 3D, no vector.
+
+Prompt:
+Generate exactly one master sprite specimen. One complete full-body gunslinger in strict side profile facing right, tense pre-draw stance, one hand near the holster. Authentic serious old-West mood. Small muted-teal hatband is the only accent. Character centered inside the middle 65% with generous padding and feet on one baseline. Flat solid #FF00FF background. No shadow, ground, scenery, props, muzzle flash, bullet, dust, text, frame, grid, labels, or second character.

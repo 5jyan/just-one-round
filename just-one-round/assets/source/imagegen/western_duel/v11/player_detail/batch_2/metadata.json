@@ -1,0 +1,13 @@
+{
+  "asset": "western_duel_player_detail_v11_batch_2",
+  "source": "built-in image_gen edit",
+  "raw_file": "player_detail_action_v11_batch_2_raw.png",
+  "raw_dimensions": [887, 1774],
+  "intended_layout": {"rows": 2, "cols": 2, "cell_dimensions": [540, 1080]},
+  "pose_range": "5-8 quickdraw to exact-fire",
+  "edit_target": "/tmp/western_v11_pose_template_2.png",
+  "material_reference": "assets/source/imagegen/western_duel/v11/player_detail/master_540x1080/frame_01.png",
+  "style_reference": "assets/source/imagegen/western_duel/v1/first_person/opponent_master/opponent_master_raw.png",
+  "sha256": "4edc6acfd2818db739ba0f97a16b4c86c533ce895ec0df5c0285412d8c312f63",
+  "notes": "Raw generated sheet preserved at native output size; deterministic compositor owns chroma cleanup and runtime normalization."
+}

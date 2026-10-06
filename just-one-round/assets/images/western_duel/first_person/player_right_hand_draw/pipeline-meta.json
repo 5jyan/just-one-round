@@ -1,0 +1,79 @@
+{
+  "asset": "western_duel_player_right_hand_draw",
+  "version": "v2",
+  "source": "assets/source/imagegen/western_duel/v2/right_hand/action-raw-generated.png",
+  "raw_sheet": "assets/source/imagegen/western_duel/v2/right_hand/action-raw-sheet.png",
+  "raw_dimensions": [1536, 1024],
+  "grid": [2, 3],
+  "frame_count": 6,
+  "runtime_cell": [180, 100],
+  "display_size": [360, 200],
+  "filter": "nearest",
+  "anchor": "bottom-right foreground; runtime cell bottom y",
+  "timing_ms": 110,
+  "loop": false,
+  "frame_order": [
+    {
+      "frame": 1,
+      "semantic": "ready/grip: right hand rests on holstered revolver",
+      "muzzle": null
+    },
+    {
+      "frame": 2,
+      "semantic": "pull: revolver begins clearing holster",
+      "muzzle": null
+    },
+    {
+      "frame": 3,
+      "semantic": "clear: revolver fully out, wrist rotates upward",
+      "muzzle": {"x": 94, "y": 12, "space": "source-cell"}
+    },
+    {
+      "frame": 4,
+      "semantic": "aim: one-handed steady aim before shot",
+      "muzzle": {"x": 108, "y": 14, "space": "source-cell"}
+    },
+    {
+      "frame": 5,
+      "semantic": "fire: trigger squeeze and distinct wrist snap; trigger the single player muzzle flash here",
+      "muzzle": {"x": 103, "y": 6, "space": "source-cell", "display": {"x": 206, "y": 12}}
+    },
+    {
+      "frame": 6,
+      "semantic": "recoil/recover: gun settles after the shot",
+      "muzzle": {"x": 106, "y": 6, "space": "source-cell"}
+    }
+  ],
+  "source_method": "built-in image_gen 2x3 sheet from accepted v2 waiting-pose identity; deterministic magenta compositing, generate2dsprite strict QC, and nearest-neighbor 180x100 runtime framing",
+  "background": "#FF00FF raw; transparent runtime",
+  "left_hand_present": false,
+  "fx_embedded": false,
+  "runtime_files": [
+    "frame_01.png",
+    "frame_02.png",
+    "frame_03.png",
+    "frame_04.png",
+    "frame_05.png",
+    "frame_06.png",
+    "sheet-transparent.png",
+    "animation.gif"
+  ],
+  "qc": {
+    "native_frame_size": [180, 100],
+    "sheet_size": [540, 200],
+    "alpha_clean": true,
+    "output_edge_touch": false,
+    "paste_clamped": false,
+    "empty_frames": [],
+    "processor_qc": {
+      "cell_size": 180,
+      "fit_scale": 0.72,
+      "align": "feet",
+      "scale_strategy": "preserve",
+      "component_mode": "largest",
+      "body_scale_cv": 0.04094,
+      "anchor_y_std": 0.03058
+    },
+    "visual_review": "six coherent right-hand-only poses; frame 4 aim and frame 5 fire are visibly distinct; no left hand, extra limb, or embedded FX"
+  }
+}

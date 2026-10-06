@@ -1,0 +1,17 @@
+{
+  "asset": "western_duel_player_right_hand_wait",
+  "source_file": "raw-generated.png",
+  "raw_sheet": "raw-sheet.png",
+  "raw_dimensions": [1254, 1254],
+  "raw_background": "#FF00FF",
+  "generated_background_mode": "transparent output composited onto chroma-key magenta for processor input",
+  "references": [
+    "assets/source/imagegen/western_duel/v1/first_person/player_foreground/player_foreground_raw.png",
+    "assets/source/imagegen/western_duel/v1/first_person/player_action_recoil/raw-sheet.png"
+  ],
+  "runtime_cell": [180, 100],
+  "runtime_display": [360, 200],
+  "runtime_filter": "nearest",
+  "frame_count": 1,
+  "frame_semantics": ["ready: right hand resting on holstered revolver"]
+}

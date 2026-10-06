@@ -1,0 +1,22 @@
+Use case: precise-object-edit / game sprite animation generation
+Asset type: first-person pixel-art western duel player right-hand quick-draw action sheet
+Input images: Image 1 is the accepted v2 waiting-pose identity reference: preserve its exact right hand, brown sleeve, cream cuff, holster, aged silver 19th-century revolver, palette, dark outline, and fixed first-person camera. Image 2 is the older six-frame action sheet only as a motion/layout reference; replace its unwanted left hand with the single right-hand quick-draw motion.
+
+Primary request: Create one continuous six-frame right-hand-only draw/fire/recoil/recover sequence in an exact 2 rows x 3 columns grid, 6 equal invisible cells, no visible grid lines. Output should be a wide 3:2 sheet suitable for a 1536x1024 raw sprite sheet, with each square cell containing one frame. Keep the same player identity, clothing, revolver model, camera distance, and art-pixel scale in all six cells.
+
+Frame order, left-to-right then next row:
+1. ready/grip: right hand rests on the holstered revolver grip, gun still seated, tense draw-ready pose;
+2. pull: thumb and fingers begin lifting the revolver out of the holster;
+3. clear: revolver clears the holster, wrist rotates upward, right forearm remains anchored from lower-right;
+4. aim: the single right arm extends toward upper-center, revolver points at the opponent lane;
+5. fire: one completed one-handed firing pose, revolver aimed toward upper-center; show no muzzle flash, smoke, bullet, or other FX because those are separate runtime layers;
+6. recoil/recover: right wrist and gun kick upward/back slightly, then settle while remaining one continuous right-hand action.
+
+Scene/backdrop: flat pure solid magenta chroma-key background #FF00FF covering every cell and the whole sheet.
+Subject: exactly one right hand, one right forearm/sleeve, one cream cuff, one old-west holster, one period revolver; no left side body parts.
+Style/medium: deliberate chunky western pixel art matching Image 1, crisp hard-edged pixel clusters, readable silhouette, warm cinematic saloon light; not smooth digital painting.
+Composition/framing: fixed first-person view from the player's eyes, right-hand assembly originates from the lower-right of every cell. Keep all art fully inside an invisible safe area centered in each cell with generous magenta margin on all four sides; no body part, gun barrel, fingers, or sleeve may cross any cell boundary. The six poses must use the same camera distance and standing-equivalent scale; do not zoom per pose. Leave the left half of each cell clear enough that the central opponent lane remains open at runtime.
+Lighting/mood: warm upper-left saloon light, muted sepia western palette, consistent highlight/shadow direction.
+Materials/textures: clustered leather folds, readable hand creases, aged gunmetal and brass; restrained detail, no micro-noise.
+Constraints: exact 2x3 grid, exactly six frames, no labels, no text, no borders, no separators, no watermark. No detached effects. Preserve the accepted v2 waiting-pose identity and only change the action pose. Keep action geometry in a wide 9:5-ish central safe band within each square cell so it can be deterministically framed into the approved 180x100 runtime cell without stretching. Keep the bottom wrist/forearm baseline stable across frames.
+Avoid: any left hand or left arm, second hand, extra fingers, dual wielding, second revolver, body/face, opponent, scenery, UI, muzzle flash, smoke, dust, sparks, bullets, shell casings, modern weapon, fantasy weapon, cartoon mascot proportions, 3D render, painterly gradients, anti-aliased soft edges, cropped limbs, edge-touching pixels, inconsistent scale, camera shake.

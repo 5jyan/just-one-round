@@ -1,0 +1,13 @@
+Use the shown six-frame action sheet as the exact identity, camera, grid, and style reference. Produce a corrected replacement six-frame 2 rows x 3 columns raw sheet, preserving frames 1, 2, 3, and 6 as closely as possible and changing only the aim/fire distinction.
+
+Must remain: exact 2x3 grid, one right hand and one right forearm only, same warm tan hand, brown leather sleeve, cream cuff, aged silver 19th-century revolver, same fixed first-person camera, same scale and lower-right rooted forearm. No left hand, no second arm, no extra fingers, no body, no opponent, no scenery. Flat pure solid #FF00FF magenta background with no visible grid lines, no text, no labels, no FX.
+
+Frame semantics, left-to-right then second row:
+1 ready/grip, hand rests on holstered revolver;
+2 pull, gun beginning to clear holster;
+3 clear, gun lifted diagonally and fully out of holster;
+4 AIM ONLY: arm fully extended and held steady in a clean deliberate one-handed aim toward the opponent lane, trigger finger visibly poised but not squeezed, wrist straight, revolver barrel held on a slightly diagonal left-up line;
+5 FIRE MOMENT: unmistakably different from frame 4: trigger finger curled, hand clenched, wrist snapped back and slightly upward by recoil, revolver tilted about 10–15 degrees off the frame-4 aim line while still pointing toward the opponent; one instantaneous firing pose with stronger forearm tension. Do not draw muzzle flash or smoke; effects are separate runtime layers;
+6 recovery: recoil has settled, gun drops/rotates back toward a relaxed recover angle, still one right hand.
+
+Frame 4 and frame 5 must not be duplicate or near-duplicate silhouettes. Preserve clear pose change in wrist angle, trigger finger, and gun orientation. Keep all art fully inside each cell with safe magenta margin and no cell-edge contact. Use deliberate pixel clusters, not smooth painting.

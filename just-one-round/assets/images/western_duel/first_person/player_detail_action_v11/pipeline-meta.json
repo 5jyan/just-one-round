@@ -1,0 +1,444 @@
+{
+  "variant": "player_detail_action_v11",
+  "source_batches": {
+    "batch_1": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v11/player_detail/batch_1/player_detail_action_v11_batch_1_raw.png",
+      "sha256": "75025891acddcaf8a06d9932c0079df7c770f5dba46c55c595e92cd493b9edc4"
+    },
+    "batch_2": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v11/player_detail/batch_2/player_detail_action_v11_batch_2_raw.png",
+      "sha256": "4edc6acfd2818db739ba0f97a16b4c86c533ce895ec0df5c0285412d8c312f63"
+    },
+    "batch_3": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v11/player_detail/batch_3/player_detail_batch_3_raw.png",
+      "sha256": "525802aad7ef3abc1f073582c07b2b3e6aa1aba06f253c0671a3827cb158a549"
+    },
+    "batch_4": {
+      "path": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v11/player_detail/batch_4/player_detail_action_v11_batch_4_raw.png",
+      "sha256": "a6c718296b4dd44cd8a17ff8c79c1cfb346b589a28d992e83391fc59cf6619de"
+    }
+  },
+  "source_master": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v11/player_detail/master_540x1080/frame_01.png",
+  "source_master_sha256": "1c35de8580029765e9fe62281c8196c4c00aaa4facd53f194caeb327a2e4eaaf",
+  "source_raw_sheet_size": [
+    887,
+    1774
+  ],
+  "source_raw_cell_size_approx": [
+    443.5,
+    887
+  ],
+  "source_core_heights": {
+    "batch_1": 604,
+    "batch_2": 642,
+    "batch_3": 601,
+    "batch_4": 604
+  },
+  "observed_source_core_heights": {
+    "batch_1": [
+      604,
+      604,
+      604,
+      604
+    ],
+    "batch_2": [
+      641,
+      641,
+      642,
+      642
+    ],
+    "batch_3": [
+      601,
+      601,
+      600,
+      600
+    ],
+    "batch_4": [
+      604,
+      604,
+      603,
+      603
+    ]
+  },
+  "runtime_static_body_source_size": [
+    540,
+    1080
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_size": [
+    540,
+    1080
+  ],
+  "display_size": [
+    540,
+    1080
+  ],
+  "display_scale": [
+    1,
+    1
+  ],
+  "filter": "nearest",
+  "frame_order": [
+    "ready",
+    "grip_tighten",
+    "draw_low",
+    "draw_mid",
+    "near_aim_1",
+    "near_aim_2",
+    "near_aim_3",
+    "fire_exact",
+    "recoil_1",
+    "recoil_2",
+    "recoil_3",
+    "recoil_4",
+    "return_1",
+    "return_2",
+    "return_3",
+    "return_stable"
+  ],
+  "frame_duration_ms": [
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40
+  ],
+  "fire_frame_index": 7,
+  "fire_frame_number": 8,
+  "body_root": {
+    "bbox": [
+      115,
+      306,
+      424,
+      1040
+    ],
+    "alignment": "per-pose translation after one shared scale per source batch"
+  },
+  "composition": "v11 ImageGen arm-and-revolver pixels composited over the fixed v11 master; transparent pixels clear the selected arm region; opaque head and static master boxes are restored; v11 frame 8 supplies the empty-holster patch",
+  "muzzle_contract": {
+    "aim_reference": [
+      410,
+      365
+    ],
+    "breech_reference": [
+      381,
+      404
+    ],
+    "direction": "compact diagonal lower-left to upper-right toward centered opponent",
+    "recoil_max_displacement_px": 10
+  },
+  "qc": {
+    "frame_count": 16,
+    "cell_size": [
+      540,
+      1080
+    ],
+    "grid": [
+      4,
+      4
+    ],
+    "source_labels": [
+      "master",
+      "batch_1:2",
+      "batch_1:3",
+      "batch_1:4",
+      "batch_2:1",
+      "batch_2:2",
+      "batch_2:3",
+      "batch_2:4",
+      "batch_3:1",
+      "batch_3:2",
+      "batch_3:3",
+      "batch_3:4",
+      "batch_4:1",
+      "batch_4:2",
+      "batch_4:3",
+      "batch_4:4"
+    ],
+    "delivery_bboxes": [
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        429,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ],
+      [
+        113,
+        306,
+        427,
+        1040
+      ]
+    ],
+    "body_root_bboxes": [
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ],
+      [
+        113,
+        306,
+        410,
+        1040
+      ]
+    ],
+    "body_root_head_y": [
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306,
+      306
+    ],
+    "body_root_feet_y": [
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040,
+      1040
+    ],
+    "empty_frames": [],
+    "output_edge_touch_frames": [],
+    "magenta_residual_pixels": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "frame_sha256": [
+      "e388406d30addc53fd47a1bcd3dfa505f9fe4d838ed1fe30378a8da90f90b73d",
+      "026873961d2169f1367d385dbf0548ec028ea24282252d0187b792f395b71c42",
+      "89f8242e30d03f49db14242afe73535b9e9db67039ff2fd1804b5eb791508c72",
+      "4457b6f991e2ddb084fd316082080df1c12bc0b0312c39d239044cb24fb35d48",
+      "2c4a35ee3e83918da2bda9086749d8e4efd190bc27b9c96a89866cacfa407eda",
+      "ade6423988135d4fc8972a9e7ddce93302e31f1149d5a7a507695a73e8f357e5",
+      "70216403cba717aa53dc1ae858716377dcf09893b5e370650d0fef1cbd2a3620",
+      "ecf98fd416bba722444d695b263aed195186ace2c494178589ea79954713159d",
+      "e3eba85757877b13d0d622dcc65f6ccbf1d8bad8b2d02616eb48edcc5fc6eec1",
+      "be79a706f3d4d5859c539315f46252608023a999d093607f45887f3922f7bab1",
+      "946ec4733a438438487189d9beb669394947992ff7ec58b31ae3a282bb3108d2",
+      "8d13f81072cfe58bb16c2d6f76bb36878b023db3e88172e9f0f73872b483d346",
+      "c8250b8eac9b22a944f36e7322222a2822346c6e3496cefc03e8ce571a8909b5",
+      "e7cd0385118c10e5d9bcf10dbf9612bf5f9998ef7104e819145371db75926b01",
+      "9218564831639576387c5a2386f69b01f692a4f8eed33c70b6c325ffa2926f24",
+      "88a0b1ab09d399a9b940d56fb83fbe461ae8a0f3e2a8c45b750232429cdcacd0"
+    ],
+    "unique_frame_count": 16
+  }
+}

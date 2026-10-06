@@ -1,0 +1,78 @@
+{
+  "input": "assets/source/imagegen/western_duel/v9/player_detail_action_v9/raw_generated/aim_fire_generated.png",
+  "source_sheet_size": [
+    887,
+    1774
+  ],
+  "grid": [
+    1,
+    1
+  ],
+  "cell_size": [
+    540,
+    1080
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "alpha_threshold": 12,
+  "fit": 0.68,
+  "anchor": "bottom",
+  "post_transform": {
+    "scale_x": 1,
+    "scale_y": 1,
+    "offset_x": 0,
+    "offset_y": -38
+  },
+  "frames": [
+    {
+      "source_bbox": [
+        191,
+        485,
+        706,
+        1698
+      ],
+      "source_subject_size": [
+        515,
+        1213
+      ],
+      "output_bbox": [
+        114,
+        306,
+        426,
+        1040
+      ],
+      "output_subject_size": [
+        312,
+        734
+      ],
+      "scale": 0.605111294311624,
+      "anchor": "bottom",
+      "post_transform": {
+        "scale_x": 1,
+        "scale_y": 1,
+        "offset_x": 0,
+        "offset_y": -38
+      },
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        0,
+        887,
+        1774
+      ],
+      "output": "frame_01.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 1,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "variant": "player_detail_idle_v9",
+  "source_master": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v9/player_detail_idle_v9/master_540x1080_fit068/frame_01.png",
+  "grid": [
+    2,
+    2
+  ],
+  "cell_size": [
+    540,
+    1080
+  ],
+  "display_size": [
+    540,
+    1080
+  ],
+  "display_scale": [
+    1,
+    1
+  ],
+  "filter": "nearest",
+  "frame_order": [
+    "neutral",
+    "neutral",
+    "neutral",
+    "neutral"
+  ],
+  "frame_duration_ms": 140,
+  "body_root": "fixed",
+  "feet_bbox": [
+    115,
+    306,
+    424,
+    1040
+  ],
+  "method": "exact-repeat-of-accepted-high-resolution-master",
+  "qc": {
+    "frame_count": 4,
+    "all_frames_identical": true,
+    "passed": true
+  }
+}

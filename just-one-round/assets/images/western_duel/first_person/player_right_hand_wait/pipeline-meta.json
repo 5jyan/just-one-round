@@ -1,0 +1,37 @@
+{
+  "asset": "western_duel_player_right_hand_wait",
+  "version": "v2",
+  "source": "assets/source/imagegen/western_duel/v2/right_hand/raw-generated.png",
+  "raw_sheet": "assets/source/imagegen/western_duel/v2/right_hand/raw-sheet.png",
+  "raw_dimensions": [1254, 1254],
+  "frame_count": 1,
+  "grid": [1, 1],
+  "runtime_cell": [180, 100],
+  "display_size": [360, 200],
+  "filter": "nearest",
+  "anchor": "bottom-right foreground; runtime cell bottom y",
+  "frame_order": [
+    {
+      "frame": 1,
+      "semantic": "ready: right hand rests on holstered revolver; gun remains seated; left half clear",
+      "muzzle": null
+    }
+  ],
+  "source_method": "built-in image_gen reference generation from v1 player foreground and draw-action sheets, followed by deterministic nearest-neighbor runtime framing",
+  "background": "#FF00FF raw; transparent runtime",
+  "left_hand_present": false,
+  "fx_embedded": false,
+  "runtime_files": [
+    "frame_01.png",
+    "sheet-transparent.png",
+    "animation.gif"
+  ],
+  "qc": {
+    "native_frame_size": [180, 100],
+    "alpha_clean": true,
+    "edge_touch": false,
+    "subject_fully_contained": true,
+    "uniform_nearest_scale": true,
+    "visual_review": "right hand, holster, revolver and one sleeve only; no left hand or extra limb"
+  }
+}

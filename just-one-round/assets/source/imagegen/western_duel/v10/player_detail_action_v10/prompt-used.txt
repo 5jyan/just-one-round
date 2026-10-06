@@ -1,0 +1,73 @@
+Western Duel v10 action asset provenance — exact ImageGen prompts
+
+All six calls used these local references, in this order:
+1. /Users/saulpark/Documents/딱한판만/just-one-round/assets/images/western_duel/first_person/player_detail_idle_v9/frame_01.png
+2. /Users/saulpark/Documents/딱한판만/just-one-round/assets/images/western_duel/first_person/player_detail_action_v9/frame_04.png
+3. /Users/saulpark/Documents/딱한판만/just-one-round/assets/source/imagegen/western_duel/v10/player_detail_action_v10/references/action_anchor_2x2_540x1080.png
+
+The prompts below are the exact prompt strings sent to ImageGen. The first
+reference locked the accepted player identity and static body, the second
+locked the accepted compact revolver/aim design, and the third was a layout,
+root, scale, feet-line, and padding reference only.
+
+===== batch_a_draw_2x2_generated.png =====
+Create a high-resolution pixel-art animation source sheet for a western duel first-person foreground character. This is a 2x2 grid of EXACTLY FOUR equal 540x1080 pixel cells, total 1080x2160 pixels, with a solid #FF00FF magenta background and no visible grid lines, labels, borders, or effects. Read frames left-to-right then next row.
+
+Use the first reference as the exact accepted player identity, costume, palette, face, hat, body proportions, camera distance, and full-body scale. Use the second reference as the exact compact revolver/aim design and perspective. Use the third reference only as the invisible slot, feet-line, root, scale, and padding template.
+
+Animation frames 1-4 are the first quarter of one continuous quick-draw:
+1. ready neutral: same accepted idle pose, right hand just beginning to hover toward the holster grip; head, hat, torso, left arm, belt, holster, pelvis, legs and feet stay fixed.
+2. grip tighten: right shoulder subtly engages, right hand moves a small amount toward the revolver grip, fingers begin to close; no gun visible outside the holster yet; everything else fixed.
+3. draw begins: right hand grips and starts lifting the revolver a little out of the holster; elbow bends and rises slightly; barrel still points diagonally up-right, never sideways.
+4. weapon clears holster: revolver fully clears the holster, forearm is halfway raised, elbow follows naturally, barrel points compactly up-right toward an off-screen opponent in front; holster is empty except for its leather interior.
+
+Only the player's right upper arm, forearm, hand, and revolver may change between frames. Keep the hat top at the same source y about 306, waist/pelvis at source y about 650, both feet at source y about 1040, and the full body intact in every cell. Do not move or redraw the head, torso, left arm, legs, belt, or holster. No extra limbs, no duplicate gun, no gun left in the holster after frame 4. Keep the body inside the central safe area with generous magenta margin on all sides. Crisp controlled warm western pixel clusters, colored dark-brown outlines, fine detail matching the reference, no blurry upscale, no anti-aliased painting, no muzzle flash, no projectile, no smoke.
+
+===== batch_b_near_aim_2x2_generated.png =====
+Generate one high-resolution pixel-art source sheet, exactly a 2x2 grid of four equal cells with a solid #FF00FF magenta background, no labels, borders, separators, muzzle flash, projectile, smoke, or detached FX. Output one continuous quick-draw action for the same western first-person foreground cowboy.
+
+Reference 1 locks the exact accepted identity, hat, face, costume, palette, full-body scale, camera, fixed head/torso/legs and empty-holster body. Reference 2 locks the exact compact revolver design and up-right aiming direction. Reference 3 is only an invisible 2x2 slot/feet/root/scale template.
+
+Cell 1 is a neutral ready anchor repeat, included only so all cells share the same body root; right hand near the holster, no gun outside the holster. Cell 2 is frame 5: revolver is halfway drawn and rising, wrist and elbow smoothly continuing from a clear-holster pose. Cell 3 is frame 6: forearm rises near the right shoulder, wrist rotates toward the opponent, barrel still compact and diagonal up-right. Cell 4 is frame 7: almost fully aimed at the centered opponent, sights aligning, elbow settled, before firing. Make the three action poses clearly distinct and evenly spaced, not repeated masters.
+
+Change only the player's right upper arm, forearm, right hand, and revolver. Do not translate, scale, redraw, or animate the hat, head, face, neck, torso, vest, left arm, belt, holster, pelvis, legs, or feet. Keep hat top around source y306, waist/pelvis around y650, feet around y1040. The revolver must never point sideways; it points compactly lower-left to upper-right toward the opponent. No duplicate revolver and no revolver left in the holster after cell 2. Full body contained in each cell with generous magenta margin. Crisp controlled warm-brown/red/tan pixel clusters, colored dark outline, fine detail matching the reference, no blurry upscale, no anti-aliased painting, no muzzle flash, projectile, smoke, detached effects, extra limbs, or duplicate gun.
+
+===== batch_c_recoil_2x2_generated.png =====
+Generate a high-resolution pixel-art source sheet for the recoil half of a western quick-draw. Exactly 2x2 equal cells, solid #FF00FF magenta background, no labels, borders, separators, muzzle flash, projectile, smoke, or detached FX. Same accepted cowboy identity and full-body scale in every cell.
+
+Reference 1 locks the exact neutral body, identity, costume, palette, hat, head, torso, belt, holster, pelvis, legs, feet and camera. Reference 2 locks the compact revolver design and up-right firing geometry. Reference 3 is only a slot/root/feet/scale template.
+
+Cell 1 is a neutral ready anchor repeat for body alignment only. Cell 2 is recoil frame 9 immediately after the shot: the gun is still in the right hand and pointed toward the opponent, the wrist snaps down only a very small amount (about 8-10 final pixels), elbow and forearm stay raised, compact controlled recoil. Cell 3 is recoil frame 10: wrist and forearm recover toward aim, gun shifts a few pixels back up, elbow settles. Cell 4 is recoil frame 11: nearly stable aimed pose, tiny wrist settling and no large arm movement. Make cells 2,3,4 visibly distinct but subtle and sequential, not three copies.
+
+Only the right upper arm, forearm, hand, and revolver may change. Keep the hat top at source y306, waist/pelvis y650, feet y1040, and body root fixed. Never move the head or torso. Keep the revolver compact, diagonal lower-left to upper-right toward the opponent, never sideways. No extra limbs, no second gun, no gun left in the holster. Full body inside each cell with magenta margin. Match the accepted fine controlled warm western pixel clusters and colored dark outline; no blurry upscale, smooth painting, or anatomy redesign.
+
+===== batch_d_recovery_2x2_generated.png =====
+Generate a high-resolution pixel-art source sheet for the recovery half of a western quick-draw. Exactly 2x2 equal cells, solid #FF00FF magenta background, no labels, borders, separators, muzzle flash, projectile, smoke, or detached FX.
+
+Reference 1 locks the exact accepted neutral cowboy identity and static full body. Reference 2 locks the compact revolver and diagonal up-right aim. Reference 3 is only a slot, root, scale and feet-line guide.
+
+Cell 1 is a neutral ready anchor repeat for alignment only. Cell 2 is recovery frame 12: after recoil, the raised right arm starts to settle with the gun still held and pointed at the opponent. Cell 3 is frame 13: the right wrist and elbow return smoothly toward the stable aimed pose, only a few pixels of movement. Cell 4 is frame 14: stable aimed hold, small hand tension and shoulder settling, gun still compact and up-right. Make cells 2,3,4 clearly distinct in arm/wrist position, with a smooth return, not identical copies.
+
+Change only the right upper arm, forearm, hand and revolver. Keep hat/head/face/torso/vest/left arm/belt/holster/pelvis/legs/feet completely rooted and at hat y306, waist y650, feet y1040. No body translation or rescaling, no added limbs, no second gun, no gun left in holster. Full-body contained with magenta margin. Crisp detailed warm western pixel art matching the accepted opponent and player, colored dark outline, no blur, no painterly smoothing.
+
+===== batch_e_draw_progression_2x2_generated.png =====
+Create a high-resolution 2x2 pixel-art animation sheet, four equal cells, solid #FF00FF background, no labels or separators. This is one continuous western quick-draw with FOUR deliberately different arm poses; do not repeat a frame.
+
+Use reference 1 as the exact accepted cowboy identity and static full body. Use reference 2 as the compact revolver design and diagonal up-right direction. Use reference 3 as the invisible slot/root/feet/scale guide.
+
+Cell 1: early draw, right hand has just lifted the revolver to waist height, barrel angled modestly up-right, elbow low. The holster is visibly empty. Cell 2: mid draw, gun rises to chest height, elbow clearly halfway raised, forearm diagonal. Cell 3: near aim, arm reaches shoulder height, elbow bent and settled, sights toward opponent. Cell 4: stable compact aim, wrist straight and barrel aligned toward opponent, only a tiny difference from cell 3. These must read as four separate stages, with clear ordered low→medium→high arm movement; do not make cells 2-4 identical.
+
+Only right upper arm, forearm, hand and revolver move. Head, hat, face, torso, vest, left arm, belt, empty holster, pelvis, legs, feet and full-body root are fixed; hat y306, waist y650, feet y1040. No extra limbs, duplicate guns, sideways weapon, muzzle flash, projectile, smoke, blur or painterly edges. Full body contained with generous magenta margin. Match the accepted warm brown/red/tan western pixel art with crisp colored dark outlines and fine opponent-matched detail.
+
+===== batch_f_damped_return_2x2_generated.png =====
+Generate a high-resolution pixel-art 2x2 sheet of FOUR genuinely different late quick-draw recovery poses. Solid #FF00FF background, no labels, borders, separators, muzzle flash, projectile, smoke, or detached effects.
+
+Use the accepted neutral cowboy reference to lock the entire full body, head, hat, torso, vest, left arm, belt, holster, pelvis, legs, feet, camera and scale. Use the accepted compact aim reference to lock the revolver design and diagonal up-right direction. The invisible anchor template locks slots and feet.
+
+All four cells are after firing, ordered left-to-right then next row, with the right arm settling toward a stable aimed hold:
+1. immediate recoil: wrist slightly down, elbow high, muzzle only 8px below the final aim.
+2. damped rebound: wrist lifts back, elbow lowers slightly, muzzle halfway back up.
+3. late settle: gun and wrist almost aimed, small shoulder relaxation.
+4. final stable aimed hold: gun compactly diagonally up-right toward the opponent, arm relaxed and ready; not horizontal.
+
+Make each cell visibly distinct through right wrist angle, forearm angle and elbow height, with no repeated image. Keep differences subtle and rooted; never move the head or torso. Keep hat y306, waist y650, feet y1040, no extra limbs or duplicate gun, no gun in holster, no sideways shot. Full body inside the cell, magenta margin. Crisp detailed warm western pixel clusters with colored dark outline, no blur or painterly smoothing.

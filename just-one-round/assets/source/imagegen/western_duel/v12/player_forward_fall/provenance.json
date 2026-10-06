@@ -1,0 +1,300 @@
+{
+  "schema": "western_duel.player_forward_fall_v12.provenance.v1",
+  "generation_method": "built-in image_gen source; deterministic postprocess only",
+  "prompt": "Use case: identity-preserve.\nAsset type: game character body animation sprite sheet, one forward-collapse action.\nUse the images just shown as the visual reference. Image 1 is the EXACT approved cowboy identity, costume, rear three-quarter camera facing right, detailed crisp pixel-art material style. Image 2 is supporting right-hand/revolver pose reference, not another character.\nCreate EXACTLY 8 chronological frames in 4 equal columns and 2 equal rows, read left to right then down. Each invisible slot is portrait 1:2; entire canvas square. Background 100% solid flat magenta #FF00FF, no gradients, text, labels, borders or separators.\nSame brown felt hat, dark hair and beard, orange rolled-sleeve shirt, tan stitched leather vest, brown trousers and boots, brass ammunition belt and leather revolver holster. Same crisp detailed pixel scale, no style or identity change.\nAnimate his WHOLE body collapsing FORWARD toward the opponent, right and away into depth, NOT backward. A single continuous natural motion: frame1 slight loss of balance, right hand close to waist; frame2 knees soften and shoulders start forward; frame3 torso pitches forward with connected shoulders and arms; frame4 knees buckle, right hand extends to brace; frame5 deep forward fold onto knees and hands; frame6 chest drops forward, legs fold beneath/behind in depth; frame7 face-down forward collapsed with bent legs; frame8 settles in same fallen position. Hat stays on, revolver remains safely close to right hand/holster, no shooting.\nLock camera distance and standing-equivalent anatomical scale across all cells. NEVER zoom a crouching/fallen pose to fill its cell. Head size, limb thickness and costume details stay identical. First standing body occupies about 68% slot height, feet at 96% slot height, hat at 28% slot height, body root centered. Later body naturally descends with collapse while boots/root stay near the same grounded line. Fall is foreshortened into depth with bent knees so whole character fits the portrait cell. Keep all anatomy fully inside each cell, at least 8% empty horizontal margin, no overlap across cells. Leave magenta on all four sides. No gore, muzzle flashes, dust, detached effects, ground, shadows or other objects. This must be a high-quality readable full-body animation, not rigidly rotated copies.\n",
+  "prompt_sha256": "bf1570237d20f7a0affab6fffc471f827a64af34f6d11966693627db7ba6124a",
+  "source": {
+    "raw_source": "/Users/saulpark/.codex/generated_images/01a0e7e9-6965-7fd1-a6b0-3339f3ecf0fe/exec-4b6bab55-d3b0-4808-aa24-bb92ec135b90.png",
+    "copied_raw": "assets/source/imagegen/western_duel/v12/player_forward_fall/raw_generated/player_forward_fall_v12_raw.png",
+    "raw_dimensions": [
+      1254,
+      1254
+    ],
+    "raw_mode": "RGBA",
+    "raw_sha256": "098246a7f728d80ce2501a27fce17c2758ae3f88b4b7480e28e7035f1e7c9d85",
+    "raw_alpha_bbox": [
+      0,
+      7,
+      1240,
+      1254
+    ],
+    "cleaned_sha256": "65e26ee7c94311b066cc6cbb1e6432d0a2ec2c1f76c30834cd1f1fb09120d1cd"
+  },
+  "layout": {
+    "source_grid": [
+      2,
+      4
+    ],
+    "source_order": "left_to_right_then_down",
+    "source_cell_bounds_x": [
+      0,
+      314,
+      627,
+      940,
+      1254
+    ],
+    "source_cell_bounds_y": [
+      0,
+      627,
+      1254
+    ],
+    "source_cell_sizes": [
+      [
+        314,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        314,
+        627
+      ],
+      [
+        314,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        313,
+        627
+      ],
+      [
+        314,
+        627
+      ]
+    ],
+    "delivery_grid": [
+      4,
+      2
+    ],
+    "delivery_cell": [
+      540,
+      1080
+    ],
+    "delivery_atlas": [
+      1080,
+      4320
+    ]
+  },
+  "scale": {
+    "common_scale": 1.5887445887445888,
+    "first_frame_source_bbox": [
+      50,
+      100,
+      257,
+      562
+    ],
+    "first_frame_source_height": 462,
+    "reference_bbox": [
+      113,
+      306,
+      427,
+      1040
+    ],
+    "x_translation": 26.12770562770561,
+    "y_translation": 147.12554112554108,
+    "target_body_center_x": 270.0,
+    "baseline_y": 1040,
+    "per_frame_scale": [
+      1.5887445887445888,
+      1.5887445887445888,
+      1.5887445887445888,
+      1.5887445887445888,
+      1.5887445887445888,
+      1.5887445887445888,
+      1.5887445887445888,
+      1.5887445887445888
+    ]
+  },
+  "anchors": {
+    "reference_asset": "assets/images/western_duel/first_person/player_detail_idle_v11/frame_01.png",
+    "reference_bbox": [
+      113,
+      306,
+      427,
+      1040
+    ],
+    "policy": "one scale from cleaned frame 1; one shared x/y mapping from frame 1 body center and grounded baseline; later fall poses retain natural source-coordinate descent and bbox shrink",
+    "common_x_translation": 26.12770562770561,
+    "common_y_translation": 147.12554112554108,
+    "source_bboxes": [
+      [
+        50,
+        100,
+        257,
+        562
+      ],
+      [
+        37,
+        135,
+        273,
+        562
+      ],
+      [
+        30,
+        170,
+        265,
+        562
+      ],
+      [
+        10,
+        215,
+        296,
+        562
+      ],
+      [
+        22,
+        223,
+        297,
+        497
+      ],
+      [
+        11,
+        285,
+        290,
+        498
+      ],
+      [
+        0,
+        336,
+        284,
+        505
+      ],
+      [
+        2,
+        337,
+        297,
+        505
+      ]
+    ],
+    "output_bboxes": [
+      [
+        106,
+        306,
+        435,
+        1040
+      ],
+      [
+        85,
+        362,
+        460,
+        1040
+      ],
+      [
+        74,
+        417,
+        447,
+        1040
+      ],
+      [
+        42,
+        489,
+        496,
+        1040
+      ],
+      [
+        61,
+        501,
+        498,
+        936
+      ],
+      [
+        44,
+        600,
+        487,
+        938
+      ],
+      [
+        26,
+        681,
+        477,
+        949
+      ],
+      [
+        29,
+        683,
+        498,
+        950
+      ]
+    ]
+  },
+  "cleanup": {
+    "processor": "/Users/saulpark/.codex/skills/generate2dsprite/scripts/generate2dsprite.py",
+    "processor_operation": "remove_bg_magenta",
+    "magenta_threshold": 100,
+    "edge_threshold": 150,
+    "alpha_floor": 32,
+    "alpha_floor_removed_pixels": 62802,
+    "magenta_like_removed_pixels": 0,
+    "component_filter": "none; generated body remains intact",
+    "resampling": "nearest",
+    "creative_redraw": false
+  },
+  "runtime": {
+    "placement": {
+      "x": -254,
+      "y": "height - 680"
+    },
+    "frame_duration_ms": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80
+    ],
+    "frame_count": 8
+  },
+  "qc": {
+    "source_edge_touch_frames": [
+      7
+    ],
+    "output_edge_touch_frames": [],
+    "empty_frames": [],
+    "common_scale": 1.5887445887445888,
+    "first_frame_source_height": 462,
+    "output_widths": [
+      329,
+      375,
+      373,
+      454,
+      437,
+      443,
+      451,
+      469
+    ],
+    "output_heights": [
+      734,
+      678,
+      623,
+      551,
+      435,
+      338,
+      268,
+      267
+    ],
+    "max_output_width": 469,
+    "min_horizontal_margin": 26,
+    "frame_sha256": [
+      "4b6f8b1d93db7a3fd0fd2380d6f3318cc2359d15bfa2e68f12a3302a003c8626",
+      "462bd3bc29e14bd1423e894aa5890dc3e1ffe3ee6f4b83dbd55b315c92732ab8",
+      "9104524295efd0690bd9669905ccec76a44edbe6041333135acdf6a03cb2f248",
+      "3c00572cb172ce1264ee2d53f9a5a842bc8117594565caedabcd2023fe1a2b80",
+      "817ff7ddf27fbd1b5808c472e012a86ed1739d2b55c329d10b49a438b7a593c8",
+      "570c1f93edf2eeeba2038e00f5397451ad166e0f94ee385ccdf564ff0cab8739",
+      "3b8b136720a3e26bf28d86408bfe45ac43a146a3250279fe0cc8c876e916dddc",
+      "f92e7bedad23fbbc45f887038135d1d680e29fed283283299537277e4d505224"
+    ]
+  }
+}

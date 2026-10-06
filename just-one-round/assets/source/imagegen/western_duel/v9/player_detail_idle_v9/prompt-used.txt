@@ -1,0 +1,5 @@
+Create one new high-resolution pixel-art character master sprite on a portrait canvas, using the existing Western Duel player and opponent references.
+
+Preserve the player's brown wide-brim cowboy hat, dark hair and beard, red long-sleeve shirt, tan vest, cartridge belt, right-side holster, trousers, boots, and rear three-quarter view. Match the opponent's fine controlled pixel clusters, warm western palette, crisp stepped contours, compact shading, and colored dark outline. Keep the full body in the source and use a flat #FF00FF background for keying.
+
+The accepted master is a 540x1080 delivery cell with the head around y=306, feet around y=1040, and a fixed neutral ready stance. The visible body is biased slightly right so the face, right arm, belt, holster and gun remain available when rendered at x=-254. No animation, text, UI, effects, blur, anti-aliasing, photo texture, or extra limbs.

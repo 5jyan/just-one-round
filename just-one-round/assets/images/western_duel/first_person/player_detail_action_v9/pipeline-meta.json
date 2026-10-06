@@ -1,0 +1,86 @@
+{
+  "variant": "player_detail_action_v9",
+  "source_master": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v9/player_detail_idle_v9/master_540x1080_fit068/frame_01.png",
+  "source_aim_fire": "/Users/saulpark/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/western_duel/v9/player_detail_action_v9/aim_fire_540x1080_fit068/frame_01.png",
+  "grid": [
+    2,
+    3
+  ],
+  "cell_size": [
+    540,
+    1080
+  ],
+  "display_size": [
+    540,
+    1080
+  ],
+  "display_scale": [
+    1,
+    1
+  ],
+  "filter": "nearest",
+  "frame_order": [
+    "ready",
+    "grip_hold",
+    "draw_hold",
+    "aim",
+    "fire",
+    "recoil_hold"
+  ],
+  "frame_duration_ms": 53,
+  "body_root": "fixed",
+  "delivery_bboxes": [
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      115,
+      306,
+      424,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ],
+    [
+      114,
+      306,
+      426,
+      1040
+    ]
+  ],
+  "muzzle_anchor_delivery": [
+    410,
+    365
+  ],
+  "breech_anchor_delivery": [
+    381,
+    404
+  ],
+  "muzzle_constraint": "x<434; compact diagonal lower-left-to-upper-right",
+  "method": "accepted-high-resolution-master-and-aim-fire-repeat; no per-frame-bbox-fit",
+  "qc": {
+    "frame_count": 6,
+    "body_scale_variants": 2,
+    "feet_anchor_y": 1040,
+    "passed": true
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "asset_family": "western_duel_player_right_hand_v2",
+  "runtime_cell": [180, 100],
+  "display_scale": 2,
+  "display_cell": [360, 200],
+  "wait": {
+    "path": "assets/images/western_duel/first_person/player_right_hand_wait/frame_01.png",
+    "semantic": "right hand rests on holstered revolver",
+    "alpha_bbox": [84, 22, 178, 98],
+    "left_hand_present": false
+  },
+  "draw": {
+    "path": "assets/images/western_duel/first_person/player_right_hand_draw/sheet-transparent.png",
+    "grid": [2, 3],
+    "frames": [
+      "ready/grip",
+      "pull",
+      "clear",
+      "aim",
+      "fire: flash trigger",
+      "recoil/recover"
+    ],
+    "alpha_bboxes": {
+      "frame_01": [105, 42, 178, 98],
+      "frame_02": [110, 42, 178, 98],
+      "frame_03": [93, 12, 178, 98],
+      "frame_04": [106, 14, 178, 98],
+      "frame_05": [101, 5, 178, 98],
+      "frame_06": [104, 5, 178, 98]
+    },
+    "muzzle": {
+      "shot_frame": 5,
+      "source_cell": [103, 6],
+      "display_cell": [206, 12]
+    },
+    "left_hand_present": false,
+    "embedded_fx": false,
+    "frame_04_vs_05_distinct": true
+  },
+  "composite_previews": [
+    "western_duel_right_hand_wait_360x640.png",
+    "western_duel_right_hand_wait_360x720.png",
+    "western_duel_right_hand_wait_360x800.png",
+    "western_duel_right_hand_fire_frame05_360x640.png",
+    "western_duel_right_hand_fire_frame05_360x720.png",
+    "western_duel_right_hand_fire_frame05_360x800.png"
+  ],
+  "visual_result": "right-hand-only foreground is separated from the centered opponent; waiting pose leaves central lane clear; frame 5 is distinct diagonal recoil/fire pose",
+  "processor_result": {
+    "strict_qc": true,
+    "body_scale_cv": 0.04094,
+    "anchor_y_std": 0.03058,
+    "edge_touch": false,
+    "paste_clamped": false,
+    "empty_frames": []
+  }
+}

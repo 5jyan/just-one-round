@@ -1,0 +1,207 @@
+{
+  "input": "assets/source/imagegen/western_duel/v1/first_person/player_action_recoil/raw-sheet.png",
+  "source_sheet_size": [
+    1536,
+    1024
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "cell_size": [
+    96,
+    80
+  ],
+  "filter": "nearest",
+  "key": "magenta",
+  "fit": 0.9,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        0,
+        356,
+        512,
+        512
+      ],
+      "source_subject_size": [
+        512,
+        156
+      ],
+      "output_bbox": [
+        5,
+        52,
+        91,
+        78
+      ],
+      "output_subject_size": [
+        86,
+        26
+      ],
+      "scale": 0.16796875,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        0
+      ],
+      "output": "frame_01.png"
+    },
+    {
+      "source_bbox": [
+        0,
+        250,
+        512,
+        512
+      ],
+      "source_subject_size": [
+        512,
+        262
+      ],
+      "output_bbox": [
+        5,
+        34,
+        91,
+        78
+      ],
+      "output_subject_size": [
+        86,
+        44
+      ],
+      "scale": 0.16796875,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        1
+      ],
+      "output": "frame_02.png"
+    },
+    {
+      "source_bbox": [
+        8,
+        268,
+        476,
+        512
+      ],
+      "source_subject_size": [
+        468,
+        244
+      ],
+      "output_bbox": [
+        6,
+        33,
+        90,
+        78
+      ],
+      "output_subject_size": [
+        86,
+        45
+      ],
+      "scale": 0.18376068376068377,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        0,
+        2
+      ],
+      "output": "frame_03.png"
+    },
+    {
+      "source_bbox": [
+        0,
+        0,
+        512,
+        462
+      ],
+      "source_subject_size": [
+        512,
+        462
+      ],
+      "output_bbox": [
+        8,
+        6,
+        88,
+        78
+      ],
+      "output_subject_size": [
+        80,
+        72
+      ],
+      "scale": 0.15584415584415584,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        0
+      ],
+      "output": "frame_04.png"
+    },
+    {
+      "source_bbox": [
+        0,
+        0,
+        512,
+        462
+      ],
+      "source_subject_size": [
+        512,
+        462
+      ],
+      "output_bbox": [
+        8,
+        6,
+        88,
+        78
+      ],
+      "output_subject_size": [
+        80,
+        72
+      ],
+      "scale": 0.15584415584415584,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        1
+      ],
+      "output": "frame_05.png"
+    },
+    {
+      "source_bbox": [
+        0,
+        0,
+        512,
+        462
+      ],
+      "source_subject_size": [
+        512,
+        462
+      ],
+      "output_bbox": [
+        8,
+        6,
+        88,
+        78
+      ],
+      "output_subject_size": [
+        80,
+        72
+      ],
+      "scale": 0.15584415584415584,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "grid": [
+        1,
+        2
+      ],
+      "output": "frame_06.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 6,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "asset": "western_duel_player_upperbody_draw_v6",
+  "source_image": "assets/source/imagegen/western_duel/v6/player_upperbody_draw/raw-sheet-v2-with-background.png",
+  "foreground_extraction": "macOS Vision VNGenerateForegroundInstanceMaskRequest; six isolated instances",
+  "delivery_cell": [
+    560,
+    560
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "delivery_size": [
+    1680,
+    1120
+  ],
+  "runtime_display_size": [
+    360,
+    560
+  ],
+  "runtime_scale": [
+    0.6428571428571429,
+    1
+  ],
+  "runtime_origin": {
+    "x": -60,
+    "y": "viewport_height / 2 - 160"
+  },
+  "filter": "nearest",
+  "excluded_content": "trousers, thighs, knees, lower legs, and boots are absent from every frame",
+  "muzzle_anchor_cell_local": [
+    499,
+    150
+  ],
+  "muzzle_anchor_screen": [
+    261,
+    "viewport_height / 2 - 10"
+  ],
+  "timing_seconds_per_frame": 0.0525,
+  "fire_frame_index": 4,
+  "frames": [
+    {
+      "frame": 1,
+      "source_instance": "assets/source/imagegen/western_duel/v6/player_upperbody_draw/v2-vision-instances/instance_01.png",
+      "vision_source_bbox": [
+        119,
+        43,
+        340,
+        497
+      ],
+      "scale_xy": [
+        1,
+        0.93
+      ],
+      "offset_cell": [
+        62,
+        28
+      ],
+      "output_bbox": [
+        62,
+        28,
+        283,
+        450
+      ],
+      "output_edge_touch": false,
+      "pants_or_legs": false
+    },
+    {
+      "frame": 2,
+      "source_instance": "assets/source/imagegen/western_duel/v6/player_upperbody_draw/v2-vision-instances/instance_02.png",
+      "vision_source_bbox": [
+        632,
+        43,
+        851,
+        497
+      ],
+      "scale_xy": [
+        1,
+        0.93
+      ],
+      "offset_cell": [
+        90,
+        28
+      ],
+      "output_bbox": [
+        90,
+        28,
+        309,
+        450
+      ],
+      "output_edge_touch": false,
+      "pants_or_legs": false
+    },
+    {
+      "frame": 3,
+      "source_instance": "assets/source/imagegen/western_duel/v6/player_upperbody_draw/v2-vision-instances/instance_03.png",
+      "vision_source_bbox": [
+        1143,
+        43,
+        1444,
+        497
+      ],
+      "scale_xy": [
+        1,
+        0.93
+      ],
+      "offset_cell": [
+        199,
+        28
+      ],
+      "output_bbox": [
+        199,
+        28,
+        500,
+        450
+      ],
+      "output_edge_touch": false,
+      "pants_or_legs": false
+    },
+    {
+      "frame": 4,
+      "source_instance": "assets/source/imagegen/western_duel/v6/player_upperbody_draw/v2-vision-instances/instance_04.png",
+      "vision_source_bbox": [
+        59,
+        553,
+        466,
+        991
+      ],
+      "scale_xy": [
+        1,
+        0.93
+      ],
+      "offset_cell": [
+        92,
+        64
+      ],
+      "output_bbox": [
+        92,
+        64,
+        499,
+        471
+      ],
+      "output_edge_touch": false,
+      "pants_or_legs": false
+    },
+    {
+      "frame": 5,
+      "source_instance": "assets/source/imagegen/western_duel/v6/player_upperbody_draw/v2-vision-instances/instance_05.png",
+      "vision_source_bbox": [
+        582,
+        553,
+        1000,
+        991
+      ],
+      "scale_xy": [
+        1,
+        0.93
+      ],
+      "offset_cell": [
+        87,
+        27
+      ],
+      "output_bbox": [
+        87,
+        27,
+        505,
+        434
+      ],
+      "output_edge_touch": false,
+      "pants_or_legs": false
+    },
+    {
+      "frame": 6,
+      "source_instance": "assets/source/imagegen/western_duel/v6/player_upperbody_draw/v2-vision-instances/instance_06.png",
+      "vision_source_bbox": [
+        1095,
+        553,
+        1483,
+        991
+      ],
+      "scale_xy": [
+        1,
+        0.93
+      ],
+      "offset_cell": [
+        111,
+        60
+      ],
+      "output_bbox": [
+        111,
+        60,
+        499,
+        467
+      ],
+      "output_edge_touch": false,
+      "pants_or_legs": false
+    }
+  ]
+}

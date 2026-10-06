@@ -1,0 +1,132 @@
+{
+  "variant": "player_detail_action_v10",
+  "game": "western_duel",
+  "asset_role": "first-person player quick-draw body action",
+  "generation_method": "built-in ImageGen, six separate 2x2 continuous-action source batches",
+  "raw_source_contract": {
+    "raw_sheet_size": [887, 1774],
+    "raw_cell_size_approx": [443.5, 887],
+    "raw_format": "RGBA PNG",
+    "background": "transparent output from ImageGen; prompt requested solid #FF00FF chroma background",
+    "final_delivery_contract": {
+      "grid": [4, 4],
+      "cell_size": [540, 1080],
+      "atlas_size": [2160, 4320],
+      "display_size": [540, 1080],
+      "display_scale": [1, 1],
+      "filter": "nearest"
+    },
+    "quality_note": "The six ImageGen originals are 887x1774, matching the accepted v9 raw source resolution. The final 540x1080 body cell is the accepted v9 runtime source size; v10 uses ImageGen-authored arm/revolver pose material and does not claim sixteen newly authored native-540x1080 drawings."
+  },
+  "accepted_references": [
+    {
+      "role": "identity_static_body_master",
+      "path": "assets/images/western_duel/first_person/player_detail_idle_v9/frame_01.png",
+      "size": [540, 1080],
+      "bbox": [115, 306, 424, 1040],
+      "sha256": "4ac431ef357ffb060be3c7fce37ae4551b0f71c736e8d2ec1b1cbca794b1c9dd"
+    },
+    {
+      "role": "compact_aim_and_revolver_reference",
+      "path": "assets/images/western_duel/first_person/player_detail_action_v9/frame_04.png",
+      "size": [540, 1080],
+      "bbox": [114, 306, 426, 1040],
+      "muzzle_anchor": [410, 365],
+      "breech_anchor": [381, 404]
+    },
+    {
+      "role": "ImageGen_layout_and_root_reference",
+      "path": "assets/source/imagegen/western_duel/v10/player_detail_action_v10/references/action_anchor_2x2_540x1080.png",
+      "size": [1080, 2160],
+      "created_from": "accepted v9 idle master",
+      "usage": "slot, scale, feet-line, body-root and padding only; not creative art"
+    }
+  ],
+  "batches": [
+    {
+      "id": "a",
+      "phase": "ready/grip/draw start/weapon clears holster",
+      "raw_path": "assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_a_draw_2x2_generated.png",
+      "imagegen_original": "/Users/saulpark/.codex/generated_images/01a0ea4f-a39b-7592-84c5-62c838608a61/exec-4a57e7a5-a470-42c5-9d89-3a0a06a5863f.png",
+      "size": [887, 1774],
+      "sha256": "5df41380d77295cb119525aed494e299ae0376c1b2e53b119693fef6fd5dbe67",
+      "prompt_section": "batch_a_draw_2x2_generated.png"
+    },
+    {
+      "id": "b",
+      "phase": "near-aim transition and pre-fire settle",
+      "raw_path": "assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_b_near_aim_2x2_generated.png",
+      "imagegen_original": "/Users/saulpark/.codex/generated_images/01a0ea4f-a39b-7592-84c5-62c838608a61/exec-4d6d63fe-2398-4bfd-810f-dd2d75d7c43e.png",
+      "size": [887, 1774],
+      "sha256": "6c7422e9a904356223792086c2c7a9ae3ace82ada1a290aa22c0dbc5b3590311",
+      "prompt_section": "batch_b_near_aim_2x2_generated.png"
+    },
+    {
+      "id": "c",
+      "phase": "compact recoil and immediate recovery",
+      "raw_path": "assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_c_recoil_2x2_generated.png",
+      "imagegen_original": "/Users/saulpark/.codex/generated_images/01a0ea4f-a39b-7592-84c5-62c838608a61/exec-57ee8834-a278-4b7c-8187-020f2efa1369.png",
+      "size": [887, 1774],
+      "sha256": "6e096c6d3e81aaf2fb78a3964a7cab02f28a2d8881eb40c9848cf9e3dc20d03c",
+      "prompt_section": "batch_c_recoil_2x2_generated.png"
+    },
+    {
+      "id": "d",
+      "phase": "recovery and stable aimed hold",
+      "raw_path": "assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_d_recovery_2x2_generated.png",
+      "imagegen_original": "/Users/saulpark/.codex/generated_images/01a0ea4f-a39b-7592-84c5-62c838608a61/exec-5e5c6582-9813-4408-bc7c-20f1d989e479.png",
+      "size": [887, 1774],
+      "sha256": "1dd33ccd157530c8f46b88eddf0b6e1153e25ede7e177e22ed41b2398556ee09",
+      "prompt_section": "batch_d_recovery_2x2_generated.png"
+    },
+    {
+      "id": "e",
+      "phase": "explicit early-to-mid-to-near-aim draw progression",
+      "raw_path": "assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_e_draw_progression_2x2_generated.png",
+      "imagegen_original": "/Users/saulpark/.codex/generated_images/01a0ea4f-a39b-7592-84c5-62c838608a61/exec-7c06541a-ab88-48c9-b83c-f268185911a5.png",
+      "size": [887, 1774],
+      "sha256": "9e5060c7fece2a2532f777fa3cdb1a7fe74351995f8d25e0efd6a9d0e5b56eb3",
+      "prompt_section": "batch_e_draw_progression_2x2_generated.png"
+    },
+    {
+      "id": "f",
+      "phase": "four damped post-fire return poses",
+      "raw_path": "assets/source/imagegen/western_duel/v10/player_detail_action_v10/raw_generated/batch_f_damped_return_2x2_generated.png",
+      "imagegen_original": "/Users/saulpark/.codex/generated_images/01a0ea4f-a39b-7592-84c5-62c838608a61/exec-3a5f468e-efd8-4529-bfba-8a70e166e08b.png",
+      "size": [887, 1774],
+      "sha256": "43afc85f1a383d260d64aeb7b114357a0f225b89199b605c16c2a267dfad007b",
+      "prompt_section": "batch_f_damped_return_2x2_generated.png"
+    }
+  ],
+  "delivery_meaning": {
+    "frame_count": 16,
+    "sequence": [
+      "ready",
+      "grip tighten",
+      "draw begins",
+      "clear holster",
+      "raise through waist",
+      "raise through chest",
+      "near aim",
+      "exact accepted v9 aim/fire pose",
+      "compact recoil 1",
+      "compact recoil 2",
+      "compact recoil 3",
+      "recoil damping",
+      "return 1",
+      "return 2",
+      "return 3",
+      "stable aimed hold"
+    ],
+    "fire_frame_number": 8,
+    "fire_frame_index_zero_based": 7,
+    "frame_duration_ms": [30, 30, 30, 30, 30, 30, 30, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+    "body_policy": "accepted v9 master body/root is preserved; only right-arm/hand/revolver pose material changes between action frames",
+    "legs_policy": "full-body source is retained; legs are not artistically cut; runtime viewport clips the lower-left exposure",
+    "gun_direction": "compact diagonal lower-left to upper-right toward centered opponent; no sideways shot",
+    "muzzle_anchor_reference": [410, 365],
+    "breech_anchor_reference": [381, 404]
+  },
+  "unselected_imagegen_original": "/Users/saulpark/.codex/generated_images/01a0ea4f-a39b-7592-84c5-62c838608a61/exec-90d55f81-b22d-41c5-a3a1-720d38440881.png",
+  "unselected_note": "An extra generated original remained in the ImageGen session but was not copied into the v10 raw batch set and is not part of the approved six-batch provenance."
+}

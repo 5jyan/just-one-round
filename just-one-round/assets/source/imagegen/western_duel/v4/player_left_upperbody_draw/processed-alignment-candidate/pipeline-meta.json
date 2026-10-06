@@ -1,0 +1,256 @@
+{
+  "input": "assets/source/imagegen/western_duel/v4/player_left_upperbody_draw/player-left-upperbody-action-alignment-candidate.png",
+  "source_sheet_size": [
+    1231,
+    1277
+  ],
+  "grid": [
+    2,
+    3
+  ],
+  "cell_size": [
+    180,
+    280
+  ],
+  "filter": "nearest",
+  "key": "alpha",
+  "alpha_threshold": 24,
+  "fit": 0.95,
+  "anchor": "bottom",
+  "frames": [
+    {
+      "source_bbox": [
+        63,
+        26,
+        331,
+        612
+      ],
+      "source_subject_size": [
+        268,
+        586
+      ],
+      "output_bbox": [
+        29,
+        12,
+        151,
+        278
+      ],
+      "output_subject_size": [
+        122,
+        266
+      ],
+      "scale": 0.4539249146757679,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        0,
+        410,
+        638
+      ],
+      "output": "frame_01.png"
+    },
+    {
+      "source_bbox": [
+        48,
+        26,
+        315,
+        612
+      ],
+      "source_subject_size": [
+        267,
+        586
+      ],
+      "output_bbox": [
+        29,
+        12,
+        150,
+        278
+      ],
+      "output_subject_size": [
+        121,
+        266
+      ],
+      "scale": 0.4539249146757679,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        0,
+        1
+      ],
+      "source_cell_rect": [
+        410,
+        0,
+        821,
+        638
+      ],
+      "output": "frame_02.png"
+    },
+    {
+      "source_bbox": [
+        7,
+        26,
+        336,
+        612
+      ],
+      "source_subject_size": [
+        329,
+        586
+      ],
+      "output_bbox": [
+        15,
+        12,
+        164,
+        278
+      ],
+      "output_subject_size": [
+        149,
+        266
+      ],
+      "scale": 0.4539249146757679,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 2,
+      "removed_component_pixels": 1,
+      "grid": [
+        0,
+        2
+      ],
+      "source_cell_rect": [
+        821,
+        0,
+        1231,
+        638
+      ],
+      "output": "frame_03.png"
+    },
+    {
+      "source_bbox": [
+        16,
+        34,
+        389,
+        586
+      ],
+      "source_subject_size": [
+        373,
+        552
+      ],
+      "output_bbox": [
+        4,
+        25,
+        175,
+        278
+      ],
+      "output_subject_size": [
+        171,
+        253
+      ],
+      "scale": 0.4584450402144772,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        1,
+        0
+      ],
+      "source_cell_rect": [
+        0,
+        638,
+        410,
+        1277
+      ],
+      "output": "frame_04.png"
+    },
+    {
+      "source_bbox": [
+        36,
+        34,
+        399,
+        587
+      ],
+      "source_subject_size": [
+        363,
+        553
+      ],
+      "output_bbox": [
+        4,
+        17,
+        175,
+        278
+      ],
+      "output_subject_size": [
+        171,
+        261
+      ],
+      "scale": 0.47107438016528924,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        1,
+        1
+      ],
+      "source_cell_rect": [
+        410,
+        638,
+        821,
+        1277
+      ],
+      "output": "frame_05.png"
+    },
+    {
+      "source_bbox": [
+        34,
+        34,
+        379,
+        589
+      ],
+      "source_subject_size": [
+        345,
+        555
+      ],
+      "output_bbox": [
+        7,
+        12,
+        172,
+        278
+      ],
+      "output_subject_size": [
+        165,
+        266
+      ],
+      "scale": 0.47927927927927927,
+      "anchor": "bottom",
+      "output_edge_touch": false,
+      "alpha_components": 1,
+      "removed_component_pixels": 0,
+      "grid": [
+        1,
+        2
+      ],
+      "source_cell_rect": [
+        821,
+        638,
+        1231,
+        1277
+      ],
+      "output": "frame_06.png"
+    }
+  ],
+  "qc": {
+    "frame_count": 6,
+    "empty_frames": 0,
+    "output_edge_touch_frames": [],
+    "passed": true
+  }
+}
