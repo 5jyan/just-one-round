@@ -1,0 +1,1 @@
+Approved master boat, exact 4x4 four-direction sailing sheet. Rows north, east, south, west; four chug frames each. Solid #FF00FF background, consistent identity, scale and anchor, chunky pixel art.

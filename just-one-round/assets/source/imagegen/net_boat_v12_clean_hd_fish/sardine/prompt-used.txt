@@ -1,0 +1,17 @@
+Creative edit of the referenced Net Boat sardine. Preserve the exact identity
+and proportions: a tiny slender silver-blue sardine, oversized blank
+black-and-white eye, cyan-blue fins, slightly awkward dopey-cute expression,
+side view facing right. Change the rendering style from chunky visible pixel
+blocks to clean high-definition 2D mobile-game sprite art: smooth antialiased
+curves, crisp thin dark-navy contour, subtle continuous cel-shaded gradients,
+pearly silver belly, controlled blue reflections, clean readable eye and fins,
+no blocky stair-step pixels, no pixel-grid texture. It must stay simple and
+highly readable at a tiny 28x28 logical display size, not photorealistic and
+not overly detailed. Create EXACTLY 4 equal cells in a 2x2 grid, one coherent
+looping swim animation in reading order top-left, top-right, bottom-left,
+bottom-right. Same camera distance, body length, thickness, center anchor,
+palette and identity in every frame; only tail and fins move subtly. Every fish
+fully contained with generous padding. Background must be perfectly solid flat
+#FF00FF magenta. No grid lines, borders, labels, text, bubbles, water, wake,
+shadow, glow, or detached effects.
+

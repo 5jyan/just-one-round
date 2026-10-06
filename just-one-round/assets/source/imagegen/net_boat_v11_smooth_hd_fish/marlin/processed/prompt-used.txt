@@ -1,0 +1,3 @@
+Reuse the accepted v10 blue marlin master and preserve its exact identity,
+four-frame swim loop, scale, center anchor, bill, dorsal fin, and silhouette.
+Output retains full color and smooth fractional-alpha edges for a 168x114 cell.

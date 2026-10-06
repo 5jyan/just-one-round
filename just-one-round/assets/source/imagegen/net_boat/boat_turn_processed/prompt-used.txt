@@ -1,0 +1,1 @@
+Approved master boat, exact 4x2 four-direction right-turn sheet. Rows north, east, south, west; two clockwise lean frames each. Solid #FF00FF background, consistent identity, scale and anchor, chunky pixel art.

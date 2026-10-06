@@ -1,0 +1,7 @@
+Create a runtime-ready pixel-art animation source sheet for the existing top-down ocean minigame. Use the piranha and marlin atlases as visual references for crisp pixel clusters, dark outlines, simple shading, side-view fish anatomy, and awkward-cute personality.
+
+Create one tiny harmless sardine with a slim silver-blue body, darker blue-gray back, pale belly, one simple clueless eye, tiny fins, and a narrow forked tail. It faces right in every frame. Make exactly four frames of a gentle swim loop in a 2x2 grid, read left-to-right and top-to-bottom. Preserve identity, camera distance, body length, center point, and scale; change only the tail and tiny fins.
+
+Use deliberate chunky pixel clusters, very low detail, crisp hard edges, and no smoothing or gradients. Keep each fish inside the central 55% of its invisible cell with generous padding. Do not add bubbles, wakes, shadows, water, effects, extra fish, text, labels, borders, grid lines, or UI. Use a perfectly flat solid #FF00FF magenta background and do not use magenta in the subject.
+
+Cleanup edit: preserve the four sardines and their layout, but replace the full background with exact flat #FF00FF and remove every glow, halo, shadow, vignette, water effect, lighting bloom, and antialiased haze.

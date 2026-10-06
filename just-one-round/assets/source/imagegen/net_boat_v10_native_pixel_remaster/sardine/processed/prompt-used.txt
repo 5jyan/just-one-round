@@ -1,0 +1,6 @@
+Remaster the accepted small silver-blue sardine with its oversized blank eye,
+dark navy outline and cyan fins as an exact 2x2 four-frame swim sheet. Preserve
+identity and center anchor, thicken the body for tiny-screen readability, use
+10-12 flat colors and deliberate chunky pixels, and use only solid #FF00FF as
+the background. No borders, labels, detached effects, gradients, or soft edges.
+

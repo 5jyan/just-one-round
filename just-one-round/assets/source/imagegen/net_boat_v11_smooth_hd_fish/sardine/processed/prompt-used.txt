@@ -1,0 +1,4 @@
+Reuse the accepted v10 silver-blue sardine master and preserve its exact
+identity, four-frame swim loop, scale, center anchor, and transparent silhouette.
+Output retains full color and smooth fractional-alpha edges for an 84x84 cell.
+

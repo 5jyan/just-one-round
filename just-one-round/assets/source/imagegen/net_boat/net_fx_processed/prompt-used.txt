@@ -1,0 +1,1 @@
+Exact 4x2 effects atlas. Top row four net capture phases; bottom row four net cut phases. Solid #FF00FF, chunky pixel art.

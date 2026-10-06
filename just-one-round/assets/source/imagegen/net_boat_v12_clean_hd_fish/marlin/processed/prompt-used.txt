@@ -1,0 +1,13 @@
+Creative edit of the referenced Net Boat marlin. Preserve the exact identity:
+long blue body, iconic very long pointed bill, tall dark-blue dorsal fin, pale
+cream belly, small blank black-and-white eye, awkward slightly foolish
+expression, side view facing right. Match the new clean-HD sardine family
+rendering: smooth antialiased curves, crisp thin dark-navy contour, controlled
+continuous cel-shaded gradients, clean glossy highlights, no visible pixel
+blocks. Keep it simple and readable at a tiny 56x38 logical display size.
+Create EXACTLY 4 equal cells in a 2x2 grid, one coherent looping swim animation
+in reading order. Same camera distance, length, thickness, center anchor,
+palette and identity; only tail and small fins move subtly. Every fish fully
+contained with generous padding, especially bill and tail tips. Background must
+be perfectly solid flat #FF00FF magenta. No grid lines, borders, labels, text,
+bubbles, water, wake, blood, shadow, glow, or detached effects.

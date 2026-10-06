@@ -1,0 +1,4 @@
+Reuse the accepted v10 orange-red piranha master and preserve its exact identity,
+four-frame swim loop, scale, center anchor, eye, teeth, and silhouette. Output
+retains full color and smooth fractional-alpha edges for an 84x84 cell.
+

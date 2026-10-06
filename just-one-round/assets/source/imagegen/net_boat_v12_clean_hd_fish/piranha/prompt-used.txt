@@ -1,0 +1,13 @@
+Creative edit of the referenced Net Boat piranha. Preserve the exact identity:
+squat round orange-red body, one huge blank cream-and-black eye, two goofy
+protruding cream teeth, tiny red fins, awkward aggressive dopey-cute expression,
+side view facing left. Match the new clean-HD sardine family rendering: smooth
+antialiased curves, crisp thin dark-navy contour, controlled continuous
+cel-shaded gradients, clean glossy highlights, no visible pixel blocks. Keep it
+simple and readable at a tiny 28x28 logical display size. Create EXACTLY 4 equal
+cells in a 2x2 grid, one coherent looping swim animation in reading order.
+Same camera distance, body size, center anchor, palette and identity; only tail
+and fins move subtly. Every fish fully contained with generous padding.
+Background must be perfectly solid flat #FF00FF magenta. No grid lines,
+borders, labels, text, bubbles, water, wake, blood, shadow, glow, or effects.
+

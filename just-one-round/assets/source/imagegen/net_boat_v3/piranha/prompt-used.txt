@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: production 2D pixel-art creature animation sheet for a top-down mobile fishing game
+Primary request: Create one ugly-cute piranha swimming animation with exactly 4 sequential frames arranged in a clean 2 columns by 2 rows grid. This is one continuous swim loop, not four different characters.
+Reference role: the supplied shark and boat atlases lock the crisp dark outline, warm highlight clusters, deliberate chunky 2-logical-pixel look, top-down/side hybrid camera, and slightly awkward project-native ugly-cute style. Do not copy their anatomy.
+Subject: tiny furious red-orange piranha, squat round body, oversized lower jaw with only two or three readable triangular teeth, tiny fins, one blank foolish eye. Clearly a piranha, not a goldfish. Frame motion is subtle tail wag and body squash only.
+Composition: each frame centered inside its own invisible equal cell; full body inside central 62% of every cell; identical camera distance and body scale; stable body center; generous padding; nothing touches cell edges. Frame order left-to-right, then top-to-bottom.
+Style: polished high-quality pixel art with deliberate square clusters, limited palette, crisp stair-step silhouette, no smoothing, no fine noise, no glossy vector rendering.
+Background: perfectly flat solid #FF00FF in every pixel outside the subjects, for chroma-key removal. No shadows, gradients, texture, floor, water, bubbles, reflections, cell separators, borders, labels, guide marks, text, or watermark. Do not use magenta in the subject.
+Constraints: exactly four piranha frames, same identity and scale, no extra fish, no detached effects, no clipped fins or tail.
