@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const sausageDachshundPresentation = GamePresentationDefinition(
   id: 'sausage_dachshund',
-  loadingLabel: '냉장고 문 여는 중...',
   durationLabel: '최대 2분 30초',
   guideDurationText: '최대 150초 동안 소시지를 최대한 많이 먹어요.',
   homeAspectRatio: 0.78,
