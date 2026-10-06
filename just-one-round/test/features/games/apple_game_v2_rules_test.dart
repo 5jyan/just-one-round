@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/apple_game_v2/apple_game_v2.dart';
 import 'package:just_one_round/features/games/apple_game_v2/domain/apple_game_v2_rules.dart';
+import 'package:just_one_round/features/games/domain/mini_game.dart';
 
 void main() {
   test('게임 보드는 8열 13행이며 최대 104개 사과를 센다', () {
@@ -49,6 +51,15 @@ void main() {
     expect(board[0][0], isNull);
     expect(board[0][1], isNull);
     expect(AppleGameV2Rules.removeSelection(board, selection), 0);
+  });
+
+  test('모든 사과가 제거된 보드만 클리어로 판정한다', () {
+    final board = _emptyBoard();
+
+    expect(AppleGameV2Rules.isBoardCleared(board), isTrue);
+
+    board[12][7] = 1;
+    expect(AppleGameV2Rules.isBoardCleared(board), isFalse);
   });
 
   test('합이 10이 아니면 보드를 바꾸지 않는다', () {
@@ -172,6 +183,56 @@ void main() {
 
     expect(tester.takeException(), isNull);
     game.pauseEngine();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('마지막 사과 제거 연출이 끝나면 클리어로 한 번만 종료한다', (tester) async {
+    final results = <GameResult>[];
+    final game = AppleGameV2(
+      gameDuration: const Duration(seconds: 60),
+      countdownDuration: Duration.zero,
+      assetSet: AppleGameV2AssetSet.midnightOrchard,
+      random: Random(3),
+      onFinished: results.add,
+    );
+
+    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+    for (var frame = 0; frame < 30 && !game.isLoaded; frame++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(game.isLoaded, isTrue);
+
+    final board = _emptyBoard();
+    board[0][0] = 4;
+    board[0][1] = 6;
+    game.setBoardForTesting(board, score: 102);
+    game.commitSelectionForTesting(
+      const AppleCellRange(
+        startRow: 0,
+        startColumn: 0,
+        endRow: 0,
+        endColumn: 1,
+      ),
+    );
+
+    expect(results, isEmpty);
+    expect(game.hud.value.score, 104);
+    expect(game.hud.value.phase, MiniGamePhase.playing);
+
+    game.update(0.2);
+
+    expect(results, hasLength(1));
+    expect(results.single.score, 104);
+    expect(results.single.endType, GameEndType.clear);
+    expect(game.hud.value.phase, MiniGamePhase.finished);
+
+    game.update(60);
+    game.interrupt();
+    expect(results, hasLength(1));
+
     await tester.pumpWidget(const SizedBox.shrink());
   });
 

@@ -208,6 +208,7 @@ class AppleGameV2 extends FlameGame
       numberVerticalOffset: assetSet.numberVerticalOffset,
       numberLineHeight: assetSet.numberLineHeight,
       onRemoved: _handleRemoved,
+      onBoardCleared: _handleBoardCleared,
     );
     await world.add(_board);
 
@@ -244,7 +245,7 @@ class AppleGameV2 extends FlameGame
         final seconds =
             gameDuration.inMicroseconds / Duration.microsecondsPerSecond;
         if (_playingElapsed >= seconds) {
-          _finishGame();
+          _finishGame(GameEndType.timeUp);
         } else {
           _publishHud();
         }
@@ -262,6 +263,11 @@ class AppleGameV2 extends FlameGame
     );
     _score += count;
     _publishHud(force: true);
+  }
+
+  void _handleBoardCleared() {
+    if (_phase != MiniGamePhase.playing) return;
+    _finishGame(GameEndType.clear);
   }
 
   Future<void> _playClassicApplePopHaptic(int count) async {
@@ -324,7 +330,7 @@ class AppleGameV2 extends FlameGame
   Vector2 _viewportPosition(Vector2 canvasPosition) =>
       camera.globalToLocal(canvasPosition);
 
-  void _finishGame() {
+  void _finishGame(GameEndType endType) {
     if (_hasFinished) return;
     _hasFinished = true;
     _phase = MiniGamePhase.finished;
@@ -342,7 +348,7 @@ class AppleGameV2 extends FlameGame
             gameDuration.inMilliseconds,
           ),
         ),
-        endType: GameEndType.timeUp,
+        endType: endType,
       ),
     );
   }
@@ -389,6 +395,18 @@ class AppleGameV2 extends FlameGame
 
   @override
   void disposeController() => hud.dispose();
+
+  @visibleForTesting
+  void setBoardForTesting(List<List<int?>> replacement, {int score = 0}) {
+    _board.replaceBoard(replacement);
+    _score = score;
+    _publishHud(force: true);
+  }
+
+  @visibleForTesting
+  void commitSelectionForTesting(AppleCellRange range) {
+    _board.commitSelectionRange(range);
+  }
 }
 
 class _AppleBoardComponent extends PositionComponent {
@@ -403,6 +421,7 @@ class _AppleBoardComponent extends PositionComponent {
     required this.numberVerticalOffset,
     required this.numberLineHeight,
     required this.onRemoved,
+    required this.onBoardCleared,
   }) : super(
          position: Vector2(_boardLeft, _boardTop),
          size: Vector2(_boardWidth, _boardHeight),
@@ -429,6 +448,7 @@ class _AppleBoardComponent extends PositionComponent {
   final double numberVerticalOffset;
   final double? numberLineHeight;
   final ValueChanged<int> onRemoved;
+  final VoidCallback onBoardCleared;
   final Paint _spritePaint = Paint()
     ..filterQuality = FilterQuality.none
     ..isAntiAlias = false;
@@ -491,6 +511,11 @@ class _AppleBoardComponent extends PositionComponent {
     if (_pendingRemovalCells != null) return;
     final selection = _selection;
     if (selection == null) return;
+    commitSelectionRange(selection);
+  }
+
+  void commitSelectionRange(AppleCellRange selection) {
+    if (_pendingRemovalCells != null) return;
     if (AppleGameV2Rules.selectionSum(board, selection) !=
         AppleGameV2Rules.targetSum) {
       cancelSelection();
@@ -511,6 +536,7 @@ class _AppleBoardComponent extends PositionComponent {
         _spawnPop(cell, ordinal: 1);
       }
       onRemoved(removedCells.length);
+      if (AppleGameV2Rules.isBoardCleared(board)) onBoardCleared();
     } else {
       _pendingRemovalCells = removedCells;
       _nextRemovalIndex = 0;
@@ -550,7 +576,22 @@ class _AppleBoardComponent extends PositionComponent {
       _pendingRemovalCells = null;
       _nextRemovalIndex = 0;
       _sequentialRemovalElapsed = 0;
+      if (AppleGameV2Rules.isBoardCleared(board)) onBoardCleared();
     }
+  }
+
+  void replaceBoard(List<List<int?>> replacement) {
+    assert(replacement.length == AppleGameV2Rules.rowCount);
+    for (var row = 0; row < AppleGameV2Rules.rowCount; row++) {
+      assert(replacement[row].length == AppleGameV2Rules.columnCount);
+      for (var column = 0; column < AppleGameV2Rules.columnCount; column++) {
+        board[row][column] = replacement[row][column];
+      }
+    }
+    _pendingRemovalCells = null;
+    _nextRemovalIndex = 0;
+    _sequentialRemovalElapsed = 0;
+    cancelSelection();
   }
 
   void _spawnPop((int, int) cell, {required int ordinal}) {

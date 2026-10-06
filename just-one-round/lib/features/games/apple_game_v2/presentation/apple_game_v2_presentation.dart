@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const appleGameV2Presentation = GamePresentationDefinition(
   id: 'apple_game_v2',
-  loadingLabel: '사과나무 심는 중...',
   durationLabel: '2분 20초',
   guideDurationText: '2분 20초 동안 도전할 수 있어요.',
   homeAspectRatio: 0.78,

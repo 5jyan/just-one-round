@@ -134,6 +134,9 @@ abstract final class AppleGameV2Rules {
   static bool hasAnyMove(List<List<int?>> board) =>
       countAvailableMoves(board, stopAfter: 1) > 0;
 
+  static bool isBoardCleared(List<List<int?>> board) =>
+      board.every((row) => row.every((apple) => apple == null));
+
   static int countAvailableMoves(List<List<int?>> board, {int? stopAfter}) {
     var count = 0;
     for (var top = 0; top < rowCount; top++) {
