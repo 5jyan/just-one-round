@@ -35,6 +35,31 @@ void main() {
       ).readAsStringSync(),
       contains('return 5;'),
     );
+    final currentRewardSql = File(
+      'supabase/migrations/20260822000300_daily_reward_base_and_bonuses.sql',
+    ).readAsStringSync();
+    expect(currentRewardSql, contains('ranking_bonus := 100;'));
+    expect(currentRewardSql, contains('ranking_bonus := 80;'));
+    expect(currentRewardSql, contains('ranking_bonus := 60;'));
+    expect(currentRewardSql, contains('ranking_bonus := 40;'));
+    expect(currentRewardSql, contains('ranking_bonus := 20;'));
+    expect(currentRewardSql, contains('ranking_bonus := 10;'));
+    expect(currentRewardSql, contains('return 30 + ranking_bonus;'));
+    final firstPlaceRewardSql = File(
+      'supabase/migrations/20260907000100_update_first_place_daily_reward.sql',
+    ).readAsStringSync();
+    expect(firstPlaceRewardSql, contains('ranking_bonus := 250;'));
+    expect(firstPlaceRewardSql, contains('return 30 + ranking_bonus;'));
+    final latestRewardSql = File(
+      'supabase/migrations/20260907000200_update_daily_reward_tiers.sql',
+    ).readAsStringSync();
+    expect(latestRewardSql, contains('ranking_bonus := 250;'));
+    expect(latestRewardSql, contains('ranking_bonus := 120;'));
+    expect(latestRewardSql, contains('ranking_bonus := 80;'));
+    expect(latestRewardSql, contains('ranking_bonus := 50;'));
+    expect(latestRewardSql, contains('ranking_bonus := 20;'));
+    expect(latestRewardSql, contains('ranking_bonus := 0;'));
+    expect(latestRewardSql, contains('return 30 + ranking_bonus;'));
     expect(sql, contains('coins_granted'));
     expect(sql, contains('create function public.spend_coins'));
     expect(sql, contains('insufficient coin balance'));

@@ -68,7 +68,11 @@ class AdMobRewardedAdService implements RewardedAdService {
 
   static const _diagnosticKey = 'admob_rewarded_last_diagnostic_v1';
   static const _operationTimeout = Duration(seconds: 12);
-  static const _showTimeout = Duration(seconds: 90);
+  // Showing the ad should return as soon as the native SDK accepts it. The
+  // completion timeout must also allow time for a user to pause or leave an
+  // interactive end card open before dismissing the ad.
+  static const _showPresentationTimeout = Duration(seconds: 12);
+  static const _showCompletionTimeout = Duration(minutes: 5);
 
   final AdMobRewardedAdConfig config;
   final ValueNotifier<RewardedAdStatus> _status = ValueNotifier(
@@ -107,7 +111,6 @@ class AdMobRewardedAdService implements RewardedAdService {
           )
           .timeout(_operationTimeout);
       await MobileAds.instance.initialize().timeout(_operationTimeout);
-      await MobileAds.instance.setAppMuted(true).timeout(_operationTimeout);
       debugPrint('[AdMob] Mobile Ads initialized.');
       _setStatus(RewardedAdStatus.unavailable);
     } catch (error, stackTrace) {
@@ -333,29 +336,35 @@ class AdMobRewardedAdService implements RewardedAdService {
           '(code: ${error.code}, domain: ${error.domain}): ${error.message}',
         );
         disposeAd();
-        complete(RewardedAdOutcome.failed);
+        // AdMob can report a later fullscreen error after it has already
+        // delivered the reward callback. Never turn an earned reward back
+        // into a failure because the closing callback was abnormal.
+        complete(earned ? RewardedAdOutcome.earned : RewardedAdOutcome.failed);
         unawaited(preload());
       },
     );
     try {
       await ad
           .show(onUserEarnedReward: (_, _) => earned = true)
-          .timeout(_showTimeout);
+          .timeout(_showPresentationTimeout);
     } catch (error, stackTrace) {
       debugPrint('[AdMob] Rewarded ad show threw: $error');
       debugPrintStack(stackTrace: stackTrace);
       disposeAd();
-      complete(RewardedAdOutcome.failed);
+      complete(earned ? RewardedAdOutcome.earned : RewardedAdOutcome.failed);
       unawaited(preload());
     }
     return result.future.timeout(
-      _showTimeout,
+      _showCompletionTimeout,
       onTimeout: () {
         disposeAd();
         _setStatus(RewardedAdStatus.unavailable);
-        complete(RewardedAdOutcome.failed);
+        final outcome = earned
+            ? RewardedAdOutcome.earned
+            : RewardedAdOutcome.failed;
+        complete(outcome);
         unawaited(preload());
-        return RewardedAdOutcome.failed;
+        return outcome;
       },
     );
   }
