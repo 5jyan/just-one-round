@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const numberRushPresentation = GamePresentationDefinition(
   id: 'number_rush',
-  loadingLabel: '오락실 가는 중...',
   durationLabel: '최대 3분',
   guideDurationText: '최대 3분 동안 도전할 수 있어요.',
   homeAspectRatio: 0.78,
@@ -17,7 +16,7 @@ const numberRushPresentation = GamePresentationDefinition(
     GameGuidePageDefinition(
       title: 'NEXT 숫자를 확인',
       description: '상단 NEXT에는 지금 찾아야 할 숫자가 표시됩니다. 타일을 누를 때마다 다음 숫자로 바뀌어요.',
-      detail: '숫자가 잘 보이지 않으면 추측해서 누르기보다 NEXT와 보드를 번갈아 확인하세요.',
+      detail: '3초 동안 다음 숫자를 못 찾으면 해당 타일 테두리가 은은하게 점멸해요.',
       visual: GameGuideVisualKind.numberNext,
     ),
     GameGuidePageDefinition(

@@ -76,6 +76,73 @@ void main() {
     expect(NumberRushRules.isCorrectTap(expected: 7, tapped: 8), isFalse);
   });
 
+  test('1과 10단위 숫자는 처음부터 특수 버튼으로 표시한다', () {
+    expect(NumberRushRules.isMilestoneNumber(1), isTrue);
+    for (final number in const [10, 20, 30, 40, 50]) {
+      expect(NumberRushRules.isMilestoneNumber(number), isTrue);
+    }
+    for (final number in const [2, 9, 11, 25, 49, 51]) {
+      expect(NumberRushRules.isMilestoneNumber(number), isFalse);
+    }
+  });
+
+  test('보스 폭발은 10부터 50까지 10단위 정답에만 발생한다', () {
+    for (final number in const [10, 20, 30, 40, 50]) {
+      expect(NumberRushRules.isBossMilestoneNumber(number), isTrue);
+    }
+    for (final number in const [1, 9, 11, 25, 49, 51]) {
+      expect(NumberRushRules.isBossMilestoneNumber(number), isFalse);
+    }
+  });
+
+  test('압박 단계는 10단위 숫자를 정답으로 누른 직후 올라간다', () {
+    expect(NumberRushRules.pressureStageForClearedNumber(0), 0);
+    expect(NumberRushRules.pressureStageForClearedNumber(9), 0);
+    expect(NumberRushRules.pressureStageForClearedNumber(10), 1);
+    expect(NumberRushRules.pressureStageForClearedNumber(19), 1);
+    expect(NumberRushRules.pressureStageForClearedNumber(20), 2);
+    expect(NumberRushRules.pressureStageForClearedNumber(30), 3);
+    expect(NumberRushRules.pressureStageForClearedNumber(40), 4);
+    expect(NumberRushRules.pressureStageForClearedNumber(49), 4);
+    expect(NumberRushRules.pressureStageForClearedNumber(50), 5);
+    expect(NumberRushRules.pressureStageForClearedNumber(51), 5);
+  });
+
+  test('힌트는 플레이 중 보이는 현재 목표를 3초간 못 누른 후만 켜진다', () {
+    expect(
+      NumberRushRules.shouldRevealHint(
+        secondsSinceProgress: 2.99,
+        targetVisible: true,
+        isPlaying: true,
+      ),
+      isFalse,
+    );
+    expect(
+      NumberRushRules.shouldRevealHint(
+        secondsSinceProgress: 3,
+        targetVisible: true,
+        isPlaying: true,
+      ),
+      isTrue,
+    );
+    expect(
+      NumberRushRules.shouldRevealHint(
+        secondsSinceProgress: 4,
+        targetVisible: false,
+        isPlaying: true,
+      ),
+      isFalse,
+    );
+    expect(
+      NumberRushRules.shouldRevealHint(
+        secondsSinceProgress: 4,
+        targetVisible: true,
+        isPlaying: false,
+      ),
+      isFalse,
+    );
+  });
+
   test('빠른 기록일수록 랭킹 점수가 높고 시간을 복원할 수 있다', () {
     final fast = NumberRushRules.rankingScoreFromElapsedMs(9870);
     final slow = NumberRushRules.rankingScoreFromElapsedMs(18240);

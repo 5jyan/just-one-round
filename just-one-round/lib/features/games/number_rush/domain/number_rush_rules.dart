@@ -10,7 +10,32 @@ abstract final class NumberRushRules {
   static const rankingCeilingMs = 3600000;
   static const minimumRefillDelaySeconds = 0.5;
   static const maximumRefillDelaySeconds = 2.0;
+  static const hintDelaySeconds = 3.0;
+  static const pressureStageCount = 6;
+  static const bossBurstDurationSeconds = 0.72;
   static const timeoutRankingScore = 0;
+
+  static bool isMilestoneNumber(int number) =>
+      number == 1 ||
+      (number >= 10 && number <= maximumNumber && number % 10 == 0);
+
+  static bool isBossMilestoneNumber(int number) =>
+      number >= 10 && number <= maximumNumber && number % 10 == 0;
+
+  static int pressureStageForClearedNumber(int clearedNumber) {
+    if (clearedNumber >= 50) return 5;
+    if (clearedNumber >= 40) return 4;
+    if (clearedNumber >= 30) return 3;
+    if (clearedNumber >= 20) return 2;
+    if (clearedNumber >= 10) return 1;
+    return 0;
+  }
+
+  static bool shouldRevealHint({
+    required double secondsSinceProgress,
+    required bool targetVisible,
+    required bool isPlaying,
+  }) => isPlaying && targetVisible && secondsSinceProgress >= hintDelaySeconds;
 
   static List<int> shuffledTiles(Random random) {
     final values = List<int>.generate(boardSlotCount, (index) => index + 1);

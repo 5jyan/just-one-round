@@ -54,6 +54,23 @@ class NumberRushGame extends FlameGame
   var _hasFinished = false;
   var _boardLoaded = false;
 
+  @visibleForTesting
+  bool get isReadyForTesting => _boardLoaded;
+
+  @visibleForTesting
+  int get nextNumberForTesting => _board.nextNumber;
+
+  @visibleForTesting
+  int get pressureStageForTesting => _board.pressureStageForTesting;
+
+  @visibleForTesting
+  int? get milestoneBurstNumberForTesting =>
+      _board.milestoneBurstNumberForTesting;
+
+  @visibleForTesting
+  Vector2? logicalCenterForNumberForTesting(int number) =>
+      _board.logicalCenterForNumberForTesting(number);
+
   @override
   Color backgroundColor() => const Color(0xFF030713);
 
@@ -141,6 +158,7 @@ class NumberRushGame extends FlameGame
   @visibleForTesting
   void tapLogicalPosition(Vector2 position) {
     if (_phase != MiniGamePhase.playing) return;
+    final tappedNumber = _board.nextNumber;
     final result = _board.tap(position);
     switch (result) {
       case _TapResult.miss:
@@ -148,7 +166,11 @@ class NumberRushGame extends FlameGame
       case _TapResult.wrong:
         unawaited(HapticFeedback.heavyImpact());
       case _TapResult.correct:
-        unawaited(HapticFeedback.mediumImpact());
+        unawaited(
+          NumberRushRules.isBossMilestoneNumber(tappedNumber)
+              ? HapticFeedback.heavyImpact()
+              : HapticFeedback.mediumImpact(),
+        );
       case _TapResult.completed:
         unawaited(HapticFeedback.heavyImpact());
         _finishGame(timedOut: false);
@@ -245,6 +267,14 @@ class _IgnitionState {
   double elapsed = 0;
 }
 
+class _MilestoneBurst {
+  _MilestoneBurst({required this.index, required this.number});
+
+  final int index;
+  final int number;
+  double elapsed = 0;
+}
+
 class _NumberRushBoard extends PositionComponent {
   _NumberRushBoard({
     required this.tiles,
@@ -282,11 +312,36 @@ class _NumberRushBoard extends PositionComponent {
   var isPlaying = false;
   var _wrongIndex = -1;
   var _wrongTime = 0.0;
+  var _lastProgressAtSeconds = 0.0;
+  var _stageFlashRemaining = 0.0;
+  _MilestoneBurst? _milestoneBurst;
   var _timedOut = false;
   int? _finalElapsedMs;
 
+  int get pressureStageForTesting => _pressureStage;
+  int? get milestoneBurstNumberForTesting => _milestoneBurst?.number;
+
+  Vector2? logicalCenterForNumberForTesting(int number) {
+    for (var index = 0; index < tiles.length; index++) {
+      if (tiles[index] != number ||
+          _cleared.contains(index) ||
+          _ignitions.containsKey(index)) {
+        continue;
+      }
+      final row = index ~/ 5;
+      final column = index % 5;
+      final shake = _cabinetShakeOffset;
+      return Vector2(
+        _boardLeft + column * _step + _tileSize / 2 + shake.dx,
+        _boardTop + row * _step + _tileSize / 2 + shake.dy,
+      );
+    }
+    return null;
+  }
+
   _TapResult tap(Vector2 point) {
-    final index = _tileIndexAt(point);
+    final shakeOffset = _cabinetShakeOffset;
+    final index = _tileIndexAt(point - Vector2(shakeOffset.dx, shakeOffset.dy));
     if (!isPlaying || index == null || _cleared.contains(index)) {
       return _TapResult.miss;
     }
@@ -299,9 +354,23 @@ class _NumberRushBoard extends PositionComponent {
       return _TapResult.wrong;
     }
 
+    final tappedNumber = nextNumber;
+    final previousStage = NumberRushRules.pressureStageForClearedNumber(
+      nextNumber - 1,
+    );
     _cleared.add(index);
     _shutdownRemaining[index] = _shutdownDuration;
     nextNumber++;
+    _lastProgressAtSeconds = elapsedSeconds;
+    final nextStage = NumberRushRules.pressureStageForClearedNumber(
+      nextNumber - 1,
+    );
+    if (nextStage > previousStage) {
+      _stageFlashRemaining = NumberRushRules.bossBurstDurationSeconds;
+    }
+    if (NumberRushRules.isBossMilestoneNumber(tappedNumber)) {
+      _milestoneBurst = _MilestoneBurst(index: index, number: tappedNumber);
+    }
     _refillIfNeeded(excludingIndex: index);
     if (nextNumber > NumberRushRules.maximumNumber) {
       isPlaying = false;
@@ -366,6 +435,14 @@ class _NumberRushBoard extends PositionComponent {
   void update(double dt) {
     super.update(dt);
     _wrongTime = max(0, _wrongTime - dt);
+    _stageFlashRemaining = max(0, _stageFlashRemaining - dt);
+    final milestoneBurst = _milestoneBurst;
+    if (milestoneBurst != null) {
+      milestoneBurst.elapsed += dt;
+      if (milestoneBurst.elapsed >= NumberRushRules.bossBurstDurationSeconds) {
+        _milestoneBurst = null;
+      }
+    }
     for (final index in _shutdownRemaining.keys.toList()) {
       final remaining = _shutdownRemaining[index]! - dt;
       if (remaining <= 0) {
@@ -391,14 +468,53 @@ class _NumberRushBoard extends PositionComponent {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
+    final shake = _cabinetShakeOffset;
+    canvas.save();
+    canvas.translate(shake.dx, shake.dy);
     _renderMachineShell(canvas);
     _renderTopPanel(canvas);
     _renderGridFrame(canvas);
     for (var index = 0; index < tiles.length; index++) {
       _renderTile(canvas, index);
     }
+    _renderMilestoneBurst(canvas);
     _renderFooter(canvas);
+    _renderStageFlash(canvas);
+    canvas.restore();
   }
+
+  Offset get _cabinetShakeOffset {
+    final burst = _milestoneBurst;
+    if (burst == null || burst.elapsed >= 0.34) return Offset.zero;
+    final strength = 1 - burst.elapsed / 0.34;
+    final amplitude = 1.5 + _pressureStage * 0.45;
+    return Offset(
+      sin(burst.elapsed * 104 + burst.number) * amplitude * strength,
+      cos(burst.elapsed * 83 + burst.number) * amplitude * strength * 0.55,
+    );
+  }
+
+  int get _pressureStage => NumberRushRules.pressureStageForClearedNumber(
+    min(nextNumber - 1, NumberRushRules.maximumNumber),
+  );
+
+  Color get _stagePrimary => switch (_pressureStage) {
+    0 => const Color(0xFF39F3FF),
+    1 => const Color(0xFF62FF9B),
+    2 => const Color(0xFF8D7CFF),
+    3 => const Color(0xFFFFB347),
+    4 => const Color(0xFFFF4F67),
+    _ => const Color(0xFFFFD84A),
+  };
+
+  Color get _stageSecondary => switch (_pressureStage) {
+    0 => const Color(0xFFFF4FC3),
+    1 => const Color(0xFFFFFF66),
+    2 => const Color(0xFFFF5EDB),
+    3 => const Color(0xFFFF6B57),
+    4 => const Color(0xFFFFD84A),
+    _ => const Color(0xFFFFFFFF),
+  };
 
   void _renderMachineShell(Canvas canvas) {
     final body = Path()
@@ -418,7 +534,7 @@ class _NumberRushBoard extends PositionComponent {
       ..strokeWidth = 12;
     canvas.drawPath(body, _stroke);
     _stroke
-      ..color = const Color(0xFF64268F)
+      ..color = _stageSecondary.withValues(alpha: 0.58)
       ..strokeWidth = 3;
     canvas.drawPath(body, _stroke);
 
@@ -439,7 +555,7 @@ class _NumberRushBoard extends PositionComponent {
       ..strokeWidth = 10;
     canvas.drawPath(screenBezel, _stroke);
     _stroke
-      ..color = const Color(0xFFFF4FC3)
+      ..color = _stageSecondary
       ..strokeWidth = 2;
     canvas.drawPath(screenBezel, _stroke);
 
@@ -450,11 +566,15 @@ class _NumberRushBoard extends PositionComponent {
     _fill.color = const Color(0xF2020715);
     canvas.drawRRect(glass, _fill);
     _stroke
-      ..color = const Color(0xFF39F3FF)
+      ..color = _stagePrimary
       ..strokeWidth = 1;
     canvas.drawRRect(glass, _stroke);
 
-    _fill.color = const Color(0x1000EFFF);
+    final pressurePulse =
+        (sin(elapsedSeconds * (1.8 + _pressureStage * 0.85)) + 1) / 2;
+    _fill.color = _stagePrimary.withValues(
+      alpha: 0.035 + _pressureStage * 0.012 + pressurePulse * 0.025,
+    );
     for (var y = 30.0; y < 482; y += 4) {
       canvas.drawRect(Rect.fromLTWH(25, y, 310, 1), _fill);
     }
@@ -471,19 +591,19 @@ class _NumberRushBoard extends PositionComponent {
       canvas,
       const Offset(34, 12),
       const Offset(326, 12),
-      const Color(0xFFFF4FC3),
+      _stageSecondary,
     );
     _drawRail(
       canvas,
       const Offset(12, 44),
       const Offset(12, 462),
-      const Color(0xFF39F3FF),
+      _stagePrimary,
     );
     _drawRail(
       canvas,
       const Offset(348, 44),
       const Offset(348, 462),
-      const Color(0xFFFF4FC3),
+      _stageSecondary,
     );
   }
 
@@ -493,7 +613,7 @@ class _NumberRushBoard extends PositionComponent {
       'TAP 50',
       const Offset(180, 38),
       fontSize: 19,
-      color: const Color(0xFF39F3FF),
+      color: _stagePrimary,
       anchor: _TextAnchor.topCenter,
     );
     _stroke
@@ -506,7 +626,7 @@ class _NumberRushBoard extends PositionComponent {
       'TIME',
       const Offset(110, 78),
       fontSize: 9,
-      color: const Color(0xFF7AF8FF),
+      color: _stagePrimary,
       anchor: _TextAnchor.topCenter,
     );
     _drawText(
@@ -514,7 +634,7 @@ class _NumberRushBoard extends PositionComponent {
       'NEXT',
       const Offset(250, 78),
       fontSize: 9,
-      color: const Color(0xFFFF77CE),
+      color: _stageSecondary,
       anchor: _TextAnchor.topCenter,
     );
     final elapsedMs = _finalElapsedMs ?? (elapsedSeconds * 1000).round();
@@ -523,7 +643,7 @@ class _NumberRushBoard extends PositionComponent {
       NumberRushRules.formatElapsedMs(elapsedMs).replaceAll('초', ''),
       const Offset(110, 96),
       fontSize: 21,
-      color: const Color(0xFF39F3FF),
+      color: _stagePrimary,
       anchor: _TextAnchor.topCenter,
     );
     _drawText(
@@ -532,7 +652,7 @@ class _NumberRushBoard extends PositionComponent {
       const Offset(250, 96),
       fontSize: nextNumber <= NumberRushRules.maximumNumber ? 21 : 14,
       color: nextNumber <= NumberRushRules.maximumNumber
-          ? const Color(0xFFFF77CE)
+          ? _stageSecondary
           : const Color(0xFFFFD84A),
       anchor: _TextAnchor.topCenter,
     );
@@ -540,10 +660,13 @@ class _NumberRushBoard extends PositionComponent {
 
   void _renderGridFrame(Canvas canvas) {
     _stroke
-      ..color = const Color(0xFF352057)
+      ..color = _stageSecondary.withValues(alpha: 0.32)
       ..strokeWidth = 1;
     canvas.drawLine(const Offset(36, 146), const Offset(324, 146), _stroke);
-    _fill.color = const Color(0x1800EFFF);
+    final pulse = (sin(elapsedSeconds * (1.5 + _pressureStage * 0.7)) + 1) / 2;
+    _fill.color = _stagePrimary.withValues(
+      alpha: 0.045 + _pressureStage * 0.014 + pulse * 0.025,
+    );
     canvas.drawRect(const Rect.fromLTWH(24, 154, 312, 318), _fill);
   }
 
@@ -554,6 +677,7 @@ class _NumberRushBoard extends PositionComponent {
     final y = _boardTop + row * _step;
     final isCleared = _cleared.contains(index);
     final isWrong = index == _wrongIndex && _wrongTime > 0;
+    final isMilestone = NumberRushRules.isMilestoneNumber(tiles[index]);
     final ignition = _ignitions[index];
     final isIgniting = ignition != null && ignition.delayRemaining <= 0;
     final ignitionElapsed = isIgniting ? ignition.elapsed : 0.0;
@@ -572,22 +696,32 @@ class _NumberRushBoard extends PositionComponent {
             ignitionElapsed >= 0.31);
     final ignitionStableGlow = isIgniting && ignitionElapsed >= 0.31;
     final shake = isWrong ? sin(_wrongTime * 120) * 2.2 : 0.0;
-    final rect = Rect.fromLTWH(x + shake, y, _tileSize, _tileSize);
+    final baseRect = Rect.fromLTWH(x + shake, y, _tileSize, _tileSize);
+    final milestoneBurst = _milestoneBurst;
+    final isBurstingMilestone =
+        milestoneBurst != null &&
+        milestoneBurst.index == index &&
+        milestoneBurst.elapsed < 0.2;
+    final rect = isBurstingMilestone
+        ? _milestoneButtonRect(baseRect, milestoneBurst.elapsed)
+        : baseRect;
     final spriteIndex = isWrong
         ? 3
+        : isBurstingMilestone
+        ? 4
         : isShuttingDown
         ? neonOn
-              ? tiles[index] == 25
+              ? isMilestone
                     ? 4
                     : 0
               : 2
         : ignitionGlow
-        ? tiles[index] == NumberRushRules.maximumNumber
+        ? isMilestone
               ? 4
               : 0
         : isCleared
         ? 2
-        : tiles[index] == NumberRushRules.maximumNumber
+        : isMilestone
         ? 4
         : 0;
     buttonSprites[spriteIndex].render(
@@ -604,7 +738,9 @@ class _NumberRushBoard extends PositionComponent {
         size: Vector2.all(rect.width + 6),
       );
     }
-    final showNumber = ignition != null
+    final showNumber = isBurstingMilestone
+        ? true
+        : ignition != null
         ? isIgniting && ignitionGlow
         : !isShuttingDown || neonOn || shutdownElapsed >= 0.26;
     if (showNumber) {
@@ -613,9 +749,13 @@ class _NumberRushBoard extends PositionComponent {
         '${tiles[index]}',
         Offset(rect.center.dx, rect.center.dy - (tiles[index] >= 10 ? 13 : 15)),
         fontSize: tiles[index] >= 10 ? 20 : 24,
-        color: isIgniting
+        color: isBurstingMilestone
+            ? const Color(0xFFFFF4A3)
+            : isIgniting
             ? ignitionStableGlow
-                  ? const Color(0xFF5DF5FF)
+                  ? isMilestone
+                        ? const Color(0xFFFFD84A)
+                        : const Color(0xFF5DF5FF)
                   : const Color(0xFF58BBC8)
             : isShuttingDown
             ? shutdownElapsed < 0.06
@@ -625,12 +765,134 @@ class _NumberRushBoard extends PositionComponent {
                   : const Color(0xFF183348)
             : isCleared
             ? const Color(0xFF183348)
-            : tiles[index] == NumberRushRules.maximumNumber
+            : isMilestone
             ? const Color(0xFFFFD84A)
             : const Color(0xFF5DF5FF),
         anchor: _TextAnchor.topCenter,
       );
     }
+    final targetVisible = !isCleared && ignition == null && !isShuttingDown;
+    if (tiles[index] == nextNumber &&
+        NumberRushRules.shouldRevealHint(
+          secondsSinceProgress: elapsedSeconds - _lastProgressAtSeconds,
+          targetVisible: targetVisible,
+          isPlaying: isPlaying,
+        )) {
+      _renderTargetHint(canvas, rect);
+    }
+  }
+
+  Rect _milestoneButtonRect(Rect rect, double elapsed) {
+    final progress = (elapsed / 0.2).clamp(0.0, 1.0).toDouble();
+    final compression = sin(progress * pi);
+    final width = rect.width * (1 + compression * 0.16);
+    final height = rect.height * (1 - compression * 0.28);
+    return Rect.fromCenter(center: rect.center, width: width, height: height);
+  }
+
+  void _renderMilestoneBurst(Canvas canvas) {
+    final burst = _milestoneBurst;
+    if (burst == null || burst.elapsed < 0.07) return;
+
+    final row = burst.index ~/ 5;
+    final column = burst.index % 5;
+    final center = Offset(
+      _boardLeft + column * _step + _tileSize / 2,
+      _boardTop + row * _step + _tileSize / 2,
+    );
+    final duration = NumberRushRules.bossBurstDurationSeconds;
+    final progress = ((burst.elapsed - 0.07) / (duration - 0.07))
+        .clamp(0.0, 1.0)
+        .toDouble();
+    final remaining = 1 - progress;
+    final effectIndex = min(
+      fxSprites.length - 1,
+      (progress * fxSprites.length).floor(),
+    );
+    final effectSize = 68.0 + progress * 58;
+    final effectPaint = Paint()
+      ..isAntiAlias = false
+      ..color = Colors.white.withValues(alpha: remaining)
+      ..colorFilter = ColorFilter.mode(
+        progress < 0.42 ? const Color(0xFFFFFFFF) : _stagePrimary,
+        BlendMode.srcIn,
+      );
+    fxSprites[effectIndex].render(
+      canvas,
+      position: Vector2(center.dx - effectSize / 2, center.dy - effectSize / 2),
+      size: Vector2.all(effectSize),
+      overridePaint: effectPaint,
+    );
+
+    _stroke
+      ..color = _stageSecondary.withValues(alpha: remaining * 0.9)
+      ..strokeWidth = max(1.0, 4 * remaining);
+    canvas.drawCircle(center, 25 + progress * 48, _stroke);
+
+    for (var ray = 0; ray < 12; ray++) {
+      final angle = ray * pi / 6 + burst.number * 0.07;
+      final near = 31 + progress * (9 + ray % 3 * 3);
+      final far = near + 8 + remaining * 18;
+      final start = center + Offset(cos(angle) * near, sin(angle) * near);
+      final end = center + Offset(cos(angle) * far, sin(angle) * far);
+      _stroke
+        ..color = (ray.isEven ? _stagePrimary : _stageSecondary).withValues(
+          alpha: remaining,
+        )
+        ..strokeWidth = ray % 3 == 0 ? 3 : 2;
+      canvas.drawLine(start, end, _stroke);
+      _fill.color = const Color(0xFFFFFFFF).withValues(alpha: remaining);
+      canvas.drawRect(
+        Rect.fromCenter(center: end, width: ray.isEven ? 4 : 3, height: 3),
+        _fill,
+      );
+    }
+
+    if (progress < 0.72) {
+      _drawText(
+        canvas,
+        '${burst.number} BREAK!',
+        const Offset(180, 136),
+        fontSize: 11,
+        color: _stageSecondary.withValues(alpha: min(1, remaining * 2.2)),
+        anchor: _TextAnchor.topCenter,
+      );
+    }
+  }
+
+  void _renderTargetHint(Canvas canvas, Rect rect) {
+    final pulse =
+        (sin((elapsedSeconds - _lastProgressAtSeconds) * 5.4) + 1) / 2;
+    final hintRect = RRect.fromRectAndRadius(
+      rect.inflate(2),
+      const Radius.circular(6),
+    );
+    _fill.color = const Color(
+      0xFFFFF4A3,
+    ).withValues(alpha: 0.035 + pulse * 0.07);
+    canvas.drawRRect(hintRect, _fill);
+    _stroke
+      ..color = const Color(0xFFFFF4A3).withValues(alpha: 0.28 + pulse * 0.42)
+      ..strokeWidth = 2;
+    canvas.drawRRect(hintRect, _stroke);
+  }
+
+  void _renderStageFlash(Canvas canvas) {
+    if (_stageFlashRemaining <= 0) return;
+    final progress =
+        _stageFlashRemaining / NumberRushRules.bossBurstDurationSeconds;
+    _stroke
+      ..color = _stagePrimary.withValues(alpha: progress * 0.9)
+      ..strokeWidth = 2 + progress * 8;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTWH(20, 22, 320, 466),
+        const Radius.circular(11),
+      ),
+      _stroke,
+    );
+    _fill.color = _stagePrimary.withValues(alpha: progress * 0.09);
+    canvas.drawRect(const Rect.fromLTWH(24, 154, 312, 318), _fill);
   }
 
   void _renderNeonFaultArcs(Canvas canvas, Rect rect, double elapsed) {
@@ -676,7 +938,7 @@ class _NumberRushBoard extends PositionComponent {
     _fill.color = const Color(0xF00A0D1E);
     canvas.drawPath(deck, _fill);
     _stroke
-      ..color = const Color(0xFF64268F)
+      ..color = _stageSecondary.withValues(alpha: 0.58)
       ..strokeWidth = 3;
     canvas.drawPath(deck, _stroke);
     _drawVent(canvas, const Rect.fromLTWH(268, 526, 62, 54), horizontal: true);
