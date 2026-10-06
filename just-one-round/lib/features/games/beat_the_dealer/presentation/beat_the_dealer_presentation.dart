@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const beatTheDealerPresentation = GamePresentationDefinition(
   id: 'beat_the_dealer',
-  loadingLabel: '딜러가 카드를 섞는 중...',
   durationLabel: '10라운드 · 최대 3분',
   guideDurationText: '100코인으로 시작해 10라운드 뒤 가장 많은 코인을 남겨요.',
   homeAspectRatio: 0.78,
@@ -35,7 +34,8 @@ const beatTheDealerPresentation = GamePresentationDefinition(
     ),
     GameGuidePageDefinition(
       title: '10라운드 코인 랭킹',
-      description: '승리하면 배팅액만큼 받고, 블랙잭은 배팅액의 1.5배를 받습니다. 패배하면 배팅액을 잃어요.',
+      description:
+          '7번째 판에는 덱에 A가 남아 있으면 배팅 화면부터 내 앞에 공개돼요. 배팅을 확정하면 그 A를 시작 카드로 받아요. 승리하면 배팅액만큼, 블랙잭이면 1.5배를 받고 패배하면 배팅액을 잃어요.',
       detail: '10라운드 뒤 최종 코인으로 순위가 정해져요. 중간에 앱을 나가면 점수 없이 오늘 기회가 소진됩니다.',
       visual: GameGuideVisualKind.dealerResult,
     ),

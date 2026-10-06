@@ -3,6 +3,16 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('v4 schedules only future games and accepts the same score bounds', () {
+    final sql = File(
+      'supabase/migrations/20260923000100_blackjack_seventh_round_ace_v4.sql',
+    ).readAsStringSync();
+    expect(sql, contains('scheduled.play_date > public.current_play_date()'));
+    expect(sql, contains('active_attempt.game_version is distinct from 4'));
+    expect(sql, contains('raw_score not between 0 and 925'));
+    expect(sql, contains('raw_score % 5 <> 0'));
+  });
+
   test('v3 server migration validates the blackjack score contract', () {
     final migration = File(
       'supabase/migrations/20260731000200_beat_the_dealer_v3.sql',

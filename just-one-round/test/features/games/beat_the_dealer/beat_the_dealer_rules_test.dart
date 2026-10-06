@@ -39,6 +39,10 @@ void main() {
       expect(rounds.length, BeatTheDealerRules.roundCount);
       expect(rounds.every(BeatTheDealerRules.isLegalRound), isTrue);
       expect(BeatTheDealerRules.generateRounds(seed), rounds);
+      expect(
+        rounds[BeatTheDealerRules.aceGiftRoundIndex].deck[2].rank,
+        BeatTheDealerRank.ace,
+      );
       final weakUpCards = rounds.where((round) {
         final value = round.dealerUpCard.hardValue;
         return value >= 2 && value <= 6;
@@ -211,7 +215,7 @@ void main() {
     expect(settlement.coins, BeatTheDealerRules.maximumScore);
   });
 
-  test('score formatting stays inside the v3 contract bounds', () {
+  test('score formatting stays inside the v4 contract bounds', () {
     expect(BeatTheDealerRules.formatScore(-1), '0코인');
     expect(BeatTheDealerRules.formatScore(926), '925코인');
   });

@@ -88,6 +88,7 @@ class BeatTheDealerGame extends FlameGame
   var _resultAnimationStartedAt = 0.0;
   var _chipFxStartedAt = -10.0;
   var _betLimitMessageUntil = -10.0;
+  var _aceGiftAnimationStartedAt = -10.0;
   String? _betLimitMessage;
   BeatTheDealerSettlement? _lastSettlement;
 
@@ -102,6 +103,11 @@ class BeatTheDealerGame extends FlameGame
   String? get activeBetLimitMessage =>
       _visualElapsed < _betLimitMessageUntil ? _betLimitMessage : null;
   int get visibleCardCount => _playerCardCount;
+  @visibleForTesting
+  bool get isAceGiftEffectActive =>
+      _roundIndex == BeatTheDealerRules.aceGiftRoundIndex &&
+      currentRound.hasAceGift &&
+      _visualElapsed - _aceGiftAnimationStartedAt < 1.5;
   int get visibleDealerCardCount => _dealerCardCount;
   BeatTheDealerRound get currentRound => rounds[_roundIndex];
   List<BeatTheDealerCard> get playerHand => _playerCardCount == 0
@@ -256,6 +262,9 @@ class BeatTheDealerGame extends FlameGame
   void _startBetting() {
     _phase = BeatTheDealerPhase.betting;
     _phaseRemaining = _seconds(BeatTheDealerRules.bettingDuration);
+    if (currentRound.hasAceGift) {
+      _aceGiftAnimationStartedAt = _visualElapsed;
+    }
   }
 
   void _setBet(int requested) {
@@ -685,13 +694,65 @@ class _BeatTheDealerTable extends PositionComponent {
   }
 
   void _renderPlayerCards(Canvas canvas) {
-    if (game.playerHand.isEmpty) return;
     final cards = game.playerHand;
+    final showingGiftBeforeBet =
+        game.gamePhase == BeatTheDealerPhase.betting &&
+        game.currentRound.hasAceGift;
+    if (cards.isEmpty && !showingGiftBeforeBet) return;
     final step = _fanStep(cards.length, maxWidth: 320);
     final startX = (360 - (cardSize.width + step * (cards.length - 1))) / 2;
+    final giftElapsed = game._visualElapsed - game._aceGiftAnimationStartedAt;
+    final flyingGift = game.isAceGiftEffectActive && giftElapsed < 0.55;
     for (var index = 0; index < cards.length; index++) {
+      if (index == 1 && flyingGift) continue;
       _renderCard(canvas, cards[index], Offset(startX + step * index, 270));
     }
+    if (game.isAceGiftEffectActive || showingGiftBeforeBet) {
+      final glow = (1 - giftElapsed / 1.5).clamp(0.0, 1.0);
+      final landing = cards.isEmpty
+          ? Offset((360 - cardSize.width) / 2, 270)
+          : Offset(startX + step, 270);
+      final progress = (giftElapsed / 0.55).clamp(0.0, 1.0);
+      final eased = 1 - pow(1 - progress, 3).toDouble();
+      final position = flyingGift
+          ? Offset.lerp(const Offset(144, 144), landing, eased)!
+          : landing;
+      final giftCard = Rect.fromLTWH(
+        position.dx,
+        position.dy,
+        cardSize.width,
+        cardSize.height,
+      );
+      if (cards.isEmpty || flyingGift) {
+        final giftedAce = game.currentRound.playerHandAfter(
+          BeatTheDealerRules.initialCardCount,
+        )[1];
+        _renderCard(canvas, giftedAce, position);
+      }
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          giftCard.inflate(4 + 5 * glow),
+          const Radius.circular(8),
+        ),
+        Paint()
+          ..color = const Color(0xFFFFE16A).withValues(alpha: 0.75 * glow)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3,
+      );
+      for (final offset in const [
+        Offset(-12, 4),
+        Offset(84, 18),
+        Offset(-6, 80),
+        Offset(80, 92),
+      ]) {
+        canvas.drawCircle(
+          giftCard.topLeft + offset,
+          2 + 3 * glow,
+          Paint()..color = const Color(0xFFFFE16A).withValues(alpha: glow),
+        );
+      }
+    }
+    if (cards.isEmpty) return;
     final value = BeatTheDealerRules.handValue(cards);
     final suffix = value.isBlackjack
         ? ' · 블랙잭!'
@@ -911,11 +972,16 @@ class _BeatTheDealerTable extends PositionComponent {
     final settlement = game._lastSettlement;
     final label =
         game.activeBetLimitMessage ??
+        (game.isAceGiftEffectActive ? '7판 선물! A 카드 등장!' : null) ??
         switch (game.gamePhase) {
           BeatTheDealerPhase.countdown => '잠시 후 시작!',
           BeatTheDealerPhase.dealerPreview => '이 카드를 보고 배팅!',
           BeatTheDealerPhase.betting =>
-            game.isFinalRound ? '마지막 판 · 최대 100코인!' : '얼마를 걸까?',
+            game.isFinalRound
+                ? '마지막 판 · 최대 100코인!'
+                : game.currentRound.hasAceGift
+                ? '7판 특별 선물 · A 카드 확정!'
+                : '얼마를 걸까?',
           BeatTheDealerPhase.playerTurn => '한 장 더 받을까?',
           BeatTheDealerPhase.dealerTurn => '딜러가 카드를 공개합니다',
           BeatTheDealerPhase.resolving => switch (settlement?.outcome) {

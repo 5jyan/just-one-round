@@ -84,9 +84,10 @@ class BeatTheDealerHandValue {
 }
 
 class BeatTheDealerRound {
-  const BeatTheDealerRound(this.deck);
+  const BeatTheDealerRound(this.deck, {this.hasAceGift = false});
 
   final List<BeatTheDealerCard> deck;
+  final bool hasAceGift;
 
   BeatTheDealerCard get dealerUpCard => deck[1];
   BeatTheDealerCard get dealerHoleCard => deck[3];
@@ -147,8 +148,9 @@ class BeatTheDealerSettlement {
 
 abstract final class BeatTheDealerRules {
   static const gameId = 'beat_the_dealer';
-  static const rulesVersion = 3;
+  static const rulesVersion = 4;
   static const roundCount = 10;
+  static const aceGiftRoundIndex = 6;
   static const startingCoins = 100;
   static const minimumBet = 5;
   static const maximumBet = 50;
@@ -187,11 +189,27 @@ abstract final class BeatTheDealerRules {
   static List<BeatTheDealerRound> generateRounds(int seed) {
     final random = Random(seed);
     for (var attempt = 0; attempt < 512; attempt++) {
-      final rounds = List.generate(
-        roundCount,
-        (_) => BeatTheDealerRound(_shuffledDeck(random)),
-        growable: false,
-      );
+      final rounds = List.generate(roundCount, (index) {
+        final deck = _shuffledDeck(random);
+        if (index == aceGiftRoundIndex) {
+          final aceIndex = deck.indexWhere(
+            (card) => card.rank == BeatTheDealerRank.ace,
+          );
+          if (aceIndex == -1) return BeatTheDealerRound(deck);
+          if (aceIndex == 2) return BeatTheDealerRound(deck, hasAceGift: true);
+
+          // Move one real ace from the deck into the player's second card slot.
+          final gifted = [...deck];
+          final replacedCard = gifted[2];
+          gifted[2] = gifted[aceIndex];
+          gifted[aceIndex] = replacedCard;
+          return BeatTheDealerRound(
+            List.unmodifiable(gifted),
+            hasAceGift: true,
+          );
+        }
+        return BeatTheDealerRound(deck);
+      }, growable: false);
       if (_isFairSet(rounds)) return List.unmodifiable(rounds);
     }
     throw StateError('Unable to generate a fair blackjack set');

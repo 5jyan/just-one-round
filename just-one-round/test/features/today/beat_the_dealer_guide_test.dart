@@ -81,6 +81,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('HOW TO PLAY · 5/5'), findsOneWidget);
       expect(find.text('10라운드 코인 랭킹'), findsOneWidget);
+      expect(find.textContaining('7번째 판'), findsOneWidget);
       expect(find.textContaining('기회가 소진'), findsOneWidget);
       expect(find.text('설명 끝'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -127,7 +128,7 @@ class _BeatTheDealerRepository extends PreviewDailyGameRepository {
     playDate: DateTime(2026, 7, 30),
     game: const TodayGame(
       id: 'beat_the_dealer',
-      version: 3,
+      version: 4,
       displayName: '블랙잭',
       description: '공개 카드를 보고 배팅한 뒤 21에 가까운 패를 만드세요.',
       durationSeconds: 180,

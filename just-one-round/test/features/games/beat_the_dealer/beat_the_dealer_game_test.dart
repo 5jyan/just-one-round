@@ -173,6 +173,10 @@ void main() {
       await _pumpUntilPhase(tester, game, BeatTheDealerPhase.betting);
       expect(game.gamePhase, BeatTheDealerPhase.betting);
       game.tapLogicalPosition(Vector2(180, 580));
+      if (round == BeatTheDealerRules.aceGiftRoundIndex) {
+        expect(game.playerHand[1].rank, BeatTheDealerRank.ace);
+        expect(game.isAceGiftEffectActive, isTrue);
+      }
       if (game.gamePhase == BeatTheDealerPhase.playerTurn) {
         game.tapLogicalPosition(Vector2(260, 580));
       }
