@@ -1,0 +1,5 @@
+Hand-authored pixel-art waiting prop for mole_reaction.
+A tiny warm-brown ant with a three-part body, two antennae, six legs, and four alternating crawl frames.
+Transparent 32px cells, nearest-neighbor runtime sampling, no anti-aliasing, no magenta/checkerboard background.
+The ant is ambience only: it appears through the 3–8 second pre-target wait,
+target, and settle phases and never becomes a tap target.

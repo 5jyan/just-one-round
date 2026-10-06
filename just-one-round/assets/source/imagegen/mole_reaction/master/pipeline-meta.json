@@ -1,0 +1,29 @@
+{
+  "asset": "mole_reaction_master",
+  "method": "built_in_imagegen",
+  "reference": {
+    "role": "identity_reference_for_simplified_facial_cues",
+    "path": "/Users/saulpark/Downloads/KakaoTalk_Photo_2026-09-10-20-29-29.jpeg",
+    "viewed_before_generation": true
+  },
+  "source": {
+    "raw_path": "assets/source/imagegen/mole_reaction/master/raw-master.png",
+    "generated_dimensions": [1254, 1254],
+    "accepted_identity_cues": ["center-parted black forelock", "thick eyebrows", "narrow smiling eyes", "round cheeks", "rounded nose", "closed smile"],
+    "style": "ugly-cute chunky pixel art, deliberate 2-logical-pixel clusters",
+    "background": "transparent alpha retained from built-in output; chroma cleanup remains safe"
+  },
+  "runtime_contract": {
+    "source_cell": [48, 48],
+    "display_size": [96, 96],
+    "integer_scale": 2,
+    "anchor": "bottom-center",
+    "subject_target_source_bounds": "32-38px body height inside safe padding",
+    "filter": "nearest",
+    "hitbox": "separate hole-region hitbox, not transparent padding"
+  },
+  "review": {
+    "status": "accepted_master_for_expansion",
+    "review_note": "Identity direction approved; later sheets must simplify highlights and keep half-lidded eyes legible at 48px."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "status": "concept_drafts_only",
+  "runtime_assets_changed": false,
+  "reference_master": "../master/raw-master-bald.png",
+  "contract": {
+    "source_cell": [
+      48,
+      48
+    ],
+    "display_cell": [
+      96,
+      96
+    ],
+    "integer_scale": 2,
+    "anchor": "bottom_center",
+    "background": "#FF00FF chroma-key"
+  },
+  "variants": [
+    {
+      "label": "A",
+      "folder": "mole_draft_a_round",
+      "summary": "둥근 찐빵형: 큰 볼, 넓은 코, 장난스러운 반쯤 감긴 눈",
+      "raw": "mole_draft_a_round/raw-generated.png",
+      "transparent_cutout": "mole_draft_a_round/transparent-cutout.png"
+    },
+    {
+      "label": "B",
+      "folder": "mole_draft_b_pear",
+      "summary": "배형 콤팩트: 작은 귀, 큰 코, 무표정한 자신감",
+      "raw": "mole_draft_b_pear/raw-generated.png",
+      "transparent_cutout": "mole_draft_b_pear/transparent-cutout.png"
+    },
+    {
+      "label": "C",
+      "folder": "mole_draft_c_nervous",
+      "summary": "쫄보형: 긴 얼굴, 비대칭 눈썹, 어색한 긴장 미소",
+      "raw": "mole_draft_c_nervous/raw-generated.png",
+      "transparent_cutout": "mole_draft_c_nervous/transparent-cutout.png"
+    },
+    {
+      "label": "D",
+      "folder": "mole_draft_d_bighead",
+      "summary": "대두 꼬맹이형: 거대한 머리, 작은 몸, 수줍은 미소",
+      "raw": "mole_draft_d_bighead/raw-generated.png",
+      "transparent_cutout": "mole_draft_d_bighead/transparent-cutout.png"
+    }
+  ]
+}

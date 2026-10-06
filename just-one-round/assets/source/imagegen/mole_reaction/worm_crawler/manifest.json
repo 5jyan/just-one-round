@@ -1,0 +1,15 @@
+{
+  "asset": "mole_reaction_worm_crawler",
+  "status": "runtime_ready_pixel_art",
+  "source": "raw-generated-sheet.png",
+  "processed_atlas": "worm_crawler_sheet.png",
+  "runtime": "assets/images/mole_reaction/worm_crawler_sheet.png",
+  "layout": "6 horizontal frames",
+  "cell_size": [96, 48],
+  "display_size": [64, 32],
+  "filter": "nearest-neighbor",
+  "animation": "slow lane travel with six visible S-curve wriggle poses",
+  "visibility": "waiting, target, and settle phases",
+  "collision": false,
+  "purpose": "upper-lane ambient tension cue; never a tap target"
+}

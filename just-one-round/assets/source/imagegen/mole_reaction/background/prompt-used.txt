@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: full-screen background for a mobile 2D reaction game
+Primary request: Create a quiet, low-detail pixel-art afternoon garden background for a whack-a-mole reaction game. It will be deterministically cropped/resized to a 180x480 base canvas and displayed at 360x960 with nearest-neighbor. Leave a large clean central gameplay-safe dirt area for a 3x4 grid of holes to be placed later; do not draw any holes.
+Scene/backdrop: shallow rectangular backyard vegetable patch, warm brown soil in the middle, muted olive grass and simple wooden fence/hedge at the far edges, a little soft sky glow near the top, understated side decoration only.
+Subject: environment only, no characters, no holes, no tools, no UI.
+Style/medium: deliberate 16-bit pixel art with chunky 2-logical-pixel clusters, calm low-frequency texture, crisp hard edges, limited earthy palette, no antialiasing, no blur, no smooth gradients.
+Composition/framing: portrait gameplay background with genuine continuous art throughout the full canvas and extra visual overscan. Keep the central 60% width and central 70% height visually calm and open; put small irregular grass tufts, two or three varied stones, and a low fence only near the far sides and corners. No repeated wallpaper rows, no regular grid, no central landmark behind targets.
+Lighting/mood: warm late-afternoon light, relaxed quiet waiting tension, low contrast so brown and gold mole silhouettes remain distinct.
+Color palette: muted ochre soil, deep cocoa soil seams, dusty olive grass, desaturated teal-green shadow, warm cream light accents, no saturated neon.
+Materials/textures: sparse intentional soil clumps and grass clusters on the same coarse pixel scale as foreground sprites; no microtexture, no noise.
+Text (verbatim): none.
+Constraints: no holes or circular sockets baked into the image; no character, no shovel, no hammer, no signs, no labels, no text, no UI, no watermark. Keep the safe gameplay core open and visually legible after a 3x4 hole overlay.
+Avoid: realistic photography, high-detail foliage, strong perspective lines, busy center, bright white flowers, shiny objects, excessive contrast, cell borders, artificial flat-color bands, blurred painting.

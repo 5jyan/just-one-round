@@ -1,0 +1,73 @@
+{
+  "asset": "mole_reaction_pixel_variant_v2_mole_anatomy",
+  "status": "runtime_ready_pixel_art",
+  "master_reference": "revised distinctly digging-mole pixel-art master with visible upper body",
+  "source_images": {
+    "normal_master": "raw/idle-raw-sheet.png",
+    "idle": "raw/idle-raw-sheet.png",
+    "hurt": "raw/hurt-raw-sheet.png",
+    "thumbs_up": "raw/thumbs-up-raw-sheet.png"
+  },
+  "processing": {
+    "raw_size": [
+      1254,
+      1254
+    ],
+    "raw_layout": "2x2",
+    "raw_cell_size": [
+      627,
+      627
+    ],
+    "runtime_sheet_size": [
+      512,
+      512
+    ],
+    "runtime_cell_size": [
+      256,
+      256
+    ],
+    "display_cell_size": [
+      96,
+      96
+    ],
+    "filter": "nearest-neighbor",
+    "alpha_threshold": 96,
+    "component_policy": "largest 8-connected body component after border checkerboard removal",
+    "anchor": "bottom_center",
+    "subject_bounds_target": [
+      188,
+      232
+    ],
+    "bottom_anchor_source_y": 236,
+    "visible_body_runtime_height": 72,
+    "hole_occlusion_mask": "foreground_rim_outer_contour"
+  },
+  "gold_policy": {
+    "method": "deterministic fur-only palette transform from v2 normal sheets",
+    "active_event": "event_2_last",
+    "runtime_dir": "assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference"
+  },
+  "runtime_outputs": {
+    "normal_dir": "assets/images/mole_reaction/high_res/01_honey",
+    "gold_dir": "assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference",
+    "actions": [
+      "idle",
+      "hurt",
+      "thumbs_up"
+    ]
+  },
+  "occlusion_qc_contact_sheet": "qc/occlusion-contact-sheet-96.png",
+  "qc": {
+    "detached_thumbs_up_fx_removed": true,
+    "transparent_background": true,
+    "magenta_background": false,
+    "legs_hidden_by_sprite_and_runtime_hole_front": true,
+    "normal_and_gold_share_silhouette": true,
+    "checkerboard_removed": true,
+    "detached_generation_components_removed": true,
+    "mole_anatomy_distinct": true,
+    "upper_body_visible": true
+  },
+  "archive_v1": "archive_v1_bearlike/",
+  "archive_v2_generated": "archive_v2_generated/"
+}

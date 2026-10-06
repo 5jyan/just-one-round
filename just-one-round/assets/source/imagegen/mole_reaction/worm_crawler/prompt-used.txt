@@ -1,0 +1,8 @@
+Image-generated and postprocessed pixel-art waiting prop for mole_reaction.
+A warm chestnut segmented earthworm with a rounded head, tiny eyes, cream
+underside, dark outline, highlight pixels, and six clearly different S-curve
+wriggle poses.
+Transparent 96x48 cells, nearest-neighbor runtime sampling, no soil or UI,
+no magenta/checkerboard background.
+The worm is ambience only: it crawls slowly on the upper clear dirt lane during
+waiting, target, and settle phases and is never a tap target.

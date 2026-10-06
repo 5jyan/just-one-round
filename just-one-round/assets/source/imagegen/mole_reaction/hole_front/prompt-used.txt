@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: single reusable hole-front foreground prop for a mobile 2D reaction game
+Primary request: Create one clean, centered pixel-art front layer for a whack-a-mole hole. It is a chunky shallow crescent of warm brown soil that sits in front of a mole's lower body, with a clear transparent opening above and behind the crescent. It must layer over the bottom of an actor without hiding the face.
+Scene/backdrop: solid #FF00FF magenta chroma background only.
+Subject: one compact irregular foreground dirt crescent, front-facing slightly top-down, roughly twice as wide as tall, with a thick lower lip and a gently uneven top contour, centered with generous margin.
+Style/medium: deliberate 16-bit pixel art, chunky 2-logical-pixel clusters, crisp hard edges, limited umber / warm ochre / cocoa palette, no antialiasing, no blur, no gradients.
+Composition/framing: square source canvas, one prop only, centered, complete inside central 65% safe area, no cropping, no ground plane. Keep the upper half of the cell fully magenta/transparent so the actor can be layered behind it.
+Lighting/mood: quiet warm garden, readable beneath brown and gold mole bodies.
+Color palette: dark cocoa underside, warm umber body, muted ochre top rim highlights.
+Materials/textures: 3-5 intentional soil clumps, no fine noise.
+Text (verbatim): none.
+Constraints: no character, no face, no hole interior fill, no shovel, no hammer, no text, no UI, no watermark; background must be solid magenta for deterministic chroma cleanup; no detached particles.
+Avoid: full oval hole, circular manhole, perfect vector ellipse, shiny black, grass, flowers, rocks, grid lines, border, labels, realistic photo.

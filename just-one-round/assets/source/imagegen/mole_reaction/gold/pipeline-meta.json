@@ -1,0 +1,20 @@
+{
+  "variant": "golden_mole",
+  "method": "deterministic_palette_recolor",
+  "source_frames": {
+    "idle": "idle_bald/pixel-clean",
+    "hurt": "hurt_bald/pixel-clean",
+    "thumbs_up": "thumbs_up_bald/pixel-clean"
+  },
+  "outputs": {
+    "idle": "gold/idle/sheet-transparent.png",
+    "hurt": "gold/hurt/sheet-transparent.png",
+    "thumbs_up": "gold/thumbs_up/sheet-transparent.png"
+  },
+  "silhouette_policy": "exact normal-frame reuse",
+  "facial_ink_policy": "preserve dark neutral eyes and eyebrows",
+  "palette_policy": "amber-gold fur ramp, dark cocoa ink, warm ivory claws, restrained cheek accent",
+  "gold_reaction_time_multiplier": 2,
+  "preappearance_sparkle": false,
+  "raw_generation": "none; adapted from accepted bald frames"
+}

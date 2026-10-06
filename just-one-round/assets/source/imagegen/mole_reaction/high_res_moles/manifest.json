@@ -1,0 +1,48 @@
+{
+  "status": "approved_high_resolution_replacement_candidate",
+  "runtime_assets_changed": true,
+  "source_cell": [
+    256,
+    256
+  ],
+  "display_cell": [
+    96,
+    96
+  ],
+  "sheet_layout": "2x2",
+  "frames_per_action": 4,
+  "filter": "high-quality runtime sampling; source is downsampled in Flame to 96px",
+  "anchor": "bottom_center",
+  "palette_policy": "single neutral warm-brown normal master; gold-only recolor for event 10",
+  "normal_variants": [
+    {
+      "index": 0,
+      "label": "01_honey",
+      "description": "warm honey",
+      "runtime_dir": "assets/images/mole_reaction/high_res/01_honey"
+    }
+  ],
+  "gold_variant": {
+    "event_index": 9,
+    "label": "gold_from_attached_thumb_reference",
+    "runtime_dir": "assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference",
+    "source_dir": "gold_from_attached_thumb_reference",
+    "source_lock": "/var/folders/6f/kxqn2_p531dc7fjqdh8__s3h0000gn/T/codex-clipboard-c4f02b75-7fa6-4ca3-84de-f7e954e66aa8.png",
+    "policy": "attached thumb-up mole is the identity master; fur-only gold recolor"
+  },
+  "golden_policy": "golden appears only on the tenth and final event; it uses the thumbs-up-capable high-resolution master",
+  "raw_sources": [
+    "master/neutral-raw-generated.png",
+    "master/thumbs-up-raw-generated.png"
+  ],
+  "contact_sheet": "high-res-color-roster.png",
+  "face_reference": "/tmp/mole_face_reference.png",
+  "style_reference": "/var/folders/6f/kxqn2_p531dc7fjqdh8__s3h0000gn/T/codex-clipboard-7ec379e5-0798-4276-94ee-12ccdc662f76.png",
+  "normal_palette": [
+    {
+      "index": 0,
+      "label": "01_honey",
+      "description": "warm honey"
+    }
+  ]
+}

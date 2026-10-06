@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: whack-a-mole target sprite concept
+Input images: Image 1 is a user-provided face reference. Lock only the simplified identity cues—thick brows, narrow eyes, broad nose, rounded cheeks, and closed smile—while discarding all human hair and photo details.
+Primary request: Create a normal mole target in a three-quarter pose, with a compact cylindrical body, small rounded ears, a pointed nose, short forelimbs for digging, four pale claws on each visible paw, and velvety dark-brown fur. Make the mole's small face subtly resemble the reference through brow/eye/nose/mouth spacing; it must still read as a real mole at a glance.
+Scene/backdrop: flat solid #FF00FF chroma-key background, no hole, no ground, no external shadow
+Style/medium: chunky 2D pixel-art sprite, crisp 2-logical-pixel clusters, restrained shading, clear target silhouette
+Composition/framing: centered, full body contained with padding, bottom anchor stable, readable at 96x96
+Lighting/mood: warm top-left light, mildly curious but neutral
+Color palette: dark espresso-brown fur, medium cocoa highlights, beige muzzle, dusty rose nose, cream claws, near-black outline
+Constraints: no human hairstyle, no hair, no bangs, no part, no strands, no clothing, no prop, no text, no border, no cell separators, no extra characters, no detached effects
+Avoid: pasted human portrait, photorealism, giant head, giant eyes, overdone cheeks, caricature smile, anime, smooth vector, glossy 3D, cropped body, checkerboard

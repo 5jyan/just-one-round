@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: single hit-tool prop for a mobile 2D reaction game
+Primary request: Create one compact, slightly goofy pixel-art wooden mallet icon that flashes at a tapped mole. It should be a short chunky mallet with a warm wood handle and dark cocoa padded head, angled about 25 degrees so it reads as a hit without pointing at any character. No hand and no target.
+Scene/backdrop: solid #FF00FF magenta chroma background only.
+Subject: one simple hammer/mallet prop, centered, compact, complete, readable at a 24x24 source footprint and suitable for display near 48x48 logical pixels.
+Style/medium: deliberate chunky 16-bit pixel art, crisp hard edges, 2-logical-pixel clusters, limited cocoa / ochre / muted cream palette, no antialiasing, no blur, no gradients.
+Composition/framing: square source canvas, one prop only, generous magenta padding, centered around optical mass, no cropping, no ground or shadow plate.
+Lighting/mood: playful arcade impact, warm highlight on the wooden handle.
+Color palette: dark cocoa outline, chestnut wood, muted ochre highlight, near-black padded head.
+Materials/textures: a few blocky wood grain pixels only.
+Text (verbatim): none.
+Constraints: no character, no face, no hand, no soil, no holes, no particles, no impact burst, no text, no labels, no UI, no watermark.
+Avoid: realistic tool, metal claw, sharp weapon, sword, excessive detail, smooth vector icon, grid lines, border.

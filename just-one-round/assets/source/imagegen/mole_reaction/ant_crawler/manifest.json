@@ -1,0 +1,14 @@
+{
+  "asset": "mole_reaction_ant_crawler",
+  "status": "runtime_ready_pixel_art",
+  "source": "ant_crawler_sheet.png",
+  "runtime": "assets/images/mole_reaction/ant_crawler_sheet.png",
+  "layout": "4 horizontal frames",
+  "cell_size": [32, 32],
+  "display_size": [32, 32],
+  "filter": "nearest-neighbor",
+  "animation": "alternating leg positions",
+  "visibility": "waiting, target, and settle phases",
+  "collision": false,
+  "purpose": "ambient tension cue; never a tap target"
+}

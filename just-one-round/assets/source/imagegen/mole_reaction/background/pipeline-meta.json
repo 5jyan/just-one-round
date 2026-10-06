@@ -1,0 +1,14 @@
+{
+  "raw": "background/raw-background.png",
+  "base_output": "background/background_180x480.png",
+  "display_preview": "background/background_360x960-preview.png",
+  "raw_size": [768, 2048],
+  "base_size": [180, 480],
+  "display_size": [360, 960],
+  "resize": "nearest_integer_pixel_scale",
+  "palette_colors": 64,
+  "dithering": false,
+  "baked_holes": false,
+  "safe_core": [24, 190, 336, 840],
+  "edge_overscan": "decorations kept at left/right edges; central playfield quiet"
+}

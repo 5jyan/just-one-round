@@ -1,0 +1,13 @@
+{
+  "source_reference": "master/raw-master.png",
+  "generated_raw": "master/raw-master-bald.png",
+  "edit_type": "approved_identity_revision",
+  "revision": "remove_human_hair",
+  "identity_cues_kept": ["thick eyebrows", "narrow eyes", "round cheeks", "round nose", "closed smile"],
+  "identity_cues_removed": ["black hair", "bangs", "hair part"],
+  "background": "#ff00ff chroma key",
+  "source_cell": [48, 48],
+  "display_scale": 2,
+  "anchor": "bottom-center",
+  "status": "accepted_for_bald_frame_expansion"
+}

@@ -1,0 +1,562 @@
+{
+  "game": "mole_reaction",
+  "asset_revision": "pixel_art_variant_v2_mole_anatomy",
+  "status": "runtime_ready_pixel_art",
+  "runtime_code_changed": true,
+  "approved_rules": {
+    "board": {
+      "columns": 2,
+      "rows": 2,
+      "slots": 4,
+      "max_hole_uses_per_run": 1
+    },
+    "round_events": {
+      "normal_moles": 1,
+      "golden_moles": 1,
+      "total": 2,
+      "golden_position": "event_2_last",
+      "preparation_events": 1,
+      "scored_events": 1
+    },
+    "golden_reaction_time_multiplier": 2,
+    "random_appearance_delay_seconds": [
+      3,
+      8
+    ],
+    "waiting_ambient_element": "ant_crawler_sheet",
+    "waiting_ambient_elements": [
+      "ant_crawler_sheet",
+      "worm_crawler_sheet"
+    ],
+    "gold_fx_policy": "hit_only",
+    "normal_color_variants": 1
+  },
+  "visual_contract": {
+    "style": "chunky 16-bit pixel art with a distinctly digging-mole silhouette: tiny eyes, elongated pink nose, whiskers, shovel paws, and visible upper body; the normal and gold variants share one bald master",
+    "mole_source_cell": [
+      256,
+      256
+    ],
+    "mole_runtime_display_cell": [
+      96,
+      96
+    ],
+    "sheet_layout": "2x2",
+    "frames_per_action": 4,
+    "runtime_filter": "nearest-neighbor for normal and gold pixel sheets",
+    "anchor": "bottom_center",
+    "palette_cleanup": {
+      "alpha_threshold": 96,
+      "dithering": false,
+      "fur_only_recolor": true,
+      "normal_fur_recolor": false
+    },
+    "identity_cues": [
+      "hunched cylindrical digging-mole silhouette",
+      "tiny dark eyes",
+      "elongated pink mole nose",
+      "short muzzle with whiskers",
+      "broad shovel-shaped forepaws and pale claws",
+      "visible rounded upper belly",
+      "thick uneven eyebrows and crooked friendly smile",
+      "thumb-up gold reference"
+    ],
+    "removed_cues": [
+      "bear-like round ears",
+      "black human hair",
+      "bangs",
+      "hair part",
+      "hair strands",
+      "photo pixels",
+      "lower body and feet"
+    ],
+    "visible_body_height_pixels": 72,
+    "authored_subject_height_pixels": 76,
+    "hole_occlusion_mask": "foreground_rim_outer_contour"
+  },
+  "reference_provenance": {
+    "friend_photo": "/Users/saulpark/Downloads/KakaoTalk_Photo_2026-09-10-20-29-29.jpeg",
+    "reference_use": "simplified facial cues only; no photo pixels shipped",
+    "master_v1_preserved": "master/raw-master.png",
+    "master_final": "master/raw-master-bald.png",
+    "gold_thumb_reference": "assets/source/imagegen/mole_reaction/high_res_moles/gold_from_attached_thumb_reference/attached-thumb-reference.png",
+    "gold_reference_use": "same pixel master silhouette; deterministic fur-only gold recolor for the final event",
+    "gold_thumb_reference_original": "/var/folders/6f/kxqn2_p531dc7fjqdh8__s3h0000gn/T/codex-clipboard-c4f02b75-7fa6-4ca3-84de-f7e954e66aa8.png",
+    "pixel_master_normal": "assets/source/imagegen/mole_reaction/pixel_variant/raw/idle-raw-sheet.png",
+    "pixel_master_gold": "assets/source/imagegen/mole_reaction/pixel_variant/processed/gold_idle_sheet.png",
+    "pixel_master_raw_preserved": "assets/source/imagegen/mole_reaction/pixel_variant/archive_v2_generated/raw/idle-checkerboard-baked.png"
+  },
+  "source_and_preview": {
+    "root": "assets/source/imagegen/mole_reaction/",
+    "raw_kept": true,
+    "board_preview": "previews/board-3x4-single-gold-360x960.png",
+    "board_preview_nearest_2x": "previews/board-3x4-single-gold-720x1920.png",
+    "asset_gallery_preview": "previews/board-3x4-360x960.png",
+    "asset_gallery_preview_nearest_2x": "previews/board-3x4-720x1920.png",
+    "high_res_roster": "high_res_moles/high-res-color-roster.png",
+    "high_res_root": "high_res/ (256px source-cell compatibility path; pixel sheets active)",
+    "gold_source_lock": "high_res_moles/gold_from_attached_thumb_reference/attached-thumb-reference.png",
+    "pixel_variant_root": "pixel_variant/",
+    "pixel_variant_contact_sheet": "pixel_variant/qc/contact-sheet-96.png",
+    "pixel_variant_occlusion_qc": "pixel_variant/qc/occlusion-contact-sheet-96.png",
+    "waiting_ambient_asset": "ant_crawler/ant_crawler_sheet.png",
+    "waiting_ambient_worm_asset": "worm_crawler/worm_crawler_sheet.png",
+    "pixel_variant_archive_v1": "pixel_variant/archive_v1_bearlike/",
+    "pixel_variant_archive_v2_generated": "pixel_variant/archive_v2_generated/"
+  },
+  "quality_checks": {
+    "normal_color_variants": 1,
+    "normal_color_order": "single warm-brown master",
+    "gold_source_locked_to_attached_thumb_reference": false,
+    "golden_event_index": 1,
+    "all_character_frames": "same 2x2 grid and bottom alignment",
+    "magenta_background_runtime": false,
+    "runtime_alpha_assets": true,
+    "normal_filter": "nearest-neighbor pixel preservation",
+    "gold_filter": "nearest-neighbor pixel preservation",
+    "gold_source_locked_to_pixel_master": true,
+    "checkerboard_removed": true,
+    "detached_generation_components_removed": true,
+    "mole_anatomy_distinct": true,
+    "upper_body_visible": true,
+    "runtime_visible_height_pixels": 72,
+    "frame_level_occlusion_checked": true,
+    "hole_occlusion_mask": "foreground_rim_outer_contour",
+    "waiting_ambient_asset_alpha": true,
+    "waiting_ambient_is_noninteractive": true,
+    "waiting_ambient_worm_asset_alpha": true,
+    "ambient_elements_noninteractive": true
+  },
+  "legacy_runtime_assets": {
+    "background": {
+      "path": "assets/images/mole_reaction/mole_reaction_background.png",
+      "size": [
+        180,
+        480
+      ],
+      "display_size": [
+        360,
+        960
+      ],
+      "alpha": false
+    },
+    "mole_idle": {
+      "path": "assets/images/mole_reaction/mole_idle_sheet.png",
+      "size": [
+        96,
+        96
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "frames": [
+        "idle",
+        "blink",
+        "wave",
+        "settle"
+      ]
+    },
+    "mole_hurt": {
+      "path": "assets/images/mole_reaction/mole_hurt_sheet.png",
+      "size": [
+        96,
+        96
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "frames": [
+        "wobble",
+        "squeezed",
+        "cheek_recover",
+        "sheepish"
+      ]
+    },
+    "mole_thumbs_up": {
+      "path": "assets/images/mole_reaction/mole_thumbs_up_sheet.png",
+      "size": [
+        96,
+        96
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "frames": [
+        "lift",
+        "thumb",
+        "proud",
+        "relax"
+      ]
+    },
+    "gold_mole_idle": {
+      "path": "assets/images/mole_reaction/mole_gold_idle_sheet.png",
+      "size": [
+        96,
+        96
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "frames": [
+        "idle",
+        "blink",
+        "wave",
+        "settle"
+      ]
+    },
+    "gold_mole_hurt": {
+      "path": "assets/images/mole_reaction/mole_gold_hurt_sheet.png",
+      "size": [
+        96,
+        96
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "frames": [
+        "wobble",
+        "squeezed",
+        "cheek_recover",
+        "sheepish"
+      ]
+    },
+    "gold_mole_thumbs_up": {
+      "path": "assets/images/mole_reaction/mole_gold_thumbs_up_sheet.png",
+      "size": [
+        96,
+        96
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        48,
+        48
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "frames": [
+        "lift",
+        "thumb",
+        "proud",
+        "relax"
+      ]
+    },
+    "hole_back": {
+      "path": "assets/images/mole_reaction/hole_back.png",
+      "size": [
+        48,
+        48
+      ],
+      "display_size": [
+        96,
+        96
+      ],
+      "layer": "behind_mole"
+    },
+    "hole_front": {
+      "path": "assets/images/mole_reaction/hole_front.png",
+      "size": [
+        48,
+        48
+      ],
+      "display_size": [
+        96,
+        96
+      ],
+      "layer": "in_front_of_mole"
+    },
+    "hammer": {
+      "path": "assets/images/mole_reaction/hammer.png",
+      "size": [
+        48,
+        48
+      ],
+      "display_size": [
+        96,
+        96
+      ]
+    },
+    "dirt_impact": {
+      "path": "assets/images/mole_reaction/dirt_impact_sheet.png",
+      "size": [
+        64,
+        64
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        32,
+        32
+      ],
+      "display_cell": [
+        64,
+        64
+      ],
+      "frames": 4
+    },
+    "gold_burst": {
+      "path": "assets/images/mole_reaction/gold_burst_sheet.png",
+      "size": [
+        64,
+        64
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        32,
+        32
+      ],
+      "display_cell": [
+        64,
+        64
+      ],
+      "frames": 4,
+      "show": "after_gold_hit"
+    },
+    "waiting_ambient_ant": {
+      "path": "assets/images/mole_reaction/ant_crawler_sheet.png",
+      "size": [
+        128,
+        32
+      ],
+      "cell_size": [
+        32,
+        32
+      ],
+      "display_cell": [
+        32,
+        32
+      ],
+      "frames": 4,
+      "show": "waiting_phase_only",
+      "interactive": false
+    },
+    "waiting_ambient_worm": {
+      "path": "assets/images/mole_reaction/worm_crawler_sheet.png",
+      "size": [
+        576,
+        48
+      ],
+      "cell_size": [
+        96,
+        48
+      ],
+      "display_cell": [
+        64,
+        32
+      ],
+      "frames": 6,
+      "show": "waiting_and_target_phases",
+      "speed": "slow",
+      "interactive": false
+    },
+    "wood_ui_panel": {
+      "path": "assets/images/mole_reaction/wood_ui_panel.png",
+      "size": [
+        96,
+        96
+      ],
+      "display_size": [
+        192,
+        192
+      ],
+      "text_safe": true
+    }
+  },
+  "runtime_assets": {
+    "background": {
+      "path": "assets/images/mole_reaction/mole_reaction_background.png",
+      "size": [
+        180,
+        480
+      ],
+      "display_size": [
+        360,
+        960
+      ],
+      "alpha": false
+    },
+    "mole_normal_variants": [
+      {
+        "index": 0,
+        "label": "01_honey",
+        "idle": "assets/images/mole_reaction/high_res/01_honey/idle_sheet.png",
+        "hurt": "assets/images/mole_reaction/high_res/01_honey/hurt_sheet.png",
+        "thumbs_up": "assets/images/mole_reaction/high_res/01_honey/thumbs_up_sheet.png",
+        "sheet_size": [
+          512,
+          512
+        ],
+        "cell_size": [
+          256,
+          256
+        ],
+        "display_cell": [
+          96,
+          96
+        ]
+      }
+    ],
+    "hole_back": {
+      "path": "assets/images/mole_reaction/hole_back.png",
+      "size": [
+        48,
+        48
+      ],
+      "display_size": [
+        96,
+        96
+      ],
+      "layer": "behind_mole"
+    },
+    "hole_front": {
+      "path": "assets/images/mole_reaction/hole_front.png",
+      "size": [
+        48,
+        48
+      ],
+      "display_size": [
+        96,
+        96
+      ],
+      "layer": "in_front_of_mole"
+    },
+    "hammer": {
+      "path": "assets/images/mole_reaction/hammer.png",
+      "size": [
+        48,
+        48
+      ],
+      "display_size": [
+        96,
+        96
+      ]
+    },
+    "dirt_impact": {
+      "path": "assets/images/mole_reaction/dirt_impact_sheet.png",
+      "size": [
+        64,
+        64
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        32,
+        32
+      ],
+      "display_cell": [
+        64,
+        64
+      ],
+      "frames": 4
+    },
+    "gold_burst": {
+      "path": "assets/images/mole_reaction/gold_burst_sheet.png",
+      "size": [
+        64,
+        64
+      ],
+      "cells": [
+        2,
+        2
+      ],
+      "cell_size": [
+        32,
+        32
+      ],
+      "display_cell": [
+        64,
+        64
+      ],
+      "frames": 4,
+      "show": "after_gold_hit"
+    },
+    "wood_ui_panel": {
+      "path": "assets/images/mole_reaction/wood_ui_panel.png",
+      "size": [
+        96,
+        96
+      ],
+      "display_size": [
+        192,
+        192
+      ],
+      "text_safe": true
+    },
+    "gold_mole_pixel_variant": {
+      "path": "assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference",
+      "source_reference": "pixel_variant/raw/idle-raw-sheet.png + deterministic gold palette",
+      "idle": "assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference/idle_sheet.png",
+      "hurt": "assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference/hurt_sheet.png",
+      "thumbs_up": "assets/images/mole_reaction/high_res/gold_from_attached_thumb_reference/thumbs_up_sheet.png",
+      "sheet_size": [
+        512,
+        512
+      ],
+      "cell_size": [
+        256,
+        256
+      ],
+      "display_cell": [
+        96,
+        96
+      ],
+      "event_index": 1
+    }
+  }
+}

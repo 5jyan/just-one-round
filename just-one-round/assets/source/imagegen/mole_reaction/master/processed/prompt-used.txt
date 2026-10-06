@@ -1,0 +1,14 @@
+Use case: stylized-concept
+Asset type: master reference sprite for a mobile 2D reaction game
+Primary request: Create one centered, full-body master specimen of a slightly ugly-cute, chunky pixel-art mole character for a whack-a-mole reaction game. The mole has a compact potato-shaped body emerging from a small dark soil rim, with a friendly awkward likeness inspired by Image 1. Preserve only broad facial cues from Image 1: short center-parted black hair with two uneven locks, thick gently arched eyebrows, slightly narrowed smiling eyes, round cheeks and rounded nose, and a closed subtle smile. Interpret these cues as a fictional pixel creature; do not reproduce the photograph, clothing, background, or realistic skin.
+Input images: Image 1: identity/style reference for simplified facial cues only.
+Scene/backdrop: flat solid chroma key #FF00FF magenta background, no ground plate, no hole, no shadow outside the character.
+Subject: one warm chestnut-brown mole, round cheeks, tiny stubby paws, small rounded ears, black center-parted forelock, thick dark eyebrows, narrow eyes, closed smile, intentionally a little dopey and uneven but clearly lovable.
+Style/medium: deliberate 16-bit pixel art, chunky 2-logical-pixel clusters, crisp hard edges, limited palette of dark brown outline, chestnut midtone, warm ochre muzzle/cheeks, muted cream highlights, no antialiasing, no blur, no gradients.
+Composition/framing: square 1024x1024 image, one character only, front-facing three-quarter view, centered, body fully contained inside the central 60% safe area with generous magenta padding, stable bottom anchor, no cropping.
+Lighting/mood: soft warm top-left pixel highlights, relaxed overconfident tiny smile.
+Color palette: dark cocoa outline, chestnut brown fur, warm ochre face and belly, muted cream highlights, restrained colors that will remain readable when reduced to a 48x48 source cell.
+Materials/textures: a few deliberate fur pixel clusters only; no noisy microtexture.
+Text (verbatim): none.
+Constraints: one character only; this is the accepted identity master for later animation; keep the face large and readable at 48x48 source pixels; keep silhouette and facial marks simple and stable; transparent output is not required because chroma cleanup will remove the solid magenta.
+Avoid: photorealism, human body, clothing, lanyard, thumbs-up pose, tools, text, logos, watermark, extra characters, extra limbs, visible teeth, long tail, realistic lighting, smooth vector art, anti-aliased edges, cell borders, grid lines, labels, decorations, smoke, particles, holes, baked ground plate.

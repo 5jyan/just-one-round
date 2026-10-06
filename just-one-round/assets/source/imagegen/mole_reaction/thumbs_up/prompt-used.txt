@@ -1,0 +1,14 @@
+Use case: stylized-concept
+Asset type: 4-frame thumbs-up result animation body sheet for a mobile 2D reaction game
+Primary request: Using the accepted mole identity master, create a coherent 2x2 pixel-art result animation sheet of the same chestnut-brown mole celebrating a successful reaction. Preserve the potato-shaped body, center-parted black forelock, thick gently arched eyebrows, narrowed eyes with tiny highlights, round cheeks, rounded nose, and closed knowing smile. Celebration is awkwardly restrained and readable.
+Input images: accepted master identity and style reference; preserve identity, silhouette language, palette, camera distance, and standing-equivalent scale.
+Scene/backdrop: solid #FF00FF magenta chroma background only; no hole, no ground plate, no shadow, no scenery.
+Subject: one compact mole body, front-facing three-quarter view, stubby paws, same size and bottom/root line in all cells.
+Style/medium: deliberate chunky 16-bit pixel art on a 2-logical-pixel grid, crisp hard edges, limited cocoa outline / chestnut fur / warm ochre muzzle palette, sparse facial marks, no antialiasing, no blur, no gradients.
+Composition/framing: EXACTLY 2 rows x 2 columns, four equal cells, no separators or borders. Frame order row-major: thumbs-1 familiar neutral smile; thumbs-2 one paw rising awkwardly; thumbs-3 both paws clearly give thumbs-up with a broad closed-mouth grin; thumbs-4 hold the thumbs-up and blink. Keep character centerline and root line stable; full body inside central 65% safe area of every cell, generous magenta padding, no crop.
+Lighting/mood: goofy, proud, warm, small reward moment.
+Color palette: preserve master palette, restrained cream highlights only.
+Materials/textures: sparse fur clusters, no noisy texture.
+Text (verbatim): none.
+Constraints: exactly four frames of one continuous thumbs-up loop; keep the face identity recognizable at 48x48 source pixels; no frame may touch a cell edge; no detached celebration effects.
+Avoid: extra characters, gold recolor, rabbit, human clothing, extra limbs, teeth, giant sparkling eyes, hammer, stars, confetti, particles, dust, soil rim, hole, baked ground, text, labels, grid lines, borders, watermark, blur, anti-aliased edges.

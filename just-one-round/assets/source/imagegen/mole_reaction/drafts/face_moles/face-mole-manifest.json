@@ -1,0 +1,95 @@
+{
+  "status": "concept_drafts_only",
+  "runtime_assets_changed": false,
+  "reference_image": "/tmp/mole_face_reference.png",
+  "reference_note": "User-provided photo; facial proportions only, no photo pixels shipped.",
+  "contract": {
+    "source_cell": [
+      48,
+      48
+    ],
+    "display_cell": [
+      96,
+      96
+    ],
+    "integer_scale": 2,
+    "anchor": "bottom_center",
+    "background": "#FF00FF chroma-key",
+    "transparent_cutout": "magenta removed deterministically; no smoothing"
+  },
+  "contact_sheet": "face-mole-drafts-contact-sheet.png",
+  "variants": [
+    {
+      "label": "A",
+      "folder": "face_mole_a_round",
+      "title": "둥근 정면 3/4형",
+      "summary": "친구 얼굴 인상이 가장 선명하게 살아난 둥근 볼·다문 미소형.",
+      "raw": "face_mole_a_round/raw-generated.png",
+      "transparent_cutout": "face_mole_a_round/transparent-cutout.png",
+      "source_dimensions": [
+        1254,
+        1254
+      ],
+      "cutout_dimensions": [
+        878,
+        1066
+      ],
+      "nontransparent_pixels": 635470,
+      "magenta_like_opaque_pixels": 0
+    },
+    {
+      "label": "B",
+      "folder": "face_mole_b_squat",
+      "title": "낮고 납작한 쐐기형",
+      "summary": "낮은 몸통과 넓은 머리, 차분한 무표정에 가까운 형.",
+      "raw": "face_mole_b_squat/raw-generated.png",
+      "transparent_cutout": "face_mole_b_squat/transparent-cutout.png",
+      "source_dimensions": [
+        1254,
+        1254
+      ],
+      "cutout_dimensions": [
+        943,
+        891
+      ],
+      "nontransparent_pixels": 556320,
+      "magenta_like_opaque_pixels": 0
+    },
+    {
+      "label": "C",
+      "folder": "face_mole_c_dark",
+      "title": "짙은 갈색 3/4형",
+      "summary": "가장 전형적인 두더지 실루엣에 얼굴 단서를 얹은 형.",
+      "raw": "face_mole_c_dark/raw-generated.png",
+      "transparent_cutout": "face_mole_c_dark/transparent-cutout.png",
+      "source_dimensions": [
+        1254,
+        1254
+      ],
+      "cutout_dimensions": [
+        769,
+        931
+      ],
+      "nontransparent_pixels": 474188,
+      "magenta_like_opaque_pixels": 0
+    },
+    {
+      "label": "D",
+      "folder": "face_mole_d_light",
+      "title": "밝은 밤색 친화형",
+      "summary": "밝은 팔레트와 부드러운 표정의 친근한 형.",
+      "raw": "face_mole_d_light/raw-generated.png",
+      "transparent_cutout": "face_mole_d_light/transparent-cutout.png",
+      "source_dimensions": [
+        1254,
+        1254
+      ],
+      "cutout_dimensions": [
+        860,
+        1079
+      ],
+      "nontransparent_pixels": 633522,
+      "magenta_like_opaque_pixels": 0
+    }
+  ]
+}
