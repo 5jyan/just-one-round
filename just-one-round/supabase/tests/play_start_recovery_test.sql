@@ -1,6 +1,6 @@
 begin;
 
-select plan(18);
+select plan(23);
 
 update public.app_runtime_config
 set rewarded_ads_enabled = true
@@ -24,9 +24,16 @@ select is(
     'aaaaaaaa-0000-4000-8000-000000000001'
   )->>'ordinal',
   '1',
-  'the first free practice starts'
+  'the free practice ticket starts practice one'
 );
-
+select is(
+  public.claim_daily_practice_v2(
+    public.current_play_date(),
+    'aaaaaaaa-0000-4000-8000-000000000001'
+  )->>'practice_ordinal',
+  '1',
+  'the first practice uses shared practice seed P1'
+);
 select is(
   public.claim_daily_practice_v2(
     public.current_play_date(),
@@ -40,7 +47,6 @@ select is(
   ),
   'a retried free-practice request returns the same session'
 );
-
 select is(
   (
     select count(*)::integer
@@ -48,62 +54,77 @@ select is(
     where user_id = '13131313-1313-4313-8313-131313131313'
   ),
   1,
-  'an idempotent retry does not consume another play ordinal'
+  'an idempotent retry does not consume another ticket'
+);
+select throws_ok(
+  $$
+    select public.claim_daily_practice_v2(
+      public.current_play_date(),
+      'aaaaaaaa-0000-4000-8000-000000000002'
+    )
+  $$,
+  'P0001',
+  'practice is not available',
+  'a second practice is blocked before the ad reward'
+);
+select lives_ok(
+  $$ select public.prepare_practice_ad(public.current_play_date()) $$,
+  'the two-ticket practice reward can be prepared'
 );
 
+update public.rewarded_ad_grants
+set status = 'verified', verified_at = now()
+where user_id = '13131313-1313-4313-8313-131313131313'
+  and grant_purpose = 'practice'
+  and status = 'prepared';
+
+select is(
+  public.claim_practice_ticket_reward((
+    select id
+    from public.rewarded_ad_grants
+    where user_id = '13131313-1313-4313-8313-131313131313'
+  ))->>'tickets_granted',
+  '2',
+  'the verified ad grants two tickets without starting practice'
+);
 select is(
   public.claim_daily_practice_v2(
     public.current_play_date(),
     'aaaaaaaa-0000-4000-8000-000000000002'
   )->>'ordinal',
   '2',
-  'a distinct second practice receives the next ordinal'
+  'the first rewarded ticket starts practice two'
 );
-
-select lives_ok(
-  $$ select public.prepare_rewarded_ad(public.current_play_date()) $$,
-  'the required challenge ad can be prepared after two practices'
-);
-
-update public.rewarded_ad_grants
-set status = 'verified', verified_at = now()
-where user_id = '13131313-1313-4313-8313-131313131313'
-  and grant_purpose = 'ranked_extra'
-  and status = 'prepared';
-
 select is(
-  (public.claim_daily_attempt(public.current_play_date())).ordinal,
-  3::smallint,
-  'a refreshed client consumes a verified challenge grant after restart'
+  public.claim_daily_practice_v2(
+    public.current_play_date(),
+    'aaaaaaaa-0000-4000-8000-000000000002'
+  )->>'practice_ordinal',
+  '2',
+  'practice two uses shared practice seed P2'
 );
-
 select is(
-  (
-    select status::text
-    from public.rewarded_ad_grants
-    where user_id = '13131313-1313-4313-8313-131313131313'
-      and grant_purpose = 'ranked_extra'
-  ),
-  'consumed',
-  'the recovered challenge grant is consumed exactly once'
+  public.claim_daily_practice_v2(
+    public.current_play_date(),
+    'aaaaaaaa-0000-4000-8000-000000000003'
+  )->>'practice_ordinal',
+  '3',
+  'the final rewarded ticket uses shared practice seed P3'
 );
-
+select is(
+  (public.claim_daily_attempt(public.current_play_date())).grant_type::text,
+  'daily',
+  'challenge remains free after every practice ticket is used'
+);
 select is(
   (
-    public.claim_rewarded_attempt_without_kakao((
-      select id
-      from public.rewarded_ad_grants
-      where user_id = '13131313-1313-4313-8313-131313131313'
-        and grant_purpose = 'ranked_extra'
-    ))
-  ).id,
-  (
-    select attempt_id
+    select ordinal
     from public.daily_play_sessions
     where user_id = '13131313-1313-4313-8313-131313131313'
       and play_mode = 'challenge'
   ),
-  'a lost rewarded-challenge response returns the same live attempt'
+  4::smallint,
+  'challenge follows three practices without changing its grant type'
 );
 
 update public.attempts
@@ -114,7 +135,7 @@ select throws_ok(
   $$ select public.claim_daily_attempt(public.current_play_date()) $$,
   'P0001',
   'challenge is not available',
-  'a stale client cannot replay a terminal ranked challenge'
+  'a terminal challenge cannot be replayed'
 );
 
 select set_config(
@@ -126,16 +147,24 @@ select set_config(
 select is(
   (public.claim_daily_attempt(public.current_play_date())).ordinal,
   1::smallint,
-  'the second account starts with its free challenge'
+  'another player can challenge before practicing'
 );
 
 update public.attempts
 set status = 'expired'
 where user_id = '14141414-1414-4414-8414-141414141414';
 
+select is(
+  public.claim_daily_practice_v2(
+    public.current_play_date(),
+    'bbbbbbbb-0000-4000-8000-000000000001'
+  )->>'practice_ordinal',
+  '1',
+  'practice seed P1 is independent of challenge order'
+);
 select lives_ok(
   $$ select public.prepare_practice_ad(public.current_play_date()) $$,
-  'the first post-challenge practice ad can be prepared'
+  'the reward can be prepared after post-challenge free practice'
 );
 
 update public.rewarded_ad_grants
@@ -145,48 +174,29 @@ where user_id = '14141414-1414-4414-8414-141414141414'
   and status = 'prepared';
 
 select is(
-  public.claim_daily_practice_v2(
-    public.current_play_date(),
-    'bbbbbbbb-0000-4000-8000-000000000001'
-  )->>'grant_type',
-  'practice_ad',
-  'a refreshed client attaches a verified practice grant after restart'
-);
-
-select is(
-  (
-    select status::text
-    from public.rewarded_ad_grants
-    where user_id = '14141414-1414-4414-8414-141414141414'
-      and grant_purpose = 'practice'
-  ),
-  'consumed',
-  'the recovered practice grant is consumed exactly once'
-);
-
-select is(
-  public.claim_practice_attempt((
+  public.claim_practice_ticket_reward((
     select id
     from public.rewarded_ad_grants
     where user_id = '14141414-1414-4414-8414-141414141414'
-      and grant_purpose = 'practice'
-  ))->>'id',
-  (
-    select id::text
-    from public.daily_play_sessions
-    where user_id = '14141414-1414-4414-8414-141414141414'
-      and reward_grant_id is not null
-  ),
-  'a lost rewarded-practice response returns the same session'
+  ))->>'practice_tickets_remaining',
+  '2',
+  'post-challenge reward also grants two tickets'
 );
-
 select is(
   public.claim_daily_practice_v2(
     public.current_play_date(),
     'bbbbbbbb-0000-4000-8000-000000000002'
   )->>'ordinal',
   '3',
-  'later practice starts for free after the one daily ad'
+  'the first rewarded practice follows challenge and free practice'
+);
+select is(
+  public.claim_daily_practice_v2(
+    public.current_play_date(),
+    'bbbbbbbb-0000-4000-8000-000000000003'
+  )->>'ordinal',
+  '4',
+  'the second rewarded practice is the final daily practice'
 );
 
 select set_config(
@@ -194,7 +204,6 @@ select set_config(
   '15151515-1515-4515-8515-151515151515',
   true
 );
-
 select lives_ok(
   $$
     select public.register_device_installation(
@@ -213,9 +222,13 @@ values (
 select isnt(
   public.get_today_state()->>'challenge_available',
   'true',
-  'a device-limited account is not shown an unusable challenge button'
+  'a device-limited account cannot start the challenge'
 );
-
+select isnt(
+  public.get_today_state()->>'practice_reward_available',
+  'true',
+  'a device-limited account cannot watch an unusable reward ad'
+);
 select is(
   public.get_today_state()->>'device_daily_limit_reached',
   'true',

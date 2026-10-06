@@ -11,6 +11,7 @@ class PendingScoreSubmission {
     required this.starsCollected,
     required this.collisions,
     required this.durationMs,
+    this.windDartsShotScores,
   });
 
   factory PendingScoreSubmission.fromGameResult(
@@ -22,6 +23,7 @@ class PendingScoreSubmission {
     starsCollected: result.starsCollected,
     collisions: result.collisions,
     durationMs: result.duration.inMilliseconds,
+    windDartsShotScores: result.windDartsShotScores,
   );
 
   factory PendingScoreSubmission.fromJson(Map<String, dynamic> json) =>
@@ -33,6 +35,9 @@ class PendingScoreSubmission {
         starsCollected: (json['stars_collected'] as num).toInt(),
         collisions: (json['collisions'] as num).toInt(),
         durationMs: (json['duration_ms'] as num).toInt(),
+        windDartsShotScores: (json['wind_darts_shot_scores'] as List<dynamic>?)
+            ?.map((value) => (value as num).toInt())
+            .toList(growable: false),
       );
 
   final String attemptId;
@@ -40,6 +45,7 @@ class PendingScoreSubmission {
   final int starsCollected;
   final int collisions;
   final int durationMs;
+  final List<int>? windDartsShotScores;
 
   Map<String, dynamic> toJson() => {
     'attempt_id': attemptId,
@@ -47,6 +53,8 @@ class PendingScoreSubmission {
     'stars_collected': starsCollected,
     'collisions': collisions,
     'duration_ms': durationMs,
+    if (windDartsShotScores != null)
+      'wind_darts_shot_scores': windDartsShotScores,
   };
 }
 

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 
 const gameEndTransitionDuration = Duration(milliseconds: 2100);
 const gameEndResultRevealDuration = Duration(milliseconds: 520);
@@ -163,7 +164,7 @@ class GameEndTitle extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Text(
+          WordSafeText(
             endType.label,
             style: baseStyle.copyWith(
               foreground: Paint()
@@ -173,7 +174,7 @@ class GameEndTitle extends StatelessWidget {
                 ..color = const Color(0xFF2A1938),
             ),
           ),
-          Text(
+          WordSafeText(
             endType.label,
             style: const TextStyle(
               fontFamily: 'Galmuri',

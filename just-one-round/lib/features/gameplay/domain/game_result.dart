@@ -15,6 +15,7 @@ class GameResult {
     required this.collisions,
     required this.duration,
     required this.endType,
+    this.windDartsShotScores,
   });
 
   final int score;
@@ -22,4 +23,7 @@ class GameResult {
   final int collisions;
   final Duration duration;
   final GameEndType endType;
+
+  /// Present only for wind darts so retries can compare the same five throws.
+  final List<int>? windDartsShotScores;
 }

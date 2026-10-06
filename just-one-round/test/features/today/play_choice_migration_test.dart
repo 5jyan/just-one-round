@@ -13,6 +13,38 @@ void main() {
     'supabase/migrations/'
     '20260813000700_harden_play_start_state_machine.sql',
   ).readAsStringSync();
+  final confirmedStartSql = File(
+    'supabase/migrations/'
+    '20260814000300_confirm_actual_play_start.sql',
+  ).readAsStringSync();
+  final practiceTicketSql = File(
+    'supabase/migrations/'
+    '20260815000800_practice_ticket_rewards.sql',
+  ).readAsStringSync();
+  final repeatRefillSql = File(
+    'supabase/migrations/'
+    '20260816000150_repeat_practice_ticket_refills.sql',
+  ).readAsStringSync();
+  final extraChoiceSql = File(
+    'supabase/migrations/20260822000400_choose_extra_challenge_entitlement.sql',
+  ).readAsStringSync();
+  final testStartFixSql = File(
+    'supabase/migrations/20260822000500_fix_test_extra_challenge_start.sql',
+  ).readAsStringSync();
+  final scorePreservationSql = File(
+    'supabase/migrations/'
+    '20260825000200_preserve_best_score_on_extra_challenge.sql',
+  ).readAsStringSync();
+  final rankingBestScoreSql = File(
+    'supabase/migrations/20260821000200_show_levels_in_leaderboard.sql',
+  ).readAsStringSync();
+  final sequentialExtraChallengeSql = File(
+    'supabase/migrations/20260824000300_sequential_extra_challenge_ticket.sql',
+  ).readAsStringSync();
+  final unlimitedChallengeTicketSql = File(
+    'supabase/migrations/'
+    '20260825000300_allow_unlimited_challenge_ticket_attempts.sql',
+  ).readAsStringSync();
 
   test('하루 플레이 순서와 연습·도전 모드를 서버에 기록한다', () {
     expect(sql, contains('create table public.daily_play_sessions'));
@@ -64,5 +96,122 @@ void main() {
     expect(hardenedStartSql, contains("'device_daily_limit_reached', true"));
     expect(hardenedStartSql, contains("'challenge_available', false"));
     expect(hardenedStartSql, contains("'practice_available', false"));
+  });
+
+  test('실제 런타임 시작 전 이탈과 재설치 중복을 복구한다', () {
+    expect(confirmedStartSql, contains('started_at timestamptz'));
+    expect(confirmedStartSql, contains('confirm_daily_play_started'));
+    expect(confirmedStartSql, contains('session.started_at is null'));
+    expect(confirmedStartSql, contains('challenge_pending'));
+    expect(confirmedStartSql, contains('practice_pending'));
+    expect(
+      confirmedStartSql,
+      contains('coalesce(public.request_app_build(), 0) < 12'),
+    );
+  });
+
+  test('공식 도전은 무료이고 연습권은 기본 한 장과 광고 두 장으로 계산한다', () {
+    expect(practiceTicketSql, contains("'practice_ticket_capacity'"));
+    expect(practiceTicketSql, contains("'practice_tickets_remaining'"));
+    expect(practiceTicketSql, contains('1 + case'));
+    expect(practiceTicketSql, contains('then 2 else 0'));
+    expect(practiceTicketSql, contains("'challenge_requires_ad', false"));
+    expect(practiceTicketSql, contains('claim_practice_ticket_reward'));
+    expect(practiceTicketSql, contains("'tickets_granted', 2"));
+    expect(practiceTicketSql, contains('game_id = scheduled_game.game_id'));
+    expect(
+      practiceTicketSql,
+      contains('game_duration_seconds = selected_version.duration_seconds'),
+    );
+  });
+
+  test('연습권이 0장이 될 때마다 광고로 2장을 반복 충전한다', () {
+    expect(
+      repeatRefillSql,
+      contains('drop trigger if exists rewarded_ad_grants_one_per_day'),
+    );
+    expect(repeatRefillSql, contains('practice_reward_count * 2'));
+    expect(
+      repeatRefillSql,
+      contains("availability.practice_tickets_remaining = 0"),
+    );
+    expect(
+      repeatRefillSql,
+      contains("raise exception 'practice tickets remain'"),
+    );
+    expect(
+      repeatRefillSql,
+      contains("grant_row.status in ('prepared', 'verified')"),
+    );
+  });
+
+  test('기존 추가 도전 선택 RPC는 광고와 도전권 경로를 분리한다', () {
+    expect(extraChoiceSql, contains('extra_challenge_available'));
+    expect(extraChoiceSql, contains('challenge_ticket_available'));
+    expect(extraChoiceSql, contains('claim_challenge_ticket_attempt'));
+    expect(
+      extraChoiceSql,
+      contains("raise exception 'extra challenge choice required'"),
+    );
+    expect(extraChoiceSql, contains("entitlement.challenge_session_count = 1"));
+    expect(extraChoiceSql, contains("entitlement_source\n  ) values"));
+  });
+
+  test('추가 도전은 광고 후 보유 도전권만큼 반복해서 연다', () {
+    expect(sequentialExtraChallengeSql, contains("'ad_challenge_available'"));
+    expect(
+      sequentialExtraChallengeSql,
+      contains('challenge_session_count = 2'),
+    );
+    expect(
+      sequentialExtraChallengeSql,
+      contains('rewarded_challenge_session_count = 1'),
+    );
+    expect(sequentialExtraChallengeSql, contains('ranked_reward_consumed'));
+    expect(sequentialExtraChallengeSql, contains('challenge_ticket_available'));
+    expect(sequentialExtraChallengeSql, contains('extra_challenge_available'));
+    expect(
+      unlimitedChallengeTicketSql,
+      contains('entitlement.challenge_session_count >= 2'),
+    );
+    expect(
+      unlimitedChallengeTicketSql,
+      contains('entitlement.rewarded_challenge_session_count >= 1'),
+    );
+    expect(
+      unlimitedChallengeTicketSql,
+      contains('entitlement.store_challenge_tickets > 0'),
+    );
+    expect(
+      unlimitedChallengeTicketSql,
+      isNot(contains('store_challenge_session_count = 0')),
+    );
+  });
+
+  test('테스트 계정 도전도 시작 확인용 세션을 만든다', () {
+    expect(extraChoiceSql, contains('claim_test_daily_attempt_with_session'));
+    expect(testStartFixSql, contains('claim_test_daily_attempt_with_session'));
+    expect(testStartFixSql, contains('daily_play_sessions'));
+  });
+
+  test('재도전은 기존 점수를 보존하고 사용자 최고 기록으로 랭킹한다', () {
+    expect(
+      scorePreservationSql,
+      contains(
+        'drop trigger if exists daily_play_sessions_replace_score_before_extra_insert',
+      ),
+    );
+    expect(
+      scorePreservationSql,
+      contains(
+        'drop function if exists public.discard_previous_daily_challenge_score()',
+      ),
+    );
+    expect(scorePreservationSql, isNot(contains('delete from public.scores')));
+    expect(rankingBestScoreSql, contains('select distinct on (score.user_id)'));
+    expect(
+      rankingBestScoreSql,
+      contains('order by score.user_id, score.raw_score desc'),
+    );
   });
 }

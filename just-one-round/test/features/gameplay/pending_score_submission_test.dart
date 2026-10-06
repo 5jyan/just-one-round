@@ -31,6 +31,63 @@ void main() {
     expect(restored.durationMs, 60000);
   });
 
+  test('다트 투척 점수는 오프라인 제출 재시도에도 보존된다', () {
+    final pending = PendingScoreSubmission.fromGameResult(
+      'dart-attempt',
+      const GameResult(
+        score: 221,
+        starsCollected: 0,
+        collisions: 0,
+        duration: Duration(seconds: 41),
+        endType: GameEndType.clear,
+        windDartsShotScores: [45, 60, 39, 57, 20],
+      ),
+    );
+
+    final restored = PendingScoreSubmission.fromJson(pending.toJson());
+
+    expect(restored.windDartsShotScores, [45, 60, 39, 57, 20]);
+    expect(restored.rawScore, 221);
+  });
+
+  test('v2 여섯 발 점수도 기존 보류 재시도 형식으로 왕복한다', () {
+    final pending = PendingScoreSubmission.fromGameResult(
+      'dart-attempt-v2',
+      const GameResult(
+        score: 286,
+        starsCollected: 0,
+        collisions: 0,
+        duration: Duration(seconds: 41),
+        endType: GameEndType.clear,
+        windDartsShotScores: [50, 60, 39, 57, 20, 60],
+      ),
+    );
+
+    final restored = PendingScoreSubmission.fromJson(pending.toJson());
+
+    expect(restored.windDartsShotScores, [50, 60, 39, 57, 20, 60]);
+    expect(restored.rawScore, 286);
+  });
+
+  test('v3 무제한 결과는 실제 120초 경과시간과 여섯 발을 보존한다', () {
+    final pending = PendingScoreSubmission.fromGameResult(
+      'dart-attempt-v3',
+      const GameResult(
+        score: 286,
+        starsCollected: 0,
+        collisions: 0,
+        duration: Duration(seconds: 120),
+        endType: GameEndType.clear,
+        windDartsShotScores: [50, 60, 39, 57, 20, 60],
+      ),
+    );
+
+    final restored = PendingScoreSubmission.fromJson(pending.toJson());
+
+    expect(restored.durationMs, 120000);
+    expect(restored.windDartsShotScores, [50, 60, 39, 57, 20, 60]);
+  });
+
   test('전송 실패한 결과는 서버 복구 뒤 재전송하고 성공 시 제거한다', () async {
     final store = _MemoryPendingScoreStore();
     final retry = PendingScoreRetryService<String>(store);
@@ -211,6 +268,46 @@ void main() {
         state,
         const {},
         now: DateTime.utc(2026, 8, 1, 0, 1),
+      ),
+      isEmpty,
+    );
+  });
+
+  test('v3 무제한 시도는 195초 stale cleanup에서도 만료하지 않는다', () {
+    final state = TodayState(
+      playDate: DateTime(2026, 8, 1),
+      game: null,
+      attempts: [
+        PlayAttempt(
+          id: 'wind-v3-attempt',
+          ordinal: 3,
+          status: 'issued',
+          grantType: 'daily',
+          gameId: 'wind_darts',
+          gameVersion: 3,
+          gameDurationSeconds: 75,
+          issuedAt: DateTime.utc(2026, 8, 1),
+        ),
+      ],
+      adAttemptAvailable: false,
+      testMode: false,
+      result: null,
+      nickname: null,
+    );
+
+    expect(
+      issuedAttemptsWithoutPending(
+        state,
+        const {},
+        now: DateTime.utc(2026, 8, 1, 0, 3, 14),
+      ),
+      isEmpty,
+    );
+    expect(
+      issuedAttemptsWithoutPending(
+        state,
+        const {},
+        now: DateTime.utc(2026, 8, 1, 0, 3, 15),
       ),
       isEmpty,
     );
