@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/profile/domain/nickname_policy.dart';
+import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 
 Future<String?> showNicknameDialog(
   BuildContext context, {
@@ -42,7 +43,7 @@ class _NicknameDialogState extends State<_NicknameDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.surface,
-      title: const Text('랭킹 닉네임'),
+      title: const WordSafeText('랭킹 닉네임'),
       content: Form(
         key: _formKey,
         child: TextFormField(
@@ -62,12 +63,12 @@ class _NicknameDialogState extends State<_NicknameDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('나중에'),
+          child: const WordSafeText('나중에'),
         ),
         FilledButton(
           key: const Key('save-nickname'),
           onPressed: _submit,
-          child: const Text('저장'),
+          child: const WordSafeText('저장'),
         ),
       ],
     );

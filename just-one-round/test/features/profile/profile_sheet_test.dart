@@ -22,6 +22,7 @@ void main() {
                   ),
                   kakaoConfigured: true,
                   kakaoLinked: false,
+                  isAnonymousAccount: true,
                 );
               },
               child: const Text('open'),

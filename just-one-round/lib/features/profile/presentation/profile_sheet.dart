@@ -3,9 +3,13 @@ import 'dart:math' show max;
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/economy/domain/player_economy.dart';
+import 'package:just_one_round/features/profile/domain/nickname_color.dart';
+import 'package:just_one_round/features/referral/domain/referral.dart';
+import 'package:just_one_round/shared/widgets/coin_mark.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
+import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 
-enum ProfileAction { editNickname, linkKakao }
+enum ProfileAction { editNickname, nicknameColor, linkKakao, inviteFriends }
 
 Future<ProfileAction?> showProfileSheet(
   BuildContext context, {
@@ -13,6 +17,10 @@ Future<ProfileAction?> showProfileSheet(
   required PlayerEconomy economy,
   required bool kakaoConfigured,
   required bool kakaoLinked,
+  required bool isAnonymousAccount,
+  String nicknameColor = 'default',
+  int nicknameChangeTickets = 0,
+  ReferralStatus referralStatus = const ReferralStatus.empty(),
 }) {
   return showModalBottomSheet<ProfileAction>(
     context: context,
@@ -24,6 +32,10 @@ Future<ProfileAction?> showProfileSheet(
       economy: economy,
       kakaoConfigured: kakaoConfigured,
       kakaoLinked: kakaoLinked,
+      isAnonymousAccount: isAnonymousAccount,
+      nicknameColor: nicknameColor,
+      nicknameChangeTickets: nicknameChangeTickets,
+      referralStatus: referralStatus,
     ),
   );
 }
@@ -34,19 +46,34 @@ class _ProfileSheet extends StatelessWidget {
     required this.economy,
     required this.kakaoConfigured,
     required this.kakaoLinked,
+    required this.isAnonymousAccount,
+    required this.nicknameColor,
+    required this.nicknameChangeTickets,
+    required this.referralStatus,
   });
 
   final String? nickname;
   final PlayerEconomy economy;
   final bool kakaoConfigured;
   final bool kakaoLinked;
+  final bool isAnonymousAccount;
+  final String nicknameColor;
+  final int nicknameChangeTickets;
+  final ReferralStatus referralStatus;
 
   @override
   Widget build(BuildContext context) {
     final displayName = nickname?.trim().isNotEmpty == true
         ? nickname!.trim()
         : '닉네임 미설정';
-    final accountLabel = kakaoLinked ? '카카오 계정 연결됨' : '익명 계정';
+    final accountLabel = kakaoLinked
+        ? '카카오 계정 연결됨'
+        : isAnonymousAccount
+        ? '익명 계정'
+        : '일반 계정';
+    final hasCustomNickname =
+        nickname?.trim().isNotEmpty == true &&
+        !RegExp(r'^신원미상#[0-9]+$').hasMatch(nickname!.trim());
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
@@ -61,7 +88,7 @@ class _ProfileSheet extends StatelessWidget {
                 Row(
                   children: [
                     const Expanded(
-                      child: Text(
+                      child: WordSafeText(
                         '프로필',
                         style: TextStyle(
                           color: AppColors.text,
@@ -100,24 +127,22 @@ class _ProfileSheet extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          WordSafeText(
                             displayName,
                             key: const Key('profile-display-name'),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.text,
+                            style: TextStyle(
+                              color: NicknameColors.resolve(nicknameColor),
                               fontFamily: 'Galmuri',
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
+                          WordSafeText(
                             accountLabel,
                             key: const Key('profile-account-status'),
                             style: TextStyle(
-                              color: kakaoLinked
+                              color: kakaoLinked || !isAnonymousAccount
                                   ? AppColors.reward
                                   : AppColors.textMuted,
                               fontWeight: FontWeight.w800,
@@ -135,11 +160,23 @@ class _ProfileSheet extends StatelessWidget {
                   key: const Key('profile-nickname-action'),
                   icon: Icons.badge_outlined,
                   title: '닉네임 설정',
-                  subtitle: nickname?.trim().isNotEmpty == true
-                      ? '랭킹에 표시되는 이름을 바꿔요.'
+                  subtitle: hasCustomNickname
+                      ? nicknameChangeTickets > 0
+                            ? '랭킹에 표시되는 이름을 바꿔요. 변경권 ${nicknameChangeTickets.toString()}장 보유'
+                            : '랭킹에 표시되는 이름을 바꿔요. 변경권이 필요해요.'
                       : '랭킹에 표시할 이름을 정해 주세요.',
                   onTap: () =>
                       Navigator.of(context).pop(ProfileAction.editNickname),
+                ),
+                const SizedBox(height: 8),
+                _ProfileActionTile(
+                  key: const Key('profile-nickname-color-action'),
+                  icon: Icons.palette_outlined,
+                  title: '닉네임 색상',
+                  subtitle:
+                      '${NicknameColors.label(nicknameColor)} 적용 중 · 변경은 색상권 필요',
+                  onTap: () =>
+                      Navigator.of(context).pop(ProfileAction.nicknameColor),
                 ),
                 const SizedBox(height: 8),
                 _ProfileActionTile(
@@ -149,11 +186,23 @@ class _ProfileSheet extends StatelessWidget {
                   subtitle: kakaoLinked
                       ? '기기 변경 후에도 기록을 이어갈 수 있어요.'
                       : kakaoConfigured
-                      ? '추가 플레이와 기록 보존을 위해 연결해 주세요.'
+                      ? '기기를 바꿔도 기록을 이어가려면 연결해 주세요.'
                       : '앱 키 설정 후 사용할 수 있어요.',
                   accent: kakaoLinked ? AppColors.reward : AppColors.primary,
                   onTap: () =>
                       Navigator.of(context).pop(ProfileAction.linkKakao),
+                ),
+                const SizedBox(height: 8),
+                _ProfileActionTile(
+                  key: const Key('profile-referral-action'),
+                  icon: Icons.group_add_outlined,
+                  title: '친구 초대하고 도전권 받기',
+                  subtitle: referralStatus.invitedCount == 0
+                      ? '친구가 첫 연습 또는 도전을 시작하면 도전권 1장을 받아요.'
+                      : '완료 ${referralStatus.completedCount}명 · 대기 ${referralStatus.pendingCount}명',
+                  accent: AppColors.reward,
+                  onTap: () =>
+                      Navigator.of(context).pop(ProfileAction.inviteFriends),
                 ),
               ],
             ),
@@ -193,7 +242,11 @@ class _EconomyCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _ProfileMetric(
-                  icon: Icons.monetization_on_outlined,
+                  icon: const CoinMark(
+                    color: AppColors.primary,
+                    inkColor: AppColors.backgroundDeep,
+                    size: 18,
+                  ),
                   value: '${economy.coins}',
                   label: 'COINS',
                   color: AppColors.primary,
@@ -202,7 +255,7 @@ class _EconomyCard extends StatelessWidget {
               Container(width: 1, height: 38, color: AppColors.surfaceLight),
               Expanded(
                 child: _ProfileMetric(
-                  icon: Icons.auto_awesome_outlined,
+                  icon: const Icon(Icons.auto_awesome_outlined),
                   value: '${economy.experiencePoints}',
                   label: 'EXP',
                   color: AppColors.reward,
@@ -211,7 +264,7 @@ class _EconomyCard extends StatelessWidget {
               Container(width: 1, height: 38, color: AppColors.surfaceLight),
               Expanded(
                 child: _ProfileMetric(
-                  icon: Icons.arrow_upward_rounded,
+                  icon: const Icon(Icons.arrow_upward_rounded),
                   value: 'LV.${economy.level}',
                   label: 'LEVEL',
                   color: AppColors.text,
@@ -223,7 +276,7 @@ class _EconomyCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              const WordSafeText(
                 '다음 레벨 진행도',
                 style: TextStyle(
                   color: AppColors.textMuted,
@@ -231,7 +284,7 @@ class _EconomyCard extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              Text(
+              WordSafeText(
                 '${economy.experienceToNextLevel} EXP 남음',
                 style: const TextStyle(
                   color: AppColors.reward,
@@ -266,7 +319,7 @@ class _ProfileMetric extends StatelessWidget {
     required this.color,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String value;
   final String label;
   final Color color;
@@ -274,12 +327,13 @@ class _ProfileMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      Icon(icon, color: color, size: 18),
+      IconTheme(
+        data: IconThemeData(color: color, size: 18),
+        child: icon,
+      ),
       const SizedBox(height: 3),
-      Text(
+      WordSafeText(
         value,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: color,
           fontFamily: 'Galmuri',
@@ -288,7 +342,7 @@ class _ProfileMetric extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 2),
-      Text(
+      WordSafeText(
         label,
         style: const TextStyle(
           color: AppColors.textMuted,
@@ -332,7 +386,7 @@ class _ProfileActionTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  WordSafeText(
                     title,
                     style: TextStyle(
                       color: accent,
@@ -340,7 +394,7 @@ class _ProfileActionTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Text(
+                  WordSafeText(
                     subtitle,
                     style: const TextStyle(
                       color: AppColors.textMuted,
