@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const dungDodgeV2Presentation = GamePresentationDefinition(
   id: 'dung_dodge_v2',
-  loadingLabel: '화장실 가는 중...',
   durationLabel: '최대 5분',
   guideDurationText: '최대 5분 동안 도전할 수 있어요.',
   homeAspectRatio: 0.78,
@@ -12,8 +11,10 @@ const dungDodgeV2Presentation = GamePresentationDefinition(
       title: '누른 채로 좌우로 드래그',
       description:
           '화면의 아무 곳이나 손가락으로 누른 뒤, 떼지 않고 왼쪽이나 오른쪽으로 밀어보세요. '
-          '캐릭터는 손가락을 움직인 거리만큼 따라갑니다.',
-      detail: '가볍게 터치만 하면 움직이지 않아요. 손가락을 뗀 뒤 다른 곳에서 다시 드래그해도 바로 이어서 움직일 수 있어요.',
+          '캐릭터는 손가락의 가로 이동 거리만큼 바로 따라갑니다.',
+      detail:
+          '가볍게 터치만 하면 움직이지 않아요. 누른 위치로 순간이동하지 않고, '
+          '손가락을 뗀 곳에서 멈춥니다. 다른 곳에서 다시 드래그해도 바로 이어서 움직일 수 있어요.',
       visual: GameGuideVisualKind.dungSwipe,
     ),
     GameGuidePageDefinition(
