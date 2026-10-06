@@ -16,7 +16,7 @@ import 'package:just_one_round/features/games/midnight_snake/domain/midnight_sna
 import 'package:just_one_round/features/games/midnight_snake/presentation/midnight_snake_path.dart';
 
 class MidnightSnakeGame extends FlameGame
-    with DragCallbacks
+    with TapCallbacks
     implements MiniGameController {
   MidnightSnakeGame({
     required this.onFinished,
@@ -38,7 +38,41 @@ class MidnightSnakeGame extends FlameGame
          ),
        );
 
-  static final logicalSize = Vector2(360, 640);
+  static final logicalSize = Vector2(360, 764);
+  static const playfieldRect = Rect.fromLTWH(48, 108, 264, 468);
+  static const controlBarRect = Rect.fromLTWH(0, 590, 360, 174);
+  static const controlBackgroundSourceRect = Rect.fromLTWH(0, 590, 360, 114);
+  static const controlCabinetSourceRect = Rect.fromLTWH(43, 596, 68, 84);
+  static const controlCabinetTargetRect = Rect.fromLTWH(
+    43,
+    590 + 6 * 174 / 114,
+    68,
+    84 * 174 / 114,
+  );
+  static const controlSourceRects = <Rect>[
+    Rect.fromLTWH(115, 637, 42, 41),
+    Rect.fromLTWH(159, 597, 42, 40),
+    Rect.fromLTWH(159, 637, 42, 41),
+    Rect.fromLTWH(203, 637, 42, 41),
+  ];
+  static const controlVisualRects = <Rect>[
+    Rect.fromLTWH(83.3125, 659.9125, 62.475, 60.9875),
+    Rect.fromLTWH(148.7625, 600.4125, 62.475, 59.5),
+    Rect.fromLTWH(148.7625, 659.9125, 62.475, 60.9875),
+    Rect.fromLTWH(214.2125, 659.9125, 62.475, 60.9875),
+  ];
+  static final controlHitRects = List<Rect>.unmodifiable(
+    controlVisualRects.map(
+      (rect) => rect.inflate(18).intersect(controlBarRect),
+    ),
+  );
+  static final controlButtonRects = controlHitRects;
+  static const controlButtonDirections = <SnakeDirection>[
+    SnakeDirection.left,
+    SnakeDirection.up,
+    SnakeDirection.down,
+    SnakeDirection.right,
+  ];
 
   final Duration gameDuration;
   final Duration countdownDuration;
@@ -52,6 +86,7 @@ class MidnightSnakeGame extends FlameGame
   FlameGame get flameGame => this;
 
   late final _MidnightSnakeBoard _board;
+  late final _MidnightSnakeControls _controls;
   var _phase = MiniGamePhase.countdown;
   var _countdownElapsed = 0.0;
   var _playingElapsed = 0.0;
@@ -63,8 +98,8 @@ class MidnightSnakeGame extends FlameGame
   var _resultEmitted = false;
   var _finishDelay = 0.0;
   SnakeFinishReason? _finishReason;
-  Vector2? _dragStart;
-  Vector2? _dragCurrent;
+  SnakeDirection? _lastTappedDirection;
+  Vector2? _lastTapPoint;
 
   @override
   Color backgroundColor() => const Color(0xFF03121C);
@@ -76,7 +111,7 @@ class MidnightSnakeGame extends FlameGame
     camera.viewfinder.position = logicalSize / 2;
 
     final loaded = await images.loadAll([
-      'midnight_snake/apartment_background.png',
+      'midnight_snake/kitchen_playfield.png',
       'midnight_snake/snake_head_slither_atlas.png',
       'midnight_snake/snake_head_eat_atlas.png',
       'midnight_snake/midnight_food_atlas.png',
@@ -97,16 +132,8 @@ class MidnightSnakeGame extends FlameGame
       startInclusive: MidnightSnakeRules.goldenSausageSpawnStartSeconds.toInt(),
       endInclusive: MidnightSnakeRules.goldenSausageSpawnEndSeconds.toInt(),
     );
-    final mouseSpawnAt = MidnightSnakeRules.spawnSecondInRange(
-      random: _random,
-      startInclusive: MidnightSnakeRules.mouseSpawnStartSeconds.toInt(),
-      endInclusive: MidnightSnakeRules.mouseSpawnEndSeconds.toInt(),
-    );
     _board = _MidnightSnakeBoard(
-      state: MidnightSnakeState.initial(
-        goldenSpawnAtSeconds: goldenSpawnAt,
-        mouseSpawnAtSeconds: mouseSpawnAt,
-      ),
+      state: MidnightSnakeState.initial(goldenSpawnAtSeconds: goldenSpawnAt),
       headSlither: _spritesFromGrid(loaded[1], rows: 4, columns: 4),
       headEat: _spritesFromGrid(loaded[2], rows: 4, columns: 4),
       foods: _spritesFromGrid(loaded[3], rows: 2, columns: 6),
@@ -115,8 +142,17 @@ class MidnightSnakeGame extends FlameGame
       goldenSausage: _spritesFromGrid(loaded[6], rows: 2, columns: 1),
       mouseWalk: _spritesFromGrid(loaded[7], rows: 4, columns: 2),
     );
+    // Transform every live board element together, retaining the rule grid.
+    _board.scale = Vector2(264 / 216, 468 / 360);
+    _board.position = Vector2(
+      48 - 72 * _board.scale.x,
+      108 - 112 * _board.scale.y,
+    );
     await world.add(_board);
+    _controls = _MidnightSnakeControls(loaded[0]);
+    await world.add(_controls);
     _assetsReady = true;
+    _controls.setEnabled(countdownDuration == Duration.zero);
     if (!_isTerminal && countdownDuration == Duration.zero) {
       _phase = MiniGamePhase.playing;
       _board.isPlaying = true;
@@ -142,6 +178,7 @@ class MidnightSnakeGame extends FlameGame
         if (_countdownElapsed >= seconds && _assetsReady) {
           _phase = MiniGamePhase.playing;
           _board.isPlaying = true;
+          _controls.setEnabled(true);
           _publishHud(force: true);
         } else {
           _publishHud();
@@ -183,49 +220,42 @@ class MidnightSnakeGame extends FlameGame
   }
 
   @override
-  void onDragStart(DragStartEvent event) {
-    super.onDragStart(event);
-    if (_phase != MiniGamePhase.playing || _isTerminal) return;
-    final point = camera.globalToLocal(event.canvasPosition);
-    if (!_board.containsLogicalPoint(point)) return;
-    _dragStart = point;
-    _dragCurrent = point;
-  }
-
-  @override
-  void onDragUpdate(DragUpdateEvent event) {
-    if (_dragStart == null || _phase != MiniGamePhase.playing) return;
-    _dragCurrent = camera.globalToLocal(event.canvasEndPosition);
-  }
-
-  @override
-  void onDragEnd(DragEndEvent event) {
-    super.onDragEnd(event);
-    final start = _dragStart;
-    final end = _dragCurrent;
-    _dragStart = null;
-    _dragCurrent = null;
-    if (start != null && end != null) queueSwipeForTesting(end - start);
-  }
-
-  @override
-  void onDragCancel(DragCancelEvent event) {
-    super.onDragCancel(event);
-    _dragStart = null;
-    _dragCurrent = null;
-  }
-
-  @visibleForTesting
-  bool queueSwipeForTesting(Vector2 delta) {
+  void onTapDown(TapDownEvent event) {
+    super.onTapDown(event);
     if (_phase != MiniGamePhase.playing || _isTerminal || !_assetsReady) {
-      return false;
+      return;
     }
-    final direction = MidnightSnakeRules.directionForSwipe(
-      deltaX: delta.x,
-      deltaY: delta.y,
-    );
-    if (direction == null) return false;
-    return _queueDirection(direction);
+    final point = camera.viewport.globalToLocal(event.canvasPosition);
+    final direction = directionAtLogicalPoint(point);
+    _lastTapPoint = point;
+    _lastTappedDirection = direction;
+    if (direction == null) return;
+    event.continuePropagation = false;
+    _controls.showPress(direction);
+    _queueDirection(direction);
+  }
+
+  static SnakeDirection? directionAtLogicalPoint(Vector2 point) {
+    final offset = Offset(point.x, point.y);
+    for (var index = 0; index < controlVisualRects.length; index++) {
+      if (controlVisualRects[index].contains(offset)) {
+        return controlButtonDirections[index];
+      }
+    }
+    var bestIndex = -1;
+    var bestDistance = double.infinity;
+    for (var index = 0; index < controlHitRects.length; index++) {
+      if (!controlHitRects[index].contains(offset)) continue;
+      final center = controlVisualRects[index].center;
+      final dx = point.x - center.dx;
+      final dy = point.y - center.dy;
+      final distance = dx * dx + dy * dy;
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = index;
+      }
+    }
+    return bestIndex == -1 ? null : controlButtonDirections[bestIndex];
   }
 
   bool _queueDirection(SnakeDirection direction) {
@@ -242,6 +272,7 @@ class MidnightSnakeGame extends FlameGame
     _board
       ..isPlaying = false
       ..showFinish(reason);
+    _controls.setEnabled(false);
     _finishDelay = switch (reason) {
       SnakeFinishReason.wall || SnakeFinishReason.self => 1.25,
       SnakeFinishReason.timeout || SnakeFinishReason.boardComplete => 0.25,
@@ -309,7 +340,23 @@ class MidnightSnakeGame extends FlameGame
   MidnightSnakeState get stateForTesting => _board.state;
 
   @visibleForTesting
-  Rect get boardRectForTesting => _MidnightSnakeBoard.boardRect;
+  Rect get boardRectForTesting => playfieldRect;
+
+  @visibleForTesting
+  Rect get controlsRectForTesting => controlBarRect;
+
+  @visibleForTesting
+  List<Rect> get controlButtonRectsForTesting => controlButtonRects;
+
+  @visibleForTesting
+  SnakeDirection? get pressedDirectionForTesting =>
+      _assetsReady ? _controls.pressedDirection : null;
+
+  @visibleForTesting
+  SnakeDirection? get lastTappedDirectionForTesting => _lastTappedDirection;
+
+  @visibleForTesting
+  Vector2? get lastTapPointForTesting => _lastTapPoint?.clone();
 
   @visibleForTesting
   double get movementProgressForTesting => _board.movementProgress;
@@ -338,7 +385,10 @@ class MidnightSnakeGame extends FlameGame
     if (_isTerminal) return;
     _isTerminal = true;
     _phase = MiniGamePhase.finished;
-    if (_assetsReady) _board.isPlaying = false;
+    if (_assetsReady) {
+      _board.isPlaying = false;
+      _controls.setEnabled(false);
+    }
     _publishHud(force: true);
     pauseEngine();
   }
@@ -357,6 +407,109 @@ class MidnightSnakeGame extends FlameGame
         for (var column = 0; column < columns; column++)
           sheet.getSprite(row, column),
     ];
+  }
+}
+
+class _MidnightSnakeControls extends PositionComponent {
+  _MidnightSnakeControls(this.art)
+    : super(size: MidnightSnakeGame.logicalSize.clone(), priority: 20);
+
+  final ui.Image art;
+
+  var _enabled = false;
+  SnakeDirection? _pressedDirection;
+  var _pressedElapsed = 1.0;
+
+  void setEnabled(bool enabled) => _enabled = enabled;
+
+  void showPress(SnakeDirection direction) {
+    _pressedDirection = direction;
+    _pressedElapsed = 0;
+  }
+
+  SnakeDirection? get pressedDirection => _pressedDirection;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _pressedElapsed += dt;
+    if (_pressedElapsed >= 0.18) _pressedDirection = null;
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    canvas.save();
+    canvas.clipRect(MidnightSnakeGame.controlBarRect);
+    final nearest = Paint()..filterQuality = FilterQuality.none;
+    canvas.drawImageRect(
+      art,
+      MidnightSnakeGame.controlBackgroundSourceRect,
+      MidnightSnakeGame.controlBarRect,
+      nearest,
+    );
+    const cabinetRight = 317.0;
+    for (
+      var left = MidnightSnakeGame.controlCabinetTargetRect.left;
+      left < cabinetRight;
+      left += MidnightSnakeGame.controlCabinetTargetRect.width
+    ) {
+      final width = min(
+        MidnightSnakeGame.controlCabinetTargetRect.width,
+        cabinetRight - left,
+      );
+      canvas.drawImageRect(
+        art,
+        Rect.fromLTWH(
+          MidnightSnakeGame.controlCabinetSourceRect.left,
+          MidnightSnakeGame.controlCabinetSourceRect.top,
+          width,
+          MidnightSnakeGame.controlCabinetSourceRect.height,
+        ),
+        Rect.fromLTWH(
+          left,
+          MidnightSnakeGame.controlCabinetTargetRect.top,
+          width,
+          MidnightSnakeGame.controlCabinetTargetRect.height,
+        ),
+        nearest,
+      );
+    }
+    for (
+      var index = 0;
+      index < MidnightSnakeGame.controlSourceRects.length;
+      index++
+    ) {
+      canvas.drawImageRect(
+        art,
+        MidnightSnakeGame.controlSourceRects[index],
+        MidnightSnakeGame.controlVisualRects[index],
+        nearest,
+      );
+    }
+    canvas.restore();
+
+    if (!_enabled || _pressedDirection == null) return;
+    final index = MidnightSnakeGame.controlButtonDirections.indexOf(
+      _pressedDirection!,
+    );
+    final key = MidnightSnakeGame.controlVisualRects[index];
+    final source = MidnightSnakeGame.controlSourceRects[index];
+    canvas.save();
+    canvas.clipRect(MidnightSnakeGame.controlBarRect);
+    canvas.drawRect(key, Paint()..color = const Color(0xFF38220D));
+    canvas.drawImageRect(
+      art,
+      source,
+      key.translate(0, 2),
+      Paint()
+        ..filterQuality = FilterQuality.none
+        ..colorFilter = const ColorFilter.mode(
+          Color(0xFFFFC466),
+          BlendMode.modulate,
+        ),
+    );
+    canvas.restore();
   }
 }
 
@@ -402,8 +555,8 @@ class _MidnightSnakeBoard extends PositionComponent {
          ..filterQuality = FilterQuality.none,
        super(size: MidnightSnakeGame.logicalSize.clone());
 
-  static const cellSize = 32.0;
-  static const boardLeft = 36.0;
+  static const cellSize = 24.0;
+  static const boardLeft = 72.0;
   static const boardTop = 112.0;
   static const boardRect = Rect.fromLTWH(
     boardLeft,
@@ -462,7 +615,7 @@ class _MidnightSnakeBoard extends PositionComponent {
       return const SnakeStepResult(moved: false, ateFood: false);
     }
     final previousBody = List<SnakeCell>.of(state.body);
-    final result = state.step(random);
+    final result = state.step(random, elapsedSeconds: elapsedSeconds);
     if (result.moved) {
       _previousBody = previousBody;
       _movementElapsed = 0;

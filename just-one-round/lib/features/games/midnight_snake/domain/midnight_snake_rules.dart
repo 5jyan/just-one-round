@@ -88,7 +88,7 @@ class MidnightSnakeState {
   factory MidnightSnakeState.initial({
     double goldenSpawnAtSeconds =
         MidnightSnakeRules.goldenSausageSpawnStartSeconds,
-    double mouseSpawnAtSeconds = MidnightSnakeRules.mouseSpawnStartSeconds,
+    double mouseSpawnAtSeconds = double.infinity,
   }) => MidnightSnakeState._(
     List<SnakeCell>.of(MidnightSnakeRules.initialBody),
     direction: SnakeDirection.right,
@@ -107,7 +107,7 @@ class MidnightSnakeState {
     int score = 0,
     double goldenSpawnAtSeconds =
         MidnightSnakeRules.goldenSausageSpawnStartSeconds,
-    double mouseSpawnAtSeconds = MidnightSnakeRules.mouseSpawnStartSeconds,
+    double mouseSpawnAtSeconds = double.infinity,
     SnakeCell? goldenSausage,
     SnakeCell? mouse,
     SnakeDirection mouseDirection = SnakeDirection.down,
@@ -161,8 +161,8 @@ class MidnightSnakeState {
   SnakeCell? food;
   int foodTypeIndex;
   int score;
-  final double goldenSpawnAtSeconds;
-  final double mouseSpawnAtSeconds;
+  double goldenSpawnAtSeconds;
+  double mouseSpawnAtSeconds;
   SnakeCell? goldenSausage;
   SnakeCell? mouse;
   SnakeDirection mouseDirection;
@@ -197,7 +197,7 @@ class MidnightSnakeState {
     return true;
   }
 
-  SnakeStepResult step(Random random) {
+  SnakeStepResult step(Random random, {double elapsedSeconds = 0}) {
     if (isFinished) {
       return SnakeStepResult(
         moved: false,
@@ -257,15 +257,10 @@ class MidnightSnakeState {
       if (food == null) finishReason = SnakeFinishReason.boardComplete;
     }
     if (ateGoldenSausage) {
-      goldenSausage = null;
-      _goldenResolved = true;
-      _goldenExpiresAt = null;
+      _resolveGoldenEvent(elapsedSeconds);
     }
     if (caughtMouse) {
-      mouse = null;
-      _mouseResolved = true;
-      _mouseExpiresAt = null;
-      _mouseNextMoveAt = null;
+      _resolveMouseEvent(elapsedSeconds);
     }
 
     return SnakeStepResult(
@@ -297,23 +292,38 @@ class MidnightSnakeState {
     if (goldenSausage != null &&
         expiresAt != null &&
         elapsedSeconds >= expiresAt) {
-      goldenSausage = null;
-      _goldenResolved = true;
-      _goldenExpiresAt = null;
+      _resolveGoldenEvent(elapsedSeconds);
     }
+  }
+
+  void _resolveGoldenEvent(double elapsedSeconds) {
+    goldenSausage = null;
+    _goldenResolved = true;
+    _goldenExpiresAt = null;
+    _mouseAppeared = false;
+    _mouseResolved = false;
+    mouseSpawnAtSeconds =
+        elapsedSeconds + MidnightSnakeRules.bonusCooldownSeconds;
   }
 
   void _trySpawnGoldenSausage(double elapsedSeconds, Random random) {
     if (_goldenAppeared || _goldenResolved) return;
-    if (elapsedSeconds <
-        goldenSpawnAtSeconds.clamp(
-          MidnightSnakeRules.goldenSausageSpawnStartSeconds,
-          MidnightSnakeRules.goldenSausageSpawnEndSeconds,
-        )) {
+    final isInitialGoldenWindow =
+        mouseSpawnAtSeconds.isInfinite && !_mouseResolved;
+    final goldenSpawnThreshold = isInitialGoldenWindow
+        ? goldenSpawnAtSeconds.clamp(
+            MidnightSnakeRules.goldenSausageSpawnStartSeconds,
+            MidnightSnakeRules.goldenSausageSpawnEndSeconds,
+          )
+        : goldenSpawnAtSeconds;
+    if (elapsedSeconds < goldenSpawnThreshold) {
       return;
     }
-    if (elapsedSeconds > MidnightSnakeRules.goldenSausageSpawnEndSeconds) {
+    if (isInitialGoldenWindow &&
+        elapsedSeconds > MidnightSnakeRules.goldenSausageSpawnEndSeconds) {
       _goldenResolved = true;
+      mouseSpawnAtSeconds =
+          elapsedSeconds + MidnightSnakeRules.bonusCooldownSeconds;
       return;
     }
 
@@ -332,24 +342,24 @@ class MidnightSnakeState {
   void _expireMouse(double elapsedSeconds) {
     final expiresAt = _mouseExpiresAt;
     if (mouse != null && expiresAt != null && elapsedSeconds >= expiresAt) {
-      mouse = null;
-      _mouseResolved = true;
-      _mouseExpiresAt = null;
-      _mouseNextMoveAt = null;
+      _resolveMouseEvent(elapsedSeconds);
     }
+  }
+
+  void _resolveMouseEvent(double elapsedSeconds) {
+    mouse = null;
+    _mouseResolved = true;
+    _mouseExpiresAt = null;
+    _mouseNextMoveAt = null;
+    _goldenAppeared = false;
+    _goldenResolved = false;
+    goldenSpawnAtSeconds =
+        elapsedSeconds + MidnightSnakeRules.bonusCooldownSeconds;
   }
 
   void _trySpawnMouse(double elapsedSeconds, Random random) {
     if (_mouseAppeared || _mouseResolved || !_goldenResolved) return;
-    if (elapsedSeconds <
-        mouseSpawnAtSeconds.clamp(
-          MidnightSnakeRules.mouseSpawnStartSeconds,
-          MidnightSnakeRules.mouseSpawnEndSeconds,
-        )) {
-      return;
-    }
-    if (elapsedSeconds > MidnightSnakeRules.mouseSpawnEndSeconds) {
-      _mouseResolved = true;
+    if (elapsedSeconds < mouseSpawnAtSeconds) {
       return;
     }
 
@@ -401,7 +411,7 @@ class MidnightSnakeState {
 
 abstract final class MidnightSnakeRules {
   static const gameId = 'midnight_snake';
-  static const rulesVersion = 2;
+  static const rulesVersion = 3;
   static const rowCount = 15;
   static const columnCount = 9;
   static const initialBodyLength = 4;
@@ -412,20 +422,21 @@ abstract final class MidnightSnakeRules {
   static const maximumBaseScore = rowCount * columnCount - initialBodyLength;
   static const maximumScore =
       maximumBaseScore +
-      goldenSausageScore -
-      regularFoodScore +
-      mouseScore -
-      regularFoodScore;
+      maximumGoldenBonusCount * (goldenSausageScore - regularFoodScore) +
+      maximumMouseBonusCount * (mouseScore - regularFoodScore);
   static const foodTypeCount = 6;
   static const gameDuration = Duration(minutes: 5);
-  static const swipeThreshold = 6.0;
+  static const lateGameStartSeconds = 120.0;
+  static const lateGameStartIntervalSeconds = 0.25;
+  static const lateGameEndIntervalSeconds = 0.22;
+  static const bonusCooldownSeconds = 30.0;
   static const goldenSausageSpawnStartSeconds = 30.0;
   static const goldenSausageSpawnEndSeconds = 60.0;
   static const goldenSausageLifetimeSeconds = 10.0;
-  static const mouseSpawnStartSeconds = 60.0;
-  static const mouseSpawnEndSeconds = 90.0;
   static const mouseLifetimeSeconds = 15.0;
   static const mouseMoveIntervalSeconds = 1.0;
+  static const maximumGoldenBonusCount = 5;
+  static const maximumMouseBonusCount = 4;
 
   static const initialBody = <SnakeCell>[
     SnakeCell(7, 4),
@@ -450,22 +461,17 @@ abstract final class MidnightSnakeRules {
   static double moveIntervalAt(double elapsedSeconds) {
     final elapsed = elapsedSeconds.clamp(0, gameDuration.inSeconds);
     if (elapsed < 3) return 0.60;
-    if (elapsed < 30) return 0.50;
+    if (elapsed < 30) return 0.46;
     if (elapsed < 50) return 0.42;
     if (elapsed < 90) return 0.35;
-    if (elapsed < 120) return 0.29;
-    return 0.25;
-  }
-
-  static SnakeDirection? directionForSwipe({
-    required double deltaX,
-    required double deltaY,
-  }) {
-    if (max(deltaX.abs(), deltaY.abs()) < swipeThreshold) return null;
-    if (deltaX.abs() >= deltaY.abs()) {
-      return deltaX >= 0 ? SnakeDirection.right : SnakeDirection.left;
-    }
-    return deltaY >= 0 ? SnakeDirection.down : SnakeDirection.up;
+    if (elapsed < lateGameStartSeconds) return 0.29;
+    final lateGameProgress =
+        ((elapsed - lateGameStartSeconds) /
+                (gameDuration.inSeconds - lateGameStartSeconds))
+            .clamp(0.0, 1.0);
+    return lateGameStartIntervalSeconds -
+        (lateGameStartIntervalSeconds - lateGameEndIntervalSeconds) *
+            lateGameProgress;
   }
 
   static List<SnakeCell> reachableEmptyCells({required List<SnakeCell> body}) {

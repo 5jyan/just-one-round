@@ -15,6 +15,8 @@ void main() {
     'crumb_burst_sheet.png': (64, 64),
     'golden_sausage_sheet.png': (32, 64),
     'mouse_walk_atlas.png': (64, 128),
+    'arcade_controls.png': (360, 195),
+    'kitchen_playfield.png': (360, 764),
   };
 
   test('runtime asset contract has exact dimensions', () {

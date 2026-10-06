@@ -2,23 +2,22 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const midnightSnakePresentation = GamePresentationDefinition(
   id: 'midnight_snake',
-  loadingLabel: '냉장고 불빛 켜는 중...',
   durationLabel: '최대 5분',
   guideDurationText: '최대 5분 동안 야식을 최대한 많이 훔쳐 먹어요.',
   homeAspectRatio: 0.78,
   homePreview: GameHomePreviewKind.midnightSnake,
   guidePages: [
     GameGuidePageDefinition(
-      title: '짧게 드래그해 방향 전환',
-      description: '청록색 바닥 안에서 원하는 방향으로 손가락을 짧게 끌었다 놓으면 뱀이 다음 이동부터 방향을 바꿉니다.',
-      detail: '길게 끌 필요는 없어요. 현재 진행 방향의 정반대 입력은 안전을 위해 받지 않습니다.',
-      visual: GameGuideVisualKind.snakeSwipe,
+      title: '하단 버튼으로 방향 전환',
+      description: '화면 아래의 네 방향 버튼을 눌러 자동으로 움직이는 뱀의 다음 방향을 바꿉니다.',
+      detail: '정반대 방향은 안전을 위해 받지 않아요. 버튼을 빠르게 눌러도 다음 방향은 최대 3개까지 순서대로 예약됩니다.',
+      visual: GameGuideVisualKind.snakeButtons,
     ),
     GameGuidePageDefinition(
       title: '야식을 먹고 길어지기',
-      description: '일반 야식은 1점, 모서리에 한 번 나타나는 황금 소시지는 3점, 천천히 움직이는 쥐는 2점을 줍니다.',
+      description: '일반 야식은 1점, 반복해서 나타나는 황금 소시지는 3점, 천천히 움직이는 쥐는 2점을 줍니다.',
       detail:
-          '황금 소시지와 쥐는 한 판에 한 번씩만 나타나며 서로 동시에 나오지 않아요. 무엇을 먹어도 몸은 한 칸만 길어집니다.',
+          '황금 소시지와 쥐는 서로 번갈아 나타나며, 하나가 끝난 뒤 30초 후 다음 보너스가 시작돼요. 무엇을 먹어도 몸은 한 칸만 길어집니다.',
       visual: GameGuideVisualKind.snakeGrow,
     ),
     GameGuidePageDefinition(

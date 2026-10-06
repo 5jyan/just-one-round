@@ -72,11 +72,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('HOW TO PLAY · 1/4'), findsOneWidget);
-    expect(find.text('짧게 드래그해 방향 전환'), findsOneWidget);
+    expect(find.text('하단 버튼으로 방향 전환'), findsOneWidget);
     expect(
-      find.byKey(const Key('midnight-snake-swipe-guide-animation')),
+      find.byKey(const Key('midnight-snake-buttons-guide-animation')),
       findsOneWidget,
     );
+    expect(
+      find.byKey(const Key('midnight-snake-direction-buttons')),
+      findsOneWidget,
+    );
+    expect(find.bySemanticsLabel('왼쪽 방향 버튼'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('guide-next-button')));
     await tester.pumpAndSettle();
