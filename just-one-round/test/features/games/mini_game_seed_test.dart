@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/features/games/domain/mini_game_seed.dart';
 
@@ -51,31 +53,43 @@ void main() {
     );
   });
 
-  test('일반 게임은 두 번째 시도에서도 같은 챌린지를 사용하고 블랙잭만 분리한다', () {
-    final regularFirst = MiniGameSeed.forAttempt(
-      gameId: 'number_rush',
-      gameVersion: 1,
-      playDate: playDate,
-    );
-    final regularSecond = MiniGameSeed.forAttempt(
-      gameId: 'number_rush',
-      gameVersion: 1,
-      playDate: playDate,
-    );
-    final blackjackFirst = MiniGameSeed.forAttempt(
+  test('결정론적 helper는 공식 도전과 연습 회차별 시드를 분리한다', () {
+    final challenge = MiniGameSeed.forAttempt(
       gameId: 'beat_the_dealer',
       gameVersion: 3,
       playDate: playDate,
-      attemptOrdinal: 1,
     );
-    final blackjackSecond = MiniGameSeed.forAttempt(
+    final firstPractice = MiniGameSeed.forAttempt(
       gameId: 'beat_the_dealer',
       gameVersion: 3,
       playDate: playDate,
-      attemptOrdinal: 2,
+      practiceOrdinal: 1,
+    );
+    final sameFirstPractice = MiniGameSeed.forAttempt(
+      gameId: 'beat_the_dealer',
+      gameVersion: 3,
+      playDate: playDate,
+      practiceOrdinal: 1,
+    );
+    final secondPractice = MiniGameSeed.forAttempt(
+      gameId: 'beat_the_dealer',
+      gameVersion: 3,
+      playDate: playDate,
+      practiceOrdinal: 2,
     );
 
-    expect(regularSecond, regularFirst);
-    expect(blackjackSecond, isNot(blackjackFirst));
+    expect(firstPractice, isNot(challenge));
+    expect(sameFirstPractice, firstPractice);
+    expect(secondPractice, isNot(firstPractice));
+  });
+
+  test('랜덤 시드는 기본적으로 난수를 사용하고 테스트에서는 source를 주입할 수 있다', () {
+    final first = MiniGameSeed.randomSeed(random: Random(41));
+    final same = MiniGameSeed.randomSeed(random: Random(41));
+    final different = MiniGameSeed.randomSeed(random: Random(42));
+
+    expect(first, same);
+    expect(different, isNot(first));
+    expect(first, inInclusiveRange(0, 0x7ffffffe));
   });
 }

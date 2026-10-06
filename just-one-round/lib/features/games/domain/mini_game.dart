@@ -13,6 +13,11 @@ enum MiniGameHudStyle {
   beatTheDealer,
   tenPitchSlugger,
   ramenTimer,
+  bathhouseSort,
+  netBoat,
+  moleReaction,
+  westernDuel,
+  custom,
 }
 
 class MiniGameHudState {
@@ -23,6 +28,7 @@ class MiniGameHudState {
     required this.remainingSeconds,
     required this.countdownNumber,
     this.distance = 0,
+    this.comboRemainingPercent,
     this.message,
     this.primaryActionEnabled = false,
     this.primaryActionLabel,
@@ -34,6 +40,7 @@ class MiniGameHudState {
   final int? remainingSeconds;
   final int countdownNumber;
   final int distance;
+  final int? comboRemainingPercent;
   final String? message;
   final bool primaryActionEnabled;
   final String? primaryActionLabel;

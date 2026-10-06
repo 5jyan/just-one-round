@@ -9,6 +9,12 @@ enum GameHomePreviewKind {
   beatTheDealer,
   tenPitchSlugger,
   ramenTimer,
+  bathhouseSort,
+  lilyFrog,
+  netBoat,
+  moleReaction,
+  westernDuel,
+  windDarts,
 }
 
 enum GameGuideVisualKind {
@@ -35,7 +41,7 @@ enum GameGuideVisualKind {
   mamaObserve,
   mamaRecall,
   mamaFailure,
-  snakeSwipe,
+  snakeButtons,
   snakeQueue,
   snakeGrow,
   snakeCollision,
@@ -54,6 +60,30 @@ enum GameGuideVisualKind {
   ramenCalibration,
   ramenCheckpoints,
   ramenResult,
+  bathhouseControls,
+  bathhouseQueue,
+  bathhouseUnlock,
+  bathhouseScoring,
+  lilyOrbit,
+  lilyTangent,
+  lilySpeed,
+  lilyScoring,
+  lilyBonus,
+  lilyFailure,
+  netBoatTurn,
+  netBoatClose,
+  netBoatScore,
+  netBoatDifficulty,
+  netBoatFailure,
+  netBoatLimit,
+  moleReaction,
+  westernWait,
+  westernDraw,
+  westernResult,
+  windDartsHold,
+  windDartsWind,
+  windDartsDistance,
+  windDartsScoring,
 }
 
 class GameGuidePageDefinition {
@@ -73,7 +103,6 @@ class GameGuidePageDefinition {
 class GamePresentationDefinition {
   const GamePresentationDefinition({
     required this.id,
-    required this.loadingLabel,
     required this.durationLabel,
     required this.guideDurationText,
     required this.homeAspectRatio,
@@ -82,7 +111,6 @@ class GamePresentationDefinition {
   });
 
   final String id;
-  final String loadingLabel;
   final String durationLabel;
   final String guideDurationText;
   final double homeAspectRatio;
