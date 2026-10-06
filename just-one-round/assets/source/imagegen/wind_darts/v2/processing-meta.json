@@ -1,0 +1,135 @@
+{
+  "source": "Codex built-in ImageGen; exact prompts stored beside raw images",
+  "master_reference": "assets/images/wind_darts/pub_interior.png",
+  "exception": "user approved detailed dark antique western pixel art; no ugly-cute or hands",
+  "board_face": {
+    "size": [
+      576,
+      576
+    ],
+    "base_grid": [
+      288,
+      288
+    ],
+    "center": [
+      288,
+      288
+    ],
+    "score_radius": 228,
+    "outer_radius": 280,
+    "number_radius": 260,
+    "sector_order": [
+      20,
+      1,
+      18,
+      4,
+      13,
+      6,
+      10,
+      15,
+      2,
+      17,
+      3,
+      19,
+      7,
+      16,
+      8,
+      11,
+      14,
+      9,
+      12,
+      5
+    ],
+    "first_sector_center_degrees": -90,
+    "runtime_visual_rotation_offset_degrees": 9,
+    "runtime_board_angle_degrees": -9,
+    "triple_radius": [
+      0.5588235294117647,
+      0.6529411764705882
+    ],
+    "double_radius": [
+      0.9058823529411765,
+      1.0
+    ]
+  },
+  "board_numbers": {
+    "size": [
+      320,
+      256
+    ],
+    "cell": [
+      64,
+      64
+    ],
+    "layout": [
+      5,
+      4
+    ],
+    "values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "center": [
+      32,
+      32
+    ],
+    "font": "Galmuri11-Bold"
+  },
+  "dart_atlas": {
+    "size": [
+      192,
+      128
+    ],
+    "cell": [
+      96,
+      128
+    ],
+    "tip_anchor": [
+      48,
+      12
+    ],
+    "order": [
+      "flight",
+      "embedded"
+    ],
+    "visible_bounds": [
+      [
+        38,
+        12,
+        57,
+        114
+      ],
+      [
+        36,
+        12,
+        62,
+        108
+      ]
+    ]
+  },
+  "processing": "Generated texture palette normalization, exact geometry masks, nearest-neighbor resize and alpha compositing. No synthetic creative texture.",
+  "qc": {
+    "alpha_padding": true,
+    "tip_anchors": true,
+    "score_radius": true,
+    "static_composite_is_not_runtime_screenshot": true
+  }
+}

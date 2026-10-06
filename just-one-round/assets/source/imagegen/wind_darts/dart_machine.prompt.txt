@@ -1,0 +1,6 @@
+Tool: Codex built-in ImageGen
+Output: assets/images/wind_darts/dart_machine.png (source copy: dart_machine_raw.png)
+Transparent background: true
+Canvas: 1024 x 1536 px, RGBA
+
+The exact prompt from this generation call was not retained in the prior turn. This production brief records the approved intent, not a verbatim prompt: create a straight-on, full-height, symmetrical dark-Western-pub dart-machine cabinet in richly detailed high-resolution pixel art, dark walnut with restrained aged-brass trim and warm amber highlights. Keep a perfectly circular empty black center opening for a separately rendered rotating standard dartboard; show the entire cabinet and feet; no people, portrait, text, UI, dartboard, logo, or other props; transparent background.

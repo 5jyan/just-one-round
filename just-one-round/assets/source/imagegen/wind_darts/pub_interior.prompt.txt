@@ -1,0 +1,9 @@
+Tool: ChatGPT Images through the user's local Chrome session
+Output: ../images/wind_darts/pub_interior.png
+Canvas: 841 x 1870 px, portrait.
+
+Prompt:
+Portrait mobile game background, vertical 9:20 composition. Interior of a small 1880s American Old West tavern pub, straight-on first-person eye-level view. Dark aged walnut plank walls and floor, a few warm brass details, low amber oil lamps, dim intimate atmosphere with restrained crisp pixel-art environmental detail. Leave a calm open area on the CENTER wall for a separately drawn large dart cabinet; do not draw a dartboard, dart machine, target, people, portraits, text, labels, signs, logos, score displays, or UI. Keep lower foreground visually quiet for a separately drawn player's hand and HUD. High-resolution polished pixel art with crisp stepped edges and deliberate dense pixel clusters, carefully detailed wood grain, warm lamp highlights, clean nearest-neighbor-friendly forms. Not ugly-cute, not deliberately awkward, not low-resolution chunky 8-bit, no blur, antialiasing, painterly finish, photorealism, or 3D. Full-bleed room atmosphere, no border or padding.
+
+Pixel-art correction prompt:
+Edit the previous generated image, keeping its composition and all architectural placement: the tall central open walnut wall, the side bar shelves, amber lamps, and wood floor. Convert the entire image into unmistakable high-resolution 2D pixel art. Every surface must be reconstructed from deliberate crisp square pixel clusters with clear stepped edges, limited but rich warm colors, chunky highlights and shadows. Remove all photographic texture, smooth wood grain, gradients, lens-like lighting, blur, anti-aliasing and painterly brushwork. It must look like carefully hand-clustered detailed pixel art authored for a premium pixel-art mobile game, with the same dark western pub mood. Keep center wall open. Do not add any darts, dart board, people, text or UI.

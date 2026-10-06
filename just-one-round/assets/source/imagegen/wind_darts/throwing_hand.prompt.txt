@@ -1,0 +1,7 @@
+Tool: Codex built-in ImageGen
+Output: assets/images/wind_darts/throwing_hand.png (source copy: throwing_hand_raw.png)
+Transparent background: true
+Canvas: 1312 x 1199 px, RGBA
+
+Exact generation prompt:
+Create a runtime-ready foreground sprite for a high quality pixel-art mobile darts game. Transparent background. Close first-person view of a single adult right hand and forearm entering from the lower-right edge, holding one classic slim steel-tip dart between thumb and index finger in a precise throwing grip, dart pointing diagonally upward toward the upper-left / screen center. Warm amber light from a dim old western pub, subtle worn dark leather cuff or dark brown shirt sleeve. Crisp richly detailed high-resolution pixel art with deliberate pixel clusters and clean silhouette, realistic hand anatomy, elegant restrained palette, no outlines that look comic, no background scene. Composition must leave most of canvas transparent; forearm is naturally cropped at bottom and right edges, hand occupies lower-right quadrant, dart clearly visible and does not touch edges. No target, no dartboard, no machine, no background, no extra items, no text, no UI, no extra fingers, no extra darts.

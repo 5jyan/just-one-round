@@ -1,0 +1,11 @@
+Use case: stylized-concept. Asset type: production material texture sheet for a high-resolution PIXEL ART mobile darts game set in a DARK 1880s American western saloon.
+Create ONE image as a precise 3-column by 2-row sheet of SIX square full-bleed material swatches, equal square cells, no gutters, no labels, no border, no objects. Recommended canvas 1536x1024.
+Reading order:
+top left = old pale oatmeal sisal/cork dartboard surface, yellowed tan fibers, fine old puncture marks and gentle worn patches;
+top middle = soot-black/charcoal sisal/cork dartboard surface, dark warm browns in the shadows, uneven faded charcoal, visible fibers and old tiny pin holes;
+top right = faded brick red painted sisal/cork surface, restrained worn reddish brown, visible rough fibers;
+bottom left = aged bottle green painted sisal/cork surface, desaturated dark olive/pine green, rough faded fibers;
+bottom middle = very old warm dark walnut planks, grain in deliberate pixel clusters, chips, muted ochre worn highlights;
+bottom right = tarnished dark bronze and oxidized steel material, matte patina, scratched old gunmetal with restrained warm dull gold highlights.
+All swatches must be flat front-on uniform texture materials, NOT shaped objects, no gradients or lighting hot spots. Each cell fills its entire bounds; no relief edges separating cells.
+Style: unmistakable carefully authored HIGH RESOLUTION TWO-DIMENSIONAL PIXEL ART. Deliberate crisp square pixel clusters, stepped scratches, warm dark silhouettes, 4-6 shades per material, rough weathered texture with quiet readable broad value. Match detailed old saloon pixel art, not glossy, not photographic, not smooth vector, no antialiasing, no blur, no watercolor, no 3D render. Entire sheet should feel like materials from one worn pub. Keep texture visible but not high-contrast salt and pepper noise. No text, numbers, target, dartboard, hands, characters, weapons, logos, or shadows.

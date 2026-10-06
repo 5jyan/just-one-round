@@ -1,0 +1,226 @@
+{
+  "contract": {
+    "paper_output": [
+      240,
+      320
+    ],
+    "gauge_frame_output": [
+      640,
+      72
+    ],
+    "gauge_fill_output": [
+      608,
+      24
+    ],
+    "base_grid_scale": 2,
+    "runtime_frame_rect": [
+      20,
+      580,
+      320,
+      36
+    ],
+    "runtime_fill_rect": [
+      28,
+      592,
+      304,
+      12
+    ]
+  },
+  "sources": {
+    "paper": {
+      "path": "assets/source/imagegen/wind_darts/v3_ui/paper_raw.png",
+      "sha256": "2a24def848d55e6d685b0e19b759b2e3424286efe87ad0ac09e0ab0282a3aab2",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "mode": "RGBA",
+      "provenance": "Codex built-in ImageGen",
+      "prompt": "assets/source/imagegen/wind_darts/v3_ui/paper.prompt.txt",
+      "prompt_sha256": "fbe6d87522e4d09e4c6efb61859d6fbc842af6894a0870d4b91427fb04008bc9"
+    },
+    "gauge": {
+      "path": "assets/source/imagegen/wind_darts/v3_ui/gauge_raw.png",
+      "sha256": "951c8600027c0f597ff4c295c6d373a5479de2d0565c533a722b1e243702f344",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "provenance": "Codex built-in ImageGen",
+      "prompt": "assets/source/imagegen/wind_darts/v3_ui/gauge.prompt.txt",
+      "prompt_sha256": "0177a0828785ae6660174c753729c8a652f5387ffea6a0c55fcd37c05dcf57f0"
+    }
+  },
+  "paper": {
+    "raw_dimensions": [
+      1086,
+      1448
+    ],
+    "raw_mode": "RGBA",
+    "raw_alpha_bbox": [
+      76,
+      83,
+      1015,
+      1362
+    ],
+    "subject_dimensions": [
+      939,
+      1279
+    ],
+    "base_grid": [
+      120,
+      160
+    ],
+    "output_dimensions": [
+      240,
+      320
+    ],
+    "output_sha256": "0367d5b3317bc481c2c037f2e5f04c79fd713c976d93b405db51bc3e4628a7f7",
+    "display_scale": 2,
+    "subject_margin_base_pixels": 2,
+    "brightness_factor": 0.88,
+    "alpha_threshold": 8,
+    "resampling": "nearest-neighbor"
+  },
+  "gauge": {
+    "frame": {
+      "raw_dimensions": [
+        1536,
+        1024
+      ],
+      "raw_mode": "RGBA",
+      "raw_alpha_bbox": [
+        40,
+        337,
+        1499,
+        504
+      ],
+      "subject_dimensions": [
+        1459,
+        167
+      ],
+      "base_grid": [
+        320,
+        36
+      ],
+      "output_dimensions": [
+        640,
+        72
+      ],
+      "output_sha256": "244583d0707ede725c450804edae8a0861a79b3c68e29f23e128c219d24bc5a8",
+      "display_scale": 2,
+      "subject_margin_base_pixels": {
+        "horizontal": 2,
+        "vertical": 2
+      },
+      "alpha_threshold": 8,
+      "resampling": "nearest-neighbor",
+      "source_band": "upper"
+    },
+    "fill": {
+      "raw_dimensions": [
+        1536,
+        1024
+      ],
+      "raw_mode": "RGBA",
+      "raw_alpha_bbox": [
+        51,
+        663,
+        1484,
+        719
+      ],
+      "subject_dimensions": [
+        1433,
+        56
+      ],
+      "base_grid": [
+        304,
+        12
+      ],
+      "output_dimensions": [
+        608,
+        24
+      ],
+      "output_sha256": "14a0e1be9a6860aa53d5e2d23c2d8393aaf0cdeb4429c96ea33563f136d2a4e4",
+      "display_scale": 2,
+      "subject_margin_base_pixels": {
+        "horizontal": 2,
+        "vertical": 1
+      },
+      "alpha_threshold": 8,
+      "resampling": "nearest-neighbor",
+      "source_band": "lower"
+    }
+  },
+  "processing": {
+    "alpha_threshold": 8,
+    "crop": "tight alpha subject crop; upper/lower horizontal bands for gauge",
+    "resampling": "nearest-neighbor",
+    "creative_raster_drawing": false,
+    "paper_brightness_normalization": "12% deterministic dim when visible mean luma exceeds 165"
+  },
+  "qc": {
+    "paper": {
+      "dimensions": [
+        240,
+        320
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        4,
+        4,
+        234,
+        316
+      ],
+      "alpha_pixels": 66112,
+      "alpha_partial_pixels": 66020,
+      "touches_edge": false,
+      "allowed_edge_axes": [],
+      "edge_axes": []
+    },
+    "frame": {
+      "dimensions": [
+        640,
+        72
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        4,
+        4,
+        636,
+        68
+      ],
+      "alpha_pixels": 36760,
+      "alpha_partial_pixels": 36760,
+      "touches_edge": false,
+      "allowed_edge_axes": [],
+      "edge_axes": []
+    },
+    "fill": {
+      "dimensions": [
+        608,
+        24
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        4,
+        2,
+        604,
+        22
+      ],
+      "alpha_pixels": 12000,
+      "alpha_partial_pixels": 12000,
+      "touches_edge": false,
+      "allowed_edge_axes": [],
+      "edge_axes": []
+    },
+    "composition": {
+      "path": "assets/source/imagegen/wind_darts/v3_ui/qc/composition-360x640.png",
+      "dimensions": [
+        360,
+        640
+      ]
+    }
+  }
+}

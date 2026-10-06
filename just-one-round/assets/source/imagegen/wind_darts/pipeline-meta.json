@@ -1,0 +1,374 @@
+{
+  "game": "wind_darts",
+  "visual_contract": "dark antique western pub; high-resolution deliberate pixel clusters; no mascot, hand, cabinet, or opponent portrait in runtime",
+  "processor_version": "v2",
+  "canonical_viewport": [
+    360,
+    640
+  ],
+  "assets": {
+    "pub_interior.png": {
+      "source": "ChatGPT Images in local Chrome session",
+      "dimensions": [
+        841,
+        1870
+      ],
+      "alpha": false,
+      "runtime_role": "full-screen background",
+      "runtime_fit": "cover"
+    },
+    "board_face.png": {
+      "source": "assets/source/imagegen/wind_darts/v2/materials_raw.png plus exact geometry masks",
+      "dimensions": [
+        576,
+        576
+      ],
+      "alpha": true,
+      "runtime_role": "raster dartboard face; scoring geometry remains in WindDartsRules",
+      "center": [
+        288,
+        288
+      ],
+      "score_radius": 228,
+      "outer_radius_max": 280,
+      "number_orbit_radius": 260,
+      "runtime_filter": "nearest"
+    },
+    "board_numbers.png": {
+      "source": "Galmuri11-Bold atlas assembled from the approved 1..20 number contract",
+      "dimensions": [
+        320,
+        256
+      ],
+      "alpha": true,
+      "runtime_role": "separate rotating number labels",
+      "cell": [
+        64,
+        64
+      ],
+      "layout": [
+        5,
+        4
+      ],
+      "values": "1..20 ascending row-major",
+      "glyph_center": [
+        32,
+        32
+      ],
+      "orbit_radius": 260,
+      "runtime_filter": "nearest"
+    },
+    "dart_atlas.png": {
+      "source": "assets/source/imagegen/wind_darts/v2/darts_raw.png plus exact alpha cleanup",
+      "dimensions": [
+        192,
+        128
+      ],
+      "alpha": true,
+      "runtime_role": "flight and embedded dart sprites",
+      "cell": [
+        96,
+        128
+      ],
+      "tip_anchor": [
+        48,
+        12
+      ],
+      "runtime_filter": "nearest"
+    },
+    "dart_machine.png": {
+      "source": "Codex built-in ImageGen",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "alpha": true,
+      "runtime_role": "archived source; not bundled or rendered at runtime",
+      "opening_center_normalized": [
+        0.5,
+        0.365
+      ],
+      "runtime_filter": "nearest"
+    },
+    "throwing_hand.png": {
+      "source": "Codex built-in ImageGen",
+      "dimensions": [
+        1312,
+        1199
+      ],
+      "alpha": true,
+      "runtime_role": "archived source; not bundled or rendered at runtime",
+      "runtime_filter": "nearest"
+    },
+    "score_parchment.png": {
+      "source": "assets/source/imagegen/wind_darts/v3_ui/paper_raw.png plus deterministic alpha crop/nearest assembly",
+      "dimensions": [
+        240,
+        320
+      ],
+      "alpha": true,
+      "runtime_role": "blank score parchment UI panel",
+      "runtime_filter": "nearest"
+    },
+    "aim_gauge_frame.png": {
+      "source": "assets/source/imagegen/wind_darts/v3_ui/gauge_raw.png upper band plus deterministic alpha crop/nearest assembly",
+      "dimensions": [
+        640,
+        72
+      ],
+      "alpha": true,
+      "runtime_role": "full aim gauge frame",
+      "runtime_filter": "nearest"
+    },
+    "aim_gauge_fill.png": {
+      "source": "assets/source/imagegen/wind_darts/v3_ui/gauge_raw.png lower band plus deterministic alpha crop/nearest assembly",
+      "dimensions": [
+        608,
+        24
+      ],
+      "alpha": true,
+      "runtime_role": "aim gauge fill",
+      "runtime_filter": "nearest"
+    }
+  },
+  "processor": {
+    "source_root": "assets/source/imagegen/wind_darts/v2",
+    "source_images": [
+      "assets/source/imagegen/wind_darts/v2/materials_raw.png",
+      "assets/source/imagegen/wind_darts/v2/darts_raw.png"
+    ],
+    "prompts": [
+      "assets/source/imagegen/wind_darts/v2/materials.prompt.txt",
+      "assets/source/imagegen/wind_darts/v2/darts.prompt.txt"
+    ],
+    "metadata": "assets/source/imagegen/wind_darts/v2/processing-meta.json",
+    "style": "generated weathered walnut, sisal, brick, bottle-green, bronze, and steel material palette",
+    "filter": "nearest-neighbor",
+    "runtime_renderer": "lib/features/games/wind_darts/presentation/wind_darts_art.dart",
+    "visual_rotation_offset_degrees": 9,
+    "runtime_board_angle_degrees": -9,
+    "triple_radius_ratio": [0.5588235294, 0.6529411765],
+    "double_radius_ratio": [0.9058823529, 1.0],
+    "scoring_rules_changed": false
+  },
+  "qc": {
+    "composite_mockup.png": "static 360x640 placement mockup; not a runtime screenshot",
+    "create_mockup.py": "deterministic composition preview with a static code-rendered standard board",
+    "assets/source/imagegen/wind_darts/v2/qc/board-numbered.png": "576x576 board face and separate number placement QC",
+    "assets/source/imagegen/wind_darts/v2/qc/composition-360x640.png": "static 360x640 raster composition QC; not a runtime screenshot",
+    "assets/source/imagegen/wind_darts/v2/processing-meta.json": "processor contract, geometry masks, alpha padding, and tip-anchor QC",
+    "runtime_assets": {
+      "board_face.png": [
+        576,
+        576
+      ],
+      "board_numbers.png": [
+        320,
+        256
+      ],
+      "dart_atlas.png": [
+        192,
+        128
+      ]
+    }
+  },
+  "standard_dartboard": "draw board_face.png and board_numbers.png at runtime with shared renderer; keep sector scoring and ring geometry in WindDartsRules; do not bake into cabinet PNG",
+  "v3_ui": {
+    "status": "approved_production",
+    "master_reference": "assets/images/wind_darts/pub_interior.png",
+    "style": "quiet aged parchment and matte dark bronze/oatmeal gauge textures; crisp clustered pixel art",
+    "source_images": {
+      "paper": {
+        "path": "assets/source/imagegen/wind_darts/v3_ui/paper_raw.png",
+        "sha256": "2a24def848d55e6d685b0e19b759b2e3424286efe87ad0ac09e0ab0282a3aab2",
+        "dimensions": [
+          1086,
+          1448
+        ],
+        "mode": "RGBA",
+        "provenance": "Codex built-in ImageGen",
+        "prompt": "assets/source/imagegen/wind_darts/v3_ui/paper.prompt.txt",
+        "prompt_sha256": "fbe6d87522e4d09e4c6efb61859d6fbc842af6894a0870d4b91427fb04008bc9"
+      },
+      "gauge": {
+        "path": "assets/source/imagegen/wind_darts/v3_ui/gauge_raw.png",
+        "sha256": "951c8600027c0f597ff4c295c6d373a5479de2d0565c533a722b1e243702f344",
+        "dimensions": [
+          1536,
+          1024
+        ],
+        "mode": "RGBA",
+        "provenance": "Codex built-in ImageGen",
+        "prompt": "assets/source/imagegen/wind_darts/v3_ui/gauge.prompt.txt",
+        "prompt_sha256": "0177a0828785ae6660174c753729c8a652f5387ffea6a0c55fcd37c05dcf57f0"
+      }
+    },
+    "outputs": {
+      "score_parchment.png": {
+        "raw_dimensions": [
+          1086,
+          1448
+        ],
+        "raw_mode": "RGBA",
+        "raw_alpha_bbox": [
+          76,
+          83,
+          1015,
+          1362
+        ],
+        "subject_dimensions": [
+          939,
+          1279
+        ],
+        "base_grid": [
+          120,
+          160
+        ],
+        "output_dimensions": [
+          240,
+          320
+        ],
+        "output_sha256": "0367d5b3317bc481c2c037f2e5f04c79fd713c976d93b405db51bc3e4628a7f7",
+        "display_scale": 2,
+        "subject_margin_base_pixels": 2,
+        "brightness_factor": 0.88,
+        "alpha_threshold": 8,
+        "resampling": "nearest-neighbor"
+      },
+      "aim_gauge_frame.png": {
+        "raw_dimensions": [
+          1536,
+          1024
+        ],
+        "raw_mode": "RGBA",
+        "raw_alpha_bbox": [
+          40,
+          337,
+          1499,
+          504
+        ],
+        "subject_dimensions": [
+          1459,
+          167
+        ],
+        "base_grid": [
+          320,
+          36
+        ],
+        "output_dimensions": [
+          640,
+          72
+        ],
+        "output_sha256": "244583d0707ede725c450804edae8a0861a79b3c68e29f23e128c219d24bc5a8",
+        "display_scale": 2,
+        "subject_margin_base_pixels": {
+          "horizontal": 2,
+          "vertical": 2
+        },
+        "alpha_threshold": 8,
+        "resampling": "nearest-neighbor",
+        "source_band": "upper"
+      },
+      "aim_gauge_fill.png": {
+        "raw_dimensions": [
+          1536,
+          1024
+        ],
+        "raw_mode": "RGBA",
+        "raw_alpha_bbox": [
+          51,
+          663,
+          1484,
+          719
+        ],
+        "subject_dimensions": [
+          1433,
+          56
+        ],
+        "base_grid": [
+          304,
+          12
+        ],
+        "output_dimensions": [
+          608,
+          24
+        ],
+        "output_sha256": "14a0e1be9a6860aa53d5e2d23c2d8393aaf0cdeb4429c96ea33563f136d2a4e4",
+        "display_scale": 2,
+        "subject_margin_base_pixels": {
+          "horizontal": 2,
+          "vertical": 1
+        },
+        "alpha_threshold": 8,
+        "resampling": "nearest-neighbor",
+        "source_band": "lower"
+      }
+    },
+    "processor": "tool/assemble_wind_darts_ui.py",
+    "resampling": "nearest-neighbor only",
+    "creative_edits": false,
+    "qc": {
+      "paper": {
+        "dimensions": [
+          240,
+          320
+        ],
+        "mode": "RGBA",
+        "alpha_bbox": [
+          4,
+          4,
+          234,
+          316
+        ],
+        "alpha_pixels": 66112,
+        "alpha_partial_pixels": 66020,
+        "touches_edge": false,
+        "allowed_edge_axes": [],
+        "edge_axes": []
+      },
+      "frame": {
+        "dimensions": [
+          640,
+          72
+        ],
+        "mode": "RGBA",
+        "alpha_bbox": [
+          4,
+          4,
+          636,
+          68
+        ],
+        "alpha_pixels": 36760,
+        "alpha_partial_pixels": 36760,
+        "touches_edge": false,
+        "allowed_edge_axes": [],
+        "edge_axes": []
+      },
+      "fill": {
+        "dimensions": [
+          608,
+          24
+        ],
+        "mode": "RGBA",
+        "alpha_bbox": [
+          4,
+          2,
+          604,
+          22
+        ],
+        "alpha_pixels": 12000,
+        "alpha_partial_pixels": 12000,
+        "touches_edge": false,
+        "allowed_edge_axes": [],
+        "edge_axes": []
+      },
+      "composition": {
+        "path": "assets/source/imagegen/wind_darts/v3_ui/qc/composition-360x640.png",
+        "dimensions": [
+          360,
+          640
+        ]
+      }
+    }
+  }
+}

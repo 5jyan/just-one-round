@@ -1,0 +1,5 @@
+Tool: ChatGPT Images through local Chrome
+Conversation: https://chatgpt.com/c/6ac0d2f6-3adc-83ee-a3e2-c17d2db430cb
+Output target: ../images/wind_darts/throwing_hand.png
+
+Create a separate isolated foreground sprite for the same premium high-resolution pixel-art dark Western pub dart game. First-person view of ONE adult right hand and forearm holding ONE steel-tip dart, seen from the player's eyes aiming straight ahead. Hand enters from the bottom-right corner, forearm runs diagonally upward toward center, dart points from the grip toward the upper-left/center into the distance. Natural believable anatomy, five fingers, firm but relaxed pinch grip on the dart barrel. Dark worn brown western shirt sleeve with a simple cuff, no jewelry. Crisp detailed pixel clusters, stepped edges, warm amber rim light, consistent with dark walnut and brass pub art. Entire hand, dart, and sleeve silhouette visible with generous margins, no cropping. Flat pure magenta #FF00FF background for clean removal, no shadow or gradient. No dartboard, cabinet, text, numbers, UI, other hands, face, people, motion blur, anti-aliasing, photorealism, or 3D.
