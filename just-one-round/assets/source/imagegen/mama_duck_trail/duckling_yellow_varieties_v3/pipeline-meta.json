@@ -1,0 +1,24 @@
+{
+  "master_reference": "assets/images/mama_duck_trail/duckling_walk_sheet.png",
+  "source": {
+    "scarf": "scarf_raw.png",
+    "mud": "../duckling_yellow_varieties_v2/mud_raw.png"
+  },
+  "processor": "make_sheets.py",
+  "method": "threshold and nearest-neighbor resize generated details, then fit to each walk and cheer pose",
+  "cell_size": [72, 72],
+  "sheet_grid": [3, 2],
+  "frame_count_per_action": 6,
+  "foot_baseline_y": 68,
+  "runtime_display_size": {
+    "success": [72, 72],
+    "footer": [48, 48]
+  },
+  "outputs": [
+    "assets/images/mama_duck_trail/duckling_grubby_walk_sheet.png",
+    "assets/images/mama_duck_trail/duckling_grubby_cheer_sheet.png",
+    "assets/images/mama_duck_trail/duckling_scarf_walk_sheet.png",
+    "assets/images/mama_duck_trail/duckling_scarf_cheer_sheet.png"
+  ],
+  "preserved": ["yellow duck body", "six poses per action", "game rules", "input", "scoring", "timing"]
+}

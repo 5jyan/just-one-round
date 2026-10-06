@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const mamaDuckTrailPresentation = GamePresentationDefinition(
   id: 'mama_duck_trail',
-  loadingLabel: '엄마 발자국 찾는 중...',
   durationLabel: '120초',
   guideDurationText: '120초 동안 목숨 3개로 최대한 많은 길에 도전해요.',
   homeAspectRatio: 0.78,
@@ -11,7 +10,7 @@ const mamaDuckTrailPresentation = GamePresentationDefinition(
     GameGuidePageDefinition(
       title: '엄마 발자국을 기억',
       description: '엄마 오리가 지나가며 남기는 밝은 발자국의 순서와 방향을 보세요. 비가 오면 길이 사라집니다.',
-      detail: '첫 길은 4칸이며 성공할 때마다 한 칸씩 늘어나요. 엄마는 마지막 칸에서 기다립니다.',
+      detail: '첫 길은 7칸이며 성공할 때마다 한 칸씩 늘어나요. 엄마는 마지막 칸에서 기다립니다.',
       visual: GameGuideVisualKind.mamaObserve,
     ),
     GameGuidePageDefinition(

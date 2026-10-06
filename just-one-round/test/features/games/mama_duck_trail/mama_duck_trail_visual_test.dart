@@ -106,7 +106,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('3콤보에서 세 마리가 엄마 앞에 모여 함께 기뻐한다', (tester) async {
+  testWidgets('3콤보에서 모든 경로 칸의 새끼가 엄마 앞에 모여 기뻐한다', (tester) async {
     tester.view
       ..physicalSize = const Size(360, 640)
       ..devicePixelRatio = 1;
@@ -150,7 +150,10 @@ void main() {
     expect(game.rescuedDuckCountForTesting, 3);
     expect(game.visibleRescuedDuckCountForTesting, 3);
     expect(game.feverTierForTesting, MamaDuckFeverTier.goldenTrail);
-    expect(game.successDuckCentersForTesting, hasLength(3));
+    expect(
+      game.successDuckCentersForTesting,
+      hasLength(game.currentPathLengthForTesting - 1),
+    );
     expect(game.isMotherCheeringForTesting, isTrue);
     expect(
       (game.successDuckCentersForTesting.first -
@@ -165,7 +168,7 @@ void main() {
         find.byKey(captureKey),
         matchesGoldenFile(
           '../../../../assets/source/imagegen/mama_duck_trail/'
-          'hd_v8/qc/runtime_group_success_smaller_duckling.png',
+          'duckling_yellow_varieties_v3/qc/runtime_full_path_success.png',
         ),
       );
     }

@@ -37,7 +37,7 @@ abstract final class MamaDuckTrailRules {
   static const boardCellCount = rowCount * columnCount;
   static const gameDuration = Duration(seconds: 120);
   static const startingLives = 3;
-  static const initialPathLength = 4;
+  static const initialPathLength = 7;
   static const pathStepSeconds = 0.22;
   static const recallReadyDelaySeconds = 0.35;
   static const failureDurationSeconds = 1.0;

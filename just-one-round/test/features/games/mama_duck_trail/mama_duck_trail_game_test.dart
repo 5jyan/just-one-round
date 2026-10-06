@@ -55,7 +55,7 @@ void main() {
     }
 
     expect(game.boardRectForTesting, const Rect.fromLTWH(0, 68, 360, 504));
-    expect(game.currentPathLengthForTesting, 4);
+    expect(game.currentPathLengthForTesting, 7);
     expect(game.visibleActorsForTesting, {'mother'});
 
     for (
@@ -76,7 +76,7 @@ void main() {
 
     expect(game.visibleActorsForTesting, {'mother', 'duckling'});
     expect(game.livesForTesting, 3);
-    expect(game.scoreForTesting, 425);
+    expect(game.scoreForTesting, 725);
     expect(game.rescuedDuckCountForTesting, 1);
     expect(game.visibleRescuedDuckCountForTesting, 1);
     expect(game.feverTierForTesting, MamaDuckFeverTier.none);
@@ -84,8 +84,16 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     expect(game.isCheeringForTesting, isTrue);
     expect(game.isMotherCheeringForTesting, isTrue);
-    expect(game.successDuckCentersForTesting, hasLength(1));
-    final duckAtSuccess = game.successDuckCentersForTesting.single;
+    expect(game.successDuckCentersForTesting, hasLength(path.length - 1));
+    final duckAtSuccess = game.successDuckCentersForTesting.first;
+    for (var index = 0; index < path.length - 1; index++) {
+      expect(
+        game.successDuckCentersForTesting[index].distanceTo(
+          game.cellCenterForTesting(path[path.length - 2 - index]),
+        ),
+        closeTo(0, 0.001),
+      );
+    }
     final expectedDuckCenter = game.cellCenterForTesting(path[path.length - 2]);
     final motherAtSuccess = game.successMotherCenterForTesting;
     final expectedMotherCenter = game.cellCenterForTesting(path.last);
@@ -102,12 +110,12 @@ void main() {
 
     await tester.pump(const Duration(milliseconds: 600));
     expect(game.visibleActorsForTesting, {'mother'});
-    expect(game.currentPathLengthForTesting, 5);
+    expect(game.currentPathLengthForTesting, 8);
     game.pauseEngine();
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('첫 4칸 경로부터 조기 손 떼기는 목숨을 차감하고 늑대만 표시한다', (tester) async {
+  testWidgets('첫 7칸 경로부터 조기 손 떼기는 목숨을 차감하고 늑대만 표시한다', (tester) async {
     final game = MamaDuckTrailGame(
       random: Random(7),
       countdownDuration: Duration.zero,
@@ -131,7 +139,7 @@ void main() {
     }
 
     final path = game.pathForTesting;
-    expect(path, hasLength(4));
+    expect(path, hasLength(7));
     game.beginLogicalDragForTesting(game.cellCenterForTesting(path.first));
     game.endLogicalDragForTesting();
 
@@ -171,11 +179,17 @@ void main() {
 
     expect(game.feverTierForTesting, MamaDuckFeverTier.goldenTrail);
     await tester.pump(const Duration(milliseconds: 600));
-    expect(game.successDuckCentersForTesting, hasLength(3));
+    expect(
+      game.successDuckCentersForTesting,
+      hasLength(game.currentPathLengthForTesting - 1),
+    );
     expect(game.isMotherCheeringForTesting, isTrue);
-    expect(game.successDuckCentersForTesting.toSet(), hasLength(3));
+    expect(
+      game.successDuckCentersForTesting.toSet(),
+      hasLength(game.currentPathLengthForTesting - 1),
+    );
     final successPath = game.pathForTesting;
-    for (var duckIndex = 0; duckIndex < 3; duckIndex++) {
+    for (var duckIndex = 0; duckIndex < successPath.length - 1; duckIndex++) {
       final expectedCenter = game.cellCenterForTesting(
         successPath[successPath.length - 2 - duckIndex],
       );
@@ -196,6 +210,175 @@ void main() {
     game.pauseEngine();
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets('이동 중 입력은 무시하고 무효 시작 뒤에는 자동으로 회상으로 전환한다', (tester) async {
+    final game = MamaDuckTrailGame(
+      random: Random(7),
+      countdownDuration: const Duration(seconds: 30),
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+
+    await _preparePreview(tester, game);
+    final path = game.pathForTesting;
+    final travelDuration =
+        (path.length - 1) * MamaDuckTrailRules.pathStepSeconds;
+    final start = game.cellCenterForTesting(path.first);
+
+    game.update(travelDuration - 0.02);
+    game.beginLogicalDragForTesting(start);
+    expect(game.isRecallingForTesting, isFalse);
+
+    game.update(0.03);
+    game.beginLogicalDragForTesting(game.cellCenterForTesting(path[1]));
+    expect(game.isRecallingForTesting, isFalse);
+    expect(game.livesForTesting, 3);
+
+    game.update(
+      path.length * MamaDuckTrailRules.pathStepSeconds +
+          MamaDuckTrailRules.holdSecondsAt(0) +
+          MamaDuckTrailRules.recallReadyDelaySeconds,
+    );
+    expect(game.isRecallingForTesting, isTrue);
+    expect(game.visibleActorsForTesting, {'mother'});
+    game.pauseEngine();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('도착 후 발자국 유지 구간의 같은 드래그가 즉시 첫 칸부터 성공한다', (tester) async {
+    final game = MamaDuckTrailGame(
+      random: Random(7),
+      countdownDuration: const Duration(seconds: 30),
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+
+    await _preparePreview(tester, game);
+    final path = game.pathForTesting;
+    final travelDuration =
+        (path.length - 1) * MamaDuckTrailRules.pathStepSeconds;
+    game.update(travelDuration + 0.1);
+
+    game.beginLogicalDragForTesting(game.cellCenterForTesting(path.first));
+    expect(game.isRecallingForTesting, isTrue);
+    for (final cell in path.skip(1)) {
+      game.updateLogicalDragForTesting(game.cellCenterForTesting(cell));
+    }
+
+    expect(game.scoreForTesting, 725);
+    expect(game.livesForTesting, 3);
+    expect(game.rescuedDuckCountForTesting, 1);
+    game.pauseEngine();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('도착 후 발자국이 사라지는 중에도 같은 드래그가 즉시 성공한다', (tester) async {
+    final game = MamaDuckTrailGame(
+      random: Random(7),
+      countdownDuration: const Duration(seconds: 30),
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+
+    await _preparePreview(tester, game);
+    final path = game.pathForTesting;
+    final travelDuration =
+        (path.length - 1) * MamaDuckTrailRules.pathStepSeconds;
+    final fadeStart =
+        path.length * MamaDuckTrailRules.pathStepSeconds +
+        MamaDuckTrailRules.holdSecondsAt(0);
+    expect(fadeStart, greaterThan(travelDuration));
+    game.update(fadeStart + 0.05);
+
+    game.beginLogicalDragForTesting(game.cellCenterForTesting(path.first));
+    expect(game.isRecallingForTesting, isTrue);
+    for (final cell in path.skip(1)) {
+      game.updateLogicalDragForTesting(game.cellCenterForTesting(cell));
+    }
+
+    expect(game.scoreForTesting, 725);
+    expect(game.livesForTesting, 3);
+    game.pauseEngine();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('실제 드래그도 도착 직후 출발점을 첫 칸으로 소비한다', (tester) async {
+    tester.view
+      ..physicalSize = const Size(360, 640)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final game = MamaDuckTrailGame(
+      random: Random(7),
+      countdownDuration: const Duration(seconds: 30),
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+    final gameKey = GlobalKey();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox.expand(
+          child: GameWidget(key: gameKey, game: game),
+        ),
+      ),
+    );
+    await tester.pump();
+    for (var attempt = 0; attempt < 20 && !game.isLoaded; attempt++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(game.isLoaded, isTrue);
+    game.pauseEngine();
+    game.update(game.countdownDuration.inMilliseconds / 1000);
+
+    final path = game.pathForTesting;
+    final travelDuration =
+        (path.length - 1) * MamaDuckTrailRules.pathStepSeconds;
+    game.update(travelDuration + 0.1);
+    game.resumeEngine();
+
+    final gameRect = tester.getRect(find.byKey(gameKey));
+    final viewport = game.camera.viewport;
+    Offset canvasPosition(Vector2 logicalPosition) {
+      final point = viewport.localToGlobal(logicalPosition);
+      return gameRect.topLeft + Offset(point.x, point.y);
+    }
+
+    final startPosition = canvasPosition(game.cellCenterForTesting(path.first));
+    final gesture = await tester.startGesture(startPosition);
+    await gesture.moveBy(const Offset(1, 0));
+    await tester.pump();
+    expect(game.isRecallingForTesting, isTrue);
+    await gesture.up();
+    await tester.pump();
+
+    expect(game.scoreForTesting, 0);
+    expect(game.livesForTesting, 2);
+    game.pauseEngine();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+}
+
+Future<void> _preparePreview(
+  WidgetTester tester,
+  MamaDuckTrailGame game,
+) async {
+  await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+  await tester.pump();
+  for (var attempt = 0; attempt < 20 && !game.isLoaded; attempt++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+  expect(game.isLoaded, isTrue);
+  game.pauseEngine();
+  game.update(game.countdownDuration.inMilliseconds / 1000);
+  expect(game.visibleActorsForTesting, {'mother'});
+  expect(game.isRecallingForTesting, isFalse);
 }
 
 Future<void> _advanceToRecall(

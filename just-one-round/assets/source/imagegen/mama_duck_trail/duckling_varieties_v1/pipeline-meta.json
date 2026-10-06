@@ -1,0 +1,30 @@
+{
+  "reference_masters": [
+    "reference_masters/cream_master.png",
+    "reference_masters/brown_master.png"
+  ],
+  "runtime_source": "assets/images/mama_duck_trail/duckling_walk_sheet.png and duckling_cheer_sheet.png",
+  "method": "palette adaptation of accepted six-frame runtime poses; generated masters supplied the cream and brown character color direction",
+  "cell_size": [
+    72,
+    72
+  ],
+  "sheet_grid": [
+    2,
+    3
+  ],
+  "frame_order": "row-major",
+  "foot_baseline_y": 68,
+  "render_size": [
+    72,
+    72
+  ],
+  "outputs": [
+    "duckling_cream_walk_sheet.png",
+    "duckling_cream_cheer_sheet.png",
+    "duckling_brown_walk_sheet.png",
+    "duckling_brown_cheer_sheet.png"
+  ],
+  "status": "superseded by duckling_yellow_varieties_v2; not loaded by runtime",
+  "archived_runtime_path": "rejected_runtime/"
+}

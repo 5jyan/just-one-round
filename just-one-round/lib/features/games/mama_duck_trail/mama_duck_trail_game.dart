@@ -85,22 +85,22 @@ class MamaDuckTrailGame extends FlameGame
       'mama_duck_trail/marsh_board_map.png',
       'mama_duck_trail/footprints_atlas.png',
       'mama_duck_trail/marsh_background.png',
+      'mama_duck_trail/duckling_grubby_walk_sheet.png',
+      'mama_duck_trail/duckling_grubby_cheer_sheet.png',
+      'mama_duck_trail/duckling_scarf_walk_sheet.png',
+      'mama_duck_trail/duckling_scarf_cheer_sheet.png',
     ]);
 
     _board = _MamaDuckBoard(
       random: _random,
-      ducklingWalk: _spritesFromGrid(
-        loaded[0],
-        rows: 2,
-        columns: 3,
-        cellSize: 72,
-      ),
-      ducklingCheer: _spritesFromGrid(
-        loaded[1],
-        rows: 2,
-        columns: 3,
-        cellSize: 72,
-      ),
+      ducklingWalkTypes: [
+        for (final image in [loaded[0], loaded[9], loaded[11]])
+          _spritesFromGrid(image, rows: 2, columns: 3, cellSize: 72),
+      ],
+      ducklingCheerTypes: [
+        for (final image in [loaded[1], loaded[10], loaded[12]])
+          _spritesFromGrid(image, rows: 2, columns: 3, cellSize: 72),
+      ],
       motherWalk: _spritesFromGrid(
         loaded[2],
         rows: 2,
@@ -385,8 +385,8 @@ enum _TrailStage { waiting, preview, recall, success, failure, stopped }
 class _MamaDuckBoard extends PositionComponent {
   _MamaDuckBoard({
     required this.random,
-    required this.ducklingWalk,
-    required this.ducklingCheer,
+    required this.ducklingWalkTypes,
+    required this.ducklingCheerTypes,
     required this.motherWalk,
     required this.motherIdle,
     required this.motherCheer,
@@ -398,8 +398,10 @@ class _MamaDuckBoard extends PositionComponent {
     required this.onFailure,
     required this.onFatalFailureComplete,
     required this.combo,
-  }) : assert(ducklingWalk.length == 6),
-       assert(ducklingCheer.length == 6),
+  }) : assert(ducklingWalkTypes.length == 3),
+       assert(ducklingCheerTypes.length == 3),
+       assert(ducklingWalkTypes.every((sprites) => sprites.length == 6)),
+       assert(ducklingCheerTypes.every((sprites) => sprites.length == 6)),
        assert(motherWalk.length == 6),
        assert(motherCheer.length == 6),
        assert(wolfFailure.length == 6),
@@ -414,8 +416,8 @@ class _MamaDuckBoard extends PositionComponent {
   static const _inputInset = 8.0;
 
   final Random random;
-  final List<Sprite> ducklingWalk;
-  final List<Sprite> ducklingCheer;
+  final List<List<Sprite>> ducklingWalkTypes;
+  final List<List<Sprite>> ducklingCheerTypes;
   final List<Sprite> motherWalk;
   final Sprite motherIdle;
   final List<Sprite> motherCheer;
@@ -450,6 +452,9 @@ class _MamaDuckBoard extends PositionComponent {
     MamaDuckCell(5, 0),
     MamaDuckCell(5, 1),
     MamaDuckCell(4, 1),
+    MamaDuckCell(4, 2),
+    MamaDuckCell(3, 2),
+    MamaDuckCell(3, 3),
   ];
   final List<MamaDuckCell> _entered = [];
 
@@ -508,10 +513,7 @@ class _MamaDuckBoard extends PositionComponent {
     switch (_stage) {
       case _TrailStage.preview:
         if (_stageElapsed >= _previewDuration) {
-          _stage = _TrailStage.recall;
-          _stageElapsed = 0;
-          _entered.clear();
-          _wrongCell = null;
+          _enterRecall();
         }
       case _TrailStage.success:
         if (_stageElapsed >= MamaDuckTrailRules.successDurationSeconds) {
@@ -537,6 +539,11 @@ class _MamaDuckBoard extends PositionComponent {
         MamaDuckTrailRules.recallReadyDelaySeconds;
   }
 
+  double get _motherTravelDuration =>
+      max(0, _path.length - 1) * MamaDuckTrailRules.pathStepSeconds;
+
+  bool get _motherHasArrived => _stageElapsed >= _motherTravelDuration;
+
   void _startRound() {
     _path = MamaDuckTrailRules.generatePath(
       random,
@@ -550,7 +557,17 @@ class _MamaDuckBoard extends PositionComponent {
   }
 
   void beginDrag(Vector2 point) {
-    if (_stage != _TrailStage.recall || _dragActive) return;
+    if (_dragActive) return;
+    if (_stage == _TrailStage.preview) {
+      if (!_motherHasArrived) return;
+      final cell = _cellAt(point);
+      if (cell == null || cell != _path.first) {
+        _invalidStartElapsed = 0.24;
+        return;
+      }
+      _enterRecall();
+    }
+    if (_stage != _TrailStage.recall) return;
     final cell = _cellAt(point);
     if (cell == null || cell != _path.first) {
       _invalidStartElapsed = 0.24;
@@ -562,6 +579,14 @@ class _MamaDuckBoard extends PositionComponent {
       ..add(cell);
     unawaited(HapticFeedback.selectionClick());
     if (_path.length == 1) _completeSuccess();
+  }
+
+  void _enterRecall() {
+    if (_stage != _TrailStage.preview) return;
+    _stage = _TrailStage.recall;
+    _stageElapsed = 0;
+    _entered.clear();
+    _wrongCell = null;
   }
 
   void updateDrag(Vector2 point) {
@@ -733,7 +758,7 @@ class _MamaDuckBoard extends PositionComponent {
 
   void _renderTrails(Canvas canvas) {
     if (_stage == _TrailStage.preview) {
-      final stepDuration = _path.length * MamaDuckTrailRules.pathStepSeconds;
+      final stepDuration = _motherTravelDuration;
       final count = _stageElapsed < stepDuration
           ? min(
               _path.length,
@@ -880,10 +905,21 @@ class _MamaDuckBoard extends PositionComponent {
       );
       final duckCenters = _successDuckCenters();
       for (var index = 0; index < duckCenters.length; index++) {
+        final type = index % ducklingWalkTypes.length;
+        final walk = ducklingWalkTypes[type];
+        final cheer = ducklingCheerTypes[type];
+        final lateFollower = index >= _path.length - 3;
+        final cheerElapsed = max(
+          0.0,
+          _stageElapsed -
+              MamaDuckTrailRules.successTravelDurationSeconds -
+              index * 0.025,
+        );
         final sprite = hasArrived
-            ? ducklingCheer[cheerFrame % ducklingCheer.length]
-            : ducklingWalk[((_stageElapsed / 0.09).floor() + index) %
-                  ducklingWalk.length];
+            ? cheer[(cheerElapsed / 0.125).floor() % cheer.length]
+            : walk[((_stageElapsed / (lateFollower ? 0.06 : 0.09)).floor() +
+                      index) %
+                  walk.length];
         _renderSprite(canvas, sprite, duckCenters[index] - Vector2.all(36), 72);
       }
       return;
@@ -940,7 +976,7 @@ class _MamaDuckBoard extends PositionComponent {
     final leaderDistance =
         MamaDuckTrailRules.successLeaderFinalDistance(_path.length) * progress;
     final centers = <Vector2>[];
-    for (var index = 0; index < _completedPaths; index++) {
+    for (var index = 0; index < _path.length - 1; index++) {
       final distance = MamaDuckTrailRules.travelingDuckDistance(
         leaderDistance: leaderDistance,
         followerIndex: index,
@@ -966,7 +1002,8 @@ class _MamaDuckBoard extends PositionComponent {
       rescuedCount,
     );
     final hiddenCount = MamaDuckTrailRules.hiddenRescuedDuckCount(rescuedCount);
-    final paradeFrame = (_visualElapsed / 0.18).floor() % ducklingWalk.length;
+    final paradeFrame =
+        (_visualElapsed / 0.18).floor() % ducklingWalkTypes.first.length;
 
     _drawText(
       canvas,
@@ -988,7 +1025,9 @@ class _MamaDuckBoard extends PositionComponent {
           : 2.0;
       _renderSprite(
         canvas,
-        ducklingWalk[(paradeFrame + index) % ducklingWalk.length],
+        ducklingWalkTypes[index % ducklingWalkTypes.length][(paradeFrame +
+                index) %
+            ducklingWalkTypes.first.length],
         Vector2(startX + index * spacing, 592 + bob),
         48,
       );

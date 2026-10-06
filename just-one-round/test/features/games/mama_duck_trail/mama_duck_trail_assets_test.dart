@@ -11,6 +11,10 @@ void main() {
       'duckling_life_face.png': (24, 24),
       'duckling_walk_sheet.png': (216, 144),
       'duckling_cheer_sheet.png': (216, 144),
+      'duckling_grubby_walk_sheet.png': (216, 144),
+      'duckling_grubby_cheer_sheet.png': (216, 144),
+      'duckling_scarf_walk_sheet.png': (216, 144),
+      'duckling_scarf_cheer_sheet.png': (216, 144),
       'mother_duck_idle.png': (72, 72),
       'mother_duck_walk_sheet.png': (216, 144),
       'mother_duck_cheer_sheet.png': (216, 144),
@@ -38,6 +42,10 @@ void main() {
     for (final name in const [
       'duckling_walk_sheet.png',
       'duckling_cheer_sheet.png',
+      'duckling_grubby_walk_sheet.png',
+      'duckling_grubby_cheer_sheet.png',
+      'duckling_scarf_walk_sheet.png',
+      'duckling_scarf_cheer_sheet.png',
     ]) {
       final bounds = await _frameAlphaBounds(
         File('assets/images/mama_duck_trail/$name'),

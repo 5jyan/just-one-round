@@ -42,10 +42,10 @@ void main() {
       expect(MamaDuckTrailRules.isValidPath(first, expectedLength: 9), isTrue);
     });
 
-    test('여러 시드와 4~35칸 길이에서 경로가 완주 가능하다', () {
+    test('여러 시드와 7~35칸 길이에서 경로가 완주 가능하다', () {
       for (var seed = 0; seed < 12; seed++) {
         for (
-          var length = 4;
+          var length = MamaDuckTrailRules.initialPathLength;
           length <= MamaDuckTrailRules.maximumGeneratedPathLength;
           length++
         ) {
@@ -83,13 +83,13 @@ void main() {
       expect(directions, containsAll(const [(-1, 0), (0, 1), (1, 0), (0, -1)]));
     });
 
-    test('첫 경로는 4칸이고 성공할 때마다 1칸씩 늘어나 35칸에서 멈춘다', () {
-      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(0), 4);
-      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(1), 5);
-      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(5), 9);
-      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(31), 35);
+    test('첫 경로는 7칸이고 성공할 때마다 1칸씩 늘어나 35칸에서 멈춘다', () {
+      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(0), 7);
+      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(1), 8);
+      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(5), 12);
+      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(28), 35);
       expect(MamaDuckTrailRules.pathLengthAfterSuccesses(100), 35);
-      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(-1), 4);
+      expect(MamaDuckTrailRules.pathLengthAfterSuccesses(-1), 7);
     });
 
     test('콤보 3, 5, 7에서 피버 단계가 상승하고 실패 콤보는 해제된다', () {
@@ -157,8 +157,8 @@ void main() {
 
     test('경로 길이와 성공 후 콤보로 점수를 계산하고 상한을 둔다', () {
       expect(
-        MamaDuckTrailRules.scoreForSuccess(pathLength: 4, comboAfterSuccess: 1),
-        425,
+        MamaDuckTrailRules.scoreForSuccess(pathLength: 7, comboAfterSuccess: 1),
+        725,
       );
       expect(
         MamaDuckTrailRules.scoreForSuccess(

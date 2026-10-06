@@ -1,0 +1,1 @@
+Cream and brown duckling variants for the mama_duck_trail 2x3 walk sprite sheet, using duckling_walk_sheet.png as identity/style/pose reference. Preserve six poses, stout duckling anatomy, body size, framing, foot baseline, and chunky pixel art. Cream: warm ivory, round cheeks. Brown: cocoa body, tan cheeks and messy crest. Transparent background, no labels or extras.

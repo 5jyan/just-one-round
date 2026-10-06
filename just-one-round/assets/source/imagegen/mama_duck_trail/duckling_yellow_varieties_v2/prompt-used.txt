@@ -1,0 +1,3 @@
+Scarf: Create a standalone tiny pixel-art red neckerchief accessory, same style and scale as the existing yellow duckling, front view, simple dark-brown outline, transparent background.
+Mud: Create a standalone tiny pixel-art cluster of brown mud smudges for a grubby yellow duckling, with a cheek fleck, wing smudge and a few little flecks, transparent background.
+Both prompts used duckling_walk_sheet.png as the style reference.

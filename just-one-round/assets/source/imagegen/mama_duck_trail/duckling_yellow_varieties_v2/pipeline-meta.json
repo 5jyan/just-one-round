@@ -1,0 +1,39 @@
+{
+  "master_reference": "assets/images/mama_duck_trail/duckling_walk_sheet.png",
+  "creative_raw": [
+    "scarf_raw.png",
+    "mud_raw.png"
+  ],
+  "method": "transparent generated detail cropped, thresholded, nearest-neighbor resized and composited onto each accepted yellow walk/cheer frame",
+  "cell_size": [
+    72,
+    72
+  ],
+  "sheet_grid": [
+    2,
+    3
+  ],
+  "body_color": "original yellow unchanged",
+  "foot_baseline_y": 68,
+  "detail_positions": {
+    "grubby": [
+      39,
+      39,
+      14,
+      12
+    ],
+    "scarf": [
+      27,
+      46,
+      17,
+      10
+    ]
+  },
+  "outputs": [
+    "duckling_grubby_walk_sheet.png",
+    "duckling_grubby_cheer_sheet.png",
+    "duckling_scarf_walk_sheet.png",
+    "duckling_scarf_cheer_sheet.png"
+  ],
+  "mud_color_tuning": "generated brown RGB channels multiplied by 0.8 for device-scale readability"
+}
