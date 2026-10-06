@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
+import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 
 class PixelButton extends StatefulWidget {
   const PixelButton({
     required this.label,
     required this.onPressed,
+    this.onDisabledPressed,
     this.icon,
     this.activateOnTapDown = false,
     super.key,
@@ -13,6 +15,7 @@ class PixelButton extends StatefulWidget {
 
   final String label;
   final VoidCallback? onPressed;
+  final VoidCallback? onDisabledPressed;
   final IconData? icon;
   final bool activateOnTapDown;
 
@@ -48,7 +51,7 @@ class _PixelButtonState extends State<PixelButton> {
       child: ClipPath(
         clipper: const PixelCornerClipper(corner: 6),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -58,16 +61,21 @@ class _PixelButtonState extends State<PixelButton> {
                 const SizedBox(width: 8),
               ],
               Flexible(
-                child: Text(
-                  widget.label,
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: 'Galmuri',
-                    color: AppColors.backgroundDeep,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: WordSafeText(
+                    widget.label,
+                    singleLine: true,
+                    maxLines: 1,
+                    softWrap: false,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.visible,
+                    style: const TextStyle(
+                      fontFamily: 'Galmuri',
+                      color: AppColors.backgroundDeep,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -109,6 +117,7 @@ class _PixelButtonState extends State<PixelButton> {
                     widget.onPressed?.call();
                   }
                 : null,
+            onTap: enabled ? null : widget.onDisabledPressed,
             child: content,
           );
 
@@ -116,7 +125,11 @@ class _PixelButtonState extends State<PixelButton> {
       button: true,
       enabled: enabled,
       label: widget.label,
-      onTap: widget.activateOnTapDown && enabled ? widget.onPressed : null,
+      onTap: widget.activateOnTapDown && enabled
+          ? widget.onPressed
+          : !enabled
+          ? widget.onDisabledPressed
+          : null,
       child: interaction,
     );
   }
