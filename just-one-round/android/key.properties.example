@@ -1,3 +1,7 @@
+# Optional compatibility file.
+# If this file is absent or incomplete, the project automatically falls back to
+# the macOS Keychain item documented in docs/android-release.md. Never commit a
+# real password or a real key.properties file.
 storePassword=CHANGE_ME
 keyPassword=CHANGE_ME
 keyAlias=upload

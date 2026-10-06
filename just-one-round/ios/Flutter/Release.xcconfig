@@ -1,3 +1,4 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
 ADMOB_APP_ID=ca-app-pub-8518567556283844~1939296419
 KAKAO_CUSTOM_SCHEME=kakao8f22d14ad0934753e6de50e73edaee82
