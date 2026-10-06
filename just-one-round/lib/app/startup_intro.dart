@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 
 typedef StartupImpact = Future<void> Function();
 
@@ -227,7 +228,7 @@ class _StartupIntroFrame extends StatelessWidget {
                                         0.55,
                                     0,
                                   ),
-                                  child: Text(
+                                  child: WordSafeText(
                                     '딱!',
                                     key: const Key('startup-intro-first'),
                                     textAlign: TextAlign.center,
@@ -269,9 +270,10 @@ class _StartupIntroFrame extends StatelessWidget {
                                       1 + collision * 0.18,
                                       1,
                                     ),
-                                    child: Text(
+                                    child: WordSafeText(
                                       '한 판만!',
                                       key: const Key('startup-intro-second'),
+                                      singleLine: true,
                                       maxLines: 1,
                                       textAlign: TextAlign.left,
                                       style: TextStyle(

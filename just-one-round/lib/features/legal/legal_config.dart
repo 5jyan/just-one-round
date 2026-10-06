@@ -6,7 +6,7 @@ class LegalConfig {
 
   static const baseUrl = String.fromEnvironment(
     'LEGAL_BASE_URL',
-    defaultValue: 'https://legal.shook.work',
+    defaultValue: 'https://legal.shook.party',
   );
 
   static Uri get termsUri => Uri.parse('$baseUrl/terms');

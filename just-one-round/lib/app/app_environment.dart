@@ -48,6 +48,20 @@ Future<bool> isIosSimulator() async {
   }
 }
 
+Future<void> registerForRemoteNotifications() async {
+  try {
+    await _environmentChannel
+        .invokeMethod<void>('registerForRemoteNotifications')
+        .timeout(const Duration(seconds: 3));
+  } on MissingPluginException {
+    // Unsupported platforms and widget tests do not have the iOS channel.
+  } on PlatformException {
+    // A temporary platform-channel failure must not prevent app startup.
+  } on TimeoutException {
+    // APNs registration is retried by the messaging SDK on the next launch.
+  }
+}
+
 Future<AppBuildInfo> readAppBuildInfo() async {
   try {
     final response = await _environmentChannel
