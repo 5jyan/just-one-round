@@ -1,0 +1,26 @@
+Use case: precise-object-edit
+Asset type: production raw character sprite sheet for the mobile game 남탕! 여탕!
+Input image: Image 1 is the exact accepted v6 master. Preserve its exact eight animal identities, species order, fur colors and markings, full-body silhouettes, proportions, front-facing stance, ryokan yukata construction and texture, robe colors, sandals, lighting, pixel-inspired rendering, dark outlines, scale, spacing, and grounded feet line. Change only the facial design: eyes, pupils/irises, eyebrows, eyelashes, and tiny mouth expression.
+
+Primary request: replace the repeated one-template faces with eight clearly different, species-specific faces. Every character must use a visibly distinct eye construction, pupil treatment, eyebrow angle, and mouth attitude even at small mobile queue scale. Preserve the ugly-cute, slightly foolish charm. Do not give all characters circular white eyes.
+
+Exact face matrix, left to right:
+Top row MEN — no eyelashes:
+1. Black bear: small horizontally oval ivory eyes under thick low straight eyebrows; compact centered dark pupils; tiny firm flat mouth. Sturdy and mildly stern, but still sweet and a little clueless.
+2. Deep espresso-brown floppy-eared dog: no visible white sclera; warm dark-brown round bead eyes with one tiny cream highlight in each; eyebrows high and gently arched; very small open-hearted smile. The most innocent and cheerful male.
+3. Charcoal gray-brown tanuki: narrow off-center white eye slivers inside the dark mask; pupils looking slightly to one side; one eyebrow raised higher than the other; tiny crooked closed mouth. Clever, mischievous, adorably suspicious.
+4. Cool charcoal wolf: narrow pale-gray almond eyes, small dark pupils, thick eyebrows angled slightly downward toward the nose; firm closed mouth with one subtly raised corner. Clearly the fiercest and most intimidating male, but not enraged, evil, or realistic.
+
+Bottom row WOMEN — fine visible outer-corner eyelashes and soft thin curved eyebrows; each eye shape must still differ:
+5. White rabbit: softly curved vertical oval eyes with small brown irises, two short outer lashes per eye, gentle upward mouth. Kind, calm, welcoming.
+6. Pale milky-pink pig: tiny glossy black bead eyes with no white sclera, one highlight each, short delicate upper lashes, round-cheeked friendly smile. Sweet and guileless.
+7. Cream sheep: relaxed crescent-shaped eyes, partly closed in a warm smile, two small outer lashes, soft curved brows, tiny content mouth. Cozy and maternal, not sleepy.
+8. White-and-cheese-orange cat: lifted almond-shaped amber eyes with visible colored irises and vertical dark pupils, three restrained outer lashes per eye, fine arched brows, small composed smile. Graceful and kind with a slightly prim personality, not seductive.
+
+Diversity hard rule: the eight faces must not share the same circular white-eye template. At least these four eye families must be visibly present: bead eyes without sclera, oval eyes, narrow eye slivers/almonds, and smiling crescents. Vary pupil size and direction subtly. Men may range from innocent to stern; women should all read gentler and kinder. Eyelashes appear only on the four women and remain short, sparse, and gameplay-readable.
+
+Keep facial marks compact and legible after downscaling. No copied identical expressions, no giant anime eyes, no crossed eyes, no extreme pupil directions, no heavy makeup, eyeshadow, lipstick, long glamorous lashes, open mouths, teeth, tongue, fangs, tears, angry symbols, scars, wrinkles, human hair, bows, ribbons, headwear, jewelry, accessories, text, labels, or watermark.
+
+Hard invariants: exact invisible 4-column by 2-row grid. Top row remains black bear, deep espresso-brown dog, charcoal gray-brown tanuki, cool charcoal wolf in indigo-blue men's yukata. Bottom row remains white rabbit, pale milky-pink pig, cream sheep, white-cheese-orange cat in deep bathhouse-red women's yukata. Do not change fur palette, robe palette, anatomy, gender silhouette cues, body scale, camera distance, pose, torso center, tail/ear anatomy, or cell order. Keep each complete animal fully inside its own cell with generous padding and do not zoom individual animals.
+
+Output one square raw sprite sheet on a perfectly uniform flat solid #FF00FF background, exact 4 columns by 2 rows, no visible separators. No shadows, floor, reflections, borders, grid lines, labels, detached objects, gradient, background texture, text, or watermark.

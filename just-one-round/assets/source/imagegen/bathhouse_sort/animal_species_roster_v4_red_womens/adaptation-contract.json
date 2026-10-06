@@ -1,0 +1,12 @@
+{
+  "source": "assets/source/imagegen/bathhouse_sort/animal_species_roster_v3/processed/idle-{1..8}.png",
+  "method": "deterministic HSV palette adaptation in process_assets.py",
+  "invariants": [
+    "species identity, fur, face, silhouette, pose, scale, texture and alpha remain unchanged",
+    "men's row 1-4 retains the original indigo yukata",
+    "women's row 5-8 shifts only saturated indigo textile pixels to deep bathhouse red"
+  ],
+  "runtimeAtlas": "assets/images/bathhouse_sort/bathhouse_guests_atlas.png",
+  "runtimeGrid": [4, 2],
+  "cellSize": [112, 224]
+}

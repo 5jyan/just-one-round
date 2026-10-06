@@ -1,0 +1,9 @@
+Use case: text-localization
+Asset type: exact 2-row by 3-column animated pixel-art noren sheet
+Top blue row displays the single large white character "男" in every frame.
+Bottom red row displays the single large white character "女" in every frame.
+Frame order is closed, parted for a passing guest, then return flutter. Preserve
+the accepted curtain colors, three panels, folds, top loops, camera distance,
+scale, and fixed top anchor. Use a uniform solid #FF00FF background with no
+walls, rods, doorways, people, extra text, cell borders, or watermark.
+

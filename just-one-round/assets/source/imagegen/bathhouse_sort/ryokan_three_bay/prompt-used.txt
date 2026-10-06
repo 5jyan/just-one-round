@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: layered portrait mobile-game environment base background
+Create a warm wooden ryokan bathhouse lobby with an unmistakable three-bay
+composition: a front-facing men's bath doorway on the left, a deep central
+corridor in the middle, and a front-facing women's bath doorway on the right.
+The central corridor must visibly recede far into the building with a strong
+one-point perspective and enough clear width for a five-person queue. Match the
+accepted honey-cedar, amber-lantern, premium project-native pixel-art style.
+Keep horizontal noren rods above both side entrances but no curtain fabric,
+characters, text, signs, symbols, arrows, UI, or watermark. Wood dominates;
+no pale tiled-wall or brick-wall composition. Exact portrait 1:2 canvas.
+

@@ -1,0 +1,17 @@
+Create an exact 4 columns by 4 rows sprite atlas containing exactly 16 different cute anthropomorphic animal bathhouse guests.
+
+The approved master is a chubby orange tabby bathhouse cat. Preserve its rendering, proportions, camera, outline, lighting, high-resolution pixel-art-inspired cluster language, robe construction, and cuteness. Use the 4x4 layout guide only for invisible equal cells, centering, spacing, safe padding, and a common feet line. Do not reproduce guide boxes, crosshairs, labels, borders, separators, or the guide background.
+
+Exact order, left to right:
+- Row 1, blue robes: orange tabby cat, cream shiba dog, white rabbit, brown bear.
+- Row 2, blue robes: tanuki/raccoon, pink pig, red fox, fluffy white sheep.
+- Row 3, red robes: gray tabby cat, golden floppy-ear dog, beige rabbit, honey bear.
+- Row 4, red robes: dark tanuki/raccoon, pale pink pig, cream fox, charcoal-gray sheep.
+
+Every guest is strictly front-facing and full-body, with a large round head, tiny chubby torso, short arms and legs, paws close to the body, and simple bath sandals. Keep one camera distance, standing-equivalent scale, robe length, silhouette occupancy, and foot-contact line. Tails are hidden or tucked tightly.
+
+The top two rows wear vivid deep blue robes. The bottom two rows wear vivid warm red robes. Every robe covers more than half the body and has a broad white crossover collar, white belt, and white cuffs. Robe color is the clearest signal at thumbnail size.
+
+Use polished high-resolution modern pixel-art-inspired game rendering: crisp stepped clusters, clean dark-brown outline, expressive tiny eyes, rosy cheeks, controlled fur detail, subtle robe folds, restrained three-step shading, and warm upper-left light. Do not make low-resolution or 16-bit art. No dithering noise, blur, painterly softness, or glossy 3D rendering.
+
+The entire atlas background is a perfectly uniform solid #FF00FF. No gradient, shadow, floor, scenery, text, symbols, labels, UI, speech bubbles, cell dividers, extra characters, hats, bags, towels, jewelry, or handheld props. Keep every subject fully inside its invisible cell with magenta margin on all four sides.

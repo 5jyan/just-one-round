@@ -1,0 +1,11 @@
+Create exactly eight separate front-facing full-body anthropomorphic animal bathhouse guests in an exact invisible 4-column by 2-row grid. Match the accepted black-bear master specimen's project-native high-resolution pixel-inspired style, crisp cluster density, dark outline, face proportions, blank dopey expression, camera distance, standing scale, feet line, ink-blue charcoal ryokan yukata, and sandals.
+
+Exact order from left to right:
+Row 1: naturally black bear; naturally deep chocolate-brown floppy-eared dog; naturally dark gray-brown tanuki/raccoon dog with a clear dark face mask; naturally cool-gray wolf.
+Row 2: warm white rabbit with pale pink inner ears; natural coral-pink pig; warm cream-white fluffy sheep; white-and-cheese-orange bicolor cat with no black patches.
+
+Each species appears exactly once. Keep every silhouette and natural fur palette immediately readable at small size. Every animal wears the same neutral ink-blue charcoal Japanese ryokan indoor yukata with thin matte cotton-linen, relaxed V opening, broad short sleeves, off-center side ties, loose knee-length panels, dark checked lining, and sandals.
+
+Keep the same camera distance, standing-equivalent scale, torso center, grounded feet line, and generous padding in all eight invisible cells. Do not zoom individual species. Entire ears, tails, sleeves, hands, robe hems, feet, and sandals must remain inside their own cell.
+
+Use a perfectly flat solid #FF00FF background. No visible grid, separators, labels, UI, headwear, headbands, towels, kanji, letters, symbols, gender markers, bows, ribbons, makeup, hair accessories, detached objects, shadows, floor, reflections, or watermark.

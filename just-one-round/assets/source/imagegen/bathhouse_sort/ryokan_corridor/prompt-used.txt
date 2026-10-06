@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: layered portrait mobile-game bathhouse environment
+Create a warm wooden ryokan-style corridor with two large front-facing bath
+entrances on the end wall: men on the left and women on the right. Keep the
+central perspective lane clear for a five-person queue. Match the project's
+premium chunky pixel-art scale, amber lantern light, cedar framing, restrained
+stone flooring, baskets, and bathhouse steam. The final base-background pass
+removes only the curtain fabric while preserving the rods and dark doorway
+interiors for separately rendered animated noren. No people, text, signs,
+arrows, UI, logo, or watermark.
+

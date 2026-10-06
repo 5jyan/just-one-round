@@ -1,0 +1,21 @@
+# Bathhouse Sort Asset QC
+
+- Built-in Image Gen raw sources are preserved for the accepted animal master, 16 animal guests, earlier human guests, original environment and doors, ryokan corridor base, accepted curtain composite, six-frame noren sheet, success FX, error FX, and steam FX.
+- Runtime PNG dimensions match `pipeline-meta.json` and are covered by `bathhouse_sort_asset_test.dart`.
+- Chroma cleanup uses border sampling, soft matte, despill, and a one-pixel edge contract. Enlarged atlas inspection found no remaining magenta fringe, clipping, or empty guest frames.
+- Active guest atlas is `448x448`, with eight `112x224` full-body animal cells rendered at `1x`. Top row is black bear, deep espresso-brown dog, charcoal gray-brown tanuki, and cool charcoal wolf for the men's bath; bottom row is white rabbit, pale milky-pink pig, cream sheep, and white-and-cheese-orange cat for the women's bath.
+- All eight characters keep their established species proportions. Men's animals use slightly straighter brows and broader shoulder/sleeve silhouettes; women's animals use softer curved brows, tiny outer lashes, a slightly higher waist, and subtly flared hems. Men's yukata remain ink blue and women's remain deep bathhouse red. There are no headbands, text marks, or accessories.
+- The pig is now a pale milky peach-pink with a restrained darker snout and inner ears, improving face readability against the red robe without changing its species silhouette.
+- The approved high-resolution character exception keeps crisp face, fur, and robe detail readable at the smallest queue scale. The previous animal and human source families remain untouched as legacy sources.
+- Active environment is the wooden three-bay layout at `bathhouse_corridor_background.png`: front-facing left bath entrance, deep central queue corridor, and front-facing right bath entrance. Earlier tiled and two-door ryokan backgrounds remain untouched as legacy/archive candidates.
+- Active `bathhouse_hanja_noren_atlas.png` contains blue `男` and red `女` front-facing curtains in a `3×2` grid: closed, parted, and return-flutter. Strict processing QC found no source/output edge touch, paste clamping, empty frames, or magenta contamination.
+- Nearest-neighbor rendering is used in both Flame runtime and Flutter preview.
+- Fixed-resolution viewport validation passed for short, canonical, and tall device mappings with no uncovered regions.
+- Runtime, home-preview, and newcomer-introduction goldens were refreshed and visually inspected at `360x640` and `360x460`. Animal feet remain grounded and all five guests read as standing inside the central corridor between the two bath entrances.
+- The v7 `generate2dsprite` strict processing produced 8 valid species frames with zero empty frames, zero source/output edge touches, zero paste clamping, body-scale CV `0.0368`, and normalized feet-anchor Y deviation `0.0430`.
+- The v7 source directly contains ink-blue men's and deep-red women's yukata, so no runtime palette rewrite is applied. The dog remains deep espresso brown, the tanuki charcoal gray-brown with a clear dark mask, and the wolf cool charcoal while remaining distinct from the black bear. The other fur palettes remain fixed.
+- All eight face constructions are visibly distinct: stern oval-eyed bear, sclera-free bead-eyed dog, side-glancing tanuki, narrow fierce wolf, gentle oval-eyed rabbit, glossy bead-eyed pig, smiling crescent-eyed sheep, and amber almond-eyed cat. Eyelashes appear only on the four women and stay short and sparse. Visual review confirms no copied circular-white-eye template, extreme crossed eyes, heavy makeup, or exaggerated expressions.
+- Tap-only runtime tests confirm repeated left/right taps route immediately and a drag starting on the guest produces neither a correct nor wrong judgment.
+- All 19 focused asset, runtime, input, rule, and guide tests plus all 3 Bathhouse Sort goldens passed.
+- The v7 release preview build contains the exact validated `448x448` guest atlas SHA-256 `7cbae57499533b10f4900e798d5a2363bd60dea3c7d42bc80adf10505f700799`. It was installed over the existing app and launched successfully on the connected physical iPhone with `PREVIEW_GAME_ID=bathhouse_sort`.
+- Controls, scoring, queue timing, route threshold, wrong-input lock, timer, and result lifecycle remain unchanged.

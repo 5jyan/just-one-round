@@ -1,0 +1,14 @@
+Use case: precise-object-edit
+Asset type: production raw sprite sheet for the mobile game 남탕! 여탕!
+Input images: Image 1 is the high-resolution identity/style/layout master and must lock the exact eight species, order, camera, rendering style, proportions, scale, feet line, detail density, and magenta sheet composition. Image 2 locks the final costume colors: men's top row indigo-blue, women's bottom row deep bathhouse red.
+
+Create one square raw sprite sheet on a perfectly flat solid #FF00FF background, exact invisible 4-column by 2-row grid, no separators. Exact order must remain:
+Top row men: black bear, deep chocolate-brown floppy-eared dog, natural dark gray-brown tanuki, cool-gray wolf.
+Bottom row women: warm white rabbit, very pale milky baby-pink pig, warm cream fluffy sheep, white-and-cheese-orange bicolor cat.
+
+Apply only these approved character-direction edits while keeping them ugly-cute, blank, dopey, and subtle rather than glamorous:
+- Pig fur/skin becomes clearly lighter: pale milky peach-baby-pink. Keep snout and inner ears one restrained shade darker so the pig stays readable against the red robe.
+- All four men: eyebrows slightly thicker and straighter; shoulder and sleeve silhouette about 5–6 percent broader; muzzle/jaw shading slightly firmer; cheek blush weaker. Keep indigo-blue yukata.
+- All four women: eyebrows thinner with a soft curve; one or two tiny outer-corner eyelash pixel clusters; blush slightly brighter; shoulders subtly narrower; yukata hem very slightly flared; waist tie slightly higher. Keep deep bathhouse-red yukata of exactly the same ryokan cotton-linen cut and texture.
+
+Hard invariants: preserve every species identity, fur pattern, ear and tail anatomy, front-facing stance, standing height, torso center, sandals, relaxed V-neck ryokan yukata style, crisp pixel-inspired cluster language, dark outline, lighting, and grounded feet alignment. Keep each whole animal fully inside its own cell with generous padding. Do not zoom or resize individual animals. No bows, ribbons, long hair, breasts, makeup beyond the existing simple blush, jewelry, headwear, headbands, towels, kanji, letters, gender symbols, accessories, detached items, shadows, floor, reflections, borders, grid lines, text, or watermark. Background must be one uniform #FF00FF color with no gradients or texture.

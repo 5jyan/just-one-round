@@ -1,0 +1,17 @@
+{
+  "authored_canvas": {"world_rect": [0, -40, 360, 680]},
+  "gameplay_safe_core": {"world_rect": [0, 0, 360, 640]},
+  "camera_center": [180, 320],
+  "layers": [
+    {"name": "background", "world_rect": [0, -40, 360, 680], "color": "#d4b27c"},
+    {"name": "mens_noren", "world_rect": [12, 94, 140, 222], "color": "#142d64"},
+    {"name": "deep_central_corridor", "world_rect": [124, 100, 236, 550], "color": "#9a6032"},
+    {"name": "womens_noren", "world_rect": [220, 94, 348, 222], "color": "#c92f24"}
+  ],
+  "collision_lines": [],
+  "viewports": [
+    {"name": "short_device_fixed_world", "size": [360, 640]},
+    {"name": "canonical_fixed_world", "size": [360, 640]},
+    {"name": "tall_device_fixed_world", "size": [360, 640]}
+  ]
+}

@@ -1,0 +1,11 @@
+Use case: stylized-concept
+Asset type: animated 2D pixel-art bathhouse noren prop sheet
+Exact 2-row by 3-column sheet on solid #FF00FF. Top row is the same deep
+indigo men's noren; bottom row is the same vermilion women's noren. Frame
+order is closed, parted inward for a passing guest, then asymmetric return
+flutter. Front view, three broad panels, fixed top anchor and camera distance,
+generous cell margins, no rod, doorway, wall, character, text, labels, UI,
+separators, or watermark. Blue uses one white outlined square emblem; red uses
+one white outlined circle emblem. Match the accepted ryokan composite's pixel
+clusters, fabric folds, and warm edge lighting.
+

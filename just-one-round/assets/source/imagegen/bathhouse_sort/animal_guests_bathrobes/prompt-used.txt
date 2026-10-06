@@ -1,0 +1,17 @@
+Create an exact 4-column by 4-row replacement atlas for the same 16 animal bathhouse guests. Preserve their species order, individual faces, fur colors, expressions, body proportions, front-facing camera, and high-resolution pixel-inspired rendering.
+
+Use the approved orange tabby master's costume consistently: an unmistakably plush terry-cloth hotel bathrobe with a broad continuous rounded rolled shawl collar, small relaxed chest opening, soft rounded overlapping fronts without a sharp X, thick rolled cuffs, two low patch pockets, knee-length rounded hem, and a thick same-color fluffy rope belt tied casually with drooping ends.
+
+Completely remove martial-arts gi, judo or karate uniforms, kimono or yukata construction, crisp crossed lapels, white X-shaped chest bands, flat obi belts, and white martial-arts belts.
+
+Rows 1-2 use vivid deep bath-blue robes and matching blue shower caps. Rows 3-4 use vivid warm bath-red robes and matching red shower caps. Every cap is a large puffy color dome with a narrow white scalloped elastic rim. It remains visible when the body is hidden and at 36% scale. Animal ears and identity cues remain visible: rabbit ears emerge above the cap; other ears sit in front of or beside the rim. The cap is not a headband, bandana, towel turban, helmet, bonnet, hat, or bow.
+
+Exact order:
+- Row 1 blue: orange tabby cat, cream shiba dog, white rabbit, brown bear.
+- Row 2 blue: tanuki/raccoon, pink pig, red fox, fluffy white sheep.
+- Row 3 red: gray tabby cat, golden floppy-ear dog, beige rabbit, honey bear.
+- Row 4 red: dark tanuki/raccoon, pale pink pig, cream fox, charcoal-gray sheep.
+
+Keep every guest full-body, front-facing, at one camera distance and grounded feet line. Preserve large round heads, tiny chubby bodies, short limbs, tiny eyes, rosy cheeks, and dopey expressions. Use crisp controlled pixel clusters, clean dark-brown outlines, warm upper-left light, restrained three-step shading, and controlled fur and terry detail.
+
+The complete atlas background is perfectly uniform solid #FF00FF. Exactly 16 characters only. No text, labels, symbols, UI, speech bubbles, cell separators, floor, shadows, scenery, handheld props, towels, jewelry, or extra accessories. Keep every subject fully contained in its invisible cell with magenta margin.

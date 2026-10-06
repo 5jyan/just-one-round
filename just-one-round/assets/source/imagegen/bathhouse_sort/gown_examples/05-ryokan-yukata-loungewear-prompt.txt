@@ -1,0 +1,10 @@
+Use case: precise-object-edit
+Asset type: high-resolution pixel-inspired game character clothing concept
+
+Image 1 is the character edit target and identity/style master. Image 2 is clothing structure and material reference only.
+
+Preserve the orange tabby identity, face, expression, large round head, chubby proportions, front-facing pose, hands, feet, sandals, framing, dark-brown stepped outline, warm lighting, and polished high-resolution pixel-inspired rendering.
+
+Change only the clothing into a deep indigo Japanese ryokan yukata-style indoor robe: thin matte cotton-linen, long narrow lapel bands, deep relaxed V opening, minimal front overlap, broad short kimono sleeves, two thin off-center side ties, loose front panels, and a small glimpse of dark navy check lining. Exclude a thick sash, obi, large bow, patch pockets, rolled cuffs, white trim, contrast collar, and martial-arts belt. It must read as relaxed ryokan loungewear rather than a karate/judo gi, hotel bathrobe, coat, hoodie, or formal kimono.
+
+No headwear. Keep both ears visible. One centered full-body character on a perfectly flat #FF00FF background. No floor, shadow, scenery, hanger, text, logo, UI, props, extra characters, or cropping.

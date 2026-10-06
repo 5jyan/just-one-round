@@ -1,0 +1,12 @@
+Use case: precise-object-edit
+Asset type: production 4x4 static NPC character sprite pack for a mobile sorting game
+
+Image 1 locks the exact 4x4 species identity, order, poses, scale, slot geometry, and solid-magenta layout. Image 2 locks the approved ryokan robe structure/material and 男/女 headband style.
+
+Create exactly sixteen separate full-body animal guests in a 4x4 grid. Rows 1-2 are blue: orange tabby cat, shiba dog, white rabbit, brown bear, tanuki, pink pig, orange fox, white sheep. Rows 3-4 are red: gray tabby cat, golden dog, beige rabbit, golden bear, tanuki, pink pig, cream fox, dark-gray sheep. Preserve each identity, face, fur, ears, expression, proportions, pose, sandals, camera distance, and standing scale.
+
+Change only their clothing and headwear. Every guest wears a relaxed Japanese ryokan indoor robe: thin matte cotton-linen, long narrow lapels, deep V opening, broad short sleeves, two thin off-center side ties, loose front panels, and subtle checked lining. Every blue guest wears a blue forehead headband printed with exactly one centered bold white 男. Every red guest wears a red forehead headband printed with exactly one centered bold white 女. Keep faces and ears visible and keep the kanji unobstructed.
+
+Exclude thick obi or martial-arts belts, white X collars, white trim, rolled cuffs, patch pockets, hotel bathrobes, karate/judo gi, and formal kimono. Match the polished high-resolution modern pixel-inspired style, dark-brown stepped outlines, warm upper-left lighting, pixel density, and restrained texture.
+
+Use exactly 4x4 invisible equal cells, one complete centered guest per cell, stable scale and feet line, generous magenta padding, no cell crossing, no visible borders or guides. Perfectly flat solid #FF00FF background. No floor, shadows, labels, captions, UI, scenery, props, or extra text.

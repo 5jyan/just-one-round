@@ -1,0 +1,19 @@
+Use case: precise-object-edit
+Asset type: production raw sprite sheet for the mobile game 남탕! 여탕!
+Input image: the image just shown is the exact v5 master. Preserve its exact eight species, order, 4-column by 2-row invisible grid, front-facing camera, full-body proportions, costume construction, lighting, pixel-inspired cluster language, dark outline, scale, spacing, and grounded feet line.
+
+Primary request: make only the approved fur-color and facial-expression edits. Keep the charming ugly-cute house style, but change the current tired, bored, grumpy half-lidded expressions into lovable slightly foolish, clueless, dopey-cute expressions.
+
+Exact order and edits:
+Top row men:
+1. Black bear: preserve fur color and identity. Give rounder more-open eyes with tiny slightly off-center pupils and a small neutral ㅅ-like mouth; sturdy, sweet, mildly clueless, not sleepy or sad.
+2. Floppy-eared dog: darken fur substantially to deep rich espresso/chocolate brown, clearly darker than v5 but still visibly brown and distinct from the black bear. Keep muzzle warm golden tan. Expression is openly cheerful and simple-minded: round open eyes, tiny asymmetric pupils, very small soft smile.
+3. Tanuki: darken body fur to rich charcoal gray-brown and make the natural near-black eye mask clearer while preserving warm brown accents and species markings. Expression is adorably confused: rounder open eyes, subtly uneven pupil direction, tiny ㅅ mouth.
+4. Wolf: darken main fur to cool deep charcoal gray, about 20–25 percent darker than v5, while preserving the cream muzzle, cheeks, inner ears, and tail tip for contrast. Expression is comically over-serious but cute: open eyes, tiny slightly misaligned pupils, small neutral mouth; not angry.
+Bottom row women: preserve all established fur colors including the pale milky baby-pink pig, cream sheep, white rabbit, and white-cheese-orange cat. Preserve their restrained feminine silhouette cues. Replace tired half-lidded looks with gentle dopey-cute expressions: rounder open eyes, tiny subtly asymmetric pupils, soft small ㅅ mouths or faint smiles. Rabbit innocent, pig guilelessly happy, sheep warm and absent-minded, cat mildly prim but clumsy-cute.
+
+Expression constraints: keep facial features sparse and readable at small queue scale. Slight intentional asymmetry is welcome, but anatomy must remain clean. No drooping upper eyelids, no downward mouth corners, no sad, exhausted, irritated, angry, glamorous, heroic, or polished mascot expressions. No huge smiles, open mouths, teeth, tongues, crossed eyes, extreme eye directions, exaggerated comedy, or duplicate identical faces.
+
+Hard invariants: preserve the men's indigo-blue yukata and women's deep bathhouse-red yukata exactly, including relaxed V-neck ryokan cotton-linen cut, sash, sleeves, sandals, texture, and gender silhouette cues. Preserve every species identity, fur pattern except the three approved darkenings, ear/tail anatomy, standing height, torso center, front-facing pose, and full body containment. Keep every animal fully inside its own invisible cell with generous magenta padding. Do not zoom or resize individual animals.
+
+Create one square raw sprite sheet on a perfectly uniform flat solid #FF00FF background. Exact 4 columns by 2 rows, no visible separators. No bows, ribbons, hair, headwear, towels, jewelry, text, kanji, letters, gender symbols, accessories, detached objects, shadows, floor, reflections, borders, grid lines, labels, or watermark. Background must contain only uniform #FF00FF with no gradient or texture.

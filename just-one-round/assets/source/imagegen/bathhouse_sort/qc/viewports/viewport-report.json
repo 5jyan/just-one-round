@@ -1,0 +1,36 @@
+{
+  "viewports": [
+    {
+      "name": "short_device_fixed_world",
+      "visible_world_rect": [
+        0.0,
+        0.0,
+        360.0,
+        640.0
+      ],
+      "warnings": []
+    },
+    {
+      "name": "canonical_fixed_world",
+      "visible_world_rect": [
+        0.0,
+        0.0,
+        360.0,
+        640.0
+      ],
+      "warnings": []
+    },
+    {
+      "name": "tall_device_fixed_world",
+      "visible_world_rect": [
+        0.0,
+        0.0,
+        360.0,
+        640.0
+      ],
+      "warnings": []
+    }
+  ],
+  "warnings": [],
+  "ok": true
+}

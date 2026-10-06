@@ -1,0 +1,72 @@
+{
+  "pipeline": "builtin-imagegen-plus-local-chroma-processing",
+  "game": "bathhouse_sort",
+  "style": "premium high-resolution ugly-cute pixel-inspired animal mascots with eight distinct face designs, varied male temperaments, and kind feminine expressions in indigo men's and deep-red women's ryokan yukata",
+  "canonicalLogicalViewport": [360, 640],
+  "artPixelLogicalSize": 2,
+  "runtime": {
+    "background": {
+      "path": "assets/images/bathhouse_sort/bathhouse_corridor_background.png",
+      "sourceSize": [180, 360],
+      "worldRect": [0, -40, 360, 720]
+    },
+    "noren": {
+      "path": "assets/images/bathhouse_sort/bathhouse_hanja_noren_atlas.png",
+      "atlasSize": [240, 160],
+      "cellSize": [80, 80],
+      "grid": [3, 2],
+      "order": "top row blue 男, bottom row red 女; closed, parted, return flutter",
+      "displaySize": [128, 128],
+      "anchor": "top-center"
+    },
+    "guests": {
+      "path": "assets/images/bathhouse_sort/bathhouse_guests_atlas.png",
+      "source": "assets/source/imagegen/bathhouse_sort/animal_species_roster_v7_face_variety/processed",
+      "atlasSize": [448, 448],
+      "cellSize": [112, 224],
+      "grid": [4, 2],
+      "order": "top row men: black bear, deep espresso-brown dog, charcoal gray-brown tanuki, cool charcoal wolf; bottom row women: white rabbit, pale milky-pink pig, cream sheep, white-and-cheese-orange cat",
+      "frontDisplaySize": [112, 224],
+      "anchor": "bottom-center",
+      "displayScale": 1,
+      "approvedPixelScaleException": "high-resolution character cells requested by user; species silhouette plus indigo/red robe color stay readable at queue scale"
+    },
+    "feedback": {
+      "path": "assets/images/bathhouse_sort/bathhouse_feedback_fx_atlas.png",
+      "atlasSize": [128, 96],
+      "cellSize": [32, 32],
+      "rows": ["success", "error", "steam"],
+      "framesPerRow": 4,
+      "displaySize": [64, 64]
+    }
+  },
+  "processing": {
+    "chromaKey": "border-sampled magenta",
+    "softMatte": true,
+    "despill": true,
+    "edgeContract": 1,
+    "resizeFilter": "nearest-neighbor",
+    "norenComponentPolicy": "largest connected component; shared scale; centered top anchor",
+    "guestComponentPolicy": "v7 generate2dsprite 4x2 strict QC, largest component, shared scale, feet alignment, then aspect-preserving fit into 112x224 runtime cells"
+  },
+  "legacyRuntimeAssetsKept": [
+    "assets/images/bathhouse_sort/bathhouse_background.png",
+    "assets/images/bathhouse_sort/bathhouse_doors_atlas.png",
+    "assets/images/bathhouse_sort/bathhouse_ryokan_background.png",
+    "assets/images/bathhouse_sort/bathhouse_noren_atlas.png"
+  ],
+  "legacySourceAssetsKept": [
+    "assets/source/imagegen/bathhouse_sort/guest_master",
+    "assets/source/imagegen/bathhouse_sort/guests",
+    "assets/source/imagegen/bathhouse_sort/animal_guests",
+    "assets/source/imagegen/bathhouse_sort/animal_guests_bathrobes"
+  ],
+  "preservedBehavior": [
+    "48 logical-pixel route threshold",
+    "five-person queue",
+    "70 millisecond queue advance",
+    "250 millisecond wrong-input lock",
+    "60 second timer",
+    "score and combo rules"
+  ]
+}
