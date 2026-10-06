@@ -120,6 +120,72 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('the slugger appears only for pitch seven and announces once', (
+    tester,
+  ) async {
+    final game = TenPitchSluggerGame(
+      challengeSeed: 31,
+      countdownDuration: Duration.zero,
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+
+    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+    await _waitUntilLoaded(tester, game);
+    final messages = <String?>[];
+    String? previousMessage;
+    void recordMessage() {
+      final message = game.hud.value.message;
+      if (message != previousMessage) {
+        messages.add(message);
+        previousMessage = message;
+      }
+    }
+
+    game.hud.addListener(recordMessage);
+    addTearDown(() => game.hud.removeListener(recordMessage));
+    await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.windup);
+
+    for (var pitch = 1; pitch <= 6; pitch++) {
+      expect(game.usesSluggerBatter, isFalse);
+      await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.pitchFlight);
+      await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.feedback);
+      await _pumpUntilPhase(
+        tester,
+        game,
+        pitch == 6
+            ? TenPitchSluggerPhase.sluggerEntrance
+            : TenPitchSluggerPhase.windup,
+      );
+    }
+
+    expect(game.pitchNumber, 7);
+    expect(game.usesSluggerBatter, isTrue);
+    expect(game.currentPitch.movement, TenPitchMovement.slider);
+    expect(game.gamePhase, TenPitchSluggerPhase.sluggerEntrance);
+    expect(game.hud.value.message, '강타자 등장!');
+    game.tapSwing();
+    expect(game.swingCount, 0);
+    await tester.pump(const Duration(milliseconds: 800));
+    expect(game.gamePhase, TenPitchSluggerPhase.sluggerEntrance);
+    expect(game.swingCount, 0);
+    await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.windup);
+    expect(game.hud.value.message, '7번 타자는 강타자 등장!');
+    await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.pitchFlight);
+    expect(game.usesSluggerBatter, isTrue);
+    expect(game.hud.value.message, '7번 타자는 강타자 등장!');
+    await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.feedback);
+    expect(game.usesSluggerBatter, isTrue);
+
+    await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.windup);
+    expect(game.pitchNumber, 8);
+    expect(game.usesSluggerBatter, isFalse);
+    expect(game.hud.value.message, contains('8구'));
+    expect(messages.where((message) => message == '7번 타자는 강타자 등장!').length, 1);
+    expect(messages.where((message) => message == '강타자 등장!').length, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('windup accepts repeated swings before the ball is released', (
     tester,
   ) async {

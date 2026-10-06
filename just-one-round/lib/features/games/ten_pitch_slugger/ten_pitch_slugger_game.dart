@@ -17,6 +17,7 @@ import 'package:just_one_round/features/games/ten_pitch_slugger/presentation/ten
 enum TenPitchSluggerPhase {
   countdown,
   safeOpening,
+  sluggerEntrance,
   windup,
   pitchFlight,
   feedback,
@@ -49,6 +50,7 @@ class TenPitchSluggerGame extends FlameGame
   static final backgroundSize = Vector2(360, 720);
   static const safeOpeningDuration = TenPitchSluggerRules.safeOpeningSeconds;
   static const regularWindupDuration = 0.92;
+  static const sluggerEntranceDuration = 1.6;
   static const magicWindupDuration = 1.28;
   static const missFeedbackDuration = 1.08;
   static const missedBallExitDuration = 0.58;
@@ -104,6 +106,8 @@ class TenPitchSluggerGame extends FlameGame
   int get swingCount => _swingCount;
   double get phaseElapsed => _phaseElapsed;
   bool get assetsReady => _assetsReady;
+  bool get usesSluggerBatter =>
+      pitchNumber == TenPitchSluggerRules.sluggerPitchNumber;
 
   @override
   Color backgroundColor() => const Color(0xFF11152A);
@@ -120,6 +124,10 @@ class TenPitchSluggerGame extends FlameGame
       'ten_pitch_slugger/batter_rear_swing_v4.png',
       'ten_pitch_slugger/batter_rear_whiff_v3.png',
       'ten_pitch_slugger/batter_rear_result_v3.png',
+      'ten_pitch_slugger/batter_slugger_idle_v3.png',
+      'ten_pitch_slugger/batter_slugger_swing_v3.png',
+      'ten_pitch_slugger/batter_slugger_whiff_v3.png',
+      'ten_pitch_slugger/batter_slugger_result_v3.png',
       'ten_pitch_slugger/pitcher_front_idle_v3.png',
       'ten_pitch_slugger/pitcher_front_pitch_v3.png',
       'ten_pitch_slugger/pitcher_front_magic_v3.png',
@@ -135,12 +143,16 @@ class TenPitchSluggerGame extends FlameGame
       batterSwing: loaded[2],
       batterWhiff: loaded[3],
       batterResult: loaded[4],
-      pitcherIdle: loaded[5],
-      pitcherPitch: loaded[6],
-      pitcherMagic: loaded[7],
-      ball: loaded[8],
-      hitFx: loaded[9],
-      trailFx: loaded[10],
+      sluggerBatterIdle: loaded[5],
+      sluggerBatterSwing: loaded[6],
+      sluggerBatterWhiff: loaded[7],
+      sluggerBatterResult: loaded[8],
+      pitcherIdle: loaded[9],
+      pitcherPitch: loaded[10],
+      pitcherMagic: loaded[11],
+      ball: loaded[12],
+      hitFx: loaded[13],
+      trailFx: loaded[14],
     );
     await world.add(_ballpark);
     _assetsReady = true;
@@ -173,6 +185,8 @@ class TenPitchSluggerGame extends FlameGame
     switch (_phase) {
       case TenPitchSluggerPhase.safeOpening:
         if (_phaseElapsed >= safeOpeningDuration) _startWindup();
+      case TenPitchSluggerPhase.sluggerEntrance:
+        if (_phaseElapsed >= sluggerEntranceDuration) _startWindup();
       case TenPitchSluggerPhase.windup:
         final duration = currentPitch.movement == TenPitchMovement.magic
             ? magicWindupDuration
@@ -326,7 +340,13 @@ class TenPitchSluggerGame extends FlameGame
       return;
     }
     _pitchIndex++;
-    _startWindup();
+    if (usesSluggerBatter) {
+      _phase = TenPitchSluggerPhase.sluggerEntrance;
+      _phaseElapsed = 0;
+      unawaited(HapticFeedback.heavyImpact());
+    } else {
+      _startWindup();
+    }
   }
 
   void _finishGame() {
@@ -366,8 +386,11 @@ class TenPitchSluggerGame extends FlameGame
       distance: pitchNumber,
       message: switch (_phase) {
         TenPitchSluggerPhase.safeOpening => '준비! 첫 공은 연습 직구',
+        TenPitchSluggerPhase.sluggerEntrance => '강타자 등장!',
         TenPitchSluggerPhase.windup || TenPitchSluggerPhase.pitchFlight =>
-          '${currentPitch.number}구 · ${currentPitch.name}',
+          usesSluggerBatter
+              ? '7번 타자는 강타자 등장!'
+              : '${currentPitch.number}구 · ${currentPitch.name}',
         TenPitchSluggerPhase.feedback =>
           _lastDistanceCm == 0
               ? '${TenPitchSluggerRules.judgementLabel(_lastJudgement)}  0m'
@@ -404,6 +427,10 @@ class _TenPitchBallpark extends PositionComponent {
     required this.batterSwing,
     required this.batterWhiff,
     required this.batterResult,
+    required this.sluggerBatterIdle,
+    required this.sluggerBatterSwing,
+    required this.sluggerBatterWhiff,
+    required this.sluggerBatterResult,
     required this.pitcherIdle,
     required this.pitcherPitch,
     required this.pitcherMagic,
@@ -418,6 +445,10 @@ class _TenPitchBallpark extends PositionComponent {
   final ui.Image batterSwing;
   final ui.Image batterWhiff;
   final ui.Image batterResult;
+  final ui.Image sluggerBatterIdle;
+  final ui.Image sluggerBatterSwing;
+  final ui.Image sluggerBatterWhiff;
+  final ui.Image sluggerBatterResult;
   final ui.Image pitcherIdle;
   final ui.Image pitcherPitch;
   final ui.Image pitcherMagic;
@@ -455,11 +486,128 @@ class _TenPitchBallpark extends PositionComponent {
       magic: game.currentPitch.movement == TenPitchMovement.magic,
     );
     _drawPitcher(canvas);
+    _drawSluggerAura(canvas);
     _drawBatter(canvas);
     _drawBallAndEffects(canvas);
     canvas.restore();
     _drawImpactFlash(canvas);
     _drawHomeRunCelebration(canvas);
+    _drawSluggerEntrance(canvas);
+  }
+
+  void _drawSluggerAura(Canvas canvas) {
+    if (game.gamePhase != TenPitchSluggerPhase.sluggerEntrance) return;
+    final progress =
+        (game.phaseElapsed / TenPitchSluggerGame.sluggerEntranceDuration).clamp(
+          0.0,
+          1.0,
+        );
+    const center = Offset(76, 466);
+    final glow = Paint()
+      ..color = const Color(
+        0xFFFF3038,
+      ).withValues(alpha: 0.52 * (1 - progress * 0.4))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5;
+    for (var ring = 0; ring < 3; ring++) {
+      final radius = 45 + ring * 27 + progress * 48;
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: center,
+          width: radius * 1.4,
+          height: radius * 2,
+        ),
+        glow,
+      );
+    }
+  }
+
+  void _drawSluggerEntrance(Canvas canvas) {
+    if (game.gamePhase != TenPitchSluggerPhase.sluggerEntrance) return;
+    final elapsed = game.phaseElapsed;
+    final progress = (elapsed / TenPitchSluggerGame.sluggerEntranceDuration)
+        .clamp(0.0, 1.0);
+    final reveal = (elapsed / 0.22).clamp(0.0, 1.0);
+    final fade = ((1.6 - elapsed) / 0.30).clamp(0.0, 1.0);
+    final opacity = reveal * fade;
+    canvas.drawRect(
+      Offset.zero & _sceneSize,
+      Paint()
+        ..color = const Color(0xFF090B1B).withValues(alpha: 0.58 * opacity),
+    );
+    final rayPaint = Paint()
+      ..color = const Color(0xFFFF3848).withValues(alpha: 0.30 * opacity);
+    const center = Offset(180, 227);
+    for (var index = 0; index < 18; index++) {
+      final angle = index * 2 * pi / 18 + progress * 0.12;
+      final inner = 90 + 12 * sin(elapsed * 12 + index);
+      final path = Path()
+        ..moveTo(center.dx + cos(angle) * inner, center.dy + sin(angle) * inner)
+        ..lineTo(
+          center.dx + cos(angle - 0.035) * 470,
+          center.dy + sin(angle - 0.035) * 470,
+        )
+        ..lineTo(
+          center.dx + cos(angle + 0.035) * 470,
+          center.dy + sin(angle + 0.035) * 470,
+        )
+        ..close();
+      canvas.drawPath(path, rayPaint);
+    }
+    final impact = (elapsed / 0.45).clamp(0.0, 1.0);
+    canvas.drawCircle(
+      center,
+      45 + impact * 195,
+      Paint()
+        ..color = const Color(0xFFFFD7A0).withValues(alpha: (1 - impact) * 0.8)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 7 * (1 - impact) + 1,
+    );
+    final scale = 1.22 - 0.22 * (elapsed / 0.28).clamp(0.0, 1.0);
+    canvas.save();
+    canvas.translate(
+      center.dx + (elapsed < 0.35 ? sin(elapsed * 90) * 3 : 0),
+      center.dy,
+    );
+    canvas.scale(scale);
+    final style = TextStyle(
+      fontFamily: 'Galmuri',
+      fontWeight: FontWeight.w900,
+      fontSize: 42,
+      height: 1,
+      color: const Color(0xFFFF3242).withValues(alpha: opacity),
+      shadows: [
+        Shadow(
+          color: const Color(0xFFFF2020).withValues(alpha: opacity),
+          blurRadius: 17,
+        ),
+        Shadow(
+          color: const Color(0xFF5A0717).withValues(alpha: opacity),
+          offset: const Offset(3, 5),
+        ),
+      ],
+    );
+    final title = TextPainter(
+      text: TextSpan(text: '강타자 등장!', style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final titleOffset = Offset(-title.width / 2, -title.height / 2);
+    final outline = TextPainter(
+      text: TextSpan(
+        text: '강타자 등장!',
+        style: style.copyWith(
+          foreground: Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 8
+            ..strokeJoin = StrokeJoin.round
+            ..color = const Color(0xFF350812).withValues(alpha: opacity),
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    outline.paint(canvas, titleOffset);
+    title.paint(canvas, titleOffset);
+    canvas.restore();
   }
 
   Offset _hitShakeOffset() {
@@ -642,7 +790,8 @@ class _TenPitchBallpark extends PositionComponent {
   }
 
   void _drawBatter(Canvas canvas) {
-    ui.Image sheet = batterIdle;
+    final slugger = game.usesSluggerBatter;
+    ui.Image sheet = slugger ? sluggerBatterIdle : batterIdle;
     var columns = 2;
     var frameCount = 6;
     var frameIndex = TenPitchSluggerMotion.loopingFrame(
@@ -656,7 +805,7 @@ class _TenPitchBallpark extends PositionComponent {
         lastSwingTime != null) {
       final elapsed = game._playingElapsed - lastSwingTime;
       if (elapsed < TenPitchSluggerMotion.swingDurationSeconds) {
-        sheet = batterSwing;
+        sheet = slugger ? sluggerBatterSwing : batterSwing;
         columns = 4;
         frameCount = 16;
         frameIndex = TenPitchSluggerMotion.batterSwingFrame(elapsed);
@@ -670,13 +819,13 @@ class _TenPitchBallpark extends PositionComponent {
           final swingElapsed =
               game.resolvedFlightElapsed - lastTapTime + game.phaseElapsed;
           if (swingElapsed < TenPitchSluggerMotion.swingDurationSeconds) {
-            sheet = batterSwing;
+            sheet = slugger ? sluggerBatterSwing : batterSwing;
             columns = 4;
             frameCount = 16;
             frameIndex = TenPitchSluggerMotion.batterSwingFrame(swingElapsed);
           } else if (swingElapsed <
               TenPitchSluggerMotion.swingDurationSeconds + 0.55) {
-            sheet = batterWhiff;
+            sheet = slugger ? sluggerBatterWhiff : batterWhiff;
             columns = 4;
             frameCount = 12;
             final recoveryProgress =
@@ -693,7 +842,7 @@ class _TenPitchBallpark extends PositionComponent {
               hitType: hitType,
             );
         if (game.phaseElapsed < swingFeedbackDuration) {
-          sheet = batterSwing;
+          sheet = slugger ? sluggerBatterSwing : batterSwing;
           frameCount = 16;
           frameIndex = TenPitchSluggerMotion.batterFeedbackSwingFrame(
             elapsedSeconds: game.phaseElapsed,
@@ -701,7 +850,7 @@ class _TenPitchBallpark extends PositionComponent {
             hitType: hitType,
           );
         } else {
-          sheet = batterResult;
+          sheet = slugger ? sluggerBatterResult : batterResult;
           frameCount = 8;
           const firstRecoveryFrame = 4;
           final recoveryFrameCount = frameCount - firstRecoveryFrame;

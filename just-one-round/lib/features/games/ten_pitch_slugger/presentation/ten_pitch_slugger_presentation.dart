@@ -2,7 +2,6 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 
 const tenPitchSluggerPresentation = GamePresentationDefinition(
   id: 'ten_pitch_slugger',
-  loadingLabel: '방망이 닦는 중...',
   durationLabel: '10구 · 시간제한 없음',
   guideDurationText: '총 10구를 치고, 그중 가장 멀리 친 기록으로 승부해요.',
   homeAspectRatio: 0.78,
@@ -24,14 +23,14 @@ const tenPitchSluggerPresentation = GamePresentationDefinition(
       title: '100m부터 홈런',
       description: '맞힌 공은 타이밍 정확도에 따라 35m에서 그 공의 최대 비거리까지 기록하며, 100m부터 홈런입니다.',
       detail:
-          '홈런은 정타 중심의 좁은 12% 구간에서만 나와요. 성공하면 HOME RUN! 표시가 뜨며, 끝까지 못 맞힌 투구만 0m입니다.',
+          '기본 홈런은 정타 중심의 좁은 12% 구간에서 나오고, 7구 강타자는 좋은 타이밍도 더 멀리 보냅니다. 성공하면 HOME RUN! 표시가 뜨며, 끝까지 못 맞힌 투구만 0m입니다.',
       visual: GameGuideVisualKind.sluggerDistance,
     ),
     GameGuidePageDefinition(
       title: '10구는 도깨비 마구',
       description: '4구부터 코스가 바뀌고 계속 빨라집니다. 마지막 10구는 0.60초 만에 S자로 휘며 떨어져요.',
       detail:
-          '7구부터 비거리 보상이 크게 오르고, 10구는 같은 정확도에도 최대 40m 더 갑니다. 보라색 기운이 보이면 마지막 공이에요.',
+          '7구에는 강타자가 등장해 기존 거리의 1.25배를 보상하고, 8구부터는 원래 타자로 돌아옵니다. 10구는 같은 정확도에도 최대 40m 더 갑니다. 보라색 기운이 보이면 마지막 공이에요.',
       visual: GameGuideVisualKind.sluggerMagic,
     ),
     GameGuidePageDefinition(

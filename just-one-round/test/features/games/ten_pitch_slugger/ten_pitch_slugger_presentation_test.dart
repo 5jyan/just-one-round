@@ -23,7 +23,8 @@ void main() {
       expect(copy, contains('HOME RUN!'));
       expect(copy, contains('10구는 도깨비 마구'));
       expect(copy, contains('0.60초'));
-      expect(copy, contains('7구부터'));
+      expect(copy, contains('7구에는'));
+      expect(copy, contains('8구부터는 원래 타자로'));
       expect(copy, contains('최대 40m'));
       expect(copy, contains('10구 중 가장 긴 비거리'));
       expect(copy, contains('제한시간은 없어요'));

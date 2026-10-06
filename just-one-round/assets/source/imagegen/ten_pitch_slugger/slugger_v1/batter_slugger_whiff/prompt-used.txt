@@ -1,0 +1,13 @@
+Use case: game sprite sheet generation.
+Asset type: grounded ugly-cute baseball batter whiff/recovery body animation.
+Reference roles: the active regular whiff sequence locks the rear 3/4 camera, bat handling, and 12-frame order. The accepted slugger idle master locks the stockier identity, palette, height, body mass, and feet baseline.
+Create exactly 12 chronological body-only frames in a 4 columns by 3 rows grid, left-to-right then top-to-bottom: early swing continuation, bat passes over the ball, off-balance follow-through, stumble/recovery, then settled recovery poses.
+Slugger: broader torso, thicker arms, waist and thighs like a powerful cleanup hitter, same overall height, red helmet, cream uniform, red sleeves, white gloves, dark teal shoes, gold bat, tiny hair tuft, rear 3/4 camera, awkward ugly-cute stance. Build mass anatomically, never horizontal-stretch the image. Match accepted idle body height.
+Hard geometry: each cell is 240x240, body centerline stable, grounded feet/bottom anchor at source y=226 wherever visible, every opaque pixel at least 10 pixels inside cell edges, complete bat/helmet/gloves/shoes contained, no cropping, zooming, or scale drift. Transparent output is normalized to flat #FF00FF in raw.png before deterministic processing.
+Style: crisp project-native chunky pixel art with mostly 2-pixel clusters, rare 1-pixel highlights, no blur or antialiasing.
+Avoid: ball, hit flash, dust, trail, shadow, floor, detached effects, text, labels, UI, watermark, borders, separators, extra characters, missing bat/gloves, anatomy drift, gradients, or dark background.
+
+Generation provenance: built-in image_gen selected output
+exec-090ea360-cd2c-4ddd-88e1-0240fc1f2808.png, referenced the existing regular
+whiff sheet plus accepted slugger idle/swing sheets. The generated RGBA output
+was composited over flat #FF00FF only for the deterministic processor input.

@@ -59,13 +59,78 @@ void main() {
           )
           .toList();
 
-      expect(distances.last, TenPitchSluggerRules.theoreticalMaximumScoreCm);
+      expect(distances[6], 16875);
+      expect(distances.last, 15000);
       expect(
         distances.reduce(max),
         TenPitchSluggerRules.theoreticalMaximumScoreCm,
       );
     },
   );
+
+  test('seventh pitch scales the existing distance exactly once', () {
+    final pitches = TenPitchSluggerRules.buildPitchSequence(Random(9));
+    final seventh = pitches[6];
+    final sixth = pitches[5];
+    final eighth = pitches[7];
+
+    expect(TenPitchSluggerRules.rulesVersion, 8);
+    expect(
+      TenPitchSluggerRules.distanceForTiming(
+        pitch: seventh,
+        timingErrorSeconds: 0,
+      ),
+      16875,
+    );
+    expect(
+      TenPitchSluggerRules.distanceForTiming(
+        pitch: seventh,
+        timingErrorSeconds: seventh.hitWindowSeconds,
+      ),
+      4375,
+    );
+    expect(
+      TenPitchSluggerRules.distanceForTiming(
+        pitch: seventh,
+        timingErrorSeconds: seventh.hitWindowSeconds + 0.000001,
+      ),
+      0,
+    );
+    expect(
+      TenPitchSluggerRules.distanceForTiming(
+        pitch: sixth,
+        timingErrorSeconds: sixth.hitWindowSeconds,
+      ),
+      3500,
+    );
+    expect(
+      TenPitchSluggerRules.distanceForTiming(
+        pitch: eighth,
+        timingErrorSeconds: eighth.hitWindowSeconds,
+      ),
+      3500,
+    );
+
+    final promotedDistance = TenPitchSluggerRules.distanceForTiming(
+      pitch: seventh,
+      timingErrorSeconds: seventh.hitWindowSeconds * 0.1,
+    );
+    expect(promotedDistance, greaterThan(10000));
+    expect(
+      TenPitchSluggerRules.hitTypeForDistance(promotedDistance),
+      TenPitchHitType.homeRun,
+    );
+
+    final promotedAtThirtyPercent = TenPitchSluggerRules.distanceForTiming(
+      pitch: seventh,
+      timingErrorSeconds: seventh.hitWindowSeconds * 0.3,
+    );
+    expect(promotedAtThirtyPercent, greaterThan(10000));
+    expect(
+      TenPitchSluggerRules.hitTypeForDistance(promotedAtThirtyPercent),
+      TenPitchHitType.homeRun,
+    );
+  });
 
   test('window edge is a short hit and outside the window is a miss', () {
     final pitch = TenPitchSluggerRules.buildPitchSequence(Random(7)).first;
@@ -357,6 +422,7 @@ void main() {
     expect(TenPitchSluggerRules.wallHeightProgress(10000), 0);
     expect(TenPitchSluggerRules.wallHeightProgress(13000), 0.6);
     expect(TenPitchSluggerRules.wallHeightProgress(15000), 1);
+    expect(TenPitchSluggerRules.wallHeightProgress(16875), 1);
   });
 
   test('score formatting treats raw score as centimeters', () {

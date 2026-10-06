@@ -1,0 +1,8 @@
+Use case: game sprite sheet generation.
+Asset type: grounded ugly-cute baseball batter idle sheet.
+Input image: the active batter_rear_idle_v3 sheet is the identity/style/geometry reference. Preserve its red helmet, cream uniform, red sleeves, teal shoes, gold bat, rear 3/4 view, height, bat angle, centerline, and foot baseline. Make only the requested slugger body-mass variant.
+Create exactly 6 chronological idle frames in a 2 columns by 3 rows grid. The generated subject may use transparent background; the provenance raw.png is deterministically composited over one flat #FF00FF chroma background before processing.
+Slugger variant: visibly stockier like a powerful cleanup hitter, with broader torso, thicker arms, waist and thighs, preserving the same overall height and bat length. The extra mass must be built into the pixel silhouette and anatomy; never stretch the image sideways. Keep the awkward blank cute stance and stable feet contact line.
+Frame order left-to-right then top-to-bottom: settled, inhale, shoulders rise/bat tremble, exhale, knee flex, return to settled.
+Each source cell is 240x240 proportion; character fully contained in the central 60-70% safe area with generous magenta margin. Feet all align at the same source y=226. Bat, helmet, gloves, shoes and hair remain inside their cells. No cell separators.
+Crisp project-native chunky pixel art with mostly 2-pixel clusters and rare 1-pixel highlights. No antialiasing, blur, labels, text, UI, watermark, detached effects, ball, or extra objects. Output must be a clean animation atlas, not a poster or illustration.

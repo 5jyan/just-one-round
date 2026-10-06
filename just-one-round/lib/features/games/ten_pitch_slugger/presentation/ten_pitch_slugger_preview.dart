@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:just_one_round/features/games/ten_pitch_slugger/domain/ten_pitch_slugger_rules.dart';
 import 'package:just_one_round/features/games/ten_pitch_slugger/presentation/ten_pitch_slugger_motion.dart';
 import 'package:just_one_round/features/games/ten_pitch_slugger/presentation/ten_pitch_slugger_scene.dart';
+import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 
 enum TenPitchSluggerPreviewScene { home, tap, timing, distance, magic, score }
 
@@ -170,7 +171,7 @@ class _TenPitchSluggerPreviewState extends State<TenPitchSluggerPreview> {
                     vertical: 7,
                   ),
                   color: const Color(0xD911152A),
-                  child: Text(
+                  child: WordSafeText(
                     _caption(snapshot, scene),
                     key: const Key('ten-pitch-preview-caption'),
                     textAlign: TextAlign.center,
@@ -297,7 +298,7 @@ class _TenPitchSluggerPreviewState extends State<TenPitchSluggerPreview> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                const WordSafeText(
                   'MAX DISTANCE',
                   style: TextStyle(
                     color: Color(0xFF9FB9B2),
@@ -305,7 +306,7 @@ class _TenPitchSluggerPreviewState extends State<TenPitchSluggerPreview> {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                Text(
+                WordSafeText(
                   '${(score / 100).toStringAsFixed(1)}m',
                   key: const Key('ten-pitch-preview-score'),
                   style: const TextStyle(
@@ -317,7 +318,7 @@ class _TenPitchSluggerPreviewState extends State<TenPitchSluggerPreview> {
                 ),
               ],
             ),
-            Text(
+            WordSafeText(
               magic ? '10 / 10' : '4 / 10',
               key: const Key('ten-pitch-preview-pitch'),
               style: TextStyle(
@@ -358,7 +359,7 @@ class _TenPitchSluggerPreviewState extends State<TenPitchSluggerPreview> {
                     frame: (item.$1 * 4).round(),
                   ),
                 ),
-                Text(
+                WordSafeText(
                   item.$2,
                   style: TextStyle(
                     color: item.$1 == 0.5
@@ -392,7 +393,7 @@ class _TenPitchSluggerPreviewState extends State<TenPitchSluggerPreview> {
             ),
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 6),
-              child: Text(
+              child: WordSafeText(
                 'HOME RUN!',
                 textAlign: TextAlign.center,
                 style: TextStyle(

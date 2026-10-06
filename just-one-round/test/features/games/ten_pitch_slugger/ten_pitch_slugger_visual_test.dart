@@ -70,6 +70,57 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets(
+    'seventh-pitch slugger windup renders the announcement and batter',
+    (tester) async {
+      tester.view
+        ..physicalSize = const Size(360, 640)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      const captureKey = Key('ten-pitch-slugger-windup-capture');
+      final game = TenPitchSluggerGame(
+        challengeSeed: 20260807,
+        countdownDuration: Duration.zero,
+        onFinished: (_) {},
+      );
+      addTearDown(game.disposeController);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: RepaintBoundary(
+            key: captureKey,
+            child: SizedBox.expand(child: GameWidget(game: game)),
+          ),
+        ),
+      );
+      await _waitUntilLoaded(tester, game);
+      await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.windup);
+      for (var index = 0; index < 6; index++) {
+        await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.pitchFlight);
+        await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.feedback);
+        await _pumpUntilPhase(tester, game, TenPitchSluggerPhase.windup);
+      }
+      await tester.pump(const Duration(milliseconds: 100));
+      game.pauseEngine();
+      await tester.pump();
+
+      expect(game.pitchNumber, 7);
+      expect(game.usesSluggerBatter, isTrue);
+      expect(game.gamePhase, TenPitchSluggerPhase.windup);
+      expect(tester.takeException(), isNull);
+      if (Platform.environment['CAPTURE_TEN_PITCH_SLUGGER'] == '1') {
+        await expectLater(
+          find.byKey(captureKey),
+        matchesGoldenFile(
+          '../../../../assets/source/imagegen/ten_pitch_slugger/'
+          'slugger_v1/qc/runtime-slugger-pitch7-windup-360x640.png',
+        ),
+        );
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
   testWidgets('perfect swing visibly meets the ball at the authored frame', (
     tester,
   ) async {

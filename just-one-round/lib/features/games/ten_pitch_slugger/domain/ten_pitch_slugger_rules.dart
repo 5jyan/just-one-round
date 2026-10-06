@@ -43,9 +43,11 @@ class TenPitchSpec {
 }
 
 abstract final class TenPitchSluggerRules {
-  static const rulesVersion = 7;
+  static const rulesVersion = 8;
   static const gameId = 'ten_pitch_slugger';
   static const pitchCount = 10;
+  static const sluggerPitchNumber = 7;
+  static const sluggerDistanceMultiplier = 1.25;
   static const safeOpeningSeconds = 2.0;
   static const watchdogDuration = Duration(seconds: 300);
   static const swingLeadSeconds = 0.12;
@@ -57,7 +59,11 @@ abstract final class TenPitchSluggerRules {
   static const latePitchDistanceBonusMaxCm = 4000;
   static const latePitchProgressExponent = 1.8;
   static const wallClearDistanceCm = homeRunDistanceCm;
-  static const theoreticalMaximumScoreCm = 15000;
+  // Keep the authored wall-flight curve unchanged for pitches 1-10. The
+  // seventh-pitch score ceiling is higher, but distances beyond this visual
+  // ceiling already use the fully-cleared trajectory.
+  static const wallTrajectoryMaximumDistanceCm = 15000;
+  static const theoreticalMaximumScoreCm = 16875;
   static const wallClearTrajectoryProgress =
       (wallClearDistanceCm - homeRunDistanceCm) /
       (theoreticalMaximumScoreCm - homeRunDistanceCm);
@@ -154,7 +160,9 @@ abstract final class TenPitchSluggerRules {
     required double timingErrorSeconds,
   }) {
     final error = timingErrorSeconds.abs();
-    if (error > pitch.hitWindowSeconds) return 0;
+    if (error > pitch.hitWindowSeconds) {
+      return _applySluggerDistance(pitch, 0);
+    }
     final ratio = error / pitch.hitWindowSeconds;
 
     // The first pitch establishes the base contact bands. Later pitches add a
@@ -197,10 +205,13 @@ abstract final class TenPitchSluggerRules {
       final perfectBandProgress =
           ((homeRunTimingRatio - ratio) / homeRunTimingRatio).clamp(0.0, 1.0);
       final restrainedProgress = pow(perfectBandProgress, 2.0).toDouble();
-      return (homeRunDistanceCm +
-              (pitch.maximumDistanceCm - homeRunDistanceCm) *
-                  restrainedProgress)
-          .round();
+      return _applySluggerDistance(
+        pitch,
+        (homeRunDistanceCm +
+                (pitch.maximumDistanceCm - homeRunDistanceCm) *
+                    restrainedProgress)
+            .round(),
+      );
     }
 
     final pitchProgress = (pitch.number - 1) / (pitchCount - 1);
@@ -217,7 +228,15 @@ abstract final class TenPitchSluggerRules {
                 latePitchWeight *
                 pow(contactStrength, 1.4))
             .round();
-    return min(homeRunDistanceCm - 1, baseDistanceCm + latePitchBonus);
+    return _applySluggerDistance(
+      pitch,
+      min(homeRunDistanceCm - 1, baseDistanceCm + latePitchBonus),
+    );
+  }
+
+  static int _applySluggerDistance(TenPitchSpec pitch, int distanceCm) {
+    if (pitch.number != sluggerPitchNumber) return distanceCm;
+    return (distanceCm * sluggerDistanceMultiplier).round();
   }
 
   static int _distanceWithinBand({
@@ -281,11 +300,12 @@ abstract final class TenPitchSluggerRules {
         .toDouble();
   }
 
-  /// Fixed trajectory progress from the 100m home-run threshold to the 150m
-  /// maximum shot. Every home run clears the wall before descending.
+  /// Fixed trajectory progress from the 100m home-run threshold to the
+  /// authored 150m visual ceiling. Every home run clears the wall before
+  /// descending; the 7th-pitch score extension stays at full clearance.
   static double wallHeightProgress(int distanceCm) =>
       ((distanceCm - homeRunDistanceCm) /
-              (theoreticalMaximumScoreCm - homeRunDistanceCm))
+              (wallTrajectoryMaximumDistanceCm - homeRunDistanceCm))
           .clamp(0.0, 1.0)
           .toDouble();
 
