@@ -37,6 +37,11 @@ class PreviousDailyResult {
   final int? rewardCoins;
   final int? rewardExperiencePoints;
 
+  int get effectiveRankingBonusCoins => DailyRewardRules.rankingBonusForResult(
+    rank: rank,
+    participants: participants,
+  );
+
   int get effectiveRewardCoins =>
       rewardCoins ??
       DailyRewardRules.coinsForResult(rank: rank, participants: participants);

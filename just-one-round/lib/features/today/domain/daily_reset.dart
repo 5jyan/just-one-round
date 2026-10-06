@@ -54,3 +54,27 @@ String playDateParameter(DateTime date) =>
     '${date.year.toString().padLeft(4, '0')}-'
     '${date.month.toString().padLeft(2, '0')}-'
     '${date.day.toString().padLeft(2, '0')}';
+
+DateTime previousDailyPlayDate(DateTime displayedPlayDate, {DateTime? now}) {
+  final actualPlayDate = dailyPlayDateAt(now ?? DateTime.now());
+  final referencePlayDate = displayedPlayDate.isBefore(actualPlayDate)
+      ? displayedPlayDate
+      : actualPlayDate;
+  return DateTime(
+    referencePlayDate.year,
+    referencePlayDate.month,
+    referencePlayDate.day,
+  ).subtract(const Duration(days: 1));
+}
+
+bool isDailyResultAvailable(DateTime playDate, {DateTime? now}) {
+  final seoulNow = (now ?? DateTime.now()).toUtc().add(_seoulUtcOffset);
+  final availableAt = DateTime.utc(
+    playDate.year,
+    playDate.month,
+    playDate.day,
+    dailyResetHourInSeoul,
+    previousDailyResultMinuteInSeoul,
+  ).add(const Duration(days: 1));
+  return !seoulNow.isBefore(availableAt);
+}

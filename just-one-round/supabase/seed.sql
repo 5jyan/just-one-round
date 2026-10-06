@@ -25,11 +25,11 @@ insert into public.games (
   minimum_app_build
 ) values (
   'midnight_snake',
-  2,
+  3,
   '야식털이 뱀',
-  '밤에 탈출한 애완뱀을 조종해 야식과 한 번뿐인 황금 소시지·쥐를 노리고 벽과 자기 몸을 피하세요.',
+  '밤에 탈출한 애완뱀을 조종해 야식과 30초 간격으로 반복 등장하는 황금 소시지·쥐를 노리고 벽과 자기 몸을 피하세요.',
   300,
-  7
+  21
 ) on conflict (id) do update set
   version = excluded.version,
   display_name = excluded.display_name,
@@ -41,7 +41,7 @@ insert into public.daily_games (play_date, game_id, game_version)
 values (
   public.current_play_date(),
   'midnight_snake',
-  2
+  3
 )
 on conflict (play_date) do update set
   game_id = excluded.game_id,

@@ -1,16 +1,31 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_one_round/app/app_environment.dart';
 import 'package:just_one_round/core/auth/anonymous_session_guard.dart';
 import 'package:just_one_round/core/auth/device_registration_guard.dart';
+import 'package:just_one_round/core/auth/shared_test_profile.dart';
+import 'package:just_one_round/core/events/chuseok_gift.dart';
+import 'package:just_one_round/core/notifications/push_opt_in_reward.dart';
+import 'package:just_one_round/core/update/app_update_reward.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/data/pending_score_submission.dart';
 import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
 import 'package:just_one_round/features/economy/domain/player_economy.dart';
+import 'package:just_one_round/features/games/bathhouse_sort/domain/bathhouse_sort_rules.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
+import 'package:just_one_round/features/games/western_duel/domain/western_duel_opponent.dart';
+import 'package:just_one_round/features/games/wind_darts/domain/wind_darts_rules.dart';
+import 'package:just_one_round/features/games/wind_darts/domain/wind_darts_opponent.dart';
+import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
+import 'package:just_one_round/features/games/net_boat/domain/net_boat_rules.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
+import 'package:just_one_round/features/referral/domain/referral.dart';
+import 'package:just_one_round/features/shop/domain/shop_purchase.dart';
+import 'package:just_one_round/features/social/domain/social_notification.dart';
+import 'package:just_one_round/features/today/data/pending_play_request.dart';
 import 'package:just_one_round/features/today/domain/daily_reset.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
@@ -20,10 +35,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract interface class DailyGameRepository {
   Future<TodayState> fetchToday();
   Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate);
+  Future<PlayAttempt> claimChallengeTicketAttempt(DateTime expectedPlayDate);
   Future<RewardedAdSession> prepareRewardedAd(DateTime expectedPlayDate);
   Future<PlayAttempt> claimRewardedAttempt(String rewardSessionId);
   Future<RewardedAdSession> preparePracticeAd(DateTime expectedPlayDate);
+  Future<int> claimPracticeTicketReward(String rewardSessionId);
+  Future<RewardedAdSession> prepareCoinAd(DateTime expectedPlayDate);
+  Future<CoinAdRewardResult> claimCoinAdReward(String rewardSessionId);
   Future<PlayAttempt> claimPracticeAttempt(String rewardSessionId);
+  Future<void> confirmPlayStarted(PlayAttempt attempt);
   Future<void> expireAttempt(String attemptId);
   Future<DailyRankResult> submitScore(String attemptId, GameResult result);
   Future<DailyRankResult?> retryPendingScore();
@@ -40,9 +60,20 @@ abstract interface class DailyGameRepository {
     required String gameId,
     required String referenceId,
   });
+  Future<ShopPurchaseResult> purchaseShopItem({
+    required String itemId,
+    required String requestId,
+  });
+  Future<ShopPurchaseResult> purchaseNicknameColor({
+    required String color,
+    required String requestId,
+  });
   Future<List<DeveloperGame>> fetchDeveloperGames();
-  Future<void> reportNickname(String userId);
-  Future<void> blockUser(String userId);
+  Future<String> submitSupportInquiry({
+    required String message,
+    required String appVersion,
+    required int buildNumber,
+  });
   Future<void> deleteAccount();
   Future<TesterActivationResult> activateTestMode(String pin);
   Future<void> deactivateTestMode();
@@ -50,11 +81,79 @@ abstract interface class DailyGameRepository {
   Future<void> setDeveloperGame(String gameId);
 }
 
+abstract interface class WesternDuelStartRepository {
+  Future<WesternDuelOpponent> confirmWesternDuelStarted(PlayAttempt attempt);
+}
+
+abstract interface class WindDartsStartRepository {
+  Future<WindDartsOpponent> confirmWindDartsStarted(PlayAttempt attempt);
+}
+
+abstract interface class FirstChallengeNicknamePromptRepository {
+  Future<bool> claimFirstChallengeNicknamePrompt();
+}
+
+abstract interface class SocialRepository {
+  Future<void> setNicknameColor(String color);
+  Future<void> setSocialNotificationsEnabled(bool enabled);
+  Future<void> sendSocialAction({
+    required String targetUserId,
+    required String action,
+  });
+  Future<void> giftShopItem({
+    required String targetUserId,
+    required String itemId,
+  });
+  Future<List<SocialNotification>> fetchUnseenSocialNotifications();
+  Future<void> acknowledgeSocialNotifications(List<String> ids);
+  Future<void> registerPushDevice({
+    required String platform,
+    required String token,
+  });
+}
+
+class NoopSocialRepository implements SocialRepository {
+  const NoopSocialRepository();
+
+  @override
+  Future<void> acknowledgeSocialNotifications(List<String> ids) async {}
+  @override
+  Future<List<SocialNotification>> fetchUnseenSocialNotifications() async =>
+      const [];
+  @override
+  Future<void> giftShopItem({
+    required String targetUserId,
+    required String itemId,
+  }) async {}
+  @override
+  Future<void> registerPushDevice({
+    required String platform,
+    required String token,
+  }) async {}
+  @override
+  Future<void> sendSocialAction({
+    required String targetUserId,
+    required String action,
+  }) async {}
+  @override
+  Future<void> setNicknameColor(String color) async {}
+  @override
+  Future<void> setSocialNotificationsEnabled(bool enabled) async {}
+}
+
 abstract interface class DailyPracticeRepository {
+  Future<String> getOrCreatePracticeRequestId(DateTime expectedPlayDate);
   Future<PlayAttempt> claimDailyPractice(
     DateTime expectedPlayDate, {
     required String requestId,
+    DateTime? gameDate,
   });
+}
+
+abstract interface class LocalPracticeAdVerificationRepository {
+  Future<void> verifyLocalPracticeAd(String rewardSessionId);
+  Future<void> verifyLocalRewardedAd(String rewardSessionId);
+  Future<void> verifyLocalCoinAd(String rewardSessionId);
 }
 
 String createPlayRequestId({Random? random}) {
@@ -76,6 +175,31 @@ final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
   (ref) => PreviewDailyGameRepository(),
 );
 
+final referralRepositoryProvider = Provider<ReferralRepository>((ref) {
+  final repository = ref.watch(dailyGameRepositoryProvider);
+  return repository is ReferralRepository
+      ? repository as ReferralRepository
+      : const NoopReferralRepository();
+});
+
+final socialRepositoryProvider = Provider<SocialRepository>((ref) {
+  final repository = ref.watch(dailyGameRepositoryProvider);
+  return repository is SocialRepository
+      ? repository as SocialRepository
+      : const NoopSocialRepository();
+});
+
+final localTestAdVerificationProvider = Provider<bool>((ref) {
+  const configuredSupabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  final host = Uri.tryParse(configuredSupabaseUrl)?.host ?? '';
+  return !kReleaseMode &&
+      (configuredSupabaseUrl.isEmpty ||
+          host == '127.0.0.1' ||
+          host == 'localhost' ||
+          host == 'jor-api.shook.party' ||
+          host == 'jor-api.shook.work');
+});
+
 final todayStateProvider = FutureProvider<TodayState>((ref) async {
   return ref
       .watch(dailyGameRepositoryProvider)
@@ -90,6 +214,21 @@ final dailyRankProvider = FutureProvider.autoDispose
           .fetchDailyRank(playDate: playDate),
     );
 
+ClientCompatibility? unsupportedGameCompatibilityFor(
+  TodayState state,
+  ClientCompatibility compatibility,
+) {
+  // The tomorrow card is only a preview. It may legitimately be one game
+  // version ahead of the live client while today's game remains playable.
+  // Preview compatibility is checked again in TodayScreen before claiming
+  // an attempt; it must not turn into a lobby-wide update gate here.
+  final game = state.game;
+  if (game != null && !GameRegistry.supports(game.id, game.version)) {
+    return compatibility.requiringUpdate(reason: 'unsupported_game');
+  }
+  return null;
+}
+
 class AppUpdateRequiredException implements Exception {
   const AppUpdateRequiredException(this.reason);
 
@@ -100,16 +239,37 @@ class AppUpdateRequiredException implements Exception {
 }
 
 class SupabaseDailyGameRepository
-    implements DailyGameRepository, DailyPracticeRepository {
+    implements
+        DailyGameRepository,
+        DailyPracticeRepository,
+        LocalPracticeAdVerificationRepository,
+        AppUpdateRewardRepository,
+        ChuseokGiftRepository,
+        PushOptInRewardRepository,
+        FirstChallengeNicknamePromptRepository,
+        WesternDuelStartRepository,
+        WindDartsStartRepository,
+        SocialRepository,
+        ReferralRepository {
   SupabaseDailyGameRepository(
     this._client, {
     PendingScoreStore? pendingStore,
+    PendingPlayRequestStore? pendingPlayRequestStore,
     Future<String> Function()? deviceHashLoader,
+    SharedTestProfileConfig? sharedTestProfile,
   }) : _deviceHashLoader = deviceHashLoader ?? readDeviceInstallHash,
        _pendingStore = pendingStore ?? SharedPreferencesPendingScoreStore(),
+       _pendingPlayRequestStore =
+           pendingPlayRequestStore ??
+           SharedPreferencesPendingPlayRequestStore(),
        _sessionGuard = AnonymousSessionGuard(
          hasSession: () => _client.auth.currentSession != null,
          signInAnonymously: () async {
+           final profile = sharedTestProfile;
+           if (profile != null && profile.enabled) {
+             await signInSharedTestProfile(_client, profile);
+             return;
+           }
            await _client.auth.signInAnonymously();
          },
        );
@@ -117,6 +277,7 @@ class SupabaseDailyGameRepository
   final SupabaseClient _client;
   final Future<String> Function() _deviceHashLoader;
   final PendingScoreStore _pendingStore;
+  final PendingPlayRequestStore _pendingPlayRequestStore;
   final AnonymousSessionGuard _sessionGuard;
   late final DeviceRegistrationGuard _deviceRegistration =
       DeviceRegistrationGuard(
@@ -196,6 +357,20 @@ class SupabaseDailyGameRepository
     return state.withCompatibility(compatibility);
   }
 
+  @override
+  Future<ReferralInvite> getOrCreateReferralInvite() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('get_or_create_referral_code');
+    return ReferralInvite.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
+  @override
+  Future<ReferralStatus> fetchReferralStatus() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('get_referral_status');
+    return ReferralStatus.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
   Future<ClientCompatibility> _fetchClientCompatibility() async {
     final response = await _client.rpc('get_client_compatibility');
     return ClientCompatibility.fromJson(
@@ -218,13 +393,7 @@ class SupabaseDailyGameRepository
   ClientCompatibility? _unsupportedGameCompatibility(
     TodayState state,
     ClientCompatibility compatibility,
-  ) {
-    final game = state.game;
-    if (game == null || GameRegistry.supports(game.id, game.version)) {
-      return null;
-    }
-    return compatibility.requiringUpdate(reason: 'unsupported_game');
-  }
+  ) => unsupportedGameCompatibilityFor(state, compatibility);
 
   @override
   Future<PlayAttempt> claimDailyAttempt(DateTime expectedPlayDate) async {
@@ -252,19 +421,99 @@ class SupabaseDailyGameRepository
       );
 
   @override
-  Future<PlayAttempt> claimDailyPractice(
-    DateTime expectedPlayDate, {
-    required String requestId,
-  }) async {
+  Future<PlayAttempt> claimChallengeTicketAttempt(
+    DateTime expectedPlayDate,
+  ) async {
     await _ensureSignedIn();
     return _attemptFromRpc(
       await _client.rpc(
-        'claim_daily_practice_v2',
+        'claim_challenge_ticket_attempt',
+        params: {'expected_play_date': playDateParameter(expectedPlayDate)},
+      ),
+    );
+  }
+
+  @override
+  Future<PlayAttempt> claimDailyPractice(
+    DateTime expectedPlayDate, {
+    required String requestId,
+    DateTime? gameDate,
+  }) async {
+    await _ensureSignedIn();
+    final attempt = _attemptFromRpc(
+      await _client.rpc(
+        gameDate == null || isSamePlayDate(expectedPlayDate, gameDate)
+            ? 'claim_daily_practice_v2'
+            : 'claim_preview_practice',
         params: {
           'expected_play_date': playDateParameter(expectedPlayDate),
           'play_request_id': requestId,
+          if (gameDate != null && !isSamePlayDate(expectedPlayDate, gameDate))
+            'game_date': playDateParameter(gameDate),
         },
       ),
+    );
+    final serverRequestId = attempt.clientRequestId;
+    if (serverRequestId != null && serverRequestId != requestId) {
+      await _pendingPlayRequestStore.save(
+        gameDate ?? expectedPlayDate,
+        serverRequestId,
+      );
+    }
+    return attempt;
+  }
+
+  @override
+  Future<String> getOrCreatePracticeRequestId(DateTime expectedPlayDate) async {
+    final saved = await _pendingPlayRequestStore.load(expectedPlayDate);
+    if (saved != null) return saved;
+    final requestId = createPlayRequestId();
+    await _pendingPlayRequestStore.save(expectedPlayDate, requestId);
+    return requestId;
+  }
+
+  @override
+  Future<void> confirmPlayStarted(PlayAttempt attempt) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'confirm_daily_play_started',
+      params: {'play_reference_id': attempt.id},
+    );
+    final requestId = attempt.clientRequestId;
+    final playDate = attempt.playDate;
+    if (requestId != null && playDate != null) {
+      await _pendingPlayRequestStore.remove(playDate, requestId);
+    }
+  }
+
+  @override
+  Future<WesternDuelOpponent> confirmWesternDuelStarted(
+    PlayAttempt attempt,
+  ) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'confirm_western_duel_started',
+      params: {'play_reference_id': attempt.id},
+    );
+    return WesternDuelOpponent.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<WindDartsOpponent> confirmWindDartsStarted(PlayAttempt attempt) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'confirm_wind_darts_started',
+      params: {'play_reference_id': attempt.id},
+    );
+    final attemptVersion = attempt.gameVersion;
+    if (attemptVersion == null) {
+      throw const FormatException('Wind darts attempt version is missing');
+    }
+    return WindDartsOpponent.fromJson(
+      Map<String, dynamic>.from(response as Map),
+      attemptVersion: attemptVersion,
     );
   }
 
@@ -300,6 +549,127 @@ class SupabaseDailyGameRepository
     );
     return RewardedAdSession.fromJson(
       Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<int> claimPracticeTicketReward(String rewardSessionId) async {
+    await _ensureSignedIn();
+    final response = Map<String, dynamic>.from(
+      await _client.rpc(
+            'claim_practice_ticket_reward',
+            params: {'reward_session_id': rewardSessionId},
+          )
+          as Map,
+    );
+    return (response['tickets_granted'] as num).toInt();
+  }
+
+  @override
+  Future<AppUpdateReward> claimAppUpdateReward() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('claim_app_update_reward');
+    return AppUpdateReward.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
+  @override
+  Future<ChuseokGiftStatus> fetchChuseokGiftStatus() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('get_chuseok_gift_status');
+    return ChuseokGiftStatus.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<ChuseokGiftClaim> claimChuseokGift() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('claim_chuseok_gift');
+    return ChuseokGiftClaim.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<PushOptInRewardStatus> fetchPushOptInRewardStatus() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('get_push_opt_in_reward_status');
+    return PushOptInRewardStatus.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<PushOptInRewardStatus> recordPushOptInRewardPrompt({
+    bool accepted = false,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'record_push_opt_in_reward_prompt',
+      params: {'accepted': accepted},
+    );
+    return PushOptInRewardStatus.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<PushOptInRewardClaim> claimPushOptInReward() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('claim_push_opt_in_reward');
+    return PushOptInRewardClaim.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<RewardedAdSession> prepareCoinAd(DateTime expectedPlayDate) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'prepare_coin_ad',
+      params: {'expected_play_date': playDateParameter(expectedPlayDate)},
+    );
+    return RewardedAdSession.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<CoinAdRewardResult> claimCoinAdReward(String rewardSessionId) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'claim_coin_ad_reward',
+      params: {'reward_session_id': rewardSessionId},
+    );
+    return CoinAdRewardResult.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<void> verifyLocalPracticeAd(String rewardSessionId) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'verify_local_practice_ad_for_development',
+      params: {'reward_session_id': rewardSessionId},
+    );
+  }
+
+  @override
+  Future<void> verifyLocalRewardedAd(String rewardSessionId) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'verify_local_ranked_ad_for_development',
+      params: {'reward_session_id': rewardSessionId},
+    );
+  }
+
+  @override
+  Future<void> verifyLocalCoinAd(String rewardSessionId) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'verify_local_coin_ad_for_development',
+      params: {'reward_session_id': rewardSessionId},
     );
   }
 
@@ -342,9 +712,29 @@ class SupabaseDailyGameRepository
     );
   }
 
+  @override
+  Future<bool> claimFirstChallengeNicknamePrompt() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('claim_first_challenge_nickname_prompt');
+    return response as bool? ?? false;
+  }
+
   Future<DailyRankResult> _submitPendingScore(
     PendingScoreSubmission pending,
   ) async {
+    if (pending.windDartsShotScores case final shots?) {
+      final response = await _client.rpc(
+        'submit_wind_darts_score',
+        params: {
+          'attempt_id': pending.attemptId,
+          'shot_scores': shots,
+          'duration_ms': pending.durationMs,
+        },
+      );
+      return DailyRankResult.fromJson(
+        Map<String, dynamic>.from(response as Map),
+      );
+    }
     final response = await _client.rpc(
       'submit_daily_score',
       params: {
@@ -365,6 +755,88 @@ class SupabaseDailyGameRepository
   }
 
   @override
+  Future<void> setNicknameColor(String color) async {
+    await _ensureSignedIn();
+    await _client.rpc('set_my_nickname_color', params: {'new_color': color});
+  }
+
+  @override
+  Future<void> setSocialNotificationsEnabled(bool enabled) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'set_social_notifications_enabled',
+      params: {'enabled': enabled},
+    );
+  }
+
+  @override
+  Future<void> sendSocialAction({
+    required String targetUserId,
+    required String action,
+  }) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'send_social_action',
+      params: {
+        'target_user_id': targetUserId,
+        'social_action': action,
+        'action_request_id': createPlayRequestId(),
+      },
+    );
+  }
+
+  @override
+  Future<void> giftShopItem({
+    required String targetUserId,
+    required String itemId,
+  }) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'gift_shop_item',
+      params: {
+        'target_user_id': targetUserId,
+        'item_id': itemId,
+        'gift_request_id': createPlayRequestId(),
+      },
+    );
+  }
+
+  @override
+  Future<List<SocialNotification>> fetchUnseenSocialNotifications() async {
+    await _ensureSignedIn();
+    final response = await _client.rpc('get_unseen_social_notifications');
+    return (response as List<dynamic>)
+        .map(
+          (item) => SocialNotification.fromJson(
+            Map<String, dynamic>.from(item as Map),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  @override
+  Future<void> acknowledgeSocialNotifications(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await _ensureSignedIn();
+    await _client.rpc(
+      'acknowledge_social_notifications',
+      params: {'notification_ids': ids},
+    );
+  }
+
+  @override
+  Future<void> registerPushDevice({
+    required String platform,
+    required String token,
+  }) async {
+    await _ensureSignedIn();
+    await _client.rpc(
+      'register_push_device',
+      params: {'device_platform': platform, 'device_token': token},
+    );
+  }
+
+  @override
   Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async {
     await _ensureSignedIn();
     final response = await _client.rpc(
@@ -379,7 +851,10 @@ class SupabaseDailyGameRepository
   @override
   Future<List<PlayHistoryEntry>> fetchHistory() async {
     await _ensureSignedIn();
-    final response = await _client.rpc('get_my_play_history');
+    final response = await _client.rpc(
+      'get_my_play_history',
+      params: {'history_limit': 100},
+    );
     return (response as List<dynamic>)
         .map(
           (item) =>
@@ -433,6 +908,36 @@ class SupabaseDailyGameRepository
   }
 
   @override
+  Future<ShopPurchaseResult> purchaseShopItem({
+    required String itemId,
+    required String requestId,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'purchase_shop_item',
+      params: {'item_id': itemId, 'purchase_request_id': requestId},
+    );
+    return ShopPurchaseResult.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<ShopPurchaseResult> purchaseNicknameColor({
+    required String color,
+    required String requestId,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'purchase_nickname_color',
+      params: {'new_color': color, 'purchase_request_id': requestId},
+    );
+    return ShopPurchaseResult.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
   Future<List<DeveloperGame>> fetchDeveloperGames() async {
     await _ensureSignedIn();
     final response = await _client.rpc('get_developer_games');
@@ -445,15 +950,21 @@ class SupabaseDailyGameRepository
   }
 
   @override
-  Future<void> reportNickname(String userId) async {
+  Future<String> submitSupportInquiry({
+    required String message,
+    required String appVersion,
+    required int buildNumber,
+  }) async {
     await _ensureSignedIn();
-    await _client.rpc('report_nickname', params: {'reported_user_id': userId});
-  }
-
-  @override
-  Future<void> blockUser(String userId) async {
-    await _ensureSignedIn();
-    await _client.rpc('block_user', params: {'blocked_user_id': userId});
+    final response = await _client.rpc(
+      'submit_support_inquiry',
+      params: {
+        'inquiry_message': message,
+        'client_app_version': appVersion,
+        'client_build_number': buildNumber,
+      },
+    );
+    return response as String;
   }
 
   @override
@@ -521,6 +1032,7 @@ List<PlayAttempt> issuedAttemptsWithoutPending(
   Set<String> pendingAttemptIds, {
   DateTime? now,
 }) {
+  if (state.challengePending) return const [];
   final currentTime = (now ?? DateTime.now()).toUtc();
   return state.attempts
       .where((attempt) => attempt.status == 'issued')
@@ -530,6 +1042,14 @@ List<PlayAttempt> issuedAttemptsWithoutPending(
 }
 
 bool _isStaleIssuedAttempt(PlayAttempt attempt, DateTime now) {
+  // v3 has no player-facing timer. Never expire its issued attempt from a
+  // state refresh; explicit interruption and the server's daily deadline keep
+  // their existing authority.
+  if (attempt.gameId == 'wind_darts' &&
+      attempt.gameVersion == WindDartsRules.rulesVersion) {
+    return false;
+  }
+
   final issuedAt = attempt.issuedAt;
   // Keep the old cleanup behavior for older API responses that do not expose
   // issued_at yet. Current responses include it, which lets us avoid expiring
@@ -562,6 +1082,7 @@ bool isTerminalScoreSubmissionError(Object error) {
     'invalid sausage dachshund result',
     'invalid midnight snake result',
     'invalid beat the dealer result',
+    'invalid lily frog result',
   ];
   return terminalMessages.any(error.message.contains);
 }
@@ -576,7 +1097,17 @@ Future<T> refreshStateAfterPendingRetry<T, R>({
 }
 
 class PreviewDailyGameRepository
-    implements DailyGameRepository, DailyPracticeRepository {
+    implements
+        DailyGameRepository,
+        DailyPracticeRepository,
+        AppUpdateRewardRepository,
+        ChuseokGiftRepository,
+        PushOptInRewardRepository,
+        FirstChallengeNicknamePromptRepository,
+        WesternDuelStartRepository,
+        WindDartsStartRepository,
+        SocialRepository,
+        ReferralRepository {
   PreviewDailyGameRepository({
     this.testMode = false,
     this.compatibility = const ClientCompatibility.supported(),
@@ -588,6 +1119,11 @@ class PreviewDailyGameRepository
   final ClientCompatibility compatibility;
   final PlayerEconomy initialEconomy;
   late PlayerEconomy _economy = initialEconomy;
+  var _storePracticeTickets = 0;
+  var _storeChallengeTickets = 0;
+  var _storeNicknameColorTickets = 0;
+  var _storeNicknameChangeTickets = 0;
+  var _nicknameColor = 'default';
   String _selectedGameId;
 
   static const _games = [
@@ -595,11 +1131,33 @@ class PreviewDailyGameRepository
     DeveloperGame(id: 'gravity_switch', version: 1, displayName: '중력 스위치'),
     DeveloperGame(id: 'apple_game_v2', version: 1, displayName: '사과게임'),
     DeveloperGame(id: 'number_rush', version: 1, displayName: '탭50'),
+    DeveloperGame(id: 'mole_reaction', version: 1, displayName: '두더지 반응속도'),
+    DeveloperGame(id: 'western_duel', version: 1, displayName: '딱 한 발만'),
+    DeveloperGame(
+      id: 'wind_darts',
+      version: WindDartsRules.rulesVersion,
+      displayName: '펍 다트',
+    ),
     DeveloperGame(id: 'mama_duck_trail', version: 1, displayName: '엄마, 어디가'),
-    DeveloperGame(id: 'midnight_snake', version: 2, displayName: '야식털이 뱀'),
+    DeveloperGame(
+      id: 'midnight_snake',
+      version: MidnightSnakeRules.rulesVersion,
+      displayName: '야식털이 뱀',
+    ),
     DeveloperGame(id: 'beat_the_dealer', version: 3, displayName: '블랙잭'),
     DeveloperGame(id: 'ten_pitch_slugger', version: 7, displayName: '홈런왕'),
     DeveloperGame(id: 'ramen_timer', version: 3, displayName: '30초 컵라면'),
+    DeveloperGame(
+      id: 'bathhouse_sort',
+      version: BathhouseSortRules.rulesVersion,
+      displayName: '남탕! 여탕!',
+    ),
+    DeveloperGame(id: 'lily_frog', version: 3, displayName: '빙글개굴'),
+    DeveloperGame(
+      id: 'net_boat',
+      version: NetBoatRules.rulesVersion,
+      displayName: '만선호',
+    ),
   ];
 
   @override
@@ -609,81 +1167,113 @@ class PreviewDailyGameRepository
     attempts: const [],
     adAttemptAvailable: false,
     practiceAvailable: !testMode,
+    practiceTicketCapacity: testMode ? 0 : 1,
+    practiceTicketsRemaining: testMode ? 0 : 1,
     playCount: 0,
     challengeAvailable: true,
+    extraChallengeAvailable: false,
     nextPlayRequiresAd: false,
     testMode: testMode,
     result: _previewRankResult(_selectedGameId),
     nickname: testMode ? 'tester' : null,
     compatibility: compatibility,
     economy: _economy,
+    storePracticeTickets: _storePracticeTickets,
+    storeChallengeTickets: _storeChallengeTickets,
+    storeNicknameColorTickets: _storeNicknameColorTickets,
+    storeNicknameChangeTickets: _storeNicknameChangeTickets,
+    nicknameColor: _nicknameColor,
+    coinAdAvailable: !testMode,
+    tomorrow: TomorrowGame(
+      playDate: dailyPlayDateAt(DateTime.now()).add(const Duration(days: 1)),
+      game: _previewGame(
+        _games[(_games.indexWhere((game) => game.id == _selectedGameId) + 1) %
+                _games.length]
+            .id,
+      ),
+    ),
   );
+
+  @override
+  Future<ReferralInvite> getOrCreateReferralInvite() async =>
+      const ReferralInvite(code: '0000000000000000');
+
+  @override
+  Future<ReferralStatus> fetchReferralStatus() async =>
+      const ReferralStatus.empty();
 
   DailyRankResult _previewRankResult(String gameId) {
     if (gameId == 'ramen_timer') {
-      return DailyRankResult(
-        score: 3589850,
-        rank: 8,
-        participants: 24,
-        topPercent: 34,
-        nickname: 'tester',
-        bestScore: 3599920,
-        nearby: const [
-          NearbyRank(rank: 7, nickname: '말랑주먹', score: 3590420, isMe: false),
-          NearbyRank(rank: 8, nickname: 'tester', score: 3589850, isMe: true),
-          NearbyRank(rank: 9, nickname: '느린번개', score: 3586260, isMe: false),
-        ],
-        leaders: [
-          NearbyRank(rank: 1, nickname: '작은공룡', score: 3599920, isMe: false),
-          NearbyRank(rank: 2, nickname: '졸린감자', score: 3599760, isMe: false),
-          NearbyRank(rank: 3, nickname: '한번만더', score: 3599410, isMe: false),
-          NearbyRank(rank: 4, nickname: '공룡발자국', score: 3598930, isMe: false),
-          NearbyRank(rank: 5, nickname: '퇴근요정', score: 3596720, isMe: false),
-          NearbyRank(rank: 6, nickname: '새벽질주', score: 3593310, isMe: false),
-          NearbyRank(rank: 7, nickname: '말랑주먹', score: 3590420, isMe: false),
-          NearbyRank(rank: 8, nickname: 'tester', score: 3589850, isMe: true),
-          NearbyRank(rank: 9, nickname: '느린번개', score: 3586260, isMe: false),
-          for (var rank = 10; rank <= 24; rank++)
-            NearbyRank(
-              rank: rank,
-              nickname: '랭커$rank',
-              score: 3586260 - (rank - 9) * 1000,
-              isMe: false,
-            ),
-        ],
+      return _withPreviewInteractions(
+        DailyRankResult(
+          score: 3586000,
+          rank: 4,
+          participants: 4,
+          topPercent: 75,
+          nickname: 'tester',
+          bestScore: 3599920,
+          nearby: const [
+            NearbyRank(rank: 3, nickname: '한번만더', score: 3599410, isMe: false),
+            NearbyRank(rank: 4, nickname: 'tester', score: 3586000, isMe: true),
+          ],
+          leaders: [
+            NearbyRank(rank: 1, nickname: '작은공룡', score: 3599920, isMe: false),
+            NearbyRank(rank: 2, nickname: '졸린감자', score: 3599760, isMe: false),
+            NearbyRank(rank: 3, nickname: '한번만더', score: 3599410, isMe: false),
+            NearbyRank(rank: 4, nickname: 'tester', score: 3586000, isMe: true),
+          ],
+        ),
       );
     }
 
+    return _withPreviewInteractions(
+      DailyRankResult(
+        score: 2978,
+        rank: 4,
+        participants: 4,
+        topPercent: 75,
+        nickname: 'tester',
+        bestScore: 5387,
+        nearby: const [
+          NearbyRank(rank: 3, nickname: '한번만더', score: 4312, isMe: false),
+          NearbyRank(rank: 4, nickname: 'tester', score: 2978, isMe: true),
+        ],
+        leaders: [
+          NearbyRank(rank: 1, nickname: '작은공룡', score: 5387, isMe: false),
+          NearbyRank(rank: 2, nickname: '졸린감자', score: 4729, isMe: false),
+          NearbyRank(rank: 3, nickname: '한번만더', score: 4312, isMe: false),
+          NearbyRank(rank: 4, nickname: 'tester', score: 2978, isMe: true),
+        ],
+      ),
+    );
+  }
+
+  DailyRankResult _withPreviewInteractions(DailyRankResult result) {
+    final leaders = result.leaders
+        .map(
+          (entry) => entry.isMe || entry.isNpc || entry.userId != null
+              ? entry
+              : NearbyRank(
+                  rank: entry.rank,
+                  nickname: entry.nickname,
+                  score: entry.score,
+                  isMe: entry.isMe,
+                  level: entry.level,
+                  nicknameColor: entry.nicknameColor,
+                  userId: 'preview-user-${entry.rank}',
+                  isNpc: entry.isNpc,
+                ),
+        )
+        .toList(growable: false);
     return DailyRankResult(
-      score: 2978,
-      rank: 8,
-      participants: 24,
-      topPercent: 34,
-      nickname: 'tester',
-      bestScore: 5387,
-      nearby: const [
-        NearbyRank(rank: 7, nickname: '말랑주먹', score: 3146, isMe: false),
-        NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: true),
-        NearbyRank(rank: 9, nickname: '느린번개', score: 2811, isMe: false),
-      ],
-      leaders: [
-        NearbyRank(rank: 1, nickname: '작은공룡', score: 5387, isMe: false),
-        NearbyRank(rank: 2, nickname: '졸린감자', score: 4729, isMe: false),
-        NearbyRank(rank: 3, nickname: '한번만더', score: 4312, isMe: false),
-        NearbyRank(rank: 4, nickname: '공룡발자국', score: 3895, isMe: false),
-        NearbyRank(rank: 5, nickname: '퇴근요정', score: 3514, isMe: false),
-        NearbyRank(rank: 6, nickname: '새벽질주', score: 3328, isMe: false),
-        NearbyRank(rank: 7, nickname: '말랑주먹', score: 3146, isMe: false),
-        NearbyRank(rank: 8, nickname: 'tester', score: 2978, isMe: true),
-        NearbyRank(rank: 9, nickname: '느린번개', score: 2811, isMe: false),
-        for (var rank = 10; rank <= 24; rank++)
-          NearbyRank(
-            rank: rank,
-            nickname: '랭커$rank',
-            score: 2811 - (rank - 9) * 100,
-            isMe: false,
-          ),
-      ],
+      score: result.score,
+      rank: result.rank,
+      participants: result.participants,
+      topPercent: result.topPercent,
+      nickname: result.nickname,
+      bestScore: result.bestScore,
+      nearby: result.nearby,
+      leaders: leaders,
     );
   }
 
@@ -692,10 +1282,41 @@ class PreviewDailyGameRepository
       _previewAttempt('daily');
 
   @override
+  Future<PlayAttempt> claimChallengeTicketAttempt(
+    DateTime expectedPlayDate,
+  ) async => _previewAttempt('store_ticket');
+
+  @override
   Future<PlayAttempt> claimDailyPractice(
     DateTime expectedPlayDate, {
     required String requestId,
-  }) async => _previewAttempt('practice_daily');
+    DateTime? gameDate,
+  }) async => _previewAttempt(
+    'practice_daily',
+    gameId: gameDate == null || isSamePlayDate(expectedPlayDate, gameDate)
+        ? null
+        : _games[(_games.indexWhere((game) => game.id == _selectedGameId) + 1) %
+                  _games.length]
+              .id,
+    playDate: gameDate,
+  );
+
+  @override
+  Future<String> getOrCreatePracticeRequestId(
+    DateTime expectedPlayDate,
+  ) async => createPlayRequestId();
+
+  @override
+  Future<void> confirmPlayStarted(PlayAttempt attempt) async {}
+
+  @override
+  Future<WesternDuelOpponent> confirmWesternDuelStarted(
+    PlayAttempt attempt,
+  ) async => const WesternDuelOpponent(
+    nickname: '맥크리',
+    reactionMilliseconds: 440,
+    isBot: true,
+  );
 
   @override
   Future<RewardedAdSession> prepareRewardedAd(
@@ -719,6 +1340,72 @@ class PreviewDailyGameRepository
     userId: 'preview-user',
     status: 'prepared',
     expiresAt: DateTime.now().add(const Duration(minutes: 15)),
+  );
+
+  @override
+  Future<int> claimPracticeTicketReward(String rewardSessionId) async => 2;
+
+  @override
+  Future<AppUpdateReward> claimAppUpdateReward() async =>
+      const AppUpdateReward(granted: false);
+
+  @override
+  Future<ChuseokGiftStatus> fetchChuseokGiftStatus() async =>
+      const ChuseokGiftStatus(eligible: false, claimed: false);
+
+  @override
+  Future<ChuseokGiftClaim> claimChuseokGift() async =>
+      const ChuseokGiftClaim(eligible: false, claimed: false, granted: false);
+
+  @override
+  Future<PushOptInRewardStatus> fetchPushOptInRewardStatus() async =>
+      const PushOptInRewardStatus(
+        shouldShow: false,
+        accepted: false,
+        claimed: false,
+      );
+
+  @override
+  Future<PushOptInRewardStatus> recordPushOptInRewardPrompt({
+    bool accepted = false,
+  }) async => const PushOptInRewardStatus(
+    shouldShow: false,
+    accepted: false,
+    claimed: false,
+  );
+
+  @override
+  Future<PushOptInRewardClaim> claimPushOptInReward() async =>
+      const PushOptInRewardClaim(claimed: false, granted: false);
+
+  @override
+  Future<RewardedAdSession> prepareCoinAd(DateTime expectedPlayDate) async =>
+      RewardedAdSession(
+        id: '00000000-0000-4000-8000-000000000003',
+        userId: 'preview-user',
+        status: 'prepared',
+        expiresAt: DateTime.now().add(const Duration(minutes: 15)),
+      );
+
+  @override
+  Future<CoinAdRewardResult> claimCoinAdReward(String rewardSessionId) async {
+    _economy = PlayerEconomy.fromTotals(
+      coins: _economy.coins + ShopCatalog.coinAdReward,
+      experiencePoints: _economy.experiencePoints,
+    );
+    return CoinAdRewardResult(
+      coinsGranted: ShopCatalog.coinAdReward,
+      economy: _economy,
+    );
+  }
+
+  @override
+  Future<WindDartsOpponent> confirmWindDartsStarted(
+    PlayAttempt attempt,
+  ) async => const WindDartsOpponent(
+    nickname: '서부의 단골',
+    shotScores: [45, 60, 39, 57, 60, 60],
+    isBot: true,
   );
 
   @override
@@ -747,11 +1434,90 @@ class PreviewDailyGameRepository
   Future<DailyRankResult?> retryPendingScore() async => null;
 
   @override
+  Future<bool> claimFirstChallengeNicknamePrompt() async => true;
+
+  @override
   Future<void> setNickname(String nickname) async {}
 
   @override
-  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async =>
-      (await fetchToday()).result!;
+  Future<void> setNicknameColor(String color) async {
+    const selectableColors = {'coral', 'mint', 'sky', 'violet', 'pink'};
+    if (!selectableColors.contains(color) || color == _nicknameColor) {
+      throw StateError('invalid nickname color');
+    }
+    if (_storeNicknameColorTickets <= 0) {
+      throw StateError('nickname color ticket is not available');
+    }
+    _storeNicknameColorTickets--;
+    _nicknameColor = color;
+  }
+
+  @override
+  Future<void> setSocialNotificationsEnabled(bool enabled) async {}
+
+  @override
+  Future<void> sendSocialAction({
+    required String targetUserId,
+    required String action,
+  }) async {}
+
+  @override
+  Future<void> giftShopItem({
+    required String targetUserId,
+    required String itemId,
+  }) async {}
+
+  @override
+  Future<List<SocialNotification>> fetchUnseenSocialNotifications() async =>
+      const [];
+
+  @override
+  Future<void> acknowledgeSocialNotifications(List<String> ids) async {}
+
+  @override
+  Future<void> registerPushDevice({
+    required String platform,
+    required String token,
+  }) async {}
+
+  @override
+  Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async {
+    final result = (await fetchToday()).result!;
+    final currentPlayDate = dailyPlayDateAt(DateTime.now());
+    if (playDate != null && playDate.isBefore(currentPlayDate)) {
+      return _previewPreviousRankResult(_selectedGameId);
+    }
+    return result;
+  }
+
+  DailyRankResult _previewPreviousRankResult(String gameId) =>
+      _withPreviewInteractions(
+        DailyRankResult(
+          score: null,
+          rank: null,
+          participants: 3,
+          topPercent: null,
+          nickname: null,
+          nearby: const [],
+          leaders: [
+            NearbyRank(
+              rank: 1,
+              nickname: '어제의챔피언',
+              score: gameId == 'ramen_timer' ? 3598000 : 4890,
+              isMe: false,
+              level: 6,
+              nicknameColor: 'mint',
+            ),
+            const NearbyRank(
+              rank: 2,
+              nickname: '지난기록',
+              score: 4700,
+              isMe: false,
+              level: 3,
+            ),
+          ],
+        ),
+      );
 
   @override
   Future<List<PlayHistoryEntry>> fetchHistory() async => const [];
@@ -783,13 +1549,87 @@ class PreviewDailyGameRepository
   }
 
   @override
+  Future<ShopPurchaseResult> purchaseShopItem({
+    required String itemId,
+    required String requestId,
+  }) async {
+    final price = switch (itemId) {
+      'practice_ticket' => ShopCatalog.practiceTicketPrice,
+      'challenge_ticket' => ShopCatalog.challengeTicketPrice,
+      'nickname_color_ticket' => ShopCatalog.nicknameColorTicketPrice,
+      'nickname_change_ticket' => ShopCatalog.nicknameChangeTicketPrice,
+      _ => throw StateError('unknown shop item'),
+    };
+    if (_economy.coins < price) {
+      throw StateError('insufficient coin balance');
+    }
+    _economy = PlayerEconomy.fromTotals(
+      coins: _economy.coins - price,
+      experiencePoints: _economy.experiencePoints,
+    );
+    if (itemId == 'practice_ticket') {
+      _storePracticeTickets++;
+    } else if (itemId == 'challenge_ticket') {
+      _storeChallengeTickets++;
+    } else if (itemId == 'nickname_color_ticket') {
+      _storeNicknameColorTickets++;
+    } else {
+      _storeNicknameChangeTickets++;
+    }
+    return ShopPurchaseResult(
+      itemId: itemId,
+      quantity: 1,
+      coinsSpent: price,
+      practiceTickets: _storePracticeTickets,
+      challengeTickets: _storeChallengeTickets,
+      nicknameColorTickets: _storeNicknameColorTickets,
+      nicknameChangeTickets: _storeNicknameChangeTickets,
+      economy: _economy,
+    );
+  }
+
+  @override
+  Future<ShopPurchaseResult> purchaseNicknameColor({
+    required String color,
+    required String requestId,
+  }) async {
+    const selectableColors = {'coral', 'mint', 'sky', 'violet', 'pink'};
+    if (!selectableColors.contains(color)) {
+      throw StateError('invalid nickname color');
+    }
+    if (color == _nicknameColor) {
+      throw StateError('nickname color is already selected');
+    }
+    final price = ShopCatalog.nicknameColorTicketPrice;
+    if (_economy.coins < price) {
+      throw StateError('insufficient coin balance');
+    }
+    _economy = PlayerEconomy.fromTotals(
+      coins: _economy.coins - price,
+      experiencePoints: _economy.experiencePoints,
+    );
+    _nicknameColor = color;
+    return ShopPurchaseResult(
+      itemId: 'nickname_color_ticket',
+      quantity: 1,
+      coinsSpent: price,
+      practiceTickets: _storePracticeTickets,
+      challengeTickets: _storeChallengeTickets,
+      nicknameColorTickets: _storeNicknameColorTickets,
+      nicknameChangeTickets: _storeNicknameChangeTickets,
+      economy: _economy,
+    );
+  }
+
+  @override
   Future<List<DeveloperGame>> fetchDeveloperGames() async => _games;
 
   @override
-  Future<void> reportNickname(String userId) async {}
-
-  @override
-  Future<void> blockUser(String userId) async {}
+  Future<String> submitSupportInquiry({
+    required String message,
+    required String appVersion,
+    required int buildNumber,
+  }) async => '00000000-0000-4000-8000-000000000004';
 
   @override
   Future<void> deleteAccount() async {}
@@ -817,27 +1657,30 @@ class PreviewDailyGameRepository
     }
   }
 
-  PlayAttempt _previewAttempt(String grantType, {int ordinal = 1}) =>
-      PlayAttempt(
-        id: 'preview-attempt',
-        ordinal: ordinal,
-        status: 'issued',
-        grantType: grantType,
-        gameId: _selectedGameId,
-        gameVersion: switch (_selectedGameId) {
-          'midnight_snake' => 2,
-          'beat_the_dealer' => 3,
-          'ten_pitch_slugger' => 7,
-          _ => 1,
-        },
-        gameDurationSeconds: _previewGame(_selectedGameId).durationSeconds,
-        playDate: dailyPlayDateAt(DateTime.now()),
-      );
+  PlayAttempt _previewAttempt(
+    String grantType, {
+    int ordinal = 1,
+    String? gameId,
+    DateTime? playDate,
+  }) {
+    final selectedGame = _previewGame(gameId ?? _selectedGameId);
+    return PlayAttempt(
+      id: 'preview-attempt',
+      ordinal: ordinal,
+      status: 'issued',
+      grantType: grantType,
+      gameId: selectedGame.id,
+      gameVersion: selectedGame.version,
+      gameDurationSeconds: selectedGame.durationSeconds,
+      playDate: playDate ?? dailyPlayDateAt(DateTime.now()),
+      practiceOrdinal: grantType.startsWith('practice') ? ordinal : null,
+    );
+  }
 
   TodayGame _previewGame(String gameId) => switch (gameId) {
     'dung_dodge_v2' => const TodayGame(
       id: 'dung_dodge_v2',
-      version: 1,
+      version: 2,
       displayName: '똥피하기',
       description: '좌우로 움직여 떨어지는 똥을 피하세요.',
       durationSeconds: 300,
@@ -863,6 +1706,27 @@ class PreviewDailyGameRepository
       description: '숫자를 1부터 50까지 순서대로 최대한 빠르게 터치하세요.',
       durationSeconds: 180,
     ),
+    'mole_reaction' => const TodayGame(
+      id: 'mole_reaction',
+      version: 1,
+      displayName: '두더지 반응속도',
+      description: '준비 두더지 한 번 뒤, 진짜 황금 두더지 한 마리의 반응시간을 줄이세요.',
+      durationSeconds: 180,
+    ),
+    'western_duel' => const TodayGame(
+      id: 'western_duel',
+      version: 1,
+      displayName: '딱 한 발만',
+      description: 'DRAW!가 뜨면 한 발. 실제 랭킹 총잡이와 반응속도를 겨루세요.',
+      durationSeconds: 30,
+    ),
+    'wind_darts' => TodayGame(
+      id: 'wind_darts',
+      version: WindDartsRules.rulesVersion,
+      displayName: '펍 다트',
+      description: '12방향 바람과 흔들리는 조준점을 읽으며 여섯 발의 점수를 겨루세요. 시간 제한 없음.',
+      durationSeconds: WindDartsRules.gameDuration.inSeconds,
+    ),
     'mama_duck_trail' => const TodayGame(
       id: 'mama_duck_trail',
       version: 1,
@@ -872,9 +1736,9 @@ class PreviewDailyGameRepository
     ),
     'midnight_snake' => const TodayGame(
       id: 'midnight_snake',
-      version: 3,
+      version: 4,
       displayName: '야식털이 뱀',
-      description: '야식과 한 번씩 나타나는 황금 소시지·쥐를 노리고 몸과 벽을 피하세요.',
+      description: '야식과 30초 간격으로 반복 등장하는 황금 소시지·쥐를 노리고 몸과 벽을 피하세요.',
       durationSeconds: 300,
     ),
     'beat_the_dealer' => const TodayGame(
@@ -895,8 +1759,29 @@ class PreviewDailyGameRepository
       id: 'ramen_timer',
       version: 3,
       displayName: '30초 컵라면',
-      description: '증기가 가린 시계가 두 번 희미하게 비칠 때 감각을 다잡고 10초, 20초, 30초를 맞추세요.',
+      description: '첫 두 입력의 목표 오차를 바로 확인하며 10초, 20초, 30초 조리 타이밍을 맞추세요.',
       durationSeconds: 45,
+    ),
+    'bathhouse_sort' => const TodayGame(
+      id: 'bathhouse_sort',
+      version: BathhouseSortRules.rulesVersion,
+      displayName: '남탕! 여탕!',
+      description: '동물 종을 기억하고 줄을 미리 읽어 남탕과 여탕을 빠르게 연속 탭하세요.',
+      durationSeconds: 60,
+    ),
+    'lily_frog' => const TodayGame(
+      id: 'lily_frog',
+      version: 3,
+      displayName: '빙글개굴',
+      description: '연잎 가장자리를 도는 개구리를 접선 방향으로 점프시켜 연못을 건너세요.',
+      durationSeconds: 150,
+    ),
+    'net_boat' => const TodayGame(
+      id: 'net_boat',
+      version: NetBoatRules.rulesVersion,
+      displayName: '만선호',
+      description: '빠른 통통배로 위험한 바다생물을 피해 더 크고 비싼 생물을 그물로 잡으세요.',
+      durationSeconds: NetBoatRules.gameDurationSeconds,
     ),
     _ => throw UnsupportedError('Unsupported preview game id: $gameId'),
   };
