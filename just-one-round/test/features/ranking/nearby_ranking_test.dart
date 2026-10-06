@@ -21,7 +21,13 @@ void main() {
           isNpc: true,
         ),
         NearbyRank(rank: 2, nickname: '별하나', score: 800, isMe: true),
-        NearbyRank(rank: 3, nickname: '별둘', score: 700, isMe: false),
+        NearbyRank(
+          rank: 3,
+          userId: 'other-user',
+          nickname: '별둘',
+          score: 700,
+          isMe: false,
+        ),
       ],
     );
 
@@ -38,6 +44,9 @@ void main() {
     expect(find.text('별둘'), findsOneWidget);
     expect(find.byKey(const Key('my-nearby-rank')), findsOneWidget);
     expect(find.text('NPC'), findsNothing);
+    expect(find.byTooltip('사용자 신고 또는 차단'), findsNothing);
+    expect(find.text('닉네임 신고'), findsNothing);
+    expect(find.text('사용자 차단'), findsNothing);
     expect(
       tester.getSize(find.byKey(const Key('my-nearby-rank'))).width,
       tester.getSize(find.text('내 주변 랭킹')).width,
