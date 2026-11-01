@@ -14,6 +14,7 @@ import 'package:just_one_round/features/games/presentation/game_presentation_def
 import 'package:just_one_round/features/games/ramen_timer/presentation/ramen_timer_presentation.dart';
 import 'package:just_one_round/features/games/midnight_snake/presentation/midnight_snake_presentation.dart';
 import 'package:just_one_round/features/games/ten_pitch_slugger/presentation/ten_pitch_slugger_presentation.dart';
+import 'package:just_one_round/features/games/temple_run/presentation/temple_run_presentation.dart';
 
 abstract final class GamePresentationRegistry {
   static const _definitions = <String, GamePresentationDefinition>{
@@ -32,6 +33,7 @@ abstract final class GamePresentationRegistry {
     'bathhouse_sort': bathhouseSortPresentation,
     'lily_frog': lilyFrogPresentation,
     'net_boat': netBoatPresentation,
+    'temple_run': templeRunPresentation,
   };
 
   static List<GamePresentationDefinition> get all =>

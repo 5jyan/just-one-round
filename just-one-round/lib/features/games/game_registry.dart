@@ -33,6 +33,8 @@ import 'package:just_one_round/features/games/midnight_snake/midnight_snake_game
 import 'package:just_one_round/features/games/sausage_dachshund/domain/sausage_dachshund_rules.dart';
 import 'package:just_one_round/features/games/ten_pitch_slugger/domain/ten_pitch_slugger_rules.dart';
 import 'package:just_one_round/features/games/ten_pitch_slugger/ten_pitch_slugger_game.dart';
+import 'package:just_one_round/features/games/temple_run/domain/temple_run_rules.dart';
+import 'package:just_one_round/features/games/temple_run/temple_run_game.dart';
 
 const _gravitySwitchStartSeconds = int.fromEnvironment(
   'GRAVITY_SWITCH_START_SECONDS',
@@ -109,6 +111,7 @@ abstract final class GameRegistry {
             gameDuration: gameDuration,
             countdownDuration: countdownDuration,
             assetSet: AppleGameV2AssetSet.midnightOrchard,
+            rulesVersion: AppleGameV2Rules.rulesVersion,
             random: Random(challengeSeed),
             onFinished: onFinished,
           ),
@@ -210,12 +213,12 @@ abstract final class GameRegistry {
           ),
       startInstruction: '바람을 읽고 조준한 뒤 손을 놓아 던지세요!',
       countdownInstruction: '12방향 바람과 풍속을 확인하세요',
-      playingInstruction: '원하는 만큼 조준 · 놓으면 투척 · 총 6발',
+      playingInstruction: '원하는 만큼 조준 · 놓으면 투척 · 총 7발 · 마지막 황금 다트 2배',
       scoreLabel: 'DART SCORE',
       formatScore: WindDartsRules.formatScore,
       defaultDuration: WindDartsRules.gameDuration,
       hudStyle: MiniGameHudStyle.custom,
-      resultUnitLabel: '6발 합계 점수',
+      resultUnitLabel: '7발 합계 점수',
     ),
     'mama_duck_trail': MiniGameDefinition(
       id: 'mama_duck_trail',
@@ -415,12 +418,38 @@ abstract final class GameRegistry {
       hudStyle: MiniGameHudStyle.netBoat,
       resultUnitLabel: '포획 점수',
     ),
+    'temple_run': MiniGameDefinition(
+      id: 'temple_run',
+      create:
+          ({
+            required gameDuration,
+            required countdownDuration,
+            required attemptOrdinal,
+            required challengeSeed,
+            required onFinished,
+          }) => TempleRunGame(
+            gameDuration: gameDuration,
+            countdownDuration: countdownDuration,
+            random: Random(challengeSeed),
+            useImageAssets: true,
+            onFinished: onFinished,
+          ),
+      startInstruction: '폰을 좌우로 기울여 안전한 위치를 잡고, 골목을 빠져나가요!',
+      countdownInstruction: '폰 기울이기 · 가로 밀어 코너 · 위 점프 · 아래 슬라이드',
+      playingInstruction: '덮개 자재와 작업발판을 피하고, 표지판에서 코너를 예약하세요!',
+      scoreLabel: 'HOMEBOUND SCORE',
+      formatScore: TempleRunRules.formatScore,
+      hudScoreFormatter: TempleRunRules.formatHudScore,
+      defaultDuration: TempleRunRules.gameDuration,
+      hudStyle: MiniGameHudStyle.standard,
+      resultUnitLabel: '거리 + 코인 점수',
+    ),
   };
 
   static const _supportedVersions = <String, Set<int>>{
     'dung_dodge_v2': {1},
     'gravity_switch': {1},
-    'apple_game_v2': {1},
+    'apple_game_v2': {1, AppleGameV2Rules.rulesVersion},
     'number_rush': {1},
     'mama_duck_trail': {1},
     'midnight_snake': {MidnightSnakeRules.rulesVersion},
@@ -433,6 +462,7 @@ abstract final class GameRegistry {
     'mole_reaction': {MoleReactionRules.rulesVersion},
     'western_duel': {WesternDuelRules.rulesVersion},
     'wind_darts': {WindDartsRules.rulesVersion},
+    'temple_run': {TempleRunRules.rulesVersion},
   };
 
   static MiniGameDefinition? tryForId(String? id) => _definitions[id];

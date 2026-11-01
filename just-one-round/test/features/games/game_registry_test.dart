@@ -76,6 +76,9 @@ void main() {
   test('게임 ID와 버전을 함께 검사한다', () {
     expect(GameRegistry.supports('number_rush', 1), isTrue);
     expect(GameRegistry.supports('number_rush', 2), isFalse);
+    expect(GameRegistry.supports('apple_game_v2', 1), isTrue);
+    expect(GameRegistry.supports('apple_game_v2', 2), isTrue);
+    expect(GameRegistry.supports('apple_game_v2', 3), isFalse);
     expect(GameRegistry.supports('future_game', 1), isFalse);
   });
 

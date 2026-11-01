@@ -15,6 +15,7 @@ enum GameHomePreviewKind {
   moleReaction,
   westernDuel,
   windDarts,
+  templeRun,
 }
 
 enum GameGuideVisualKind {
@@ -84,6 +85,12 @@ enum GameGuideVisualKind {
   windDartsWind,
   windDartsDistance,
   windDartsScoring,
+  templeRunControls,
+  templeRunHazards,
+  templeRunManeuvers,
+  templeRunCorner,
+  templeRunItems,
+  templeRunScore,
 }
 
 class GameGuidePageDefinition {
