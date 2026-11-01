@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flame/game.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_screen.dart';
@@ -11,12 +13,43 @@ import 'package:just_one_round/features/history/domain/play_history_entry.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/shop/domain/shop_purchase.dart';
+import 'package:just_one_round/features/games/wind_darts/domain/wind_darts_opponent.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 
 void main() {
+  test('유적 질주 HUD는 회전 예약과 세로 입력 대기를 모두 알린다', () {
+    MiniGameHudState playing(String message) => MiniGameHudState(
+      phase: MiniGamePhase.playing,
+      score: 0,
+      elapsedSeconds: 0,
+      remainingSeconds: 300,
+      countdownNumber: 0,
+      message: message,
+    );
+
+    expect(templeRunHudShowsPrompt(playing('왼쪽 회전 예약')), isTrue);
+    expect(templeRunHudShowsPrompt(playing('점프 대기')), isTrue);
+    expect(templeRunHudShowsPrompt(playing('슬라이드 대기')), isTrue);
+    expect(templeRunHudShowsPrompt(playing('지금 오른쪽으로 꺾기')), isTrue);
+    expect(templeRunHudShowsPrompt(playing('폰을 기울여 안전한 위치')), isFalse);
+    expect(
+      templeRunHudShowsPrompt(
+        MiniGameHudState(
+          phase: MiniGamePhase.countdown,
+          score: 0,
+          elapsedSeconds: 0,
+          remainingSeconds: 300,
+          countdownNumber: 3,
+          message: '왼쪽 회전 예약',
+        ),
+      ),
+      isFalse,
+    );
+  });
+
   testWidgets('남탕 여탕 HUD는 점수·콤보·시간을 독립 표시한다', (tester) async {
     tester.view
       ..physicalSize = const Size(360, 800)
@@ -236,6 +269,37 @@ void main() {
     expect(repository.confirmedAttemptIds, ['challenge-confirm-start']);
     expect(find.byKey(const Key('game-start-guide')), findsNothing);
   });
+
+  testWidgets(
+    'wind darts guide previews the opponent without starting the run',
+    (tester) async {
+      final repository = _WindDartsRecordingRepository();
+      const attempt = PlayAttempt(
+        id: 'wind-darts-guide-preview',
+        ordinal: 1,
+        status: 'issued',
+        grantType: 'daily',
+        gameId: 'wind_darts',
+        gameVersion: 4,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            dailyGameRepositoryProvider.overrideWithValue(repository),
+          ],
+          child: const MaterialApp(home: GameScreen(attempt: attempt)),
+        ),
+      );
+      await _pumpUntilFound(tester, find.byKey(const Key('game-start-guide')));
+
+      expect(find.byKey(const Key('game-start-guide')), findsOneWidget);
+      expect(repository.windDartsStartedCalls, 0);
+      expect(repository.confirmedAttemptIds, isEmpty);
+      await tester.pump(const Duration(seconds: 1));
+      expect(repository.windDartsStartedCalls, 0);
+    },
+  );
 
   test('복귀 상태를 제외한 모든 앱 상태에서 판을 소진한다', () {
     expect(shouldInterruptGame(AppLifecycleState.resumed), isFalse);
@@ -732,6 +796,7 @@ void main() {
       ),
     );
 
+    await _waitForFlameGameLoaded(tester);
     await tester.pump(const Duration(milliseconds: 16));
     await tester.pump(const Duration(milliseconds: 150));
     await tester.pumpAndSettle();
@@ -838,6 +903,7 @@ void main() {
       ),
     );
     await tester.pump();
+    await _waitForFlameGameLoaded(tester);
 
     final exitButton = find.byKey(const Key('game-exit-button'));
     final exitIcon = find.byKey(const Key('game-exit-icon'));
@@ -882,6 +948,7 @@ void main() {
         ),
       ),
     );
+    await _waitForFlameGameLoaded(tester);
     await tester.pump(const Duration(milliseconds: 16));
     await tester.pump(const Duration(milliseconds: 150));
     await tester.pumpAndSettle();
@@ -916,6 +983,7 @@ void main() {
         ),
       ),
     );
+    await _waitForFlameGameLoaded(tester);
     await tester.pump(const Duration(milliseconds: 16));
     await tester.pump(const Duration(milliseconds: 150));
     await tester.pumpAndSettle();
@@ -974,6 +1042,7 @@ void main() {
         ),
       ),
     );
+    await _waitForFlameGameLoaded(tester);
     await tester.pump(const Duration(milliseconds: 16));
     await tester.pump(const Duration(milliseconds: 150));
     await tester.pumpAndSettle();
@@ -1003,6 +1072,7 @@ void main() {
         ),
       ),
     );
+    await _waitForFlameGameLoaded(tester);
     await tester.pump(const Duration(milliseconds: 16));
     await tester.pump(const Duration(milliseconds: 150));
     await tester.pumpAndSettle();
@@ -1023,6 +1093,22 @@ Future<void> _pumpUntilFound(WidgetTester tester, Finder finder) async {
   for (var i = 0; i < 40 && finder.evaluate().isEmpty; i++) {
     await tester.pump(const Duration(milliseconds: 50));
   }
+}
+
+Future<void> _waitForFlameGameLoaded(WidgetTester tester) async {
+  final gameFinder = find.byWidgetPredicate((widget) => widget is GameWidget);
+  final gameWidget = tester.widget<GameWidget>(gameFinder);
+  await tester.pump();
+  final game = gameWidget.game;
+  if (game is! FlameGame) {
+    throw StateError('Expected GameScreen to host a FlameGame');
+  }
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 100)),
+  );
+  await tester.pump();
+  await tester.runAsync(() => game.loaded);
+  await tester.pump();
 }
 
 class _RecordingRepository implements DailyGameRepository {
@@ -1105,12 +1191,6 @@ class _RecordingRepository implements DailyGameRepository {
   }) => throw UnimplementedError();
 
   @override
-  Future<ShopPurchaseResult> purchaseNicknameColor({
-    required String color,
-    required String requestId,
-  }) => throw UnimplementedError();
-
-  @override
   Future<List<DeveloperGame>> fetchDeveloperGames() =>
       throw UnimplementedError();
 
@@ -1149,7 +1229,28 @@ class _RecordingRepository implements DailyGameRepository {
       throw UnimplementedError();
 
   @override
+  Future<DailyRankResult?> fetchPreviousGameWinner({
+    required String gameId,
+    required DateTime beforeDate,
+  }) => throw UnimplementedError();
+
+  @override
   Future<void> setNickname(String nickname) => throw UnimplementedError();
+}
+
+class _WindDartsRecordingRepository extends _RecordingRepository
+    implements WindDartsStartRepository {
+  var windDartsStartedCalls = 0;
+
+  @override
+  Future<WindDartsOpponent> confirmWindDartsStarted(PlayAttempt attempt) async {
+    windDartsStartedCalls++;
+    return const WindDartsOpponent(
+      nickname: '테스트 상대',
+      shotScores: [45, 60, 39, 57, 60, 60, 120],
+      isBot: true,
+    );
+  }
 }
 
 class _HomeRefreshRepository extends _RecordingRepository {

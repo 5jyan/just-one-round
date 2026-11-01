@@ -36,6 +36,12 @@ class MainActivity : FlutterActivity() {
                             "version" to (packageInfo.versionName ?: "1.0.0"),
                             "build_number" to packageInfo.longVersionCode.toString(),
                             "platform" to "android",
+                            "is_firebase_test_lab" to (
+                                Settings.System.getString(
+                                    contentResolver,
+                                    "firebase.test.lab",
+                                ) == "true"
+                            ),
                         ),
                     )
                 }

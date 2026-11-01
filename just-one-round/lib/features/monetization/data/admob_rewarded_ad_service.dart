@@ -90,9 +90,26 @@ class AdMobRewardedAdService implements RewardedAdService {
   ValueListenable<RewardedAdStatus> get status => _status;
 
   @override
-  Future<void> initialize() => _initialization ??= _initializeMobileAds();
+  Future<void> initialize() async {
+    final activeInitialization = _initialization;
+    if (activeInitialization != null) return activeInitialization;
+
+    final initialization = _initializeMobileAds();
+    _initialization = initialization;
+    try {
+      await initialization;
+    } finally {
+      if (identical(_initialization, initialization) &&
+          config.enabled &&
+          config.adUnitId.isNotEmpty &&
+          !_canRequestAds) {
+        _initialization = null;
+      }
+    }
+  }
 
   Future<void> _initializeMobileAds() async {
+    _canRequestAds = false;
     if (!config.enabled || config.adUnitId.isEmpty) {
       _setStatus(RewardedAdStatus.disabled);
       return;
@@ -104,7 +121,6 @@ class AdMobRewardedAdService implements RewardedAdService {
         _setStatus(RewardedAdStatus.unavailable);
         return;
       }
-      _canRequestAds = true;
       await MobileAds.instance
           .updateRequestConfiguration(
             RequestConfiguration(maxAdContentRating: MaxAdContentRating.pg),
@@ -112,8 +128,10 @@ class AdMobRewardedAdService implements RewardedAdService {
           .timeout(_operationTimeout);
       await MobileAds.instance.initialize().timeout(_operationTimeout);
       debugPrint('[AdMob] Mobile Ads initialized.');
+      _canRequestAds = true;
       _setStatus(RewardedAdStatus.unavailable);
     } catch (error, stackTrace) {
+      _canRequestAds = false;
       unawaited(_recordDiagnostic('initialization:$error'));
       debugPrint('[AdMob] Initialization failed: $error');
       debugPrintStack(stackTrace: stackTrace);
@@ -165,18 +183,20 @@ class AdMobRewardedAdService implements RewardedAdService {
   Future<void> preload() async {
     if (_disposed || !config.enabled || _ad != null) return;
     await initialize();
-    if (!_canRequestAds) return;
+    if (_disposed || !config.enabled || _ad != null || !_canRequestAds) {
+      return;
+    }
     final activeLoad = _loadFuture;
     if (activeLoad != null) return activeLoad;
 
     final completer = Completer<void>();
-    var timedOut = false;
+    var loadExpired = false;
     _loadCompleter = completer;
     _setStatus(RewardedAdStatus.loading);
     final loadFuture = completer.future.timeout(
       _operationTimeout,
       onTimeout: () {
-        timedOut = true;
+        loadExpired = true;
         if (identical(_loadCompleter, completer)) {
           _loadCompleter = null;
           _loadFuture = null;
@@ -186,56 +206,70 @@ class AdMobRewardedAdService implements RewardedAdService {
     );
     _loadFuture = loadFuture;
 
+    bool isCurrentLoad() =>
+        !loadExpired && identical(_loadCompleter, completer);
+
     void finishLoad() {
-      if (identical(_loadCompleter, completer)) {
-        _loadCompleter = null;
-        _loadFuture = null;
-      }
+      if (!isCurrentLoad()) return;
+      _loadCompleter = null;
+      _loadFuture = null;
       if (!completer.isCompleted) completer.complete();
     }
 
-    try {
-      await RewardedAd.load(
-        adUnitId: config.adUnitId,
-        request: const AdRequest(),
-        rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (ad) {
-            if (timedOut) {
-              ad.dispose();
-              return;
-            }
-            unawaited(_recordDiagnostic(null));
-            if (_disposed) {
-              ad.dispose();
-            } else {
+    void expireLoad() {
+      if (!isCurrentLoad()) return;
+      loadExpired = true;
+      _loadCompleter = null;
+      _loadFuture = null;
+      _setStatus(RewardedAdStatus.unavailable);
+      if (!completer.isCompleted) completer.complete();
+    }
+
+    unawaited(() async {
+      try {
+        await RewardedAd.load(
+          adUnitId: config.adUnitId,
+          request: const AdRequest(),
+          rewardedAdLoadCallback: RewardedAdLoadCallback(
+            onAdLoaded: (ad) {
+              if (!isCurrentLoad()) {
+                ad.dispose();
+                return;
+              }
+              if (_disposed) {
+                ad.dispose();
+                finishLoad();
+                return;
+              }
+              unawaited(_recordDiagnostic(null));
               _ad = ad;
               _setStatus(RewardedAdStatus.ready);
-            }
-            finishLoad();
-          },
-          onAdFailedToLoad: (error) {
-            if (timedOut) return;
-            unawaited(
-              _recordDiagnostic(
-                'load:${error.code}:${error.domain}:${error.message}',
-              ),
-            );
-            debugPrint(
-              '[AdMob] Rewarded ad load failed '
-              '(code: ${error.code}, domain: ${error.domain}): ${error.message}',
-            );
-            _setStatus(RewardedAdStatus.unavailable);
-            finishLoad();
-          },
-        ),
-      );
-    } catch (error, stackTrace) {
-      unawaited(_recordDiagnostic('load-request:$error'));
-      debugPrint('[AdMob] Rewarded ad load request failed: $error');
-      debugPrintStack(stackTrace: stackTrace);
-      _setStatus(RewardedAdStatus.unavailable);
-      finishLoad();
-    }
+              finishLoad();
+            },
+            onAdFailedToLoad: (error) {
+              if (!isCurrentLoad()) return;
+              unawaited(
+                _recordDiagnostic(
+                  'load:${error.code}:${error.domain}:${error.message}',
+                ),
+              );
+              debugPrint(
+                '[AdMob] Rewarded ad load failed '
+                '(code: ${error.code}, domain: ${error.domain}): ${error.message}',
+              );
+              _setStatus(RewardedAdStatus.unavailable);
+              finishLoad();
+            },
+          ),
+        ).timeout(_operationTimeout);
+      } catch (error, stackTrace) {
+        if (!isCurrentLoad()) return;
+        unawaited(_recordDiagnostic('load-request:$error'));
+        debugPrint('[AdMob] Rewarded ad load request failed: $error');
+        debugPrintStack(stackTrace: stackTrace);
+        expireLoad();
+      }
+    }());
     return loadFuture;
   }
 
@@ -280,7 +314,9 @@ class AdMobRewardedAdService implements RewardedAdService {
     required String verificationSessionId,
   }) async {
     await initialize();
-    if (_ad == null) await preload();
+    if (_disposed) return RewardedAdOutcome.failed;
+    if (_ad == null && _canRequestAds) await preload();
+    if (_disposed) return RewardedAdOutcome.failed;
     final ad = _ad;
     if (ad == null) return RewardedAdOutcome.failed;
 
@@ -305,8 +341,10 @@ class AdMobRewardedAdService implements RewardedAdService {
     }
 
     final result = Completer<RewardedAdOutcome>();
+    final shown = Completer<void>();
     var earned = false;
     var adDisposed = false;
+    var terminal = false;
     void disposeAd() {
       if (adDisposed) return;
       adDisposed = true;
@@ -314,18 +352,25 @@ class AdMobRewardedAdService implements RewardedAdService {
     }
 
     void complete(RewardedAdOutcome outcome) {
-      if (!result.isCompleted) result.complete(outcome);
+      if (terminal) return;
+      terminal = true;
+      result.complete(outcome);
+      disposeAd();
+      unawaited(preload());
     }
 
     ad.fullScreenContentCallback = FullScreenContentCallback<RewardedAd>(
+      onAdShowedFullScreenContent: (_) {
+        if (terminal) return;
+        if (!shown.isCompleted) shown.complete();
+      },
       onAdDismissedFullScreenContent: (ad) {
-        disposeAd();
         complete(
           earned ? RewardedAdOutcome.earned : RewardedAdOutcome.dismissed,
         );
-        unawaited(preload());
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
+        if (terminal) return;
         unawaited(
           _recordDiagnostic(
             'show:${error.code}:${error.domain}:${error.message}',
@@ -335,35 +380,48 @@ class AdMobRewardedAdService implements RewardedAdService {
           '[AdMob] Rewarded ad failed to show '
           '(code: ${error.code}, domain: ${error.domain}): ${error.message}',
         );
-        disposeAd();
         // AdMob can report a later fullscreen error after it has already
         // delivered the reward callback. Never turn an earned reward back
         // into a failure because the closing callback was abnormal.
         complete(earned ? RewardedAdOutcome.earned : RewardedAdOutcome.failed);
-        unawaited(preload());
       },
     );
+
+    unawaited(() async {
+      try {
+        await ad.show(
+          onUserEarnedReward: (_, _) {
+            if (terminal) return;
+            earned = true;
+            if (!shown.isCompleted) shown.complete();
+          },
+        );
+      } catch (error, stackTrace) {
+        debugPrint('[AdMob] Rewarded ad show threw: $error');
+        debugPrintStack(stackTrace: stackTrace);
+        complete(earned ? RewardedAdOutcome.earned : RewardedAdOutcome.failed);
+      }
+    }());
+
     try {
-      await ad
-          .show(onUserEarnedReward: (_, _) => earned = true)
-          .timeout(_showPresentationTimeout);
-    } catch (error, stackTrace) {
-      debugPrint('[AdMob] Rewarded ad show threw: $error');
-      debugPrintStack(stackTrace: stackTrace);
-      disposeAd();
+      await Future.any<void>([
+        shown.future,
+        result.future.then<void>((_) {}),
+      ]).timeout(_showPresentationTimeout);
+    } on TimeoutException {
+      _setStatus(RewardedAdStatus.unavailable);
       complete(earned ? RewardedAdOutcome.earned : RewardedAdOutcome.failed);
-      unawaited(preload());
     }
+
+    if (terminal) return result.future;
     return result.future.timeout(
       _showCompletionTimeout,
       onTimeout: () {
-        disposeAd();
         _setStatus(RewardedAdStatus.unavailable);
         final outcome = earned
             ? RewardedAdOutcome.earned
             : RewardedAdOutcome.failed;
         complete(outcome);
-        unawaited(preload());
         return outcome;
       },
     );
@@ -387,6 +445,12 @@ class AdMobRewardedAdService implements RewardedAdService {
     _disposed = true;
     _ad?.dispose();
     _ad = null;
+    final loadCompleter = _loadCompleter;
+    _loadCompleter = null;
+    _loadFuture = null;
+    if (loadCompleter != null && !loadCompleter.isCompleted) {
+      loadCompleter.complete();
+    }
     _status.dispose();
   }
 }

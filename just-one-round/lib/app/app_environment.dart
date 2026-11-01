@@ -15,11 +15,13 @@ class AppBuildInfo {
     required this.version,
     required this.buildNumber,
     required this.platform,
+    this.isFirebaseTestLab = false,
   });
 
   final String version;
   final int buildNumber;
   final String platform;
+  final bool isFirebaseTestLab;
 }
 
 final appBuildInfoProvider = Provider<AppBuildInfo>(
@@ -72,6 +74,7 @@ Future<AppBuildInfo> readAppBuildInfo() async {
       version: response?['version'] as String? ?? 'unknown',
       buildNumber: buildNumber ?? 0,
       platform: response?['platform'] as String? ?? 'unknown',
+      isFirebaseTestLab: response?['is_firebase_test_lab'] == true,
     );
   } on MissingPluginException {
     return _unavailableAppBuildInfo;

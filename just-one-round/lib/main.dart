@@ -89,6 +89,7 @@ Future<void> main() async {
       : SupabaseDailyGameRepository(
           Supabase.instance.client,
           sharedTestProfile: sharedTestProfile,
+          isFirebaseTestLab: appBuildInfo.isFirebaseTestLab,
         );
   final rewardedAdService = AdMobRewardedAdService(
     AdMobRewardedAdConfig.fromEnvironment(),

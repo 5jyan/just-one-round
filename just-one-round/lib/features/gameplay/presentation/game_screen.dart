@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
+import 'package:just_one_round/core/reviews/app_review_service.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
+import 'package:just_one_round/features/games/apple_game_v2/apple_game_v2.dart';
+import 'package:just_one_round/features/games/apple_game_v2/domain/apple_game_v2_rules.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/domain/mini_game_seed.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
@@ -89,6 +92,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final attempt = widget.attempt;
     _showStartGuide = widget.countdownDuration > Duration.zero;
     _game = _createGame();
+    if (_showStartGuide) {
+      final game = _game;
+      if (game is WindDartsGame) game.prepareOpponentPreview();
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_finishGameSetup());
     });
@@ -114,12 +121,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   MiniGameController _createGame() {
     final attempt = widget.attempt;
+    final appleRulesVersion = _definition.id == 'apple_game_v2'
+        ? attempt?.gameVersion ?? AppleGameV2Rules.rulesVersion
+        : null;
     final challengeSeed =
         _definition.id == 'beat_the_dealer' || _definition.id == 'western_duel'
         ? MiniGameSeed.randomSeed()
         : MiniGameSeed.forAttempt(
             gameId: _definition.id,
-            gameVersion: attempt?.gameVersion ?? 1,
+            gameVersion: appleRulesVersion ?? attempt?.gameVersion ?? 1,
             playDate: attempt?.playDate,
             // Other games keep their shared daily/practice layouts. Blackjack
             // intentionally uses a fresh random seed for every play above.
@@ -127,11 +137,22 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 ? attempt?.practiceOrdinal ?? attempt?.ordinal ?? 1
                 : null,
           );
+    final gameDuration =
+        widget.gameDuration ??
+        _issuedAttemptDuration(widget.attempt) ??
+        _definition.defaultDuration;
+    if (_definition.id == 'apple_game_v2') {
+      return AppleGameV2(
+        gameDuration: gameDuration,
+        countdownDuration: widget.countdownDuration,
+        assetSet: AppleGameV2AssetSet.midnightOrchard,
+        rulesVersion: appleRulesVersion!,
+        random: math.Random(challengeSeed),
+        onFinished: _handleFinished,
+      );
+    }
     return _definition.create(
-      gameDuration:
-          widget.gameDuration ??
-          _issuedAttemptDuration(widget.attempt) ??
-          _definition.defaultDuration,
+      gameDuration: gameDuration,
       countdownDuration: widget.countdownDuration,
       attemptOrdinal: attempt?.ordinal ?? 1,
       challengeSeed: challengeSeed,
@@ -180,7 +201,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         final opponent = attempt == null
             ? const WindDartsOpponent(
                 nickname: '서부의 단골',
-                shotScores: [45, 60, 39, 57, 60, 60],
+                shotScores: [7, 19, 10, 20, 6, 9, 22],
                 isBot: true,
               )
             : source is WindDartsStartRepository
@@ -426,6 +447,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   void _returnHome() {
+    final attempt = widget.attempt;
+    final isTestMode = ref.read(todayStateProvider).value?.testMode == true;
+    final canRequestReview =
+        _result != null &&
+        _rankResult != null &&
+        !isTestMode &&
+        attempt != null &&
+        !attempt.isPractice &&
+        attempt.status != 'practice' &&
+        attempt.id != 'preview-attempt' &&
+        _repository is! PreviewDailyGameRepository;
+    if (canRequestReview) {
+      ref.read(appReviewServiceProvider).markPending();
+    }
     ref.invalidate(todayStateProvider);
     context.go('/');
   }
@@ -916,6 +951,9 @@ class _GameHud extends StatelessWidget {
     return ValueListenableBuilder<MiniGameHudState>(
       valueListenable: game.hud,
       builder: (context, state, child) {
+        if (definition.id == 'temple_run') {
+          return _TempleRunHud(state: state, definition: definition);
+        }
         if (definition.hudStyle == MiniGameHudStyle.survivalTime) {
           return _SurvivalTimeHud(state: state, definition: definition);
         }
@@ -1066,6 +1104,184 @@ class _GameHud extends StatelessWidget {
       },
     );
   }
+}
+
+class _TempleRunHud extends StatelessWidget {
+  const _TempleRunHud({required this.state, required this.definition});
+
+  final MiniGameHudState state;
+  final MiniGameDefinition definition;
+
+  @override
+  Widget build(BuildContext context) {
+    final message = state.message;
+    final showTempleRunPrompt = templeRunHudShowsPrompt(state);
+
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 64,
+            right: 16,
+            top: 12,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xC9172329),
+                border: Border.all(color: const Color(0x66FFF4D6)),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x55000000),
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _HudValue(
+                      label: definition.scoreLabel,
+                      value: definition.formatHudScore(state.score),
+                    ),
+                    _HudValue(
+                      label: 'TIME',
+                      value: '${state.remainingSeconds ?? state.elapsedSeconds}'
+                          .padLeft(2, '0'),
+                      alignEnd: true,
+                      isDanger:
+                          state.remainingSeconds != null &&
+                          state.remainingSeconds! <= 10,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (state.phase == MiniGamePhase.countdown)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WordSafeText(
+                    state.countdownNumber > 0
+                        ? '${state.countdownNumber}'
+                        : 'GO!',
+                    style: const TextStyle(
+                      fontFamily: 'Galmuri',
+                      color: AppColors.primary,
+                      fontSize: 68,
+                      fontWeight: FontWeight.w700,
+                      shadows: [
+                        Shadow(
+                          color: AppColors.primaryShadow,
+                          offset: Offset(5, 5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: const Color(0xCC172329),
+                      border: Border.all(color: const Color(0x66FFF4D6)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      child: WordSafeText(
+                        definition.countdownInstruction,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.text,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (showTempleRunPrompt)
+            Positioned(
+              key: const Key('temple-run-hud-message'),
+              left: 24,
+              right: 24,
+              top: 98,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: const Color(0xEC172329),
+                  border: Border.all(color: AppColors.primary, width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x66000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 9,
+                  ),
+                  child: WordSafeText(
+                    message!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontFamily: 'Galmuri',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (state.phase == MiniGamePhase.playing)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 18,
+              child: WordSafeText(
+                definition.playingInstruction,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xD9FFFFFF),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  shadows: [
+                    Shadow(color: Color(0xCC000000), offset: Offset(1, 1)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+@visibleForTesting
+bool templeRunHudShowsPrompt(MiniGameHudState state) {
+  final message = state.message;
+  return state.phase == MiniGamePhase.playing &&
+      message != null &&
+      (message.contains('꺾기') ||
+          message.contains('회전 예약') ||
+          message.contains('점프 대기') ||
+          message.contains('슬라이드 대기'));
 }
 
 class _NetBoatHud extends StatelessWidget {
@@ -2695,10 +2911,17 @@ class _ResultPanel extends StatelessWidget {
                     final theirs = index < windDartsOpponent!.shotScores.length
                         ? windDartsOpponent!.shotScores[index]
                         : 0;
+                    final isGolden = shotCount == 7 && index == shotCount - 1;
                     return Chip(
-                      label: WordSafeText('${index + 1}발  $mine : $theirs'),
+                      label: WordSafeText(
+                        isGolden
+                            ? '황금 2배  $mine : $theirs'
+                            : '${index + 1}발  $mine : $theirs',
+                      ),
                       visualDensity: VisualDensity.compact,
-                      backgroundColor: mine > theirs
+                      backgroundColor: isGolden
+                          ? const Color(0x557A5A20)
+                          : mine > theirs
                           ? const Color(0x55347A49)
                           : mine < theirs
                           ? const Color(0x555C2A22)
