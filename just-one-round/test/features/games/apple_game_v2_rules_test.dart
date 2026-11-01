@@ -14,6 +14,141 @@ void main() {
     expect(AppleGameV2Rules.rowCount, 13);
     expect(AppleGameV2Rules.maximumScore, 104);
     expect(AppleGameV2Rules.gameDuration, const Duration(seconds: 140));
+    expect(AppleGameV2Rules.rulesVersion, 2);
+    expect(AppleGameV2Rules.maxBiasSwaps, 1);
+    expect(AppleGameV2Rules.maxBiasSearchAttempts, 8);
+    expect(AppleGameV2Rules.supportedRulesVersions, containsAll(<int>[1, 2]));
+  });
+
+  test('v1 보드는 기존 시드와 난수 소비를 그대로 유지한다', () {
+    const goldenBoards = <int, String>{
+      0: '41591887354166486138392514137742518817811298349498416258658414428226395119318743376527134445375239788896',
+      1: '17946335172527493649873192621135821483328216783317256215167514219721541725919211111662628634835443363793',
+      2: '61118257235475522161667721267229993519145566126426354324974424331525211545784712382221534531884113323114',
+      3: '61531281156619171744334327115653624671855853154241842968644248351396162266617384648411425554692311513476',
+      42: '74176137212422211383551338153531124126397121115131926521111915451824185965222188852447717126973665894266',
+      12345:
+          '29213813433842293432312842766892232294111197639232332742188116414212455375659643182593751117711535622753',
+    };
+
+    for (final entry in goldenBoards.entries) {
+      final board = AppleGameV2Rules.createBoard(
+        Random(entry.key),
+        rulesVersion: AppleGameV2Rules.legacyRulesVersion,
+      );
+      expect(
+        board.expand((row) => row).map((value) => value!).join(),
+        entry.value,
+        reason: 'seed ${entry.key}',
+      );
+    }
+
+    final random = _RecordingRandom(Random(123));
+    AppleGameV2Rules.createBoard(
+      random,
+      rulesVersion: AppleGameV2Rules.legacyRulesVersion,
+    );
+    expect(random.nextInt(100), 88);
+  });
+
+  test('v2 인접 보정은 보드 불변식과 단일 스왑 범위를 지킨다', () {
+    var totalPairGain = 0;
+    var changedBoards = 0;
+    const complementFamilies = <(int, int)>[
+      (1, 9),
+      (2, 8),
+      (3, 7),
+      (4, 6),
+      (5, 5),
+    ];
+    final legacyFamilyCounts = List<int>.filled(complementFamilies.length, 0);
+    final biasedFamilyCounts = List<int>.filled(complementFamilies.length, 0);
+
+    for (var seed = 0; seed < 1000; seed++) {
+      final legacy = AppleGameV2Rules.createBoard(
+        Random(seed),
+        rulesVersion: AppleGameV2Rules.legacyRulesVersion,
+      );
+      final biased = AppleGameV2Rules.createBoard(Random(seed));
+      final legacyValues = legacy.expand((row) => row).toList();
+      final biasedValues = biased.expand((row) => row).toList();
+
+      expect(biasedValues, hasLength(AppleGameV2Rules.maximumScore));
+      expect(biasedValues, everyElement(inInclusiveRange(1, 9)));
+      expect(
+        biasedValues.fold<int>(0, (sum, value) => sum + value!) %
+            AppleGameV2Rules.targetSum,
+        0,
+      );
+      expect(_histogram(biasedValues), _histogram(legacyValues));
+
+      final changed = [
+        for (var index = 0; index < biasedValues.length; index++)
+          if (biasedValues[index] != legacyValues[index]) index,
+      ];
+      expect(changed.length, lessThanOrEqualTo(2));
+      if (changed.isNotEmpty) changedBoards++;
+
+      final pairGain =
+          AppleGameV2Rules.countAdjacentComplements(biased) -
+          AppleGameV2Rules.countAdjacentComplements(legacy);
+      expect(pairGain, inInclusiveRange(0, 2));
+      totalPairGain += pairGain;
+      for (var family = 0; family < complementFamilies.length; family++) {
+        final (lower, upper) = complementFamilies[family];
+        legacyFamilyCounts[family] += _countAdjacentPairFamily(
+          legacy,
+          lower,
+          upper,
+        );
+        biasedFamilyCounts[family] += _countAdjacentPairFamily(
+          biased,
+          lower,
+          upper,
+        );
+      }
+      expect(
+        AppleGameV2Rules.countAvailableMoves(
+          biased,
+          stopAfter: AppleGameV2Rules.minimumAvailableMoves,
+        ),
+        greaterThanOrEqualTo(AppleGameV2Rules.minimumAvailableMoves),
+      );
+
+      final repeated = AppleGameV2Rules.createBoard(Random(seed));
+      expect(repeated, biased, reason: 'seed $seed must be deterministic');
+    }
+
+    expect(changedBoards, greaterThan(0));
+    expect(totalPairGain, greaterThan(500));
+    expect(totalPairGain, lessThan(2000));
+    for (var family = 0; family < complementFamilies.length; family++) {
+      expect(
+        biasedFamilyCounts[family],
+        greaterThan(legacyFamilyCounts[family]),
+        reason: 'family ${complementFamilies[family]} should increase',
+      );
+    }
+  });
+
+  test('인접 보정은 직교 합 10만 세고 지원하지 않는 버전은 거부한다', () {
+    final board = _emptyBoard();
+    board[0][0] = 1;
+    board[0][1] = 9;
+    board[1][0] = 2;
+    board[1][1] = 8;
+    board[2][2] = 5;
+    board[3][3] = 5;
+
+    expect(AppleGameV2Rules.countAdjacentComplements(board), 2);
+    expect(
+      () => AppleGameV2Rules.createBoard(Random(1), rulesVersion: 3),
+      throwsUnsupportedError,
+    );
+    expect(
+      () => AppleGameV2(rulesVersion: 3, onFinished: (_) {}),
+      throwsUnsupportedError,
+    );
   });
 
   test('드래그 방향과 관계없이 직사각형 합계를 계산한다', () {
@@ -151,7 +286,11 @@ void main() {
   });
 
   test('랜덤 후보가 조건을 충족하지 못해도 보정된 대체 보드를 만든다', () {
-    final board = AppleGameV2Rules.createBoard(_AlwaysNineRandom());
+    final random = _AlwaysNineRandom();
+    final board = AppleGameV2Rules.createBoard(
+      random,
+      rulesVersion: AppleGameV2Rules.legacyRulesVersion,
+    );
     final values = board.expand((row) => row);
 
     expect(values, everyElement(inInclusiveRange(1, 9)));
@@ -164,6 +303,7 @@ void main() {
       AppleGameV2Rules.countAvailableMoves(board, stopAfter: 12),
       greaterThanOrEqualTo(12),
     );
+    expect(random.calls, 10300);
   });
 
   testWidgets('사과게임의 42픽셀 에셋으로 게임 화면을 구성한다', (tester) async {
@@ -278,7 +418,39 @@ List<List<int?>> _emptyBoard() => List.generate(
   (_) => List<int?>.filled(AppleGameV2Rules.columnCount, null),
 );
 
+List<int> _histogram(List<int?> values) {
+  final histogram = List<int>.filled(10, 0);
+  for (final value in values) {
+    histogram[value ?? 0]++;
+  }
+  return histogram;
+}
+
+int _countAdjacentPairFamily(List<List<int?>> board, int lower, int upper) {
+  var count = 0;
+  for (var row = 0; row < AppleGameV2Rules.rowCount; row++) {
+    for (var column = 0; column < AppleGameV2Rules.columnCount; column++) {
+      final value = board[row][column];
+      if (value == null) continue;
+      if (column + 1 < AppleGameV2Rules.columnCount &&
+          _isPair(value, board[row][column + 1], lower, upper)) {
+        count++;
+      }
+      if (row + 1 < AppleGameV2Rules.rowCount &&
+          _isPair(value, board[row + 1][column], lower, upper)) {
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+bool _isPair(int? first, int? second, int lower, int upper) =>
+    (first == lower && second == upper) || (first == upper && second == lower);
+
 final class _AlwaysNineRandom implements Random {
+  var calls = 0;
+
   @override
   bool nextBool() => true;
 
@@ -286,7 +458,25 @@ final class _AlwaysNineRandom implements Random {
   double nextDouble() => 1;
 
   @override
-  int nextInt(int max) => max - 1;
+  int nextInt(int max) {
+    calls++;
+    return max - 1;
+  }
+}
+
+final class _RecordingRandom implements Random {
+  _RecordingRandom(this._delegate);
+
+  final Random _delegate;
+
+  @override
+  bool nextBool() => _delegate.nextBool();
+
+  @override
+  double nextDouble() => _delegate.nextDouble();
+
+  @override
+  int nextInt(int max) => _delegate.nextInt(max);
 }
 
 final class _CyclingHundredRandom implements Random {

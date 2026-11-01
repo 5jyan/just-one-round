@@ -59,6 +59,7 @@ class AppleGameV2 extends FlameGame
     this.gameDuration = AppleGameV2Rules.gameDuration,
     this.countdownDuration = const Duration(seconds: 3),
     this.assetSet = AppleGameV2AssetSet.midnightOrchard,
+    this.rulesVersion = AppleGameV2Rules.rulesVersion,
     Random? random,
   }) : _random = random ?? Random(),
        hud = ValueNotifier(
@@ -71,7 +72,9 @@ class AppleGameV2 extends FlameGame
            remainingSeconds: gameDuration.inSeconds,
            countdownNumber: countdownDuration.inSeconds,
          ),
-       );
+       ) {
+    AppleGameV2Rules.validateRulesVersion(rulesVersion);
+  }
 
   static final logicalSize = Vector2(360, 720);
   static final phoneBackgroundSize = Vector2(408, 880);
@@ -96,6 +99,7 @@ class AppleGameV2 extends FlameGame
   final Duration gameDuration;
   final Duration countdownDuration;
   final AppleGameV2AssetSet assetSet;
+  final int rulesVersion;
   final ValueChanged<GameResult> onFinished;
   final Random _random;
 
@@ -198,7 +202,7 @@ class AppleGameV2 extends FlameGame
           );
 
     _board = _AppleBoardComponent(
-      board: AppleGameV2Rules.createBoard(_random),
+      board: AppleGameV2Rules.createBoard(_random, rulesVersion: rulesVersion),
       appleSprites: apples,
       popSprites: popSprites,
       comboSprites: comboSprites,
