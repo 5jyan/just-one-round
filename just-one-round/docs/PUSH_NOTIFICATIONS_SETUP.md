@@ -66,7 +66,12 @@ the signing profile, Firebase/APNs credentials, or tap flow changes.
    migrations and local database do not create this webhook, a `pg_cron` job, or
    a Vault secret automatically; configure those separately in the deployed
    Supabase project or an external scheduler. The migrations provide the
-   outbox and claim function that the external wiring invokes.
+   outbox and claim function that the external wiring invokes. Social-action
+   and gift RPCs reject test-account senders before changing inventory or
+   creating an in-app notification. The shared enqueue path also filters test
+   senders and recipients, and the claim path suppresses any stale test-account
+   row before a worker can deliver it. Marking an account as a test account
+   revokes an already-held push lease as well.
 6. To run the worker against the local Supabase stack, create the ignored
    `.env.push-worker.local` file outside version control with these four
    non-empty entries (use real values only in your local secret store or shell):
@@ -102,9 +107,10 @@ the signing profile, Firebase/APNs credentials, or tap flow changes.
    ```
 
    The check validates Firebase OAuth credentials through the non-claiming
-   `?health=1` endpoint, then checks HTTP 200 and a JSON object containing
-   numeric `processed` and `sent` fields. Never commit the local env file, service
-   account JSON, service-role key, worker secret, or device tokens. For
+   `?health=1` endpoint and checks HTTP 200 with `{"status":"ok"}`. It makes
+   one health request only; it never calls the dispatch endpoint and therefore
+   cannot claim or send queued notifications. Never commit the local env file,
+   service account JSON, service-role key, worker secret, or device tokens. For
    production, inject the same values through the Supabase secret manager or a
    CI secret store rather than repository files or logs.
 7. Release/profile builds enable Firebase push by default. The app observes
@@ -137,7 +143,9 @@ PUSH_WORKER_URL='https://<project-ref>.supabase.co/functions/v1/send-social-push
   ./tool/check_push_worker.sh
 ```
 
-An empty queue should return HTTP 200 with `{"processed":0,"sent":0}`.
+The health check should return HTTP 200 with `{"status":"ok"}`. To dispatch
+queued notifications, use the configured webhook or scheduler directly; do
+not use the health check as a dispatch probe.
 For a real device smoke test, sign in on iOS and Android, confirm both rows are
 enabled in `push_device_tokens`, then send one poke and verify one outbox row
 becomes `sent_at` non-null and the device receives the notification. A tap
@@ -157,3 +165,14 @@ and then shows the matching in-app social dialog; the user must confirm the
 dialog and press the start button before a server-issued attempt is consumed.
 The in-app inbox remains the fallback when the user denies OS notification
 permission.
+
+### Google Play automated test devices
+
+Android reads Firebase Test Lab's `firebase.test.lab` system setting when it
+reports app build information. When the value is exactly `true`, the client
+keeps gameplay available but skips social-action and shop-gift requests, so an
+automated crawler cannot create notifications for real users. The server-side
+test-account and outbox filters remain the independent safety boundary. Builds
+that predate this native flag, or platforms without the channel, default to
+normal social behavior; the native guard takes effect with the next Android
+build that includes `MainActivity.kt`.

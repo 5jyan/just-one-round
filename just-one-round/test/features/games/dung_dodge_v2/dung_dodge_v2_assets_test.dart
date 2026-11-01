@@ -162,6 +162,7 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
     await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(() => game.loaded);
     final startingX = game.playerXForTesting;
 
     game.beginRelativeDragForTesting(20);

@@ -2,16 +2,19 @@
 
 ## 상태
 
-- 상태: Implemented
+- 상태: Retired / reference-only (활성 등록 제외)
 - 게임 ID: `sausage_dachshund`
 - 규칙 버전: 1
 - 마지막 승인일: 2026-07-29
+- 최근 소스 확인: 2026-10-13
 - 런타임 구현일: 2026-07-29
 - 구현 파일:
   - `domain/sausage_dachshund_rules.dart`
   - `sausage_dachshund_game.dart`
   - `presentation/sausage_dachshund_presentation.dart`
-- 백엔드 등록: `supabase/migrations/20260729000300_sausage_dachshund.sql`
+- 백엔드 이력: `supabase/migrations/20260729000300_sausage_dachshund.sql`에서 v1/150초 카탈로그를 처음 추가했으나, `supabase/migrations/20260730000300_midnight_snake.sql`에서 `is_active=false`로 비활성화했다.
+
+> 이 문서는 활성 일일 게임 계약이 아니라 보존된 v1 구현과 승인 이력을 설명하는 참고 문서다. `GameRegistry.registeredIds`와 `GamePresentationRegistry`에는 현재 포함되지 않으며, `GameRegistry.formatScore`의 레거시 포맷 분기만 과거 기록 표시를 위해 남아 있다. `GameRegistry._supportedVersions`에도 이 ID가 없다.
 
 ## 플레이어 약속
 
@@ -36,8 +39,8 @@
 
 ## 핵심 루프
 
-- 초기 상태: 9×15 주방 타일 보드의 중앙 `(4, 7)`에서 머리가 오른쪽을 향한 길이 4의 닥스훈트로 시작한다.
-- 안전 학습: 첫 소시지는 진행 방향 앞의 `(6, 8)`에 고정하고 초기 이동 간격을 0.60초로 유지한다.
+- 초기 상태: `rowCount=15`, `columnCount=9` 주방 타일 보드의 머리 `(row 7, column 4)`에서 오른쪽을 향한 길이 4의 닥스훈트로 시작한다.
+- 안전 학습: 첫 소시지는 진행 방향 앞의 `(row 7, column 6)`에 고정하고 초기 이동 간격을 0.60초로 유지한다.
 - 반복 플레이 행동: 플레이어가 다음 진행 방향을 스와이프로 예약한다.
 - 이동 반응: 고정 이동 틱마다 머리가 한 칸 전진하고 각 몸마디는 바로 앞 마디의 이전 칸을 따른다.
 - 진행: 소시지를 먹으면 점수와 몸길이가 각각 1 증가하고 다음 소시지를 합법적인 빈칸에 생성한다.
@@ -51,7 +54,7 @@
 - 제스처: 상하좌우 한 손가락 스와이프
 - 유효 터치 영역: HUD를 제외한 전체 게임 보드
 - 방향 판정: 수평·수직 이동량 중 절댓값이 큰 축을 사용하고 부호로 방향을 결정한다.
-- 스와이프 임계값: 18 논리 픽셀 이상을 초기 가설로 사용한다.
+- 스와이프 임계값: 보존된 v1 소스에서 18 논리 픽셀 이상을 사용한다.
 - 대각선 입력: 우세한 한 축으로만 판정한다.
 - 정반대 방향 입력: 현재 진행 방향의 즉시 반전은 무시한다.
 - 입력 버퍼: 이동 틱 사이에 최초 유효 방향 전환 하나만 예약하며 추가 입력은 다음 틱까지 무시한다.
@@ -67,19 +70,17 @@
 ```text
 loading
   → countdown
-  → safe_opening
   → playing
       ├─→ finished_wall_collision
       ├─→ finished_self_collision
       ├─→ finished_timeout
       └─→ finished_board_complete
 
-loading/countdown/safe_opening/playing → interrupted
+loading/countdown/playing → interrupted
 ```
 
-- `safe_opening`은 플레이 시작 후 3초까지이며 일반 입력과 이동은 허용한다.
-- 시작점, 초기 방향, 초기 속도와 보드 크기 때문에 가장 빠른 벽 충돌도 3.6초 이후에만 가능하다.
-- 초기 몸길이 4에서는 3초 안에 자기 몸 충돌 상태를 만들 수 없다.
+- 카운트다운은 기본 3초이며 이 구간에는 이동과 입력을 판정하지 않는다. 별도의 `safe_opening` 런타임 단계는 없다.
+- 플레이 시작 후 첫 이동 간격은 `0.60초/칸`이며, 별도의 무적 시간이나 입력 안전 보조 없이 플레이 중 충돌을 판정한다.
 - `finished_wall_collision`과 `finished_self_collision`은 누적 소시지 개수를 정상 제출한다.
 - `finished_timeout`과 `finished_board_complete`도 누적 소시지 개수를 정상 제출한다.
 - 모든 정상 종료 상태는 결과를 정확히 한 번만 방출한다.
@@ -101,7 +102,7 @@ loading/countdown/safe_opening/playing → interrupted
 
 ### 조정 가능 값
 
-아래 값은 최초 플레이테스트 전 밸런스 가설이다.
+아래 값은 보존된 v1 런타임 소스의 현재 수치다. 초보·중급·숙련 분포와 체감 문장은 플레이테스트 가설로 남아 있다.
 
 | 변수 | 초기값 | 진행 | 상한·하한 | 이유 |
 |---|---:|---|---:|---|
@@ -129,7 +130,7 @@ loading/countdown/safe_opening/playing → interrupted
   - 환경 1종: 밤의 주방 타일 보드와 가장자리
   - 효과 1종: 획득 부스러기, 몸통 생성, 충돌 먼지
   - UI 모티프 1종: 소시지 점수, 시간, 방향 피드백
-- 변화 생성 요소: 현재 몸 형태, 도달 가능한 빈칸, 날짜 시드, 이동 속도
+- 변화 생성 요소: 현재 몸 형태, 도달 가능한 빈칸, 보존된 직접 생성 경로의 날짜 시드, 이동 속도
 - 수치 난이도 제어: 이동 간격, 보드 크기, 초기 몸길이, 입력 임계값, 세션 시간
 - 지속적인 수작업 콘텐츠가 필요하지 않은 이유: 몸이 차지하는 공간과 결정론적 소시지 배치만으로 매 순간 새로운 경로 문제가 생긴다.
 - 구현 복잡도: 낮음~중간. 격자 규칙은 작지만 입력 버퍼, 꼬리 이탈과 자기 충돌의 동시 판정, 도달 가능한 소시지 배치가 정확해야 한다.
@@ -145,7 +146,7 @@ loading/countdown/safe_opening/playing → interrupted
 
 ## 무작위성과 한 번의 시도 공정성
 
-- 시드: 오늘의 게임 날짜와 규칙 버전으로 생성한 시도 시드
+- 시드: 레거시 게임을 레지스트리 밖에서 직접 생성할 때 규칙이 제공하는 한국 시간 날짜 기반 `dailySeed`; 현재 활성 레지스트리는 이 게임에 시드를 주입하지 않는다.
 - 무작위 요소: 첫 고정 소시지 이후의 소시지 위치
 - 합법 생성 조건:
   - 현재 머리와 몸통이 점유하지 않은 칸
@@ -154,7 +155,7 @@ loading/countdown/safe_opening/playing → interrupted
   - 직전 소시지 위치와 다른 칸
   - 가능한 경우 머리에서 맨해튼 거리 3 이상인 칸
 - 결정론적 선택: 시드로 후보 목록의 시작 인덱스를 정하고 현재 합법 후보 중 하나를 선택한다.
-- 안전 시작: 첫 소시지는 `(6, 8)`에 고정하며 3초 전에는 실패 가능한 위치에 도달할 수 없다.
+- 안전 시작: 첫 소시지는 `(row 7, column 6)`에 고정하며 카운트다운 3초 동안에는 이동·입력을 판정하지 않는다.
 - 최소 회복 기회: 소시지를 먹은 틱에는 새 몸마디만 예약하고 다음 이동 틱 전까지 새 소시지 위치를 명확히 표시한다.
 - 피할 수 없는 실패 방지: 소시지는 현재 도달 가능한 영역에만 생성하고, 생성 때문에 즉시 방향 전환을 강제하지 않는다.
 - 생성 실패 폴백: 도달 가능한 빈칸을 행 우선으로 순회해 첫 안전 칸을 사용하고, 안전 칸이 없으면 보드 완료 처리한다.
@@ -177,7 +178,7 @@ loading/countdown/safe_opening/playing → interrupted
 - 150초 시간 초과: 마지막 완료 이동 틱까지 확정된 누적 개수를 제출한다.
 - 보드 완료: 마지막 소시지까지 포함한 누적 개수를 제출한다.
 - 중단: 시도만 소진하고 점수를 제출하지 않는다.
-- 결과 보조 필드: 실제 플레이 지속시간, 최종 몸길이, 종료 원인, 마지막 머리 위치, 보드 완료 여부
+- 결과 필드: 보존된 런타임 `GameResult`는 `score=N`, `starsCollected=0`, `collisions`(벽·자기 몸 충돌 1, 시간 초과·보드 완료 0), 실제 `duration`, `endType`을 기록한다. 최종 몸길이·머리 위치는 제출 필드가 아니다.
 
 ## 프레젠테이션 의존성
 
@@ -261,15 +262,15 @@ loading/countdown/safe_opening/playing → interrupted
   - 자기 충돌: 짧은 낑 소리와 두 번의 경고 햅틱
   - 완료: 주인 발소리와 안도하는 긴 한숨
 
-## 기술 적합성
+## 기술 적합성 및 현재 등록 상태
 
 - 런타임 접근: Flame 기반 고정 격자 게임으로 구현하며 판정은 렌더링과 분리된 순수 규칙 상태에서 처리한다.
 - 재사용 프로젝트 구성:
   - `MiniGameController`와 `MiniGameHudState`
   - 공통 카운트다운과 중단 처리
-  - `GameRegistry` 등록과 점수 포맷터
-  - 게임 프레젠테이션 레지스트리와 공통 결과 화면
-- 순수 규칙 모듈 후보: `sausage_dachshund_rules.dart`
+  - 공통 `GameRegistry` 점수 포맷터의 레거시 분기
+  - 공통 결과 화면에 남아 있는 과거 기록 표시 경로
+- 순수 규칙 모듈 후보: `domain/sausage_dachshund_rules.dart`
   - 좌표와 방향
   - 방향 입력 검증
   - 이동 틱
@@ -277,11 +278,10 @@ loading/countdown/safe_opening/playing → interrupted
   - 도달 가능한 소시지 후보 생성
   - 점수와 종료 결과
 - 중앙 조정 위치: 이동 마일스톤, 보드 크기, 입력 임계값, 세션 시간과 생성 제약을 한 규칙 파일에 모은다.
-- 백엔드·레지스트리 영향:
-  - 게임 ID `sausage_dachshund`, 규칙 버전 1 등록
-  - 높은 점수가 우선인 정수 랭킹
-  - 기본 세션 시간 150초
-  - 결과 표시 포맷 `N개`
+- 백엔드·레지스트리 현재 상태:
+  - `GameRegistry._definitions`/`registeredIds`, `GamePresentationRegistry`, `_supportedVersions`에는 `sausage_dachshund`가 없다.
+  - `GameRegistry.formatScore`의 `'sausage_dachshund'` 레거시 분기는 과거 점수의 `N개` 표시만 지원한다.
+  - 백엔드는 최초 v1 카탈로그를 150초·`0..131` 정수 점수로 만들었지만, 후속 마이그레이션에서 `is_active=false`가 되어 새 일일 시도 대상이 아니다.
 - 주요 구현 위험:
   - 꼬리가 같은 틱에 빠지는 칸과 실제 자기 충돌 칸의 구분
   - 빠른 연속 스와이프의 버퍼 처리
@@ -289,7 +289,7 @@ loading/countdown/safe_opening/playing → interrupted
   - 현재 몸 형태에 따른 도달 가능 후보 계산
   - 낮은 프레임률에서도 이동 틱과 결과 방출이 중복되지 않는 처리
 
-## 인수 테스트
+## 보존 구현 인수 테스트
 
 - 가이드 문구를 약 20초 이내에 이해할 수 있다.
 - 소시지 섭취와 닥스훈트 몸 증가가 규칙과 코믹 전제를 동시에 설명한다.
@@ -335,7 +335,8 @@ loading/countdown/safe_opening/playing → interrupted
 
 ## 열린 질문
 
-- 없음. 정확한 에셋 제작 규격과 플레이테스트 전 밸런스 값은 후속 단계에서 검증한다.
+- 활성 게임 계약에는 남은 질문이 없다. 이 문서는 retired 구현의 규칙·에셋·결정 기록을 보존한다.
+- 플레이테스트 전 밸런스 가설은 archived source를 다시 활성화할 때 별도 검증 대상이다.
 
 ## 결정 기록
 
