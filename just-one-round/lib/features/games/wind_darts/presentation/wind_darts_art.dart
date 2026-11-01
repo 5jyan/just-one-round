@@ -13,6 +13,10 @@ abstract final class WindDartsArtAssets {
   static const scoreParchment = 'assets/images/wind_darts/score_parchment.png';
   static const aimGaugeFrame = 'assets/images/wind_darts/aim_gauge_frame.png';
   static const aimGaugeFill = 'assets/images/wind_darts/aim_gauge_fill.png';
+  static const opponentVictory =
+      'assets/images/western_duel/first_person/opponent_victory_v14/sheet-transparent.png';
+  static const victorySmoke =
+      'assets/images/western_duel/fx/victory_smoke_v14/sheet-transparent.png';
 
   static const assetPaths = <String>[
     pubInterior,
@@ -22,6 +26,8 @@ abstract final class WindDartsArtAssets {
     scoreParchment,
     aimGaugeFrame,
     aimGaugeFill,
+    opponentVictory,
+    victorySmoke,
   ];
 
   static const flameImagePaths = <String>[
@@ -32,6 +38,8 @@ abstract final class WindDartsArtAssets {
     'wind_darts/score_parchment.png',
     'wind_darts/aim_gauge_frame.png',
     'wind_darts/aim_gauge_fill.png',
+    'western_duel/first_person/opponent_victory_v14/sheet-transparent.png',
+    'western_duel/fx/victory_smoke_v14/sheet-transparent.png',
   ];
 }
 
@@ -44,6 +52,8 @@ class WindDartsArtImages {
     required this.scoreParchment,
     required this.aimGaugeFrame,
     required this.aimGaugeFill,
+    required this.opponentVictory,
+    required this.victorySmoke,
   });
 
   factory WindDartsArtImages.fromList(List<ui.Image> images) {
@@ -62,6 +72,8 @@ class WindDartsArtImages {
       scoreParchment: images[4],
       aimGaugeFrame: images[5],
       aimGaugeFill: images[6],
+      opponentVictory: images[7],
+      victorySmoke: images[8],
     );
   }
 
@@ -72,6 +84,8 @@ class WindDartsArtImages {
   final ui.Image scoreParchment;
   final ui.Image aimGaugeFrame;
   final ui.Image aimGaugeFill;
+  final ui.Image opponentVictory;
+  final ui.Image victorySmoke;
 
   void dispose() {
     pubInterior.dispose();
@@ -81,6 +95,8 @@ class WindDartsArtImages {
     scoreParchment.dispose();
     aimGaugeFrame.dispose();
     aimGaugeFill.dispose();
+    opponentVictory.dispose();
+    victorySmoke.dispose();
   }
 }
 
@@ -104,6 +120,21 @@ abstract final class WindDartsArt {
   static final Paint _imagePaint = Paint()
     ..isAntiAlias = false
     ..filterQuality = FilterQuality.none;
+  static final Paint _goldDartPaint = Paint()
+    ..isAntiAlias = false
+    ..filterQuality = FilterQuality.none
+    ..colorFilter = const ColorFilter.mode(
+      Color(0x99FFD45A),
+      BlendMode.srcATop,
+    );
+
+  static const _gold = Color(0xFFFFC84A);
+  static const _goldLight = Color(0xFFFFF0A6);
+  static const _impactAmber = Color(0xFFFFB52E);
+  static const _impactOrangeRed = Color(0xFFE85B32);
+  static const _impactTeal = Color(0xFF55D8C7);
+  static const _impactCream = Color(0xFFFFE8B7);
+  static const _impactRed = Color(0xFFD94332);
 
   static Future<WindDartsArtImages> loadFromBundle() async {
     final loaded = <ui.Image>[];
@@ -327,7 +358,12 @@ abstract final class WindDartsArt {
     ui.Image? dartAtlas,
     Offset? embeddedTip,
     Offset? embeddedTailDirection,
+    bool embeddedGoldenDart = false,
     double embeddedImpactProgress = 0,
+    WindDartsImpactKind? embeddedImpactKind,
+    double embeddedImpactElapsed = 0,
+    double embeddedImpactRadiusScale = 1,
+    Rect? embeddedImpactClipRect,
   }) {
     final scale = boardScaleForRadius(logicalBoardRadius);
     canvas.save();
@@ -366,22 +402,43 @@ abstract final class WindDartsArt {
         _imagePaint,
       );
     }
-    if (dartAtlas != null && embeddedTip != null) {
-      drawImpactContact(
+    canvas.restore();
+
+    if (dartAtlas == null || embeddedTip == null) return;
+
+    final rotation = visualRotation(boardAngle);
+    final rotatedTip = center + _rotateVector(embeddedTip, rotation);
+    if (embeddedImpactKind != null) {
+      drawImpactBurst(
         canvas,
-        tip: embeddedTip,
-        boardScale: scale,
-        progress: embeddedImpactProgress,
-      );
-      drawDart(
-        canvas,
-        atlas: dartAtlas,
-        cell: 1,
-        tip: embeddedTip,
-        tailDirection: embeddedTailDirection ?? embeddedTip,
-        scale: dartScaleForBoardRadius(logicalBoardRadius),
+        center: rotatedTip,
+        kind: embeddedImpactKind,
+        elapsed: embeddedImpactElapsed,
+        radiusScale: embeddedImpactRadiusScale,
+        golden: embeddedGoldenDart,
+        clipRect: embeddedImpactClipRect,
       );
     }
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotation);
+    drawImpactContact(
+      canvas,
+      tip: embeddedTip,
+      boardScale: scale,
+      progress: embeddedImpactProgress,
+    );
+    drawDart(
+      canvas,
+      atlas: dartAtlas,
+      cell: 1,
+      tip: embeddedTip,
+      tailDirection: embeddedTailDirection ?? embeddedTip,
+      scale: dartScaleForBoardRadius(logicalBoardRadius),
+      golden: embeddedGoldenDart,
+      goldenTrail: false,
+    );
     canvas.restore();
   }
 
@@ -419,10 +476,22 @@ abstract final class WindDartsArt {
     required Offset tip,
     required Offset tailDirection,
     required double scale,
+    bool golden = false,
+    bool goldenTrail = true,
   }) {
     if (!scale.isFinite || scale <= 0) return;
     final direction = _unitVector(tailDirection);
     final rotation = math.atan2(direction.dy, direction.dx) - math.pi / 2;
+    if (golden) {
+      drawGoldenHalo(canvas, tip: tip, scale: scale, steady: !goldenTrail);
+      drawGoldenTrail(
+        canvas,
+        tip: tip,
+        tailDirection: direction,
+        scale: scale,
+        trailSegments: goldenTrail,
+      );
+    }
     canvas.save();
     canvas.translate(tip.dx, tip.dy);
     canvas.rotate(rotation);
@@ -435,10 +504,362 @@ abstract final class WindDartsArt {
         dartCellWidth * scale,
         dartCellHeight * scale,
       ),
-      _imagePaint,
+      golden ? _goldDartPaint : _imagePaint,
     );
     canvas.restore();
   }
+
+  static void drawGoldenHalo(
+    Canvas canvas, {
+    required Offset tip,
+    required double scale,
+    bool steady = false,
+  }) {
+    final radius = scale * (steady ? 8.0 : 11.0);
+    final outerPaint = Paint()
+      ..isAntiAlias = true
+      ..color = _gold.withAlpha(steady ? 80 : 105)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(1.0, scale * (steady ? 2.0 : 2.6));
+    canvas.drawCircle(tip, radius * 1.65, outerPaint);
+    canvas.drawCircle(
+      tip,
+      radius,
+      Paint()
+        ..isAntiAlias = true
+        ..color = _goldLight.withAlpha(steady ? 85 : 125),
+    );
+  }
+
+  static void drawGoldenTrail(
+    Canvas canvas, {
+    required Offset tip,
+    required Offset tailDirection,
+    required double scale,
+    bool trailSegments = true,
+  }) {
+    final shaftEnd = tip + tailDirection * dartCellHeight * scale * 0.82;
+    final shaftStart = tip + tailDirection * scale * 2.0;
+    canvas.drawLine(
+      shaftStart,
+      shaftEnd,
+      Paint()
+        ..isAntiAlias = true
+        ..color = _gold.withAlpha(130)
+        ..maskFilter = ui.MaskFilter.blur(
+          ui.BlurStyle.normal,
+          math.max(1.0, scale * 2.5),
+        )
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = math.max(2.0, scale * 8.0),
+    );
+    canvas.drawLine(
+      shaftStart,
+      shaftEnd,
+      Paint()
+        ..isAntiAlias = true
+        ..color = _impactCream.withAlpha(220)
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = math.max(1.0, scale * 1.7),
+    );
+    final glint = tip + tailDirection * dartCellHeight * scale * 0.4;
+    final perpendicular = Offset(-tailDirection.dy, tailDirection.dx);
+    final glintRadius = math.max(1.5, scale * 3.0);
+    final glintPaint = Paint()
+      ..isAntiAlias = true
+      ..color = _goldLight.withAlpha(220)
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = math.max(1.0, scale * 1.25);
+    canvas.drawLine(
+      glint - perpendicular * glintRadius,
+      glint + perpendicular * glintRadius,
+      glintPaint,
+    );
+    canvas.drawLine(
+      glint - tailDirection * glintRadius * 0.72,
+      glint + tailDirection * glintRadius * 0.72,
+      glintPaint,
+    );
+    if (!trailSegments) return;
+
+    final segmentLength = dartCellHeight * scale * 0.22;
+    final trailOffset = dartCellHeight * scale * 0.82;
+    const opacities = [150, 92, 42];
+    for (var index = 0; index < 3; index++) {
+      final startDistance = trailOffset + segmentLength * (index * 0.9 + 0.25);
+      final endDistance = startDistance + segmentLength * 0.72;
+      final start = tip + tailDirection * startDistance;
+      final end = tip + tailDirection * endDistance;
+      canvas.drawLine(
+        start,
+        end,
+        Paint()
+          ..isAntiAlias = true
+          ..color = _gold.withAlpha(opacities[index])
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = math.max(1.0, scale * (5.0 - index * 1.2)),
+      );
+      final sparkle =
+          tip + tailDirection * (startDistance + segmentLength * 0.35);
+      final sparkleRadius = math.max(0.8, scale * (1.8 - index * 0.35));
+      final sparklePaint = Paint()
+        ..isAntiAlias = true
+        ..color = _goldLight.withAlpha(opacities[index]);
+      canvas.drawCircle(sparkle, sparkleRadius, sparklePaint);
+      final glintPaint = Paint()
+        ..isAntiAlias = true
+        ..color = _impactCream.withAlpha((230 - index * 48).clamp(0, 255));
+      canvas.save();
+      canvas.translate(sparkle.dx, sparkle.dy);
+      canvas.rotate(math.atan2(tailDirection.dy, tailDirection.dx));
+      canvas.drawRect(
+        Rect.fromCenter(
+          center: Offset.zero,
+          width: math.max(2.0, scale * (5.0 - index * 0.8)),
+          height: math.max(1.0, scale * (1.8 - index * 0.25)),
+        ),
+        glintPaint,
+      );
+      canvas.restore();
+      if (index == 0) {
+        canvas.drawLine(
+          sparkle - Offset(sparkleRadius * 2.4, 0),
+          sparkle + Offset(sparkleRadius * 2.4, 0),
+          sparklePaint,
+        );
+        canvas.drawLine(
+          sparkle - Offset(0, sparkleRadius * 2.4),
+          sparkle + Offset(0, sparkleRadius * 2.4),
+          sparklePaint,
+        );
+      }
+    }
+  }
+
+  static void drawImpactBurst(
+    Canvas canvas, {
+    required Offset center,
+    required WindDartsImpactKind kind,
+    required double elapsed,
+    double radiusScale = 1,
+    bool golden = false,
+    Rect? clipRect,
+  }) {
+    if (!radiusScale.isFinite || radiusScale <= 0) return;
+    final time = elapsed.clamp(0.0, 1.0);
+    if (time >= 0.7) return;
+
+    final ringCount = switch (kind) {
+      WindDartsImpactKind.double => 2,
+      WindDartsImpactKind.triple => 3,
+      WindDartsImpactKind.singleBull => 1,
+      WindDartsImpactKind.doubleBull => 2,
+      _ => 0,
+    };
+    final sparkCount = switch (kind) {
+      WindDartsImpactKind.double => 8,
+      WindDartsImpactKind.triple => 12,
+      WindDartsImpactKind.doubleBull => 16,
+      _ => 0,
+    };
+    final maxRadius = switch (kind) {
+      WindDartsImpactKind.double => 44.0,
+      WindDartsImpactKind.triple => 58.0,
+      WindDartsImpactKind.singleBull => 60.0,
+      WindDartsImpactKind.doubleBull => 76.0,
+      _ => 0.0,
+    };
+    if (ringCount == 0 || maxRadius == 0) return;
+
+    final ringColor = switch (kind) {
+      WindDartsImpactKind.double => _impactAmber,
+      WindDartsImpactKind.triple => _impactOrangeRed,
+      WindDartsImpactKind.singleBull => _impactTeal,
+      WindDartsImpactKind.doubleBull => _impactRed,
+      _ => _impactAmber,
+    };
+    final waveT = ((time - 0.08) / 0.27).clamp(0.0, 1.0);
+    final waveProgress = 1 - math.pow(1 - waveT, 2).toDouble();
+    final waveFade = (1 - waveT).clamp(0.0, 1.0);
+    final shardT = ((time - 0.35) / 0.35).clamp(0.0, 1.0);
+    final shardProgress = 1 - math.pow(1 - shardT, 2).toDouble();
+    final shardFade = (1 - shardT).clamp(0.0, 1.0);
+    final radius = maxRadius * radiusScale;
+
+    canvas.save();
+    if (clipRect != null) canvas.clipRect(clipRect);
+    if (golden) {
+      canvas.drawCircle(
+        center,
+        radius * 1.1,
+        Paint()
+          ..isAntiAlias = true
+          ..color = _gold.withAlpha(
+            ((time < 0.35 ? 155 * waveFade : 155 * shardFade)).round(),
+          )
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1.0, radiusScale * 2.2),
+      );
+    }
+
+    if (time < 0.08) {
+      final flashFade = (1 - time / 0.08).clamp(0.0, 1.0);
+      final flashRadius = radius * (0.12 + flashFade * 0.08);
+      final rayPaint = Paint()
+        ..isAntiAlias = true
+        ..color = _impactCream.withAlpha((245 * flashFade).round())
+        ..strokeCap = StrokeCap.square
+        ..strokeWidth = math.max(2.4, radiusScale * 4.0);
+      canvas.drawCircle(
+        center,
+        radius * 0.1,
+        Paint()
+          ..isAntiAlias = true
+          ..color = _impactCream.withAlpha((245 * flashFade).round()),
+      );
+      for (var index = 0; index < 4; index++) {
+        final angle = index * math.pi / 2;
+        final direction = Offset(math.cos(angle), math.sin(angle));
+        canvas.drawLine(
+          center + direction * radius * 0.03,
+          center + direction * flashRadius,
+          rayPaint,
+        );
+      }
+    }
+
+    if (time >= 0.08 && time < 0.35 && kind == WindDartsImpactKind.singleBull) {
+      canvas.drawCircle(
+        center,
+        radius * 0.5 * waveProgress,
+        Paint()
+          ..isAntiAlias = true
+          ..color = _impactTeal.withAlpha((235 * waveFade).round())
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1.6, radiusScale * 3.2),
+      );
+      final rayLength = radius * 0.95 * waveProgress;
+      for (var index = 0; index < 4; index++) {
+        final angle = index * math.pi / 2;
+        final direction = Offset(math.cos(angle), math.sin(angle));
+        canvas.drawLine(
+          center + direction * radius * 0.35,
+          center + direction * rayLength,
+          Paint()
+            ..isAntiAlias = true
+            ..color = _impactTeal.withAlpha((235 * waveFade).round())
+            ..strokeCap = StrokeCap.round
+            ..strokeWidth = math.max(1.8, radiusScale * 3.4),
+        );
+      }
+    } else if (time >= 0.08 && time < 0.35) {
+      for (var index = 0; index < ringCount; index++) {
+        final ringProgress = (index + 1) / (ringCount + 1);
+        final ringRadius = radius * (0.32 + ringProgress * 0.58) * waveProgress;
+        final ringPaint = Paint()
+          ..isAntiAlias = true
+          ..color =
+              (kind == WindDartsImpactKind.doubleBull && index == 0
+                      ? _impactCream
+                      : ringColor)
+                  .withAlpha((235 * waveFade).round())
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1.6, radiusScale * 3.2);
+        if (kind == WindDartsImpactKind.triple) {
+          final ringRect = Rect.fromCircle(center: center, radius: ringRadius);
+          final startAngle = index * 0.65 + 0.18;
+          canvas.drawArc(
+            ringRect,
+            startAngle,
+            math.pi * 1.55,
+            false,
+            ringPaint,
+          );
+          canvas.drawArc(
+            ringRect,
+            startAngle + math.pi,
+            math.pi * 0.42,
+            false,
+            ringPaint,
+          );
+        } else {
+          canvas.drawCircle(center, ringRadius, ringPaint);
+        }
+      }
+      if (kind == WindDartsImpactKind.doubleBull) {
+        canvas.drawCircle(
+          center,
+          radius * 0.16 * waveProgress,
+          Paint()
+            ..isAntiAlias = true
+            ..color = _impactCream.withAlpha((245 * waveFade).round()),
+        );
+        final rayLength = radius * 0.95 * waveProgress;
+        for (var index = 0; index < sparkCount; index++) {
+          final angle = index * math.pi * 2 / sparkCount + 0.08;
+          final direction = Offset(math.cos(angle), math.sin(angle));
+          canvas.drawLine(
+            center + direction * radius * 0.22,
+            center + direction * rayLength,
+            Paint()
+              ..isAntiAlias = true
+              ..color = (index.isEven ? _impactRed : _impactCream).withAlpha(
+                (235 * waveFade).round(),
+              )
+              ..strokeCap = StrokeCap.square
+              ..strokeWidth = math.max(1.6, radiusScale * 2.4),
+          );
+        }
+      }
+    }
+
+    if (time >= 0.35) {
+      final shardCount = kind == WindDartsImpactKind.singleBull
+          ? 4
+          : sparkCount;
+      for (var index = 0; index < shardCount; index++) {
+        final angle =
+            index * math.pi * 2 / shardCount +
+            ((index * 17) % 7) * 0.035 +
+            (kind == WindDartsImpactKind.triple ? 0.12 : 0.0);
+        final radiusFactor =
+            0.58 +
+            ((index * 13) % math.max(1, shardCount)) /
+                math.max(1, shardCount) *
+                0.34;
+        final direction = Offset(math.cos(angle), math.sin(angle));
+        final endDistance =
+            radius * radiusFactor * (0.52 + shardProgress * 0.48);
+        final shardCenter = center + direction * endDistance;
+        final shardSize = radiusScale * (2.0 + index % 3);
+        final shardPaint = Paint()
+          ..isAntiAlias = false
+          ..color =
+              (kind == WindDartsImpactKind.doubleBull && index.isEven
+                      ? _impactCream
+                      : ringColor)
+                  .withAlpha((235 * shardFade).round());
+        canvas.save();
+        canvas.translate(shardCenter.dx, shardCenter.dy);
+        canvas.rotate(angle);
+        canvas.drawRect(
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: shardSize,
+            height: math.max(1.0, shardSize * 0.7),
+          ),
+          shardPaint,
+        );
+        canvas.restore();
+      }
+    }
+    canvas.restore();
+  }
+
+  static Offset _rotateVector(Offset vector, double angle) => Offset(
+    vector.dx * math.cos(angle) - vector.dy * math.sin(angle),
+    vector.dx * math.sin(angle) + vector.dy * math.cos(angle),
+  );
 
   static Offset _unitVector(Offset vector) {
     final distance = vector.distance;

@@ -17,6 +17,11 @@ void main() {
     'shot_scores': [50, 60, 39, 57, 20, 60],
     'is_bot': false,
   };
+  const v4Json = <String, dynamic>{
+    'nickname': 'v4 opponent',
+    'shot_scores': [7, 19, 10, 20, 6, 9, 22],
+    'is_bot': true,
+  };
 
   test('parses five-shot historical opponents for v1', () {
     final opponent = WindDartsOpponent.fromJson(v1Json, attemptVersion: 1);
@@ -39,6 +44,13 @@ void main() {
     expect(opponent.score, 286);
   });
 
+  test('parses seven-shot opponents with a golden final dart for v4', () {
+    final opponent = WindDartsOpponent.fromJson(v4Json, attemptVersion: 4);
+
+    expect(opponent.shotScores, [7, 19, 10, 20, 6, 9, 22]);
+    expect(opponent.score, 93);
+  });
+
   test('rejects a payload whose length does not match the attempt version', () {
     expect(
       () => WindDartsOpponent.fromJson(v2Json, attemptVersion: 1),
@@ -50,6 +62,10 @@ void main() {
     );
     expect(
       () => WindDartsOpponent.fromJson(v1Json, attemptVersion: 3),
+      throwsFormatException,
+    );
+    expect(
+      () => WindDartsOpponent.fromJson(v3Json, attemptVersion: 4),
       throwsFormatException,
     );
   });

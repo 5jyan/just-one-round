@@ -18,6 +18,7 @@ class WindDartsOpponent {
     final expectedShotCount = switch (attemptVersion) {
       1 => 5,
       2 || 3 => 6,
+      4 => 7,
       _ => throw FormatException(
         'Unsupported wind darts attempt version: $attemptVersion',
       ),

@@ -26,7 +26,14 @@ class WindDartsAimSample {
   final double power;
 }
 
-enum WindDartsImpactKind { miss, single, double, triple, doubleBull }
+enum WindDartsImpactKind {
+  miss,
+  single,
+  double,
+  triple,
+  singleBull,
+  doubleBull,
+}
 
 class WindDartsImpact {
   const WindDartsImpact({
@@ -34,19 +41,21 @@ class WindDartsImpact {
     required this.sector,
     required this.multiplier,
     required this.kind,
+    this.isGoldenDart = false,
   });
 
   final int score;
   final int? sector;
   final int multiplier;
   final WindDartsImpactKind kind;
+  final bool isGoldenDart;
 }
 
 abstract final class WindDartsRules {
-  static const rulesVersion = 3;
-  static const shotCount = 6;
+  static const rulesVersion = 4;
+  static const shotCount = 7;
   // Kept as catalog metadata for the shared attempt/session schema. It is not
-  // a player-facing game timer; v3 ends only after all six throws complete.
+  // a player-facing game timer; v4 ends only after all seven throws complete.
   static const gameDuration = Duration(seconds: 75);
   static const aimGaugeFillSeconds = 6.0;
   // Compatibility alias used by the existing preview and guide test cycle.
@@ -67,8 +76,10 @@ abstract final class WindDartsRules {
   static const tripleOuterRadiusRatio = 111 / 170;
   static const doubleInnerRadiusRatio = 154 / 170;
   static const doubleOuterRadiusRatio = 1.0;
-  static const _shotDistances = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5];
-  static const _boardScales = [1.0, 0.91, 0.82, 0.745, 0.67, 0.61];
+  static const innerBullRadiusRatio = 6.35 / 170;
+  static const outerBullRadiusRatio = 15.9 / 170;
+  static const _shotDistances = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 3.5];
+  static const _boardScales = [1.0, 0.91, 0.82, 0.745, 0.67, 0.61, 0.61];
   static const sectorOrder = <int>[
     20,
     1,
@@ -107,6 +118,8 @@ abstract final class WindDartsRules {
   static double boardScaleForShot(int shotIndex) =>
       _boardScales[shotIndex.clamp(0, shotCount - 1)];
 
+  static bool isGoldenDart(int shotIndex) => shotIndex == shotCount - 1;
+
   static double distanceForShot(int shotIndex) =>
       _shotDistances[shotIndex.clamp(0, shotCount - 1)];
 
@@ -138,23 +151,35 @@ abstract final class WindDartsRules {
     required Offset point,
     required double boardRadius,
     required double boardAngle,
+    bool isGoldenDart = false,
   }) {
     final radius = point.distance;
     final r = radius / boardRadius;
     if (r > 1 || !r.isFinite) {
-      return const WindDartsImpact(
+      return WindDartsImpact(
         score: 0,
         sector: null,
         multiplier: 0,
         kind: WindDartsImpactKind.miss,
+        isGoldenDart: isGoldenDart,
       );
     }
-    if (r <= 15.9 / 170) {
-      return const WindDartsImpact(
-        score: 50,
+    if (r <= innerBullRadiusRatio) {
+      return WindDartsImpact(
+        score: isGoldenDart ? 100 : 50,
         sector: 25,
         multiplier: 2,
         kind: WindDartsImpactKind.doubleBull,
+        isGoldenDart: isGoldenDart,
+      );
+    }
+    if (r <= outerBullRadiusRatio) {
+      return WindDartsImpact(
+        score: isGoldenDart ? 50 : 25,
+        sector: 25,
+        multiplier: 1,
+        kind: WindDartsImpactKind.singleBull,
+        isGoldenDart: isGoldenDart,
       );
     }
 
@@ -173,16 +198,59 @@ abstract final class WindDartsRules {
       2 => WindDartsImpactKind.double,
       _ => WindDartsImpactKind.single,
     };
+    final baseScore = sector * multiplier;
     return WindDartsImpact(
-      score: sector * multiplier,
+      score: baseScore * (isGoldenDart ? 2 : 1),
       sector: sector,
       multiplier: multiplier,
       kind: kind,
+      isGoldenDart: isGoldenDart,
     );
   }
 
-  static int rankingScore(int points) => points.clamp(0, shotCount * 60);
+  /// Returns one deterministic board point that represents a recorded score.
+  /// Opponent records store the score only, so the animation uses a valid hit
+  /// in the corresponding sector/ring instead of inventing a new result.
+  static Offset representativePointForScore({
+    required int score,
+    required double boardRadius,
+    bool isGoldenDart = false,
+  }) {
+    final baseScore = isGoldenDart ? score ~/ 2 : score;
+    if (baseScore == 0) return Offset(0, boardRadius * 1.06);
+    if (baseScore == 25) {
+      return Offset(
+        0,
+        -boardRadius * (innerBullRadiusRatio + outerBullRadiusRatio) / 2,
+      );
+    }
+    if (baseScore == 50) {
+      return Offset(0, -boardRadius * innerBullRadiusRatio / 2);
+    }
 
-  static String formatScore(int points) =>
-      '${points.clamp(0, shotCount * 60)}점';
+    late final int sector;
+    late final double radiusRatio;
+    if (baseScore > 20 && baseScore.isEven && baseScore ~/ 2 <= 20) {
+      sector = baseScore ~/ 2;
+      radiusRatio = (doubleInnerRadiusRatio + doubleOuterRadiusRatio) / 2;
+    } else if (baseScore > 20 && baseScore % 3 == 0 && baseScore ~/ 3 <= 20) {
+      sector = baseScore ~/ 3;
+      radiusRatio = (tripleInnerRadiusRatio + tripleOuterRadiusRatio) / 2;
+    } else if (baseScore <= 20) {
+      sector = baseScore;
+      radiusRatio = (tripleOuterRadiusRatio + doubleInnerRadiusRatio) / 2;
+    } else {
+      throw ArgumentError.value(score, 'score', 'not a valid dart score');
+    }
+
+    final sectorIndex = sectorOrder.indexOf(sector);
+    final angle = boardAngle - pi / 2 + (sectorIndex + 0.5) * pi / 10;
+    return Offset(cos(angle), sin(angle)) * boardRadius * radiusRatio;
+  }
+
+  static const maximumScore = (shotCount - 1) * 60 + 120;
+
+  static int rankingScore(int points) => points.clamp(0, maximumScore);
+
+  static String formatScore(int points) => '${points.clamp(0, maximumScore)}점';
 }

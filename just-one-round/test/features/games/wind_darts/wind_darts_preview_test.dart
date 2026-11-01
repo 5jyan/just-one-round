@@ -114,4 +114,62 @@ void main() {
     expect(impact.multiplier, 3);
     expect(impact.score, 60);
   });
+
+  test(
+    'home preview follows production timing and resets its full seven-shot loop',
+    () {
+      final firstCycle = windDartsPreviewCycleSecondsForShot(0);
+      final secondCycle = windDartsPreviewCycleSecondsForShot(1);
+      final duration = windDartsPreviewDurationSeconds();
+
+      expect(firstCycle, closeTo(2.4 + .72 + 2 + .7, 0.0001));
+      expect(secondCycle, closeTo(firstCycle + .05, 0.0001));
+      expect(
+        duration,
+        closeTo(
+          firstCycle * WindDartsRules.shotCount +
+              .05 *
+                  (WindDartsRules.shotCount - 1) *
+                  WindDartsRules.shotCount /
+                  2,
+          0.0001,
+        ),
+      );
+
+      final firstShotFlight = windDartsPreviewTimingForElapsed(2.4);
+      expect(firstShotFlight.shotIndex, 0);
+      expect(firstShotFlight.phase, WindDartsPreviewPhase.flight);
+      expect(firstShotFlight.flightProgress, closeTo(0, 0.0001));
+      final firstShotImpact = windDartsPreviewTimingForElapsed(2.4 + .72);
+      expect(firstShotImpact.phase, WindDartsPreviewPhase.impact);
+      expect(firstShotImpact.impactProgress, closeTo(0, 0.0001));
+
+      final firstBoundary = windDartsPreviewTimingForElapsed(firstCycle);
+      expect(firstBoundary.shotIndex, 1);
+      expect(firstBoundary.phase, WindDartsPreviewPhase.aim);
+      final secondLoopStart = windDartsPreviewTimingForElapsed(duration);
+      expect(secondLoopStart.shotIndex, 0);
+      expect(secondLoopStart.phase, WindDartsPreviewPhase.aim);
+      final secondLoopFirstBoundary = windDartsPreviewTimingForElapsed(
+        duration + firstCycle,
+      );
+      expect(secondLoopFirstBoundary.shotIndex, 1);
+      expect(secondLoopFirstBoundary.phase, WindDartsPreviewPhase.aim);
+    },
+  );
+
+  test(
+    'home preview scores are legal and the golden seventh shot is doubled',
+    () {
+      expect(windDartsPreviewScoreForShot(6), 120);
+      expect(windDartsPreviewTotalForCompletedShots(7), 333);
+      for (var shot = 0; shot < WindDartsRules.shotCount; shot++) {
+        expect(
+          windDartsPreviewManualAimOffsetForShot(shot).distance,
+          lessThanOrEqualTo(WindDartsRules.baseBoardRadius * .75),
+          reason: 'staged launch $shot must fit the production drag limit',
+        );
+      }
+    },
+  );
 }

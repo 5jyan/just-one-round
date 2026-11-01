@@ -6,15 +6,17 @@ import 'package:just_one_round/features/games/wind_darts/domain/wind_darts_rules
 import 'package:just_one_round/features/games/wind_darts/presentation/wind_darts_art.dart';
 
 void main() {
-  test('v2 runtime art contract loads the seven shared assets', () {
-    expect(WindDartsArtAssets.assetPaths, hasLength(7));
-    expect(WindDartsArtAssets.flameImagePaths, hasLength(7));
+  test('v4 runtime art contract loads the nine shared assets', () {
+    expect(WindDartsArtAssets.assetPaths, hasLength(9));
+    expect(WindDartsArtAssets.flameImagePaths, hasLength(9));
     expect(
       WindDartsArtAssets.assetPaths,
       containsAll(<String>[
         WindDartsArtAssets.scoreParchment,
         WindDartsArtAssets.aimGaugeFrame,
         WindDartsArtAssets.aimGaugeFill,
+        WindDartsArtAssets.opponentVictory,
+        WindDartsArtAssets.victorySmoke,
       ]),
     );
     expect(WindDartsArt.scoreParchmentSourceSize, const Size(240, 320));
@@ -105,4 +107,74 @@ void main() {
       expect(screenTailAgain.dy, closeTo(expectedTail.dy, 0.000001));
     },
   );
+
+  test('impact bursts render deterministic bounded hit-kind samples', () async {
+    Future<List<int>> raster(
+      WindDartsImpactKind kind,
+      double elapsed, {
+      bool golden = false,
+    }) async {
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 160, 160));
+      WindDartsArt.drawImpactBurst(
+        canvas,
+        center: const Offset(80, 80),
+        kind: kind,
+        elapsed: elapsed,
+        golden: golden,
+      );
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(160, 160);
+      final bytes = await image.toByteData(format: ImageByteFormat.rawRgba);
+      image.dispose();
+      return List<int>.from(
+        bytes!.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
+      );
+    }
+
+    int activePixels(List<int> rgba) {
+      var active = 0;
+      for (var index = 3; index < rgba.length; index += 4) {
+        if (rgba[index] != 0) active++;
+      }
+      return active;
+    }
+
+    const kinds = [
+      WindDartsImpactKind.double,
+      WindDartsImpactKind.triple,
+      WindDartsImpactKind.singleBull,
+      WindDartsImpactKind.doubleBull,
+    ];
+    final midSamples = <WindDartsImpactKind, List<int>>{};
+    for (final kind in kinds) {
+      final early = await raster(kind, 0.05);
+      final mid = await raster(kind, 0.25);
+      final shards = await raster(kind, 0.5);
+      final expired = await raster(kind, 0.71);
+      expect(activePixels(early), greaterThan(0), reason: '$kind early');
+      expect(activePixels(mid), greaterThan(0), reason: '$kind mid');
+      expect(activePixels(shards), greaterThan(0), reason: '$kind shards');
+      expect(activePixels(expired), 0, reason: '$kind expired');
+      midSamples[kind] = mid;
+    }
+    expect(
+      activePixels(midSamples[WindDartsImpactKind.doubleBull]!),
+      greaterThan(activePixels(midSamples[WindDartsImpactKind.double]!)),
+    );
+
+    final goldenTriple = await raster(
+      WindDartsImpactKind.triple,
+      0.25,
+      golden: true,
+    );
+    expect(
+      activePixels(goldenTriple),
+      greaterThan(activePixels(midSamples[WindDartsImpactKind.triple]!)),
+    );
+    expect(
+      goldenTriple,
+      equals(await raster(WindDartsImpactKind.triple, 0.25, golden: true)),
+    );
+  });
 }

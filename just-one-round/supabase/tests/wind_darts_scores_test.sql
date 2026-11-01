@@ -1,4 +1,4 @@
--- Run after 20261005000200_wind_darts_unlimited_v3.sql inside a transaction
+-- Run after 20261011000100_wind_darts_v4_bot_scores.sql inside a transaction
 -- and roll back.
 begin;
 
@@ -171,10 +171,10 @@ begin
     (v3_lower_candidate, true),
     (v3_higher_candidate, true);
   update public.profiles
-  set nickname = 'v3 이전 기록 도전자'
+  set nickname = 'v3 이전 기록 도전자', is_test_account = true
   where id = v3_challenger;
   update public.profiles
-  set nickname = 'v3 낮은 기록 도전자'
+  set nickname = 'v3 낮은 기록 도전자', is_test_account = true
   where id = v3_lower_only_challenger;
   update public.profiles
   set nickname = 'v3 낮은 상대'
@@ -697,30 +697,118 @@ begin
 
   state := public.get_today_state();
   if state->'game'->>'id' <> 'wind_darts'
-    or state->'game'->>'version' <> '3'
+    or state->'game'->>'version' <> '4'
     or state->'game'->>'duration_seconds' <> '75' then
-    raise exception 'test game selection did not expose wind darts v3: %', state;
+    raise exception 'test game selection did not expose wind darts v4: %', state;
   end if;
   developer_games := public.get_developer_games();
   if not exists (
     select 1
     from jsonb_array_elements(developer_games) game
-    where game->>'id' = 'wind_darts' and game->>'version' = '3'
+    where game->>'id' = 'wind_darts' and game->>'version' = '4'
   ) then
-    raise exception 'inactive wind darts v3 was not exposed to test selector';
+    raise exception 'inactive wind darts v4 was not exposed to test selector';
   end if;
 
   claimed := public.claim_daily_attempt(play_day);
-  if claimed.game_id <> 'wind_darts' or claimed.game_version <> 3 then
-    raise exception 'new test attempt did not use wind darts v3: %', claimed;
+  if claimed.game_id <> 'wind_darts' or claimed.game_version <> 4 then
+    raise exception 'new test attempt did not use wind darts v4: %', claimed;
   end if;
   select session.game_version, session.game_duration_seconds
   into session_version, session_duration
   from public.daily_play_sessions session
   where session.attempt_id = claimed.id;
-  if session_version <> 3 or session_duration <> 75 then
-    raise exception 'new test session did not use wind darts v3: %/%',
+  if session_version <> 4 or session_duration <> 75 then
+    raise exception 'new test session did not use wind darts v4: %/%',
       session_version, session_duration;
+  end if;
+end;
+$$;
+
+do $$
+declare
+  play_day date := public.current_play_date();
+  challenger uuid := gen_random_uuid();
+  challenge_attempt uuid;
+  challenge_session uuid := gen_random_uuid();
+  opponent jsonb;
+  submitted jsonb;
+begin
+  perform set_config('request.headers', '{"x-app-build":"27","x-app-platform":"ios"}', true);
+  insert into auth.users(id, is_anonymous) values (challenger, true);
+  update public.profiles set nickname = '황금 다트 도전자' where id = challenger;
+
+  insert into public.attempts(
+    user_id, play_date, game_id, game_version, ordinal, grant_type,
+    game_duration_seconds
+  ) values (
+    challenger, play_day, 'wind_darts', 4, 1, 'daily', 75
+  ) returning id into challenge_attempt;
+  insert into public.daily_play_sessions(
+    id, user_id, play_date, ordinal, play_mode, attempt_id,
+    game_id, game_version, game_duration_seconds
+  ) values (
+    challenge_session, challenger, play_day, 1, 'challenge', challenge_attempt,
+    'wind_darts', 4, 75
+  );
+
+  perform set_config('request.jwt.claim.sub', challenger::text, true);
+  opponent := public.confirm_wind_darts_started(challenge_attempt);
+  if opponent->>'game_version' <> '4'
+    or opponent->>'is_bot' <> 'true'
+    or opponent->'shot_scores' <> '[7,19,10,20,6,9,22]'::jsonb
+    or not exists (
+      select 1
+      from public.wind_darts_opponents fallback
+      where fallback.session_id = challenge_session
+        and fallback.is_bot
+        and fallback.total_score = 93
+    ) then
+    raise exception 'v4 fallback opponent does not use the approved 93-point score: %', opponent;
+  end if;
+  update public.attempts
+  set issued_at = now() - interval '20 seconds'
+  where id = challenge_attempt;
+
+  begin
+    perform public.submit_wind_darts_score(
+      challenge_attempt,
+      array[50,25,20,30,60,0,99]::smallint[],
+      10000
+    );
+    raise exception 'invalid golden dart score was accepted';
+  exception when others then
+    if sqlerrm = 'invalid golden dart score was accepted' then raise; end if;
+    if sqlerrm <> 'invalid dart score' then raise; end if;
+  end;
+
+  submitted := public.submit_wind_darts_score(
+    challenge_attempt,
+    array[50,25,20,30,60,0,100]::smallint[],
+    10000
+  );
+  if not exists (
+    select 1 from public.wind_darts_shot_records record
+    where record.attempt_id = challenge_attempt
+      and record.total_score = 285
+      and record.shot_scores = array[50,25,20,30,60,0,100]::smallint[]
+  ) then
+    raise exception 'v4 did not persist all seven dart scores';
+  end if;
+  if (select count(*) from public.scores where attempt_id = challenge_attempt) <> 1 then
+    raise exception 'v4 score submission did not create exactly one leaderboard row';
+  end if;
+  if submitted->>'score' <> '285' then
+    raise exception 'v4 leaderboard total is incorrect: %', submitted;
+  end if;
+
+  perform public.submit_wind_darts_score(
+    challenge_attempt,
+    array[0,0,0,0,0,0,0]::smallint[],
+    12000
+  );
+  if (select count(*) from public.scores where attempt_id = challenge_attempt) <> 1 then
+    raise exception 'v4 retry inserted a duplicate leaderboard row';
   end if;
 end;
 $$;

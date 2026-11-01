@@ -26,6 +26,16 @@ void main() {
         GameRegistry.forId('wind_darts').hudStyle,
         MiniGameHudStyle.custom,
       );
+      expect(
+        GameRegistry.forId('wind_darts').playingInstruction,
+        contains('7발'),
+      );
+      expect(
+        GameRegistry.forId('wind_darts').playingInstruction,
+        contains('황금'),
+      );
+      expect(GameRegistry.forId('wind_darts').resultUnitLabel, '7발 합계 점수');
+      expect(WindDartsRules.maximumScore, 480);
       final controller = GameRegistry.forId('wind_darts').create(
         gameDuration: WindDartsRules.gameDuration,
         countdownDuration: Duration.zero,
