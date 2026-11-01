@@ -1,0 +1,36 @@
+{
+  "viewports": [
+    {
+      "name": "wide_short_430x640",
+      "visible_world_rect": [
+        1.0,
+        30.0,
+        431.0,
+        670.0
+      ],
+      "warnings": []
+    },
+    {
+      "name": "canonical_360x640",
+      "visible_world_rect": [
+        36.0,
+        30.0,
+        396.0,
+        670.0
+      ],
+      "warnings": []
+    },
+    {
+      "name": "tall_360x820",
+      "visible_world_rect": [
+        36.0,
+        -60.0,
+        396.0,
+        760.0
+      ],
+      "warnings": []
+    }
+  ],
+  "warnings": [],
+  "ok": true
+}

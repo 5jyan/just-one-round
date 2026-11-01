@@ -1,0 +1,282 @@
+{
+  "schema": "homebound_run.character_asset_qc.v2",
+  "asset": "homebound_run",
+  "operation": "student_run_v3",
+  "input": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_master_raw.png",
+  "raw_size": [
+    1024,
+    1536
+  ],
+  "source_reference": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/student_run.png",
+  "prompt": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_master_prompt.txt",
+  "base_cell": [
+    96,
+    144
+  ],
+  "runtime_cell": [
+    192,
+    288
+  ],
+  "display_size": [
+    96,
+    144
+  ],
+  "display_scale": 0.5,
+  "integer_scale": 2,
+  "runtime_art_pixel": "1 logical pixel",
+  "frame_order": [
+    "L-contact",
+    "R-passing",
+    "R-contact",
+    "L-passing"
+  ],
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "L-contact",
+      "source_bbox": [
+        116,
+        82,
+        419,
+        712
+      ],
+      "source_bbox_size": [
+        303,
+        630
+      ],
+      "source_crop": [
+        0,
+        0,
+        512,
+        768
+      ],
+      "base_size": [
+        96,
+        144
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "intermediate_size": [
+        384,
+        576
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 6
+    },
+    {
+      "index": 1,
+      "label": "R-passing",
+      "source_bbox": [
+        54,
+        82,
+        396,
+        712
+      ],
+      "source_bbox_size": [
+        342,
+        630
+      ],
+      "source_crop": [
+        0,
+        0,
+        512,
+        768
+      ],
+      "base_size": [
+        96,
+        144
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "intermediate_size": [
+        384,
+        576
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 6
+    },
+    {
+      "index": 2,
+      "label": "R-contact",
+      "source_bbox": [
+        93,
+        55,
+        429,
+        680
+      ],
+      "source_bbox_size": [
+        336,
+        625
+      ],
+      "source_crop": [
+        0,
+        0,
+        512,
+        768
+      ],
+      "base_size": [
+        96,
+        144
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "intermediate_size": [
+        384,
+        576
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 18
+    },
+    {
+      "index": 3,
+      "label": "L-passing",
+      "source_bbox": [
+        65,
+        55,
+        402,
+        680
+      ],
+      "source_bbox_size": [
+        337,
+        625
+      ],
+      "source_crop": [
+        0,
+        0,
+        512,
+        768
+      ],
+      "base_size": [
+        96,
+        144
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "intermediate_size": [
+        384,
+        576
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 18
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          44,
+          36,
+          158,
+          272
+        ],
+        "subject_size": [
+          114,
+          236
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          20,
+          36,
+          148,
+          272
+        ],
+        "subject_size": [
+          128,
+          236
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          34,
+          38,
+          160,
+          272
+        ],
+        "subject_size": [
+          126,
+          234
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          24,
+          38,
+          150,
+          272
+        ],
+        "subject_size": [
+          126,
+          234
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 235.0,
+    "body_height_cv": 0.00425531914893617,
+    "anchor_y_std": 0.0,
+    "bottom_padding_min": 16,
+    "bottom_padding_max": 16,
+    "pairwise_changed_pixels": [
+      16984,
+      17512,
+      16968
+    ],
+    "alpha_values": [
+      0,
+      255
+    ],
+    "color_count": 9984
+  },
+  "processing": {
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_creative": "built-in image_gen",
+    "source_art_is_not_procedurally_drawn": true,
+    "processor": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/process_student_v3.py",
+    "established_chroma_and_crop_functions": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/process_homebound_assets.py",
+    "alignment": "shared alpha-bottom baseline in runtime cell",
+    "baseline_y": 272
+  }
+}

@@ -1,0 +1,2 @@
+Use case: transparent enemy / guardian sprite for a mobile endless runner.
+Create one standalone 3/4-front guardian ape spirit, square transparent framing, from the same temple world: broad awkward-cute but intimidating body, cocoa-brown fur with mossy jade patches, weathered sandstone-and-gold shoulder ornaments, carved sun medallion, hunched ready-to-chase stance, amber eyes, heavy brow, readable silhouette, restrained attached jade glow. Clean HD hand-painted style, generous padding, no floor/shadow/text/logo/watermark, no limbs or ornament tips touching edges.

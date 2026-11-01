@@ -1,0 +1,15 @@
+Create one opaque 4:3 front-orthographic pixel-art facade plate for a small
+Korean neighborhood shop. The whole rectangle must be one complete upright
+two-story building from edge to edge and top to bottom, not a storefront
+insert under blank white wall. Use faded teal/deep blue-green lower shop
+material with a closed roller shutter or shop door at ground contact, a clear
+upper-storey window pair or block, narrow warm trim only as architectural
+detail, and restrained attached awning, meter, lamp, or pipe cues. Keep quiet
+material-only side areas for clean return swatches. The top edge continues the
+building facade and never shows a roof, skyline, or sky. Use broad refined
+32-bit pixel clusters, dark navy stepped contours, warm diffuse light, and
+quiet worn paint. No surrounding plaster canvas, white blank margin, road,
+sidewalk, ground plane, perspective, isometric view, border, giant pillars,
+projection shadow, signs, Hangul, English lettering, logos, characters,
+vehicles, watermark, or transparency. Output one opaque RGB-style source
+plate designed for nearest reduction to 256x192 and 4x enlargement.

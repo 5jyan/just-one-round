@@ -1,0 +1,1063 @@
+{
+  "schema": "homebound_run.neighborhood_v1.qc.v1",
+  "game": "homebound_run",
+  "family": "neighborhood_v1",
+  "creative_source": "built-in image_gen for two house plates; preserved existing environment raws for four adapted plates",
+  "master_style_reference": "../plaster_walls_v1/processed/authored/wall_plaster_a.png",
+  "authored_size": [
+    256,
+    192
+  ],
+  "runtime_size": [
+    1024,
+    768
+  ],
+  "nearest_scale": 4,
+  "world_footprint_m": [
+    7.333,
+    5.5
+  ],
+  "visual_contract": {
+    "camera": "front-on orthographic planar wall; no baked perspective",
+    "palette": "muted warm red brick and desaturated sage/blue-grey house fields, cream plaster, terracotta brick, faded teal, dark navy outlines",
+    "lighting": "warm upper-right with cool lower contact weathering",
+    "texture": "quiet deliberate 2x clusters and broad readable masses; no micro-noise",
+    "forbidden": [
+      "sky",
+      "road",
+      "rooftop",
+      "roof cap",
+      "border",
+      "pilaster",
+      "readable text",
+      "characters",
+      "vehicles"
+    ]
+  },
+  "reserved_plain_edges": {
+    "authored_px": [
+      16,
+      16
+    ],
+    "runtime_px": [
+      64,
+      64
+    ],
+    "left_range": [
+      0,
+      16
+    ],
+    "right_range": [
+      240,
+      256
+    ],
+    "profile_source": "accepted plaster wall_plaster_a opposing edge average"
+  },
+  "assets": {
+    "wall_house_brick": {
+      "kind": "new_imagegen_house_plate",
+      "authored": "processed/authored/wall_house_brick.png",
+      "runtime": "processed/runtime/wall_house_brick.png",
+      "export": "assets/images/homebound_run/wall_house_brick.png",
+      "raw": "raw/wall_house_brick_raw.png",
+      "prompt": "raw/wall_house_brick_prompt.txt",
+      "crop_box_xyxy": [
+        0,
+        0,
+        1448,
+        1086
+      ],
+      "main_panel": {
+        "authored_rect_xyxy": [
+          16,
+          0,
+          240,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.0625,
+          0.0,
+          0.9375,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          64,
+          0,
+          960,
+          768
+        ]
+      },
+      "features": {
+        "door": {
+          "authored_rect_xyxy": [
+            147,
+            91,
+            195,
+            175
+          ],
+          "normalized_rect_xyxy": [
+            0.57421875,
+            0.4739583333333333,
+            0.76171875,
+            0.9114583333333334
+          ],
+          "runtime_rect_xyxy": [
+            588,
+            364,
+            780,
+            700
+          ],
+          "estimated_world_height_m": 2.406
+        },
+        "window": [
+          {
+            "authored_rect_xyxy": [
+              51,
+              13,
+              127,
+              63
+            ],
+            "normalized_rect_xyxy": [
+              0.19921875,
+              0.06770833333333333,
+              0.49609375,
+              0.328125
+            ],
+            "runtime_rect_xyxy": [
+              204,
+              52,
+              508,
+              252
+            ]
+          },
+          {
+            "authored_rect_xyxy": [
+              185,
+              9,
+              218,
+              57
+            ],
+            "normalized_rect_xyxy": [
+              0.72265625,
+              0.046875,
+              0.8515625,
+              0.296875
+            ],
+            "runtime_rect_xyxy": [
+              740,
+              36,
+              872,
+              228
+            ]
+          }
+        ],
+        "awning": {
+          "authored_rect_xyxy": [
+            124,
+            69,
+            188,
+            94
+          ],
+          "normalized_rect_xyxy": [
+            0.484375,
+            0.359375,
+            0.734375,
+            0.4895833333333333
+          ],
+          "runtime_rect_xyxy": [
+            496,
+            276,
+            752,
+            376
+          ]
+        },
+        "eave": [
+          {
+            "authored_rect_xyxy": [
+              31,
+              0,
+              143,
+              22
+            ],
+            "normalized_rect_xyxy": [
+              0.12109375,
+              0.0,
+              0.55859375,
+              0.11458333333333333
+            ],
+            "runtime_rect_xyxy": [
+              124,
+              0,
+              572,
+              88
+            ]
+          },
+          {
+            "authored_rect_xyxy": [
+              183,
+              6,
+              221,
+              20
+            ],
+            "normalized_rect_xyxy": [
+              0.71484375,
+              0.03125,
+              0.86328125,
+              0.10416666666666667
+            ],
+            "runtime_rect_xyxy": [
+              732,
+              24,
+              884,
+              80
+            ]
+          }
+        ],
+        "hedge": {
+          "authored_rect_xyxy": [
+            17,
+            43,
+            162,
+            79
+          ],
+          "normalized_rect_xyxy": [
+            0.06640625,
+            0.22395833333333334,
+            0.6328125,
+            0.4114583333333333
+          ],
+          "runtime_rect_xyxy": [
+            68,
+            172,
+            648,
+            316
+          ]
+        }
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "note": "full wall plate remains opaque and owns a straight source bottom contact"
+      },
+      "raw_sha256": "341d1790a5c96d394a6cbb5820d7a77f8ea02dad1a770dbbef52b774a1cd99e3"
+    },
+    "wall_house_sage": {
+      "kind": "new_imagegen_house_plate",
+      "authored": "processed/authored/wall_house_sage.png",
+      "runtime": "processed/runtime/wall_house_sage.png",
+      "export": "assets/images/homebound_run/wall_house_sage.png",
+      "raw": "raw/wall_house_sage_raw.png",
+      "prompt": "raw/wall_house_sage_prompt.txt",
+      "crop_box_xyxy": [
+        0,
+        0,
+        1448,
+        1086
+      ],
+      "main_panel": {
+        "authored_rect_xyxy": [
+          16,
+          0,
+          240,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.0625,
+          0.0,
+          0.9375,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          64,
+          0,
+          960,
+          768
+        ]
+      },
+      "features": {
+        "door": {
+          "authored_rect_xyxy": [
+            147,
+            91,
+            195,
+            175
+          ],
+          "normalized_rect_xyxy": [
+            0.57421875,
+            0.4739583333333333,
+            0.76171875,
+            0.9114583333333334
+          ],
+          "runtime_rect_xyxy": [
+            588,
+            364,
+            780,
+            700
+          ],
+          "estimated_world_height_m": 2.406
+        },
+        "window": [
+          {
+            "authored_rect_xyxy": [
+              51,
+              13,
+              127,
+              63
+            ],
+            "normalized_rect_xyxy": [
+              0.19921875,
+              0.06770833333333333,
+              0.49609375,
+              0.328125
+            ],
+            "runtime_rect_xyxy": [
+              204,
+              52,
+              508,
+              252
+            ]
+          },
+          {
+            "authored_rect_xyxy": [
+              185,
+              9,
+              218,
+              57
+            ],
+            "normalized_rect_xyxy": [
+              0.72265625,
+              0.046875,
+              0.8515625,
+              0.296875
+            ],
+            "runtime_rect_xyxy": [
+              740,
+              36,
+              872,
+              228
+            ]
+          }
+        ],
+        "awning": {
+          "authored_rect_xyxy": [
+            124,
+            69,
+            188,
+            94
+          ],
+          "normalized_rect_xyxy": [
+            0.484375,
+            0.359375,
+            0.734375,
+            0.4895833333333333
+          ],
+          "runtime_rect_xyxy": [
+            496,
+            276,
+            752,
+            376
+          ]
+        },
+        "eave": [
+          {
+            "authored_rect_xyxy": [
+              31,
+              0,
+              143,
+              22
+            ],
+            "normalized_rect_xyxy": [
+              0.12109375,
+              0.0,
+              0.55859375,
+              0.11458333333333333
+            ],
+            "runtime_rect_xyxy": [
+              124,
+              0,
+              572,
+              88
+            ]
+          },
+          {
+            "authored_rect_xyxy": [
+              183,
+              6,
+              221,
+              20
+            ],
+            "normalized_rect_xyxy": [
+              0.71484375,
+              0.03125,
+              0.86328125,
+              0.10416666666666667
+            ],
+            "runtime_rect_xyxy": [
+              732,
+              24,
+              884,
+              80
+            ]
+          }
+        ],
+        "hedge": {
+          "authored_rect_xyxy": [
+            17,
+            43,
+            162,
+            79
+          ],
+          "normalized_rect_xyxy": [
+            0.06640625,
+            0.22395833333333334,
+            0.6328125,
+            0.4114583333333333
+          ],
+          "runtime_rect_xyxy": [
+            68,
+            172,
+            648,
+            316
+          ]
+        }
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "note": "full wall plate remains opaque and owns a straight source bottom contact"
+      },
+      "raw_sha256": "016eb441d7a97694c738a6862cb37a53079e21e7191f1b833c55c6bbca1ea01a"
+    },
+    "wall_house_garden": {
+      "kind": "adapted_existing_environment_raw",
+      "authored": "processed/authored/wall_house_garden.png",
+      "runtime": "processed/runtime/wall_house_garden.png",
+      "export": "assets/images/homebound_run/wall_house_garden.png",
+      "raw": "raw/facade_homes_source_raw.png",
+      "original_source": "../environment/facade_homes/raw.png",
+      "prompt": "raw/facade_homes_source_prompt.txt",
+      "crop_box_xyxy": [
+        512,
+        0,
+        1792,
+        768
+      ],
+      "main_panel": {
+        "authored_rect_xyxy": [
+          28,
+          72,
+          228,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.109375,
+          0.375,
+          0.890625,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          112,
+          288,
+          912,
+          768
+        ]
+      },
+      "features": {
+        "door": {
+          "authored_rect_xyxy": [
+            120,
+            104,
+            162,
+            177
+          ],
+          "normalized_rect_xyxy": [
+            0.46875,
+            0.5416666666666666,
+            0.6328125,
+            0.921875
+          ],
+          "runtime_rect_xyxy": [
+            480,
+            416,
+            648,
+            708
+          ],
+          "estimated_world_height_m": 2.091
+        },
+        "awning": {
+          "authored_rect_xyxy": [
+            96,
+            77,
+            188,
+            100
+          ],
+          "normalized_rect_xyxy": [
+            0.375,
+            0.4010416666666667,
+            0.734375,
+            0.5208333333333334
+          ],
+          "runtime_rect_xyxy": [
+            384,
+            308,
+            752,
+            400
+          ]
+        },
+        "canopy": {
+          "authored_rect_xyxy": [
+            96,
+            77,
+            188,
+            100
+          ],
+          "normalized_rect_xyxy": [
+            0.375,
+            0.4010416666666667,
+            0.734375,
+            0.5208333333333334
+          ],
+          "runtime_rect_xyxy": [
+            384,
+            308,
+            752,
+            400
+          ]
+        },
+        "hedge": {
+          "authored_rect_xyxy": [
+            28,
+            104,
+            94,
+            132
+          ],
+          "normalized_rect_xyxy": [
+            0.109375,
+            0.5416666666666666,
+            0.3671875,
+            0.6875
+          ],
+          "runtime_rect_xyxy": [
+            112,
+            416,
+            376,
+            528
+          ]
+        }
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "insert_bottom_authored_y": 192,
+        "insert_bottom_runtime_y": 768,
+        "note": "complete source insert owns its lower contact; surrounding plate remains accepted plaster"
+      },
+      "raw_sha256": "1928bc06cb4acd4efeec30b40162fa4c252b484ef7a605d93b05a9a03f43b553",
+      "transform_proof": {
+        "source_coordinates": "global pixels in preserved raw source",
+        "source_crop_xyxy": [
+          512,
+          0,
+          1792,
+          768
+        ],
+        "target_authored_rect_xyxy": [
+          28,
+          72,
+          228,
+          192
+        ],
+        "scale_xy": [
+          0.15625,
+          0.15625
+        ],
+        "offset_xy": [
+          -52.0,
+          72.0
+        ],
+        "formula": "authored_x = offset_x + source_x * scale_x; authored_y = offset_y + source_y * scale_y",
+        "corner_proof": [
+          {
+            "source_xy": [
+              512,
+              0
+            ],
+            "authored_xy": [
+              28,
+              72
+            ]
+          },
+          {
+            "source_xy": [
+              1792,
+              768
+            ],
+            "authored_xy": [
+              228,
+              192
+            ]
+          }
+        ]
+      },
+      "feature_transform_proof": {
+        "awning": {
+          "source_bbox_xyxy": [
+            947,
+            32,
+            1536,
+            179
+          ],
+          "derived_float_authored_xyxy": [
+            95.96875,
+            77.0,
+            188.0,
+            99.96875
+          ],
+          "derived_authored_rect_xyxy": [
+            96,
+            77,
+            188,
+            100
+          ],
+          "rounding": "nearest authored-grid boundary"
+        },
+        "canopy": {
+          "source_bbox_xyxy": [
+            947,
+            32,
+            1536,
+            179
+          ],
+          "derived_float_authored_xyxy": [
+            95.96875,
+            77.0,
+            188.0,
+            99.96875
+          ],
+          "derived_authored_rect_xyxy": [
+            96,
+            77,
+            188,
+            100
+          ],
+          "rounding": "nearest authored-grid boundary"
+        }
+      }
+    },
+    "wall_shopfront": {
+      "kind": "adapted_existing_environment_raw",
+      "authored": "processed/authored/wall_shopfront.png",
+      "runtime": "processed/runtime/wall_shopfront.png",
+      "export": "assets/images/homebound_run/wall_shopfront.png",
+      "raw": "raw/facade_shops_source_raw.png",
+      "original_source": "../environment/facade_shops/raw.png",
+      "prompt": "raw/facade_shops_source_prompt.txt",
+      "crop_box_xyxy": [
+        100,
+        0,
+        1000,
+        768
+      ],
+      "main_panel": {
+        "authored_rect_xyxy": [
+          57,
+          72,
+          198,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.22265625,
+          0.375,
+          0.7734375,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          228,
+          288,
+          792,
+          768
+        ]
+      },
+      "features": {
+        "window": {
+          "authored_rect_xyxy": [
+            63,
+            87,
+            179,
+            188
+          ],
+          "normalized_rect_xyxy": [
+            0.24609375,
+            0.453125,
+            0.69921875,
+            0.9791666666666666
+          ],
+          "runtime_rect_xyxy": [
+            252,
+            348,
+            716,
+            752
+          ]
+        },
+        "shutter": {
+          "authored_rect_xyxy": [
+            63,
+            87,
+            179,
+            188
+          ],
+          "normalized_rect_xyxy": [
+            0.24609375,
+            0.453125,
+            0.69921875,
+            0.9791666666666666
+          ],
+          "runtime_rect_xyxy": [
+            252,
+            348,
+            716,
+            752
+          ]
+        },
+        "awning": {
+          "authored_rect_xyxy": [
+            62,
+            75,
+            179,
+            98
+          ],
+          "normalized_rect_xyxy": [
+            0.2421875,
+            0.390625,
+            0.69921875,
+            0.5104166666666666
+          ],
+          "runtime_rect_xyxy": [
+            248,
+            300,
+            716,
+            392
+          ]
+        }
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "insert_bottom_authored_y": 192,
+        "insert_bottom_runtime_y": 768,
+        "note": "complete source insert owns its lower contact; surrounding plate remains accepted plaster"
+      },
+      "raw_sha256": "3e6c327dca527dfe7ff84bdc237ac03767e83f50223203210086b4f3c62869d0",
+      "transform_proof": {
+        "source_coordinates": "global pixels in preserved raw source",
+        "source_crop_xyxy": [
+          100,
+          0,
+          1000,
+          768
+        ],
+        "target_authored_rect_xyxy": [
+          57,
+          72,
+          198,
+          192
+        ],
+        "scale_xy": [
+          0.15666666666666668,
+          0.15625
+        ],
+        "offset_xy": [
+          41.33333333333333,
+          72.0
+        ],
+        "formula": "authored_x = offset_x + source_x * scale_x; authored_y = offset_y + source_y * scale_y",
+        "corner_proof": [
+          {
+            "source_xy": [
+              100,
+              0
+            ],
+            "authored_xy": [
+              57,
+              72
+            ]
+          },
+          {
+            "source_xy": [
+              1000,
+              768
+            ],
+            "authored_xy": [
+              198,
+              192
+            ]
+          }
+        ]
+      },
+      "feature_transform_proof": {}
+    },
+    "wall_schoolfront": {
+      "kind": "adapted_existing_environment_raw",
+      "authored": "processed/authored/wall_schoolfront.png",
+      "runtime": "processed/runtime/wall_schoolfront.png",
+      "export": "assets/images/homebound_run/wall_schoolfront.png",
+      "raw": "raw/facade_school_source_raw.png",
+      "original_source": "../environment/facade_school/raw.png",
+      "prompt": "raw/facade_school_source_prompt.txt",
+      "crop_box_xyxy": [
+        256,
+        0,
+        1792,
+        768
+      ],
+      "main_panel": {
+        "authored_rect_xyxy": [
+          28,
+          72,
+          228,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.109375,
+          0.375,
+          0.890625,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          112,
+          288,
+          912,
+          768
+        ]
+      },
+      "features": {
+        "window": {
+          "authored_rect_xyxy": [
+            34,
+            91,
+            222,
+            132
+          ],
+          "normalized_rect_xyxy": [
+            0.1328125,
+            0.4739583333333333,
+            0.8671875,
+            0.6875
+          ],
+          "runtime_rect_xyxy": [
+            136,
+            364,
+            888,
+            528
+          ]
+        },
+        "railing": {
+          "authored_rect_xyxy": [
+            34,
+            132,
+            222,
+            166
+          ],
+          "normalized_rect_xyxy": [
+            0.1328125,
+            0.6875,
+            0.8671875,
+            0.8645833333333334
+          ],
+          "runtime_rect_xyxy": [
+            136,
+            528,
+            888,
+            664
+          ]
+        }
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "insert_bottom_authored_y": 192,
+        "insert_bottom_runtime_y": 768,
+        "note": "complete source insert owns its lower contact; surrounding plate remains accepted plaster"
+      },
+      "raw_sha256": "675cbb05f9aeb7204bb3e0f7d65aac2afcdc424aef27aa914c626f6e3d8059c1",
+      "transform_proof": {
+        "source_coordinates": "global pixels in preserved raw source",
+        "source_crop_xyxy": [
+          256,
+          0,
+          1792,
+          768
+        ],
+        "target_authored_rect_xyxy": [
+          28,
+          72,
+          228,
+          192
+        ],
+        "scale_xy": [
+          0.13020833333333334,
+          0.15625
+        ],
+        "offset_xy": [
+          -5.333333333333336,
+          72.0
+        ],
+        "formula": "authored_x = offset_x + source_x * scale_x; authored_y = offset_y + source_y * scale_y",
+        "corner_proof": [
+          {
+            "source_xy": [
+              256,
+              0
+            ],
+            "authored_xy": [
+              28,
+              72
+            ]
+          },
+          {
+            "source_xy": [
+              1792,
+              768
+            ],
+            "authored_xy": [
+              228,
+              192
+            ]
+          }
+        ]
+      },
+      "feature_transform_proof": {}
+    },
+    "wall_constructionfront": {
+      "kind": "adapted_existing_environment_raw",
+      "authored": "processed/authored/wall_constructionfront.png",
+      "runtime": "processed/runtime/wall_constructionfront.png",
+      "export": "assets/images/homebound_run/wall_constructionfront.png",
+      "raw": "raw/facade_construction_source_raw.png",
+      "original_source": "../environment/facade_construction/raw.png",
+      "prompt": "raw/facade_construction_source_prompt.txt",
+      "crop_box_xyxy": [
+        0,
+        0,
+        2161,
+        728
+      ],
+      "main_panel": {
+        "authored_rect_xyxy": [
+          23,
+          88,
+          233,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.08984375,
+          0.4583333333333333,
+          0.91015625,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          92,
+          352,
+          932,
+          768
+        ]
+      },
+      "features": {
+        "door": {
+          "authored_rect_xyxy": [
+            133,
+            102,
+            183,
+            189
+          ],
+          "normalized_rect_xyxy": [
+            0.51953125,
+            0.53125,
+            0.71484375,
+            0.984375
+          ],
+          "runtime_rect_xyxy": [
+            532,
+            408,
+            732,
+            756
+          ],
+          "estimated_world_height_m": 2.492
+        }
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "insert_bottom_authored_y": 192,
+        "insert_bottom_runtime_y": 768,
+        "note": "complete source insert owns its lower contact; surrounding plate remains accepted plaster"
+      },
+      "raw_sha256": "b2df3f9760e11c0735a3a72394e526070216a8c0fa30df234fb12b0264febea7",
+      "transform_proof": {
+        "source_coordinates": "global pixels in preserved raw source",
+        "source_crop_xyxy": [
+          0,
+          0,
+          2161,
+          728
+        ],
+        "target_authored_rect_xyxy": [
+          23,
+          88,
+          233,
+          192
+        ],
+        "scale_xy": [
+          0.09717723276260991,
+          0.14285714285714285
+        ],
+        "offset_xy": [
+          23.0,
+          88.0
+        ],
+        "formula": "authored_x = offset_x + source_x * scale_x; authored_y = offset_y + source_y * scale_y",
+        "corner_proof": [
+          {
+            "source_xy": [
+              0,
+              0
+            ],
+            "authored_xy": [
+              23,
+              88
+            ]
+          },
+          {
+            "source_xy": [
+              2161,
+              728
+            ],
+            "authored_xy": [
+              233,
+              192
+            ]
+          }
+        ]
+      },
+      "feature_transform_proof": {}
+    }
+  },
+  "processing": {
+    "aspect": "4:3 center crop with no axis stretch",
+    "authored": "nearest-neighbor to 256x192 from native creative/raw source",
+    "runtime": "nearest-neighbor 4x to 1024x768",
+    "adapted_inserts": "nearest-neighbor crop and composite onto accepted wall_plaster_a authored plate",
+    "vertical_seam_conditioning": "all six plates use the accepted plaster opposing edge average as a common y-profile; first and last authored columns match exactly and only reserved 16px strips are blended",
+    "contact_sheet": "qc/neighborhood_contact_sheet.png"
+  },
+  "seam_qc": {
+    "first_last_columns_exact_across_family": true,
+    "max_first_family_channel_delta": 0,
+    "max_last_family_channel_delta": 0,
+    "max_left_right_channel_delta": 0,
+    "max_common_profile_channel_delta": 0,
+    "reserved_strip_authored_px": 16,
+    "reserved_strip_runtime_px": 64,
+    "profile_source": "accepted plaster wall_plaster_a opposing edge average"
+  }
+}

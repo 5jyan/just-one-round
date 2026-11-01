@@ -1,0 +1,34 @@
+{
+  "pipeline": "imagegen",
+  "generated_at": "2026-10-15",
+  "tool": "built-in image_gen",
+  "raw_output_directory": "$HOME/.codex/generated_images/01a13b15-66d1-7921-8cc0-c5b1dd2e78aa",
+  "raw_files": {
+    "master_style_reference.png": "exec-30dae5a5-004b-4e5f-9c43-2f672ff655d2.png",
+    "jungle_background_road_draft_raw.png": "exec-9f1902c5-3671-46ad-9513-b27bd906efd8.png",
+    "jungle_background_raw.png": "exec-bbb43624-aa93-4897-af9a-88f4b1ed4bf7.png",
+    "runner_run_raw_v1_rejected.png": "exec-dc9700d2-844b-42b8-a6f6-e60492853b87.png",
+    "runner_run_raw.png": "exec-29044ecf-9202-4447-90ce-7d49e56db2df.png",
+    "runner_jump_raw.png": "exec-993583f7-34db-4d44-bf69-55f52dd642d2.png",
+    "runner_slide_raw_v1_rejected.png": "exec-f0845a99-1cf9-4a22-af96-dafc9879a302.png",
+    "runner_slide_raw.png": "exec-15beada2-2d8c-4992-845d-088e35729dcb.png",
+    "temple_path_raw.png": "exec-e9147540-1663-434b-a4f3-d341f23f089c.png",
+    "obstacle_pack_raw.png": "exec-56d4aa39-ab4c-421d-80f4-f1514e19e854.png",
+    "obstacle_hurdle_raw_v1_rejected.png": "exec-04dcc9e7-50b3-4cc3-9b86-c7fcc128b2a4.png",
+    "obstacle_hurdle_raw_v2.png": "exec-83ec52b9-1b94-4ea5-b315-ba9de42355e2.png",
+    "obstacle_rubble_raw_v2.png": "exec-a3a9be80-497b-4fba-b668-c2069f32917f.png",
+    "obstacle_arch_raw_v2.png": "exec-f0c25f22-3091-4aad-a945-5a4b8bbaa1da.png",
+    "obstacle_hurdle_raw_v2.png": "exec-83ec52b9-1b94-4ea5-b315-ba9de42355e2.png",
+    "obstacle_arch_raw_v2.png": "exec-f0c25f22-3091-4aad-a945-5a4b8bbaa1da.png",
+    "collectibles_pack_raw.png": "exec-70288471-eb2d-45b2-a932-89589752c08d.png",
+    "guardian_raw.png": "exec-1e2e36a3-0b82-470f-84c0-713e69a4d558.png"
+  },
+  "prompt_directory": "prompts/",
+  "processor": "process_assets.py",
+  "runtime_directory": "assets/images/temple_run/",
+  "notes": [
+    "The first road-bearing background draft remains outside the accepted raw set; jungle_background_raw.png is the environment-only replacement.",
+    "The first hurdle, rubble, and arch pack cells are retained for provenance; dedicated v2 outputs are used because collision silhouettes and safe margins matter.",
+    "No runtime or pubspec files were edited by this asset pipeline."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "pipeline": "built-in image_gen",
+  "accepted_generation_sources": {
+    "student_run": {
+      "raw": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw_v2.png",
+      "prompt": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_prompt_v2.txt",
+      "generated_image_file": "$HOME/.codex/generated_images/01a148b2-55cc-70f3-b74c-36dea480e198/exec-fbc2f463-1404-4b6d-a13d-acca234f3752.png",
+      "reference": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw.png",
+      "note": "v2 accepted after explicit opposing support-leg correction; same identity master"
+    },
+    "student_jump": {
+      "raw": "assets/source/imagegen/homebound_run/characters/raw/student_jump_raw.png",
+      "prompt": "assets/source/imagegen/homebound_run/characters/raw/student_jump_prompt.txt",
+      "generated_image_file": "$HOME/.codex/generated_images/01a148b2-55cc-70f3-b74c-36dea480e198/exec-c17cb67d-a2dc-4194-ab38-c96c61a28163.png",
+      "reference": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw.png"
+    },
+    "student_slide": {
+      "raw": "assets/source/imagegen/homebound_run/characters/raw/student_slide_raw_v2.png",
+      "prompt": "assets/source/imagegen/homebound_run/characters/raw/student_slide_prompt_v2.txt",
+      "generated_image_file": "$HOME/.codex/generated_images/01a148b2-55cc-70f3-b74c-36dea480e198/exec-d62c7e58-51de-43a8-85b1-70f645a4ca96.png",
+      "reference": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw_v2.png",
+      "note": "v2 accepted for a more substantial low slide silhouette"
+    },
+    "pursuers": {
+      "raw": "assets/source/imagegen/homebound_run/characters/raw/pursuers_raw_v2.png",
+      "prompt": "assets/source/imagegen/homebound_run/characters/raw/pursuers_prompt_v2.txt",
+      "generated_image_file": "$HOME/.codex/generated_images/01a148b2-55cc-70f3-b74c-36dea480e198/exec-e6a0879b-237e-48d2-8842-28f9013c2a41.png",
+      "reference": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw_v2.png"
+    },
+    "items": {
+      "raw": "assets/source/imagegen/homebound_run/characters/raw/items_pack_raw.png",
+      "prompt": "assets/source/imagegen/homebound_run/characters/raw/items_pack_prompt.txt",
+      "generated_image_file": "$HOME/.codex/generated_images/01a148b2-55cc-70f3-b74c-36dea480e198/exec-82ef695a-3150-4ad6-90b1-312f575927ad.png",
+      "reference": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw_v2.png"
+    }
+  }
+}

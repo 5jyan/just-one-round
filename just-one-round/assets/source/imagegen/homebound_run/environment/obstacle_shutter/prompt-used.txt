@@ -1,0 +1,11 @@
+Use case: transparent gameplay hazard sprite for a mobile endless runner.
+Asset type: one wide front-facing faded-teal roller shutter obstacle, 128x128 base intent, for "집에 좀 가자".
+Reference: Image 1 is the accepted student run master shown in the conversation. Match its late-1990s 32-bit pixel clusters, crisp dark-navy outlines, three to four shade levels, warm upper-right light, and cool blue-gray shadows. Use it only as style reference; do not include the student.
+
+Primary request: a broad metal frame holding a lowered corrugated teal roller shutter. The shutter hangs from the upper frame but leaves a clearly visible low opening across the entire bottom portion, explicitly readable as a slide-only clearance. The opening must be genuine transparent negative space showing the magenta raw background, not a painted dark rectangle. Use front-facing incoming-road view with only a slight top lip.
+
+Layout: one standalone object centered in a 128x128 intended transparent cell, full-width but with safe transparent side margins, bottom contact aligned near the lower edge, no baked building wall behind it, no floor plate, no detached shadow, and no cropping.
+
+Style/medium: rich 32-bit 2D pixel art, hard-edged stepped contour, dark navy outline, faded teal metal, cream chipped frame highlights, cool blue-gray recesses, restrained texture, no smooth HD, no 3D, no blur, no antialiasing.
+
+Raw background: exactly 100% solid flat #FF00FF magenta, no gradient. The magenta is chroma-only and must not appear in the shutter or frame. No text, label, logo, watermark, character, road, building facade, coins, smoke, or effect. Do not seal the bottom opening.

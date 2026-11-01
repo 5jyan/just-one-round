@@ -1,0 +1,14 @@
+Use case: transparent gameplay hazard sprite for a mobile endless runner.
+Asset type: one wide low frontal 3/4 pixel-art jump hazard, 128x64 base intent, for "집에 좀 가자".
+Reference: Image 1 is the accepted student run master shown in the conversation. Match its late-1990s 32-bit pixel clusters, crisp dark-navy outlines, three to four shade levels, warm upper-right light, and cool blue-gray shadows. Use it only as style reference; do not include the student.
+
+Primary request: a low broad stack of two wooden pallets with two tied flat cardboard boxes resting on top. The silhouette must span most of the available width, stay low enough to be clearly jumpable, and read immediately from the incoming road view. Show a slight top face on the pallets and boxes, but keep the camera nearly frontal with a little 3/4 depth.
+
+Layout: one standalone object centered in a 128x64 intended transparent cell, with generous transparent margin on every side, bottom contact aligned close to the lower edge, and no detached shadow. Keep the object fully contained and uncropped.
+
+Style/medium: rich 32-bit 2D pixel art, hard-edged stepped contour, dark navy outline, warm wood and cardboard tones, restrained teal tie or strap accents, no smooth HD, no 3D, no blur, no antialiasing, no micro-noise.
+
+Raw background: exactly 100% solid flat #FF00FF magenta, no gradient. The magenta is chroma-only and must not appear in the object. No text, label, logo, watermark, floor plate, road, wall, character, coin, smoke, or effect. No tall block or full-width sealed wall.
+
+Creative revision used for final raw.png after physical-read review:
+Use Image 1, the accepted raw student run master at $HOME/Documents/딱한판만/just-one-round/assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw.png, only as style and palette reference. Generate one standalone transparent gameplay hazard. Make it a VERY WIDE, VERY LOW, nearly horizontal single pallet-row barrier across the lane: several shallow flat cardboard parcels tied together on one low wooden pallet row, with an occupied width-to-height ratio around 6:1. Visible object height about 18–22 base pixels and width about 108–116 base pixels, with generous transparent headroom and narrow side margin. It must read as a jump-only low hurdle, not a wall or tall stack. Front/3-quarter incoming-road view with only a thin top face, bottom contact near baseline, fully contained and uncropped. Keep raw background exactly solid #FF00FF magenta. No tall blocks, full-height boxes, sealed wall, road, floor plate, shadow, character, coins, text, logo, watermark, smoke, blur, antialiasing, 3D, or smooth HD.

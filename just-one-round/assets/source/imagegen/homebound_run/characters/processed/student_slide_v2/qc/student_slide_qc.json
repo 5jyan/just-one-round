@@ -1,0 +1,90 @@
+{
+  "asset": "homebound_run",
+  "operation": "student_slide_v2",
+  "input": "assets/source/imagegen/homebound_run/characters/raw/student_slide_raw_v2.png",
+  "raw_size": [
+    1086,
+    1448
+  ],
+  "base_cell": [
+    48,
+    72
+  ],
+  "runtime_cell": [
+    192,
+    288
+  ],
+  "integer_scale": 4,
+  "frame_order": [
+    "slide"
+  ],
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "slide",
+      "source_bbox": [
+        156,
+        429,
+        927,
+        1074
+      ],
+      "source_bbox_size": [
+        771,
+        645
+      ],
+      "source_crop": [
+        59,
+        0,
+        1024,
+        1448
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 60
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          20,
+          144,
+          172,
+          272
+        ],
+        "subject_size": [
+          152,
+          128
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 128.0,
+    "body_height_cv": 0.0,
+    "anchor_y_std": 0.0,
+    "bottom_padding_min": 16,
+    "bottom_padding_max": 16
+  },
+  "processing": {
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_creative": "built-in image_gen",
+    "source_art_is_not_procedurally_drawn": true
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "schema": "homebound_run.streetscape_v3_generation.v1",
+  "game": "homebound_run",
+  "creative_source": "built-in image_gen",
+  "style_reference": "existing homebound_run late-1990s 32-bit pixel-art environment and obstacle family",
+  "runtime_scale": "authored base grid to nearest-neighbor 4x PNG",
+  "assets": {
+    "streetscape_barricade": {
+      "raw": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/barricade/raw/street_barricade_raw.png",
+      "prompt": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/barricade/raw/prompt-used.txt",
+      "output_hint": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-692b7228-85f7-4c76-a67d-50a4a1563cd9.png",
+      "mode": "generate",
+      "transparent_background": true
+    },
+    "streetscape_scaffold_crossbeam": {
+      "raw": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/street_scaffold_crossbeam_raw.png",
+      "previous_raw": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/street_scaffold_crossbeam_raw_pre_slide_hoarding.png",
+      "initial_raw": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/street_scaffold_crossbeam_raw_initial.png",
+      "beam_lower_edit_raw": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/street_scaffold_crossbeam_raw_beam-lower.png",
+      "prompt": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/prompt-used.txt",
+      "prompt_edit": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/prompt-edit.txt",
+      "prompt_edit_raise": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/prompt-edit-raise.txt",
+      "output_hints": [
+        "$HOME/.codex/generated_images/01a1733b-9a7f-70b0-8517-80e492f1c93d/exec-733fc2d5-0a9d-4cc5-924c-b053e5283a67.png",
+        "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-a2d03ea3-c888-4fff-8226-71f1829416b3.png",
+        "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-f6967b87-9d3b-4fb6-aeb3-2508c4f28d53.png",
+        "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-5bb53a5a-7687-4fb8-8293-4a72722f6c14.png"
+      ],
+      "mode": "targeted_replacement_edit",
+      "transparent_background": true
+    },
+    "streetscape_covered_pallet_materials": {
+      "raw": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/covered_pallets/raw/street_covered_pallet_specimen_raw.png",
+      "prompt": "just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/covered_pallets/raw/prompt-used.txt",
+      "output_hint": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-cc7e30ee-e162-4744-87d3-b00974012c8b.png",
+      "mode": "generate_specimen_then_deterministic_face_crops",
+      "transparent_background": true,
+      "face_crops": {
+        "front": {
+          "source_box_raw": [
+            400,
+            335,
+            850,
+            775
+          ],
+          "target_box_authored": [
+            0,
+            0,
+            64,
+            64
+          ]
+        },
+        "side": {
+          "source_box_raw": [
+            1450,
+            350,
+            1630,
+            710
+          ],
+          "target_box_authored": [
+            64,
+            0,
+            96,
+            64
+          ]
+        },
+        "top": {
+          "source_box_raw": [
+            680,
+            220,
+            880,
+            320
+          ],
+          "target_box_authored": [
+            0,
+            64,
+            64,
+            96
+          ]
+        }
+      },
+      "crop_method": "deterministic interior crop and nearest resize; front/side source boxes include lower pallet wood band, top remains tarp-only; no new creative pixels"
+    }
+  }
+}

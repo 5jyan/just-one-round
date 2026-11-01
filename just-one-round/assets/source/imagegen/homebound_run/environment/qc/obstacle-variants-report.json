@@ -1,0 +1,64 @@
+{
+  "obstacle_jump_variant": {
+    "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/obstacle_jump_variant_v1/raw/obstacle_jump_variant_raw.png",
+    "raw_size": [
+      1774,
+      887
+    ],
+    "source_alpha_bbox": [
+      133,
+      340,
+      1641,
+      775
+    ],
+    "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/obstacle_jump_variant_v1/processed/obstacle_jump_variant.png",
+    "base_size": [
+      128,
+      64
+    ],
+    "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/obstacle_jump_variant.png",
+    "runtime_size": [
+      512,
+      256
+    ],
+    "processed_alpha_bbox": [
+      4,
+      25,
+      124,
+      60
+    ],
+    "nearest_neighbor": true,
+    "margin": 4
+  },
+  "obstacle_slide_variant": {
+    "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/obstacle_slide_variant_v1/raw/obstacle_slide_variant_raw.png",
+    "raw_size": [
+      1254,
+      1254
+    ],
+    "source_alpha_bbox": [
+      48,
+      231,
+      1206,
+      1048
+    ],
+    "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/obstacle_slide_variant_v1/processed/obstacle_slide_variant.png",
+    "base_size": [
+      128,
+      128
+    ],
+    "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/obstacle_slide_variant.png",
+    "runtime_size": [
+      512,
+      512
+    ],
+    "processed_alpha_bbox": [
+      6,
+      40,
+      122,
+      122
+    ],
+    "nearest_neighbor": true,
+    "margin": 6
+  }
+}

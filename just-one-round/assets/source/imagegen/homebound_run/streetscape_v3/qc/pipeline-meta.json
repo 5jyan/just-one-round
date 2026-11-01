@@ -1,0 +1,298 @@
+{
+  "schema": "homebound_run.streetscape_v3_qc.v1",
+  "creative_source": "built-in ImageGen",
+  "processing": "binary alpha cleanup, transparent fit, nearest-neighbor 4x",
+  "assets": {
+    "streetscape_barricade": {
+      "name": "streetscape_barricade",
+      "role": "low grounded jump barricade",
+      "geometry": {
+        "semantic_action": "jump",
+        "contact": "bottom alpha baseline"
+      },
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/barricade/raw/street_barricade_raw.png",
+      "raw_size": [
+        1774,
+        887
+      ],
+      "raw_sha256": "7cb3fc951f6030880fbdc250e6ecdac2f19431ccd5dbf9515089877caf51938a",
+      "raw_alpha_bbox_threshold_128": [
+        64,
+        428,
+        1716,
+        728
+      ],
+      "authored": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/processed/authored/streetscape_barricade.png",
+      "authored_size": [
+        128,
+        64
+      ],
+      "authored_alpha_bbox": [
+        4,
+        38,
+        124,
+        60
+      ],
+      "authored_alpha_edge_max": 0,
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/streetscape_barricade.png",
+      "runtime_size": [
+        512,
+        256
+      ],
+      "runtime_alpha_bbox": [
+        16,
+        152,
+        496,
+        240
+      ],
+      "runtime_alpha_edge_max": 0,
+      "fit_margin_authored": 4,
+      "scale": "nearest_neighbor_4x"
+    },
+    "streetscape_scaffold_crossbeam": {
+      "name": "streetscape_scaffold_crossbeam",
+      "role": "supported low-clearance slide scaffold",
+      "geometry": {
+        "semantic_action": "slide",
+        "total_height_m": 2.9,
+        "opening_height_m": 1.0,
+        "post_width_m": 0.12,
+        "opening_alpha_rect_authored": [
+          27,
+          79,
+          101,
+          122
+        ],
+        "solid_hoarding_alpha_rect_authored": [
+          27,
+          35,
+          101,
+          79
+        ],
+        "contact": "bottom alpha baseline"
+      },
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/scaffold_crossbeam/raw/street_scaffold_crossbeam_raw.png",
+      "raw_size": [
+        1254,
+        1254
+      ],
+      "raw_sha256": "7a42251f72fd27475aae7d713d20b782d45cd075e1884abc34046e278d43272f",
+      "raw_alpha_bbox_threshold_128": [
+        59,
+        227,
+        1195,
+        1195
+      ],
+      "authored": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/processed/authored/streetscape_scaffold_crossbeam.png",
+      "authored_size": [
+        128,
+        128
+      ],
+      "authored_alpha_bbox": [
+        6,
+        23,
+        122,
+        122
+      ],
+      "authored_alpha_edge_max": 0,
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/streetscape_scaffold_crossbeam.png",
+      "runtime_size": [
+        512,
+        512
+      ],
+      "runtime_alpha_bbox": [
+        24,
+        92,
+        488,
+        488
+      ],
+      "runtime_alpha_edge_max": 0,
+      "fit_margin_authored": 6,
+      "scale": "nearest_neighbor_4x"
+    },
+    "streetscape_covered_pallet_materials": {
+      "name": "streetscape_covered_pallet_materials",
+      "role": "front-side-top tarp and pallet material atlas",
+      "geometry": {
+        "cuboid_width_m": 1.056,
+        "cuboid_height_m": 1.25,
+        "cuboid_depth_m": 0.75,
+        "continuous_bank_length_m": 6.0,
+        "material_uv_authored": {
+          "front": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "side": [
+            64,
+            0,
+            96,
+            64
+          ],
+          "top": [
+            0,
+            64,
+            64,
+            96
+          ]
+        }
+      },
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/covered_pallets/raw/street_covered_pallet_specimen_raw.png",
+      "raw_size": [
+        1774,
+        887
+      ],
+      "raw_sha256": "edaae12478550515e924d0a96e857d7a070be9e325c8cc4c436928ead446c0b5",
+      "raw_alpha_bbox_threshold_128": [
+        54,
+        207,
+        1724,
+        787
+      ],
+      "authored": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/processed/authored/streetscape_covered_pallet_materials.png",
+      "authored_size": [
+        128,
+        96
+      ],
+      "authored_alpha_bbox": [
+        0,
+        0,
+        96,
+        96
+      ],
+      "authored_alpha_edge_max": 255,
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/streetscape_covered_pallet_materials.png",
+      "runtime_size": [
+        512,
+        384
+      ],
+      "runtime_alpha_bbox": [
+        0,
+        0,
+        384,
+        384
+      ],
+      "runtime_alpha_edge_max": 255,
+      "fit_margin_authored": null,
+      "scale": "nearest_neighbor_4x",
+      "atlas_faces": {
+        "front": {
+          "source_box_raw": [
+            400,
+            335,
+            850,
+            775
+          ],
+          "target_box_authored": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "target_size_authored": [
+            64,
+            64
+          ],
+          "processed_face": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/processed/material-faces/streetscape_covered_pallet_front.png",
+          "source_patch_alpha_bbox": [
+            0,
+            0,
+            450,
+            440
+          ],
+          "face_alpha_bbox": [
+            0,
+            0,
+            64,
+            64
+          ]
+        },
+        "side": {
+          "source_box_raw": [
+            1450,
+            350,
+            1630,
+            710
+          ],
+          "target_box_authored": [
+            64,
+            0,
+            96,
+            64
+          ],
+          "target_size_authored": [
+            32,
+            64
+          ],
+          "processed_face": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/processed/material-faces/streetscape_covered_pallet_side.png",
+          "source_patch_alpha_bbox": [
+            0,
+            0,
+            180,
+            360
+          ],
+          "face_alpha_bbox": [
+            0,
+            0,
+            32,
+            64
+          ]
+        },
+        "top": {
+          "source_box_raw": [
+            680,
+            220,
+            880,
+            320
+          ],
+          "target_box_authored": [
+            0,
+            64,
+            64,
+            96
+          ],
+          "target_size_authored": [
+            64,
+            32
+          ],
+          "processed_face": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/streetscape_v3/processed/material-faces/streetscape_covered_pallet_top.png",
+          "source_patch_alpha_bbox": [
+            0,
+            0,
+            200,
+            100
+          ],
+          "face_alpha_bbox": [
+            0,
+            0,
+            64,
+            32
+          ]
+        }
+      },
+      "atlas_layout": {
+        "front": [
+          0,
+          0,
+          64,
+          64
+        ],
+        "side": [
+          64,
+          0,
+          96,
+          64
+        ],
+        "top": [
+          0,
+          64,
+          64,
+          96
+        ],
+        "remaining_authored_canvas": "transparent"
+      }
+    }
+  }
+}

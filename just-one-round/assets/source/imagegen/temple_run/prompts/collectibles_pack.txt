@@ -1,0 +1,2 @@
+Use case: transparent collectible and power-up sprite pack for a mobile endless runner.
+Create an exact 2x2 transparent grid with generous margins and no lines, labels, text, logo, watermark, floor, or cast shadows. Cell order: gold temple coin with carved sun/jaguar spiral; jade-and-gold U magnet with attached teal glow; golden sandstone shield with jade center gem; golden winged sandal / wind boost emblem with attached turquoise ribbon. Match warm amber, jade, carved sandstone motifs, crisp clean HD hand-painted finish, no characters or hands.

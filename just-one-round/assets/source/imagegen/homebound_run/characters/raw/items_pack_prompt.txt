@@ -1,0 +1,14 @@
+Use case: stylized-concept game item sprite pack.
+Asset type: one exact 2x2 compact collectible and power-up sprite sheet for the same mobile 2D game.
+Input images: Image 1 is the accepted student master and style reference only. Match its rich late-1990s 32-bit 2D pixel art, crisp dark-navy one-base-pixel outlines, deliberate chunky clusters, three to four shading steps, warm upper-right light, cool blue-gray shadows, and slightly awkward earnest clarity.
+
+Sheet geometry: exactly four equal cells in a 2x2 grid, no visible separators, read left-to-right top row then left-to-right bottom row. Each cell contains one centered compact item with generous magenta padding. Keep each item fully inside its own cell and at a comparable small-gameplay scale. Background is 100% solid flat #FF00FF magenta chroma.
+
+Items, in exact order:
+1 top-left: a simple brass-gold coin pickup, round and thick with a dark navy outline and warm yellow highlight clusters. No inscription, no number, no letter, no face.
+2 top-right: a red-and-blue U-shaped horseshoe magnet pickup, clearly two-toned red and blue with a dark navy outline and a tiny pale metal tip on each arm. No labels or polarity letters.
+3 bottom-left: a compact school-backpack protection icon, a small brick-red school backpack with a cyan-teal protective outline or compact cyan shield halo hugging its silhouette. Read as backpack protection, no text, no separate large effect.
+4 bottom-right: a white-and-teal sneaker boost pickup, a small light sneaker with teal sole/details and one or two compact teal speed accents hugging the shoe. Read as a speed boost, no text and no detached large effect.
+
+Use clean intentional pixel clusters and stepped contours; no smooth HD painting, no 3D, no vector look, no blur, no antialiasing, no dithering noise, no tiny texture noise.
+Constraints: no text, labels, UI, logos, borders, frames, cell separators, guides, shadows, scenery, extra items, characters, watermark. No copied student body, no backpack straps extending outside the icon, no inscriptions.

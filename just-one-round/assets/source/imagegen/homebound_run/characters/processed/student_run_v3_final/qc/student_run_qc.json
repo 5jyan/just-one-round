@@ -1,0 +1,213 @@
+{
+  "schema": "homebound_run.character_asset_qc.v2",
+  "asset": "homebound_run",
+  "operation": "student_run_v3_final_assembly",
+  "runtime_path": "assets/images/homebound_run/student_run.png",
+  "runtime_size": [
+    768,
+    288
+  ],
+  "runtime_cell": [
+    192,
+    288
+  ],
+  "base_cell": [
+    96,
+    144
+  ],
+  "display_size": [
+    96,
+    144
+  ],
+  "display_scale": 0.5,
+  "integer_scale": 2,
+  "runtime_art_pixel": "1 logical pixel",
+  "frame_order": [
+    "L-contact",
+    "L-passing",
+    "R-contact",
+    "R-passing"
+  ],
+  "shared_baseline_y": 272,
+  "fps": 8,
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "L-contact",
+      "processed_frame": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/processed/student_run_v3/frames/L-contact.png",
+      "source_raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_master_raw.png",
+      "prompt": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_master_prompt.txt",
+      "base_cell": [
+        96,
+        144
+      ],
+      "runtime_cell": [
+        192,
+        288
+      ],
+      "integer_scale": 2,
+      "anchor_bottom_target": 272
+    },
+    {
+      "index": 1,
+      "label": "L-passing",
+      "processed_frame": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/processed/student_L_passing_v3_scale_matched/student_L-passing.png",
+      "source_raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_L-passing_raw_v2.png",
+      "prompt": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_L-passing_prompt_v2.txt",
+      "base_cell": [
+        96,
+        144
+      ],
+      "runtime_cell": [
+        192,
+        288
+      ],
+      "integer_scale": 2,
+      "anchor_bottom_target": 272
+    },
+    {
+      "index": 2,
+      "label": "R-contact",
+      "processed_frame": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/processed/student_run_v3/frames/R-contact.png",
+      "source_raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_master_raw.png",
+      "prompt": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_master_prompt.txt",
+      "base_cell": [
+        96,
+        144
+      ],
+      "runtime_cell": [
+        192,
+        288
+      ],
+      "integer_scale": 2,
+      "anchor_bottom_target": 272
+    },
+    {
+      "index": 3,
+      "label": "R-passing",
+      "processed_frame": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/processed/student_R_passing_v3_scale_matched/student_R-passing.png",
+      "source_raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_R-passing_raw_v3.png",
+      "prompt": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/characters/raw/v3/student_run_R-passing_scale_prompt.txt",
+      "base_cell": [
+        96,
+        144
+      ],
+      "runtime_cell": [
+        192,
+        288
+      ],
+      "integer_scale": 2,
+      "anchor_bottom_target": 272
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "bbox": [
+          44,
+          36,
+          158,
+          272
+        ],
+        "subject_size": [
+          114,
+          236
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444,
+        "size": [
+          192,
+          288
+        ]
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "bbox": [
+          22,
+          34,
+          154,
+          272
+        ],
+        "subject_size": [
+          132,
+          238
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444,
+        "size": [
+          192,
+          288
+        ]
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "bbox": [
+          34,
+          38,
+          160,
+          272
+        ],
+        "subject_size": [
+          126,
+          234
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444,
+        "size": [
+          192,
+          288
+        ]
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "bbox": [
+          22,
+          34,
+          154,
+          272
+        ],
+        "subject_size": [
+          132,
+          238
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444,
+        "size": [
+          192,
+          288
+        ]
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 236.5,
+    "body_height_cv": 0.0070118917343665954,
+    "anchor_y_std": 0.0,
+    "bottom_padding_min": 16,
+    "bottom_padding_max": 16,
+    "pairwise_changed_pixels": [
+      17396,
+      17356,
+      17608
+    ],
+    "alpha_values": [
+      0,
+      255
+    ],
+    "color_count": 10360
+  },
+  "processing": {
+    "source_creative": "built-in image_gen",
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_art_is_not_procedurally_drawn": true,
+    "processor": "process_student_v3.py",
+    "assembly": "horizontal row strip in established runtime order",
+    "alpha_binary": true
+  }
+}

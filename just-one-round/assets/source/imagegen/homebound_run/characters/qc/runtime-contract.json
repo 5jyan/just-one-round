@@ -1,0 +1,113 @@
+{
+  "schema": "homebound_run.characters.runtime_contract.v1",
+  "game_title": "집에 좀 가자",
+  "style": {
+    "medium": "rich late-1990s 32-bit 2D pixel art",
+    "outline": "crisp dark navy one-base-pixel outline",
+    "shading": "three to four deliberate cluster steps",
+    "lighting": "warm late-afternoon upper-right light with cool blue-gray shadows",
+    "filter": "nearest",
+    "source_scale": "base art grid, then integer 4x runtime scale"
+  },
+  "assets": {
+    "student_run.png": {
+      "runtime_path": "assets/images/homebound_run/student_run.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw_v2.png",
+      "processor_qc": "assets/source/imagegen/homebound_run/characters/processed/student_run_processor_qc_v2",
+      "runtime_size": [768, 288],
+      "base_cell": [48, 72],
+      "runtime_cell": [192, 288],
+      "integer_scale": 4,
+      "frame_order": ["L-contact", "L-passing", "R-contact", "R-passing"],
+      "fps": 8,
+      "opaque_bboxes": [[36, 28, 156, 272], [32, 28, 160, 272], [28, 28, 164, 272], [32, 28, 160, 272]],
+      "shared_baseline_y": 272,
+      "bottom_padding_px": 16,
+      "qc": {"empty_frames": 0, "edge_touch_frames": 0, "body_height_cv": 0.0, "anchor_y_std": 0.0}
+    },
+    "student_jump.png": {
+      "runtime_path": "assets/images/homebound_run/student_jump.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/student_jump_raw.png",
+      "processor_qc": "assets/source/imagegen/homebound_run/characters/processed/student_jump_processor_qc",
+      "runtime_size": [192, 288],
+      "base_cell": [48, 72],
+      "runtime_cell": [192, 288],
+      "integer_scale": 4,
+      "frame_order": ["jump"],
+      "shared_baseline_y": 272,
+      "opaque_bbox": [40, 96, 156, 272],
+      "bottom_padding_px": 16,
+      "qc": {"empty_frames": 0, "edge_touch_frames": 0, "body_height_px": 176}
+    },
+    "student_slide.png": {
+      "runtime_path": "assets/images/homebound_run/student_slide.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/student_slide_raw_v2.png",
+      "processor_qc": "assets/source/imagegen/homebound_run/characters/processed/student_slide_processor_qc_v2",
+      "runtime_size": [192, 288],
+      "base_cell": [48, 72],
+      "runtime_cell": [192, 288],
+      "integer_scale": 4,
+      "frame_order": ["slide"],
+      "shared_baseline_y": 272,
+      "opaque_bbox": [20, 144, 172, 272],
+      "bottom_padding_px": 16,
+      "qc": {"empty_frames": 0, "edge_touch_frames": 0, "body_height_px": 128}
+    },
+    "pursuers.png": {
+      "runtime_path": "assets/images/homebound_run/pursuers.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/pursuers_raw_v2.png",
+      "processor_qc": "assets/source/imagegen/homebound_run/characters/processed/pursuers_processor_qc",
+      "runtime_size": [512, 384],
+      "base_cell": [128, 96],
+      "runtime_cell": [512, 384],
+      "integer_scale": 4,
+      "opaque_bbox": [44, 100, 472, 332],
+      "transparent_safety_margin_px": {"left": 44, "top": 100, "right": 40, "bottom": 52},
+      "qc": {"empty": false, "edge_touch": false}
+    },
+    "coin.png": {
+      "runtime_path": "assets/images/homebound_run/coin.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/items_pack_raw.png",
+      "runtime_size": [64, 64],
+      "base_cell": [16, 16],
+      "integer_scale": 4,
+      "opaque_bbox": [4, 4, 52, 56],
+      "qc": {"empty": false, "edge_touch": false}
+    },
+    "magnet.png": {
+      "runtime_path": "assets/images/homebound_run/magnet.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/items_pack_raw.png",
+      "runtime_size": [64, 64],
+      "base_cell": [16, 16],
+      "integer_scale": 4,
+      "opaque_bbox": [4, 4, 56, 52],
+      "qc": {"empty": false, "edge_touch": false}
+    },
+    "shield.png": {
+      "runtime_path": "assets/images/homebound_run/shield.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/items_pack_raw.png",
+      "runtime_size": [64, 64],
+      "base_cell": [16, 16],
+      "integer_scale": 4,
+      "opaque_bbox": [4, 4, 52, 56],
+      "qc": {"empty": false, "edge_touch": false}
+    },
+    "boost.png": {
+      "runtime_path": "assets/images/homebound_run/boost.png",
+      "source_raw": "assets/source/imagegen/homebound_run/characters/raw/items_pack_raw.png",
+      "runtime_size": [64, 64],
+      "base_cell": [16, 16],
+      "integer_scale": 4,
+      "opaque_bbox": [8, 12, 56, 44],
+      "qc": {"empty": false, "edge_touch": false}
+    }
+  },
+  "validation": {
+    "raw_creative_source": "built-in image_gen",
+    "postprocess": "generate2dsprite processor for chroma/QC plus deterministic nearest-neighbour extraction",
+    "all_runtime_files_have_alpha": true,
+    "all_grounded_student_poses_baseline_y": 272,
+    "no_runtime_edge_touch": true,
+    "no_runtime_labels_or_text": true
+  }
+}

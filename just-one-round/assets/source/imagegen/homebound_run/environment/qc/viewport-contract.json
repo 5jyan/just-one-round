@@ -1,0 +1,17 @@
+{
+  "authored_canvas": {"world_rect": [0, -80, 432, 960]},
+  "gameplay_safe_core": {"world_rect": [0, 0, 360, 640]},
+  "camera_center": [216, 350],
+  "layers": [
+    {"name": "alley_background", "world_rect": [0, -80, 432, 960], "color": "#9b8dba"},
+    {"name": "left_facade_overscan", "world_rect": [0, -80, 72, 960], "color": "#c7b28c"},
+    {"name": "right_facade_overscan", "world_rect": [360, -80, 432, 960], "color": "#c7b28c"},
+    {"name": "road_material", "world_rect": [72, 120, 360, 960], "color": "#596b86"}
+  ],
+  "viewports": [
+    {"name": "wide_short_430x640", "size": [430, 640]},
+    {"name": "canonical_360x640", "size": [360, 640]},
+    {"name": "tall_360x820", "size": [360, 820]}
+  ],
+  "collision_lines": []
+}

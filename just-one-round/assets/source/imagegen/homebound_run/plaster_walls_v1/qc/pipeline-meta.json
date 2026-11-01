@@ -1,0 +1,214 @@
+{
+  "schema": "homebound_run.plaster_walls_v1.qc.v1",
+  "game": "homebound_run",
+  "family": "plaster_walls_v1",
+  "creative_source": "built-in image_gen only",
+  "master_reference": "raw/master_plain_raw.png",
+  "generation_manifest": "generation-manifest.json",
+  "master_style_reference": "../characters/processed/student_run/frames/L-contact.png",
+  "authored_size": [
+    256,
+    192
+  ],
+  "runtime_size": [
+    1024,
+    768
+  ],
+  "nearest_scale": 4,
+  "world_footprint_m": [
+    7.333,
+    5.5
+  ],
+  "visual_contract": {
+    "camera": "front-on orthographic planar wall; no baked perspective",
+    "palette": "warm off-white/cream plaster with cool blue-gray lower weathering, restrained navy shadows, muted teal/blue accents",
+    "lighting": "warm upper-right with cool lower shadows",
+    "texture": "quiet deliberate 2x clusters; mostly blank upper wall; no micro-noise",
+    "forbidden": [
+      "sky",
+      "road",
+      "rooftop",
+      "roof",
+      "border",
+      "pilaster",
+      "readable text",
+      "characters",
+      "vehicles"
+    ]
+  },
+  "source_bottom_contact": {
+    "authored_y": 192,
+    "runtime_y": 768,
+    "role": "flat wall-ground contact; runtime owns road/roof/caps"
+  },
+  "reserved_plain_edges": {
+    "authored_px": [
+      16,
+      16
+    ],
+    "runtime_px": [
+      64,
+      64
+    ],
+    "left_range": [
+      0,
+      16
+    ],
+    "right_range": [
+      240,
+      256
+    ]
+  },
+  "assets": {
+    "wall_plaster_a": {
+      "authored": "processed/authored/wall_plaster_a.png",
+      "runtime": "processed/runtime/wall_plaster_a.png",
+      "export": "assets/images/homebound_run/wall_plaster_a.png",
+      "raw": "raw/master_plain_raw.png",
+      "crop_box_xyxy": [
+        0,
+        0,
+        1448,
+        1086
+      ]
+    },
+    "wall_plaster_b": {
+      "authored": "processed/authored/wall_plaster_b.png",
+      "runtime": "processed/runtime/wall_plaster_b.png",
+      "export": "assets/images/homebound_run/wall_plaster_b.png",
+      "raw": "raw/plaster_b_raw.png",
+      "crop_box_xyxy": [
+        0,
+        0,
+        1448,
+        1086
+      ]
+    },
+    "wall_window": {
+      "authored": "processed/authored/wall_window.png",
+      "runtime": "processed/runtime/wall_window.png",
+      "export": "assets/images/homebound_run/wall_window.png",
+      "raw": "raw/window_feature_raw.png",
+      "clean_cutout": "processed/feature-cutouts/wall_window_clean.png"
+    },
+    "wall_door": {
+      "authored": "processed/authored/wall_door.png",
+      "runtime": "processed/runtime/wall_door.png",
+      "export": "assets/images/homebound_run/wall_door.png",
+      "raw": "raw/door_feature_raw.png",
+      "clean_cutout": "processed/feature-cutouts/wall_door_clean.png"
+    },
+    "wall_mural": {
+      "authored": "processed/authored/wall_mural.png",
+      "runtime": "processed/runtime/wall_mural.png",
+      "export": "assets/images/homebound_run/wall_mural.png",
+      "raw": "raw/mural_feature_raw.png",
+      "clean_cutout": "processed/feature-cutouts/wall_mural_clean.png"
+    }
+  },
+  "features": {
+    "wall_window": {
+      "description": "one small inset window",
+      "raw": "raw/window_feature_raw.png",
+      "prompt": "raw/window_feature_prompt.txt",
+      "authored_rect_xyxy": [
+        78,
+        74,
+        178,
+        134
+      ],
+      "normalized_rect_xyxy": [
+        0.3046875,
+        0.3854166666666667,
+        0.6953125,
+        0.6979166666666666
+      ],
+      "runtime_rect_xyxy": [
+        312,
+        296,
+        712,
+        536
+      ],
+      "source_bottom_contact": {
+        "wall_plate_bottom_authored_y": 192,
+        "feature_bottom_authored_y": 134,
+        "feature_bottom_runtime_y": 536,
+        "note": "door leaves a two-authored-pixel contact buffer; window and mural stay above the shared ground row"
+      }
+    },
+    "wall_door": {
+      "description": "one simple Korean metal or painted-wood door",
+      "raw": "raw/door_feature_raw.png",
+      "prompt": "raw/door_feature_prompt.txt",
+      "authored_rect_xyxy": [
+        92,
+        111,
+        160,
+        190
+      ],
+      "normalized_rect_xyxy": [
+        0.359375,
+        0.578125,
+        0.625,
+        0.9895833333333334
+      ],
+      "runtime_rect_xyxy": [
+        368,
+        444,
+        640,
+        760
+      ],
+      "source_bottom_contact": {
+        "wall_plate_bottom_authored_y": 192,
+        "feature_bottom_authored_y": 190,
+        "feature_bottom_runtime_y": 760,
+        "note": "door leaves a two-authored-pixel contact buffer; window and mural stay above the shared ground row"
+      }
+    },
+    "wall_mural": {
+      "description": "one small hand-painted blue-flowers mural, no text",
+      "raw": "raw/mural_feature_raw.png",
+      "prompt": "raw/mural_feature_prompt.txt",
+      "authored_rect_xyxy": [
+        64,
+        92,
+        180,
+        160
+      ],
+      "normalized_rect_xyxy": [
+        0.25,
+        0.4791666666666667,
+        0.703125,
+        0.8333333333333334
+      ],
+      "runtime_rect_xyxy": [
+        256,
+        368,
+        720,
+        640
+      ],
+      "source_bottom_contact": {
+        "wall_plate_bottom_authored_y": 192,
+        "feature_bottom_authored_y": 160,
+        "feature_bottom_runtime_y": 640,
+        "note": "door leaves a two-authored-pixel contact buffer; window and mural stay above the shared ground row"
+      }
+    }
+  },
+  "processing": {
+    "aspect": "4:3 center crop with no axis stretch",
+    "authored": "nearest-neighbor to 256x192 from raw creative source",
+    "runtime": "nearest-neighbor 4x to 1024x768",
+    "transparent_feature_cleanup": "alpha<128 removed; bright cyan matte fringe removed; no creative repaint",
+    "variant_b_seam_conditioning": "copy master left/right 16 authored px and bottom 6 authored rows",
+    "vertical_seam_conditioning": "all five authored plates use the master normalized left/right edge average as a common y-profile; first and last authored columns are exact matches and reserved 16px strips are linearly blended",
+    "contact_sheet": "qc/plaster_walls_contact_sheet.png"
+  },
+  "seam_qc": {
+    "all_five_first_last_columns_exact": true,
+    "max_left_right_channel_delta": 0,
+    "max_common_profile_channel_delta": 0,
+    "reserved_strip_authored_px": 16,
+    "profile_source": "normalized master wall_plaster_a opposing edge average before conditioning"
+  }
+}

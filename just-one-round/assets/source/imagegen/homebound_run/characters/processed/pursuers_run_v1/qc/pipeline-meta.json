@@ -1,0 +1,527 @@
+{
+  "schema": "homebound_run.pursuers_run_asset.v1",
+  "asset": "homebound_run.pursuers_run",
+  "runtime_path": "assets/images/homebound_run/pursuers_run.png",
+  "source_raw": "assets/source/imagegen/homebound_run/characters/raw/pursuers_run_v1/raw-pass2-refined.png",
+  "refinement_source": "assets/source/imagegen/homebound_run/characters/raw/pursuers_run_v1/raw-pass1.png",
+  "source_prompt": "assets/source/imagegen/homebound_run/characters/raw/pursuers_run_v1/prompt-used.txt",
+  "refinement_prompt": "assets/source/imagegen/homebound_run/characters/raw/pursuers_run_v1/refinement-prompt.txt",
+  "master_style_reference": "assets/images/homebound_run/student_run.png",
+  "layout": {
+    "rows": 2,
+    "columns": 3,
+    "cell_size": [
+      512,
+      384
+    ],
+    "base_cell": [
+      128,
+      96
+    ],
+    "integer_scale": 4,
+    "frame_order": [
+      "left-foot-contact",
+      "compression",
+      "flight",
+      "right-foot-contact",
+      "compression",
+      "flight"
+    ],
+    "frame_duration_ms": 125,
+    "fps": 8.0,
+    "loop_duration_ms": 750
+  },
+  "crop_contract": {
+    "left_source_rect": [
+      48,
+      80,
+      264,
+      352
+    ],
+    "right_source_rect": [
+      264,
+      80,
+      480,
+      352
+    ],
+    "left_character_max_base_size": [
+      54,
+      60
+    ],
+    "right_character_max_base_size": [
+      46,
+      54
+    ],
+    "left_character_center_x_base": 39,
+    "right_character_center_x_base": 93,
+    "common_baseline_y_px": 344
+  },
+  "source_processing": {
+    "raw_dimensions": [
+      1774,
+      887
+    ],
+    "source_cell_boundaries_x": [
+      0,
+      600,
+      1185,
+      1774
+    ],
+    "source_row_boundaries_y": [
+      0,
+      460,
+      887
+    ],
+    "component_alpha_threshold": 128,
+    "frame_shared_scale_by_character": {
+      "left": 0.15113350125944586,
+      "right": 0.16463414634146342
+    },
+    "resampling": "nearest-neighbour only",
+    "creative_source": "built-in image_gen, one styling refinement from the first raw pass",
+    "no_procedural_character_drawing": true
+  },
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "left-foot-contact",
+      "source_cell_bounds": [
+        0,
+        0,
+        600,
+        460
+      ],
+      "left_roi": [
+        0,
+        0,
+        320,
+        460
+      ],
+      "right_roi": [
+        320,
+        0,
+        600,
+        460
+      ],
+      "left": {
+        "source_bbox": [
+          40,
+          56,
+          300,
+          443
+        ],
+        "source_bbox_size": [
+          260,
+          387
+        ],
+        "opaque_component_pixels": 50085,
+        "threshold_alpha": 128
+      },
+      "right": {
+        "source_bbox": [
+          339,
+          120,
+          559,
+          443
+        ],
+        "source_bbox_size": [
+          220,
+          323
+        ],
+        "opaque_component_pixels": 41112,
+        "threshold_alpha": 128
+      }
+    },
+    {
+      "index": 1,
+      "label": "compression",
+      "source_cell_bounds": [
+        600,
+        0,
+        1185,
+        460
+      ],
+      "left_roi": [
+        600,
+        0,
+        920,
+        460
+      ],
+      "right_roi": [
+        920,
+        0,
+        1185,
+        460
+      ],
+      "left": {
+        "source_bbox": [
+          637,
+          81,
+          901,
+          443
+        ],
+        "source_bbox_size": [
+          264,
+          362
+        ],
+        "opaque_component_pixels": 53597,
+        "threshold_alpha": 128
+      },
+      "right": {
+        "source_bbox": [
+          933,
+          116,
+          1163,
+          443
+        ],
+        "source_bbox_size": [
+          230,
+          327
+        ],
+        "opaque_component_pixels": 43372,
+        "threshold_alpha": 128
+      }
+    },
+    {
+      "index": 2,
+      "label": "flight",
+      "source_cell_bounds": [
+        1185,
+        0,
+        1774,
+        460
+      ],
+      "left_roi": [
+        1185,
+        0,
+        1505,
+        460
+      ],
+      "right_roi": [
+        1505,
+        0,
+        1774,
+        460
+      ],
+      "left": {
+        "source_bbox": [
+          1223,
+          51,
+          1477,
+          448
+        ],
+        "source_bbox_size": [
+          254,
+          397
+        ],
+        "opaque_component_pixels": 50340,
+        "threshold_alpha": 128
+      },
+      "right": {
+        "source_bbox": [
+          1506,
+          115,
+          1736,
+          433
+        ],
+        "source_bbox_size": [
+          230,
+          318
+        ],
+        "opaque_component_pixels": 41235,
+        "threshold_alpha": 128
+      }
+    },
+    {
+      "index": 3,
+      "label": "right-foot-contact",
+      "source_cell_bounds": [
+        0,
+        460,
+        600,
+        887
+      ],
+      "left_roi": [
+        0,
+        460,
+        320,
+        887
+      ],
+      "right_roi": [
+        320,
+        460,
+        600,
+        887
+      ],
+      "left": {
+        "source_bbox": [
+          41,
+          486,
+          296,
+          864
+        ],
+        "source_bbox_size": [
+          255,
+          378
+        ],
+        "opaque_component_pixels": 49772,
+        "threshold_alpha": 128
+      },
+      "right": {
+        "source_bbox": [
+          339,
+          535,
+          567,
+          862
+        ],
+        "source_bbox_size": [
+          228,
+          327
+        ],
+        "opaque_component_pixels": 42709,
+        "threshold_alpha": 128
+      }
+    },
+    {
+      "index": 4,
+      "label": "compression",
+      "source_cell_bounds": [
+        600,
+        460,
+        1185,
+        887
+      ],
+      "left_roi": [
+        600,
+        460,
+        920,
+        887
+      ],
+      "right_roi": [
+        920,
+        460,
+        1185,
+        887
+      ],
+      "left": {
+        "source_bbox": [
+          637,
+          490,
+          900,
+          864
+        ],
+        "source_bbox_size": [
+          263,
+          374
+        ],
+        "opaque_component_pixels": 53747,
+        "threshold_alpha": 128
+      },
+      "right": {
+        "source_bbox": [
+          934,
+          546,
+          1160,
+          864
+        ],
+        "source_bbox_size": [
+          226,
+          318
+        ],
+        "opaque_component_pixels": 41584,
+        "threshold_alpha": 128
+      }
+    },
+    {
+      "index": 5,
+      "label": "flight",
+      "source_cell_bounds": [
+        1185,
+        460,
+        1774,
+        887
+      ],
+      "left_roi": [
+        1185,
+        460,
+        1505,
+        887
+      ],
+      "right_roi": [
+        1505,
+        460,
+        1774,
+        887
+      ],
+      "left": {
+        "source_bbox": [
+          1223,
+          477,
+          1478,
+          855
+        ],
+        "source_bbox_size": [
+          255,
+          378
+        ],
+        "opaque_component_pixels": 49213,
+        "threshold_alpha": 128
+      },
+      "right": {
+        "source_bbox": [
+          1507,
+          533,
+          1736,
+          861
+        ],
+        "source_bbox_size": [
+          229,
+          328
+        ],
+        "opaque_component_pixels": 39659,
+        "threshold_alpha": 128
+      }
+    }
+  ],
+  "runtime_frames": [
+    {
+      "index": 0,
+      "label": "left-foot-contact",
+      "runtime_frame": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/frames/pursuers_run_00.png",
+      "left_bbox": [
+        80,
+        112,
+        236,
+        344
+      ],
+      "right_bbox": [
+        300,
+        132,
+        444,
+        344
+      ],
+      "center_gap_px": 64,
+      "baseline_y": 344
+    },
+    {
+      "index": 1,
+      "label": "compression",
+      "runtime_frame": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/frames/pursuers_run_01.png",
+      "left_bbox": [
+        76,
+        124,
+        236,
+        344
+      ],
+      "right_bbox": [
+        296,
+        128,
+        448,
+        344
+      ],
+      "center_gap_px": 60,
+      "baseline_y": 344
+    },
+    {
+      "index": 2,
+      "label": "flight",
+      "runtime_frame": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/frames/pursuers_run_02.png",
+      "left_bbox": [
+        80,
+        104,
+        232,
+        344
+      ],
+      "right_bbox": [
+        296,
+        136,
+        448,
+        344
+      ],
+      "center_gap_px": 64,
+      "baseline_y": 344
+    },
+    {
+      "index": 3,
+      "label": "right-foot-contact",
+      "runtime_frame": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/frames/pursuers_run_03.png",
+      "left_bbox": [
+        80,
+        116,
+        236,
+        344
+      ],
+      "right_bbox": [
+        296,
+        128,
+        448,
+        344
+      ],
+      "center_gap_px": 60,
+      "baseline_y": 344
+    },
+    {
+      "index": 4,
+      "label": "compression",
+      "runtime_frame": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/frames/pursuers_run_04.png",
+      "left_bbox": [
+        76,
+        116,
+        236,
+        344
+      ],
+      "right_bbox": [
+        300,
+        136,
+        448,
+        344
+      ],
+      "center_gap_px": 64,
+      "baseline_y": 344
+    },
+    {
+      "index": 5,
+      "label": "flight",
+      "runtime_frame": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/frames/pursuers_run_05.png",
+      "left_bbox": [
+        80,
+        116,
+        236,
+        344
+      ],
+      "right_bbox": [
+        296,
+        128,
+        448,
+        344
+      ],
+      "center_gap_px": 60,
+      "baseline_y": 344
+    }
+  ],
+  "qc": {
+    "empty_frames": 0,
+    "edge_touch_frames": 0,
+    "source_crop_violations": 0,
+    "actor_overlap_frames": 0,
+    "baseline_y_values": [
+      344
+    ],
+    "minimum_center_gap_px": 60,
+    "opaque_bbox": [
+      80,
+      104,
+      1472,
+      728
+    ],
+    "runtime_dimensions": [
+      1536,
+      768
+    ],
+    "contact_sheet": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/qc/pursuers_run_contact_sheet_2x.png"
+  },
+  "previews": {
+    "contact_sheet": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/qc/pursuers_run_contact_sheet_2x.png",
+    "animation": "assets/source/imagegen/homebound_run/characters/processed/pursuers_run_v1/qc/pursuers_run_animation.gif"
+  }
+}

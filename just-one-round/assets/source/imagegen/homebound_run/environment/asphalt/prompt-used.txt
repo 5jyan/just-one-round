@@ -1,0 +1,14 @@
+Use case: repeatable game texture for a mobile endless runner.
+Asset type: opaque square top-down alley asphalt tile for "집에 좀 가자".
+Reference: Image 1 is the accepted student run master shown in the conversation. Match its deliberate late-1990s 32-bit pixel clusters, crisp dark-navy contour language, warm upper-right light, and cool blue-gray shadow temperature. Apply the style quietly to a surface texture; do not include the student or any character.
+
+Primary request: create a nearly seamless square patch of ordinary Korean back-alley asphalt seen from above. Use a muted cool blue-gray asphalt base with a few tiny restrained hairline cracks, small drain grit, and sparse worn speckles. Keep the material low contrast and quiet beside the student and hazards.
+
+Composition: fill the entire square tile edge to edge. Texture density and marks must continue naturally across all four edges and remain suitable for deterministic opposite-edge seam conditioning and horizontal/vertical 3x3 tiling. No focal center.
+
+Style/medium: rich late-1990s 32-bit 2D pixel art, hard-edged clusters, no smoothing, no blur, no gradients, three to four restrained surface shades, no micro-noise finer than the foreground sprites.
+
+Hard constraints: no lane lines, no arrows, no road markings, no manholes, no drains as large objects, no leaves, no litter, no pebbles larger than a few base pixels, no logos, no text, no characters, no shadows, no props, no perspective, no vignette, no border, no watermark. Opaque RGB art only.
+
+Final generation revision used for raw.png:
+Use Image 1, the accepted raw student run master at $HOME/Documents/딱한판만/just-one-round/assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw.png, only as style and palette reference. Create one opaque square top-down Korean back-alley asphalt tile with 92 percent of the square as a single muted cool blue-gray base, only 5 or 6 tiny dark crack clusters and 8 or fewer tiny light grit pixels, widely separated. Use rich late-1990s 32-bit pixel art with hard edges and three restrained shades, no dense noise, no focal center, and natural edge continuation for deterministic horizontal and vertical tiling. No character, building, perspective, shadows, props, litter, leaves, large pebbles, drain or manhole object, lane line, arrow, marking, border, vignette, text, logo, watermark, blur, antialiasing, gradient, smooth HD, or 3D. Full opaque RGB art.

@@ -1,0 +1,90 @@
+{
+  "asset": "homebound_run",
+  "operation": "student_jump",
+  "input": "assets/source/imagegen/homebound_run/characters/raw/student_jump_raw.png",
+  "raw_size": [
+    1024,
+    1536
+  ],
+  "base_cell": [
+    48,
+    72
+  ],
+  "runtime_cell": [
+    192,
+    288
+  ],
+  "integer_scale": 4,
+  "frame_order": [
+    "jump"
+  ],
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "jump",
+      "source_bbox": [
+        214,
+        234,
+        825,
+        1179
+      ],
+      "source_bbox_size": [
+        611,
+        945
+      ],
+      "source_crop": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 52
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          40,
+          96,
+          156,
+          272
+        ],
+        "subject_size": [
+          116,
+          176
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 176.0,
+    "body_height_cv": 0.0,
+    "anchor_y_std": 0.0,
+    "bottom_padding_min": 16,
+    "bottom_padding_max": 16
+  },
+  "processing": {
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_creative": "built-in image_gen",
+    "source_art_is_not_procedurally_drawn": true
+  }
+}

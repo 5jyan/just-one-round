@@ -1,0 +1,179 @@
+{
+  "asset": "homebound_run",
+  "operation": "items_pack",
+  "input": "assets/source/imagegen/homebound_run/characters/raw/items_pack_raw.png",
+  "raw_size": [
+    1448,
+    1086
+  ],
+  "base_cell": [
+    16,
+    16
+  ],
+  "runtime_cell": [
+    64,
+    64
+  ],
+  "integer_scale": 4,
+  "frame_order": [
+    "coin",
+    "magnet",
+    "shield",
+    "boost"
+  ],
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "coin",
+      "source_bbox": [
+        312,
+        166,
+        567,
+        445
+      ],
+      "source_bbox_size": [
+        255,
+        279
+      ]
+    },
+    {
+      "index": 1,
+      "label": "magnet",
+      "source_bbox": [
+        162,
+        178,
+        456,
+        458
+      ],
+      "source_bbox_size": [
+        294,
+        280
+      ]
+    },
+    {
+      "index": 2,
+      "label": "shield",
+      "source_bbox": [
+        275,
+        50,
+        611,
+        404
+      ],
+      "source_bbox_size": [
+        336,
+        354
+      ]
+    },
+    {
+      "index": 3,
+      "label": "boost",
+      "source_bbox": [
+        61,
+        100,
+        516,
+        380
+      ],
+      "source_bbox_size": [
+        455,
+        280
+      ]
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          64,
+          64
+        ],
+        "bbox": [
+          4,
+          4,
+          52,
+          56
+        ],
+        "subject_size": [
+          48,
+          52
+        ],
+        "bottom_padding": 8,
+        "anchor_y_normalized": 0.875
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          64,
+          64
+        ],
+        "bbox": [
+          4,
+          4,
+          56,
+          52
+        ],
+        "subject_size": [
+          52,
+          48
+        ],
+        "bottom_padding": 12,
+        "anchor_y_normalized": 0.8125
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          64,
+          64
+        ],
+        "bbox": [
+          4,
+          4,
+          52,
+          56
+        ],
+        "subject_size": [
+          48,
+          52
+        ],
+        "bottom_padding": 8,
+        "anchor_y_normalized": 0.875
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          64,
+          64
+        ],
+        "bbox": [
+          8,
+          12,
+          56,
+          44
+        ],
+        "subject_size": [
+          48,
+          32
+        ],
+        "bottom_padding": 20,
+        "anchor_y_normalized": 0.6875
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 46.0,
+    "body_height_cv": 0.17926546198337653,
+    "anchor_y_std": 0.07654655446197431,
+    "bottom_padding_min": 8,
+    "bottom_padding_max": 20
+  },
+  "processing": {
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_creative": "built-in image_gen",
+    "source_art_is_not_procedurally_drawn": true
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "schema": "homebound_run.neighborhood_v1.generation_manifest.v1",
+  "creative_sources": {
+    "wall_house_brick": {
+      "raw": "raw/wall_house_brick_raw.png",
+      "prompt": "raw/wall_house_brick_prompt.txt",
+      "tool": "built-in image_gen",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "references": [
+        "../../../../images/homebound_run/wall_plaster_a.png",
+        "../environment/facade_homes/raw.png"
+      ]
+    },
+    "wall_house_sage": {
+      "raw": "raw/wall_house_sage_raw.png",
+      "prompt": "raw/wall_house_sage_prompt.txt",
+      "tool": "built-in image_gen",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "references": [
+        "raw/wall_house_brick_raw.png",
+        "../../../../images/homebound_run/wall_plaster_a.png"
+      ]
+    }
+  },
+  "adapted_existing_raws": {
+    "wall_house_garden": {
+      "raw": "raw/facade_homes_source_raw.png",
+      "original_source": "../environment/facade_homes/raw.png",
+      "prompt": "raw/facade_homes_source_prompt.txt",
+      "crop_box_xyxy": [
+        512,
+        0,
+        1792,
+        768
+      ],
+      "authored_rect_xyxy": [
+        28,
+        72,
+        228,
+        192
+      ]
+    },
+    "wall_shopfront": {
+      "raw": "raw/facade_shops_source_raw.png",
+      "original_source": "../environment/facade_shops/raw.png",
+      "prompt": "raw/facade_shops_source_prompt.txt",
+      "crop_box_xyxy": [
+        100,
+        0,
+        1000,
+        768
+      ],
+      "authored_rect_xyxy": [
+        57,
+        72,
+        198,
+        192
+      ]
+    },
+    "wall_schoolfront": {
+      "raw": "raw/facade_school_source_raw.png",
+      "original_source": "../environment/facade_school/raw.png",
+      "prompt": "raw/facade_school_source_prompt.txt",
+      "crop_box_xyxy": [
+        256,
+        0,
+        1792,
+        768
+      ],
+      "authored_rect_xyxy": [
+        28,
+        72,
+        228,
+        192
+      ]
+    },
+    "wall_constructionfront": {
+      "raw": "raw/facade_construction_source_raw.png",
+      "original_source": "../environment/facade_construction/raw.png",
+      "prompt": "raw/facade_construction_source_prompt.txt",
+      "crop_box_xyxy": [
+        0,
+        0,
+        2161,
+        728
+      ],
+      "authored_rect_xyxy": [
+        23,
+        88,
+        233,
+        192
+      ]
+    }
+  }
+}

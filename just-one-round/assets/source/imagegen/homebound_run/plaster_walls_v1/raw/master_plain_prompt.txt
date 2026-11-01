@@ -1,0 +1,7 @@
+Create a single clean 4:3 opaque pixel-art texture plate for a Korean residential alley wall in a mobile endless-runner. This is a PLAIN MASTER TILE for later feature variants.
+
+Front-on flat orthographic wall only. Fill edge to edge with warm off-white and pale cream plaster. Leave about 82 percent of the canvas nearly blank and calm. At the bottom, include only a thin 8–12 percent high cool blue-gray damp/weathering band made of a few broad stepped clusters, with soft sparse breaks; never a dense noisy rubble strip. Add only 8–12 isolated blocky worn-plaster marks across the wall, each a large deliberate 2x pixel cluster. Keep the first and last 64 source-pixel-equivalent margins visually plain so tiles join quietly. Straight flat bottom contact row.
+
+Art direction: deliberate 2x pixel clusters, crisp hard-edged late-1990s 32-bit game pixel art, 3 or 4 solid shade levels, dark navy-gray accents only in the largest shadow clusters, warm upper-right light, cool gray lower weathering. Slightly worn ordinary Korean white plaster, calm and readable beside a chunky student sprite. Real authored game texture, never smooth HD painting, photorealism, or fine noise.
+
+Strictly forbid any feature or object: no doors, windows, mural, roof, eaves, gutters, bricks, pipes, pilasters, trim, corner, wall cap, perspective, sky, road, sidewalk, ground plane, border, frame, labels, text, signs, logo, watermark, characters, vehicles. No gradients, blur, bloom, anti-aliasing, micro-speckles, or presentation mockup. Output one 4:3 image only.

@@ -1,0 +1,8 @@
+Use the accepted homebound_run environment hazard contract and the attached
+streetscape barricade as style reference only. Create one transparent 32-bit
+pixel-art low jump hazard: two orange construction cones linked by a sagging
+black/yellow warning chain with a battered blue plastic crate in the center.
+Keep a wide, low silhouette, dark navy stepped outline, warm upper-right light,
+cool blue-gray shadows, and no floor plate, text, logo, wall, or baked shadow.
+The generated raw is preserved at 1774x887; deterministic processing fits it
+into a 128x64 base cell and emits a 512x256 nearest-neighbor runtime asset.

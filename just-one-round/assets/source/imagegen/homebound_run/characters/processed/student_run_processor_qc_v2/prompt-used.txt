@@ -1,0 +1,16 @@
+Use case: stylized-concept game sprite master sheet correction.
+Asset type: player character run animation sheet for a mobile 2D game.
+Image 1 is the accepted exact student identity and style reference. Keep the same rear three-quarter camera, ordinary teen, messy black hair, white partly untucked shirt, navy trousers, light sneakers, brick-red backpack, and navy PE bag. Keep the PE bag attached on the same visible side as Image 1 in all four cells; do not mirror or swap the bag or backpack.
+
+Generate exactly one 2x2 sheet, four equal cells, no separators, of the student running away upward. Use a very clear alternating leg cycle with large, readable screen-position differences. Read frames top-left, top-right, bottom-left, bottom-right:
+1 top-left: the straight support leg ends in a planted shoe on the SCREEN-LEFT side of the body; the opposite knee and lifted shoe are visibly raised on SCREEN-RIGHT.
+2 top-right: the SCREEN-RIGHT support shoe is nearly down while the other leg passes through the center.
+3 bottom-left: reverse the first pose: the straight support leg ends in a planted shoe on the SCREEN-RIGHT side of the body; the opposite knee and lifted shoe are visibly raised on SCREEN-LEFT.
+4 bottom-right: the SCREEN-LEFT support shoe is nearly down while the other leg passes through the center.
+The bottom-left pose must be visibly different from the top-left pose, with the planted shoe and raised shoe swapped across the body. Arms counter-swing to support the leg alternation. Keep the character's rear 3/4 view and the red backpack/PE bag side stable. All four lowest planted shoe soles share one horizontal contact line.
+
+Keep a stable camera distance and standing-equivalent character scale, body about 38 by 62 pixels inside a 48 by 72 base cell, four pixels of bottom padding, and generous magenta margin. Every limb, bag, hair, and shoe stays inside its own cell.
+
+Style: match Image 1 exactly: rich late-1990s 32-bit 2D pixel art, authored pixel clusters, crisp dark-navy one-base-pixel outlines, three to four shade steps, warm upper-right late-afternoon light, cool blue-gray shadows, slightly awkward earnest anatomy. No smooth HD paint, 3D, vector style, blur, antialiasing, dithering noise, or tiny texture noise. Background must be 100% flat #FF00FF magenta.
+
+No text, labels, UI, logos, borders, guides, scenery, ground plates, detached shadows, extra characters, bullies, effects, watermark, or mirrored whole frames.

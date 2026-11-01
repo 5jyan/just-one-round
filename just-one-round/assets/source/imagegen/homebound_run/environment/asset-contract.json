@@ -1,0 +1,197 @@
+{
+  "schema": "homebound_run.environment_assets.v1",
+  "game": "homebound_run",
+  "display_name": "집에 좀 가자",
+  "scope": "environment-and-hazard-raster-assets-only",
+  "production": "built-in image_gen creative source + deterministic crop, nearest-neighbor scaling, alpha cleanup, quiet asphalt palette reduction, and tile seam conditioning",
+  "master_reference": {
+    "status": "accepted-character-master",
+    "path": "../characters/processed/student_run/frames/L-contact.png",
+    "raw_path": "../characters/raw/student_run_master_raw.png",
+    "role": "locks the late-1990s 32-bit pixel cluster language, outline, lighting, palette temperature, and detail density; it is not copied into environment art"
+  },
+  "visual_contract": {
+    "style": "rich late-1990s 32-bit 2D pixel art with crisp stepped contours and deliberate pixel clusters",
+    "outline": "dark navy outlines, about one authored base pixel on small forms and two to three base pixels on large silhouettes",
+    "shading": "three to four hard-edged shade levels; warm late-afternoon light from upper right and cool blue-gray shadow masses",
+    "palette": [
+      "cream painted walls",
+      "terracotta brick",
+      "faded teal metal",
+      "cool blue-gray asphalt",
+      "warm amber porch and gate accents",
+      "deep dark navy contact shadows"
+    ],
+    "material_language": "slightly worn, ordinary Korean neighborhood surfaces with restrained texture clusters",
+    "forbidden": [
+      "smooth HD painting",
+      "3D render",
+      "vector or glossy UI look",
+      "anti-aliasing",
+      "blur or bloom",
+      "text, labels, signs with readable copy, logos, watermarks",
+      "baked player, pursuers, coins, power-ups, or collision effects",
+      "English text on the home gate",
+      "fine noise sharper than the student sprite"
+    ]
+  },
+  "viewport_contract": {
+    "canonical_gameplay_safe_core": {"world_rect": [0, 0, 360, 640]},
+    "maximum_supported_viewport": {
+      "wide_short": [430, 640],
+      "canonical": [360, 640],
+      "tall": [360, 820]
+    },
+    "authored_background_world": {"world_rect": [0, -80, 432, 960]},
+    "background_source": [216, 480],
+    "background_runtime": [864, 1920],
+    "background_source_to_world": "source pixel * 2 world units; runtime pixels are nearest-neighbor 4x source",
+    "horizon_anchor": {"source_y": 150, "world_y": 300},
+    "camera": "center x at 216 authored-world units; reveal authored overscan through explicit viewport crop and never stretch one axis",
+    "background_notes": [
+      "Distant school, shop, and rooftop skyline should sit around source y=150 (world y=300).",
+      "The full top and bottom continue as genuine sky, walls, courtyard, and atmosphere; no flat padding or duplicated edge rows.",
+      "The center-bottom road is intentionally quiet because runtime road, rails, and player are separate layers.",
+      "The background contains no static road, junction, obstacle, or character silhouette."
+    ]
+  },
+  "layer_stack": [
+    {"order": 0, "name": "alley_background", "role": "opaque distant atmosphere and buildings", "source": [216, 480], "runtime": [864, 1920], "world_rect": [0, -80, 432, 960]},
+    {"order": 1, "name": "facade_walls", "role": "opaque modular side-wall panels placed by runtime", "source": [128, 96], "runtime": [512, 384], "world_contact": "bottom edge", "perspective": "front-on planar UV panel for 90-degree turns"},
+    {"order": 2, "name": "asphalt", "role": "opaque repeatable top-down surface texture", "source": [128, 128], "runtime": [512, 512], "repeat": "horizontal and vertical", "collision": "visual material only; runtime owns road edge"},
+    {"order": 3, "name": "hazards", "role": "transparent collision-readable foreground objects", "anchor": "bottom/contact", "runtime": "projected by runtime"},
+    {"order": 4, "name": "home_gate", "role": "transparent final-arrival visual", "anchor": "bottom/contact", "runtime": "visual only; no new rules"}
+  ],
+  "assets": {
+    "alley_background": {
+      "runtime_path": "assets/images/homebound_run/alley_background.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/alley_background",
+      "base_size": [216, 480],
+      "runtime_size": [864, 1920],
+      "mode": "opaque RGB",
+      "role": "full-bleed distant environment plate",
+      "content": "quiet warm sky, distant low-rise Korean school/shop/rooftop skyline, lower courtyard and wall atmosphere",
+      "source_crop": {
+        "raw_size": [1448, 1086],
+        "target_aspect": "216:480",
+        "center_crop_box_xyxy": [479, 0, 968, 1086],
+        "method": "aspect-preserving center crop before nearest-neighbor resize; no axis stretch"
+      },
+      "must_not_contain": ["road", "junction", "rails", "obstacles", "characters", "large foreground focal object"]
+    },
+    "asphalt": {
+      "runtime_path": "assets/images/homebound_run/asphalt.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/asphalt",
+      "base_size": [128, 128],
+      "runtime_size": [512, 512],
+      "mode": "opaque RGB",
+      "role": "seamless repeatable top-down alley asphalt",
+      "content": "muted blue-gray asphalt with tiny restrained cracks and drain grit",
+      "must_not_contain": ["lane lines", "arrows", "logos", "large drains", "objects", "high-contrast noise"]
+    },
+    "facade_school": {
+      "runtime_path": "assets/images/homebound_run/facade_school.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/facade_school",
+      "base_size": [128, 96],
+      "runtime_size": [512, 384],
+      "mode": "opaque RGB",
+      "role": "wide front-on modular side wall",
+      "content": "school-red brick and cream plaster wall with restrained fence or institutional trim",
+      "must_not_contain": ["sky", "ground plane", "perspective street view", "readable text", "characters"]
+    },
+    "facade_shops": {
+      "runtime_path": "assets/images/homebound_run/facade_shops.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/facade_shops",
+      "base_size": [128, 96],
+      "runtime_size": [512, 384],
+      "mode": "opaque RGB",
+      "role": "wide front-on modular side wall",
+      "content": "closed neighborhood shop frontage with faded teal metal roller shutters and cream trim",
+      "must_not_contain": ["readable words", "English letters", "sky", "ground plane", "perspective street view", "characters"]
+    },
+    "facade_homes": {
+      "runtime_path": "assets/images/homebound_run/facade_homes.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/facade_homes",
+      "base_size": [128, 96],
+      "runtime_size": [512, 384],
+      "mode": "opaque RGB",
+      "role": "wide front-on modular side wall",
+      "content": "cream painted residential brick, small doors, utility boxes, and quiet porch detail",
+      "must_not_contain": ["readable text", "sky", "ground plane", "perspective street view", "characters"]
+    },
+    "facade_construction": {
+      "runtime_path": "assets/images/homebound_run/facade_construction.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/facade_construction",
+      "base_size": [128, 96],
+      "runtime_size": [512, 384],
+      "mode": "opaque RGB",
+      "role": "wide front-on modular side wall",
+      "content": "faded teal corrugated construction hoarding with simple dark supports and cream safety blocks",
+      "must_not_contain": ["warning text", "logos", "sky", "ground plane", "perspective street view", "characters"]
+    },
+    "obstacle_hurdle": {
+      "runtime_path": "assets/images/homebound_run/obstacle_hurdle.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/obstacle_hurdle",
+      "base_size": [128, 64],
+      "runtime_size": [512, 256],
+      "mode": "transparent RGBA",
+      "role": "wide low jump-only collision hazard",
+      "content": "low broad wooden pallet stack with two tied flat boxes, readable from incoming road view",
+      "anchor": "bottom contact line",
+      "must_not_contain": ["tall block", "full wall", "floor plate", "characters", "text"]
+    },
+    "obstacle_shutter": {
+      "runtime_path": "assets/images/homebound_run/obstacle_shutter.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/obstacle_shutter",
+      "base_size": [128, 128],
+      "runtime_size": [512, 512],
+      "mode": "transparent RGBA",
+      "role": "full-width slide-only low-clearance hazard",
+      "content": "front-facing faded teal roller shutter in a simple metal frame; lowered door leaves a clearly open low gap along the bottom",
+      "anchor": "bottom contact line; opening stays alpha",
+      "must_not_contain": ["baked building wall", "opaque interior opening", "characters", "text", "full-height sealed door"]
+    },
+    "obstacle_stack": {
+      "runtime_path": "assets/images/homebound_run/obstacle_stack.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/obstacle_stack",
+      "base_size": [64, 96],
+      "runtime_size": [256, 384],
+      "mode": "transparent RGBA",
+      "role": "compact occupied-lane hazard for narrow segments",
+      "content": "short broad two-tier carton and crate block, simple readable silhouette, foot contact at bottom",
+      "anchor": "bottom contact line",
+      "must_not_contain": ["tower", "scooter unless unmistakably readable", "full wall", "floor plate", "characters", "labels or logos"]
+    },
+    "home_gate": {
+      "runtime_path": "assets/images/homebound_run/home_gate.png",
+      "source_dir": "assets/source/imagegen/homebound_run/environment/home_gate",
+      "base_size": [128, 128],
+      "runtime_size": [512, 512],
+      "mode": "transparent RGBA",
+      "role": "final home-arrival visual only",
+      "content": "Korean residential double gate, cream brick pillars, small warm porch roof, simple dark metal gate",
+      "anchor": "bottom contact line",
+      "must_not_contain": ["English labels", "logo", "characters", "road plate", "opaque square background"]
+    }
+  },
+  "preserved_behavior": [
+    "TempleRun controls, lane/tilt movement, jump, slide, turn timing, score, collision, spawning, duration, and result lifecycle stay unchanged.",
+    "Environment art remains decorative or collision-readable only; no new gameplay rules are introduced by home_gate or facades.",
+    "Existing assets/images/temple_run files remain untouched and available as the original game family."
+  ],
+  "qc_requirements": [
+    "Inspect every raw and processed asset at native size and nearest-neighbor enlarged size.",
+    "Confirm no transparent asset has magenta fringe, opaque corner contamination, clipping, or edge contact.",
+    "Confirm asphalt opposite edges are deterministic and visually quiet when tiled 3x3.",
+    "Confirm facade panels share bottom contact, but remain distinct in silhouette and palette family.",
+    "Confirm hurdle, shutter, and stack silhouettes read as jump, slide, and occupied-lane hazards at runtime scale.",
+    "Confirm background covers top and bottom authored overscan with genuine continuation art and has no baked road or character.",
+    "Run environment viewport rectangle validation and report runtime integration as pending until the runtime worker wires these paths."
+  ],
+  "provenance": {
+    "creative_source": "built-in image_gen only",
+    "postprocess": "deterministic crop/fit, alpha cleanup, nearest-neighbor downsample and 4x upsample, 8-color no-dither asphalt cleanup, seam conditioning for asphalt",
+    "raw_policy": "preserve each original generated PNG beside prompt-used.txt; never overwrite the only raw source",
+    "generated_at": "2026-10-17"
+  }
+}

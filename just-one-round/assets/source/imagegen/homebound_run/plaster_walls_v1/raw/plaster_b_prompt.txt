@@ -1,0 +1,5 @@
+Edit the supplied master plain plaster-wall tile into PLAIN VARIANT B while preserving the exact front-on orthographic camera, 4:3 plate layout, light direction, off-white/cream palette, cool blue-gray thin base weathering, and deliberate chunky 2x pixel-cluster style. Keep the wall itself opaque and full-bleed.
+
+Make only a quiet material variation: move or change a few of the existing large worn-plaster marks and slightly vary the lower weathering silhouette. Leave about 82 percent nearly blank. Keep left and right 64 runtime pixels completely neutral plain, and keep the bottom contact material flat and continuous so tiles join. This must still be a plain wall family member.
+
+Strictly no doors, no windows, no mural, no roof, no eaves, no gutters, no bricks, no pipes, no trim, no pilasters, no wall cap, no corner, no perspective, no sky, no road, no sidewalk, no ground plane, no border, no frame, no text, no signs, no logos, no characters, no vehicles, no objects, no micro-noise, no blur, no gradients, no bloom, no anti-aliasing, no presentation mockup. Return one clean opaque 4:3 image.

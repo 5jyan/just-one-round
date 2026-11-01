@@ -1,0 +1,60 @@
+{
+  "schema": "homebound_run.street_modules_v2.generation_manifest.v1",
+  "tool": "built-in image_gen",
+  "plates": {
+    "street_house_brick": {
+      "raw": "raw/street_brickhouse_raw.png",
+      "prompt": "raw/street_brickhouse_prompt.txt",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "references": [
+        "../../../../images/homebound_run/wall_house_brick.png",
+        "../environment/facade_homes/raw.png"
+      ],
+      "generator_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-96b79bb1-7497-4667-86cf-28eca540de81.png"
+    },
+    "street_house_sage": {
+      "raw": "raw/street_sagehouse_raw.png",
+      "prompt": "raw/street_sagehouse_prompt.txt",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "references": [
+        "raw/street_brickhouse_raw.png",
+        "../../../../images/homebound_run/wall_house_sage.png"
+      ],
+      "generator_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-7d0e72f4-d46b-48f9-b385-a61925468163.png"
+    },
+    "street_shopfront": {
+      "raw": "raw/street_shopfront_raw.png",
+      "prompt": "raw/street_shopfront_prompt.txt",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "references": [
+        "raw/street_brickhouse_raw.png"
+      ],
+      "generator_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-54454804-4100-4c5f-8044-e9fb7b508c34.png"
+    }
+  },
+  "contract": {
+    "authored_size": [
+      256,
+      192
+    ],
+    "runtime_size": [
+      1024,
+      768
+    ],
+    "world_footprint_m": [
+      7.333,
+      5.5
+    ],
+    "fullbleed": true,
+    "no_white_canvas": true
+  }
+}

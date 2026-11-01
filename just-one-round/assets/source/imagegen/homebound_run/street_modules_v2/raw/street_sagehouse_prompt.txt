@@ -1,0 +1,15 @@
+Create a distinct companion opaque 4:3 front-orthographic pixel-art building
+facade for the same Korean neighborhood street runner. Use a complete
+two-story desaturated sage green and blue-grey painted house face, with the
+building material touching all four edges and no surrounding white or plaster
+canvas. Keep quiet sage/blue-grey material margins at both sides for module
+seams. Use a grounded dark residential door around 2.1m tall with its bottom
+at the image edge, a different window arrangement from the brick neighbor,
+one or two upper windows, and restrained attached planter, meter, lamp, or pipe
+details. Preserve broad readable 32-bit pixel clusters, dark navy stepped
+contours, warm diffuse light, cool lower courses, and subtle worn paint. The
+top edge is a continuous upright facade/cornice crop, not a sloped roof or
+skyline. No road, sidewalk, ground plane, rooftop, perspective, isometric
+view, border, giant pillars, projection shadow, characters, vehicles, signs,
+logos, readable text, watermark, or transparency. Output one opaque RGB-style
+source plate designed for nearest reduction to 256x192 and 4x enlargement.

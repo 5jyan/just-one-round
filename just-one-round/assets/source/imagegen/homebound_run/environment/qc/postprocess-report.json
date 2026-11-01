@@ -1,0 +1,283 @@
+{
+  "schema": "homebound_run.environment_qc.v1",
+  "assets": {
+    "alley_background": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/alley_background/raw.png",
+      "raw_size": [
+        1448,
+        1086
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/alley_background.png",
+      "base_size": [
+        216,
+        480
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/alley_background.png",
+      "runtime_size": [
+        864,
+        1920
+      ],
+      "mode": "opaque",
+      "edge_alpha_max": 0,
+      "source_crop_box": [
+        479,
+        0,
+        968,
+        1086
+      ]
+    },
+    "asphalt": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/asphalt/raw.png",
+      "raw_size": [
+        1254,
+        1254
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/asphalt.png",
+      "base_size": [
+        128,
+        128
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/asphalt.png",
+      "runtime_size": [
+        512,
+        512
+      ],
+      "mode": "opaque",
+      "edge_alpha_max": 0,
+      "source_crop_box": [
+        0,
+        0,
+        1254,
+        1254
+      ]
+    },
+    "facade_school": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/facade_school/raw.png",
+      "raw_size": [
+        2048,
+        768
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/facade_school.png",
+      "base_size": [
+        128,
+        96
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/facade_school.png",
+      "runtime_size": [
+        512,
+        384
+      ],
+      "mode": "opaque",
+      "edge_alpha_max": 0,
+      "source_crop_box": [
+        512,
+        0,
+        1536,
+        768
+      ]
+    },
+    "facade_shops": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/facade_shops/raw.png",
+      "raw_size": [
+        2048,
+        768
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/facade_shops.png",
+      "base_size": [
+        128,
+        96
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/facade_shops.png",
+      "runtime_size": [
+        512,
+        384
+      ],
+      "mode": "opaque",
+      "edge_alpha_max": 0,
+      "source_crop_box": [
+        512,
+        0,
+        1536,
+        768
+      ]
+    },
+    "facade_homes": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/facade_homes/raw.png",
+      "raw_size": [
+        2048,
+        768
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/facade_homes.png",
+      "base_size": [
+        128,
+        96
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/facade_homes.png",
+      "runtime_size": [
+        512,
+        384
+      ],
+      "mode": "opaque",
+      "edge_alpha_max": 0,
+      "source_crop_box": [
+        512,
+        0,
+        1536,
+        768
+      ]
+    },
+    "facade_construction": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/facade_construction/raw.png",
+      "raw_size": [
+        2161,
+        728
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/facade_construction.png",
+      "base_size": [
+        128,
+        96
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/facade_construction.png",
+      "runtime_size": [
+        512,
+        384
+      ],
+      "mode": "opaque",
+      "edge_alpha_max": 0,
+      "source_crop_box": [
+        595,
+        0,
+        1566,
+        728
+      ]
+    },
+    "obstacle_hurdle": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/obstacle_hurdle/raw.png",
+      "raw_size": [
+        1672,
+        941
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/obstacle_hurdle.png",
+      "base_size": [
+        128,
+        64
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/obstacle_hurdle.png",
+      "runtime_size": [
+        512,
+        256
+      ],
+      "mode": "transparent",
+      "edge_alpha_max": 0,
+      "source_alpha_bbox": [
+        87,
+        405,
+        1588,
+        635
+      ],
+      "processed_alpha_bbox": [
+        4,
+        42,
+        124,
+        60
+      ],
+      "occupied_ratio_width_to_height": 6.667
+    },
+    "obstacle_shutter": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/obstacle_shutter/raw.png",
+      "raw_size": [
+        1402,
+        1122
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/obstacle_shutter.png",
+      "base_size": [
+        128,
+        128
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/obstacle_shutter.png",
+      "runtime_size": [
+        512,
+        512
+      ],
+      "mode": "transparent",
+      "edge_alpha_max": 0,
+      "source_alpha_bbox": [
+        86,
+        105,
+        1316,
+        1017
+      ],
+      "processed_alpha_bbox": [
+        6,
+        36,
+        122,
+        122
+      ],
+      "occupied_ratio_width_to_height": 1.349
+    },
+    "obstacle_stack": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/obstacle_stack/raw.png",
+      "raw_size": [
+        1322,
+        1190
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/obstacle_stack.png",
+      "base_size": [
+        64,
+        96
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/obstacle_stack.png",
+      "runtime_size": [
+        256,
+        384
+      ],
+      "mode": "transparent",
+      "edge_alpha_max": 0,
+      "source_alpha_bbox": [
+        287,
+        242,
+        1042,
+        996
+      ],
+      "processed_alpha_bbox": [
+        4,
+        36,
+        60,
+        92
+      ],
+      "occupied_ratio_width_to_height": 1.0
+    },
+    "home_gate": {
+      "raw": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/home_gate/raw.png",
+      "raw_size": [
+        1448,
+        1086
+      ],
+      "base": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/source/imagegen/homebound_run/environment/processed/base/home_gate.png",
+      "base_size": [
+        128,
+        128
+      ],
+      "runtime": "$HOME/Documents/\ub531\ud55c\ud310\ub9cc/just-one-round/assets/images/homebound_run/home_gate.png",
+      "runtime_size": [
+        512,
+        512
+      ],
+      "mode": "transparent",
+      "edge_alpha_max": 0,
+      "source_alpha_bbox": [
+        241,
+        184,
+        1209,
+        956
+      ],
+      "processed_alpha_bbox": [
+        6,
+        29,
+        122,
+        122
+      ],
+      "occupied_ratio_width_to_height": 1.247
+    }
+  }
+}

@@ -1,0 +1,2 @@
+Use case: repeatable environment texture for a mobile endless runner.
+Create one square 1:1 tileable warm sandstone temple-path surface in the accepted clean HD game-art language: irregular large amber sandstone slabs, shallow cracks, subtle jade moss in seams, soft warm sunlight. Every edge should continue naturally when repeated horizontally and vertically. No border, frame, road sides, walls, rails, curb, horizon, vanishing point, large plants, props, coins, characters, text, logo, or watermark.

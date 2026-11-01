@@ -1,0 +1,72 @@
+{
+  "asset": "homebound_run",
+  "operation": "pursuers_v2",
+  "input": "assets/source/imagegen/homebound_run/characters/raw/pursuers_raw_v2.png",
+  "raw_size": [
+    1448,
+    1086
+  ],
+  "base_cell": [
+    128,
+    96
+  ],
+  "runtime_cell": [
+    512,
+    384
+  ],
+  "integer_scale": 4,
+  "frame_order": [
+    "pursuers.png"
+  ],
+  "source_frames": [
+    {
+      "source_bbox": [
+        0,
+        88,
+        1448,
+        1086
+      ],
+      "source_bbox_size": [
+        1448,
+        998
+      ]
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          512,
+          384
+        ],
+        "bbox": [
+          44,
+          100,
+          472,
+          332
+        ],
+        "subject_size": [
+          428,
+          232
+        ],
+        "bottom_padding": 52,
+        "anchor_y_normalized": 0.8645833333333334
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 232.0,
+    "body_height_cv": 0.0,
+    "anchor_y_std": 0.0,
+    "bottom_padding_min": 52,
+    "bottom_padding_max": 52
+  },
+  "processing": {
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_creative": "built-in image_gen",
+    "source_art_is_not_procedurally_drawn": true
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "asset": "homebound_run",
+  "operation": "student_run",
+  "input": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw.png",
+  "raw_size": [
+    1448,
+    1086
+  ],
+  "base_cell": [
+    48,
+    72
+  ],
+  "runtime_cell": [
+    192,
+    288
+  ],
+  "integer_scale": 4,
+  "frame_order": [
+    "L-contact",
+    "L-passing",
+    "R-contact",
+    "R-passing"
+  ],
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "L-contact",
+      "source_bbox": [
+        329,
+        45,
+        548,
+        510
+      ],
+      "source_bbox_size": [
+        219,
+        465
+      ],
+      "source_crop": [
+        258,
+        0,
+        620,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ]
+    },
+    {
+      "index": 1,
+      "label": "L-passing",
+      "source_bbox": [
+        132,
+        45,
+        366,
+        514
+      ],
+      "source_bbox_size": [
+        234,
+        469
+      ],
+      "source_crop": [
+        68,
+        0,
+        430,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ]
+    },
+    {
+      "index": 2,
+      "label": "R-contact",
+      "source_bbox": [
+        314,
+        24,
+        553,
+        490
+      ],
+      "source_bbox_size": [
+        239,
+        466
+      ],
+      "source_crop": [
+        252,
+        0,
+        614,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ]
+    },
+    {
+      "index": 3,
+      "label": "R-passing",
+      "source_bbox": [
+        173,
+        25,
+        416,
+        478
+      ],
+      "source_bbox_size": [
+        243,
+        453
+      ],
+      "source_crop": [
+        114,
+        0,
+        476,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ]
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          36,
+          24,
+          152,
+          272
+        ],
+        "subject_size": [
+          116,
+          248
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          32,
+          24,
+          160,
+          272
+        ],
+        "subject_size": [
+          128,
+          248
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          32,
+          12,
+          160,
+          260
+        ],
+        "subject_size": [
+          128,
+          248
+        ],
+        "bottom_padding": 28,
+        "anchor_y_normalized": 0.9027777777777778
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          32,
+          12,
+          160,
+          252
+        ],
+        "subject_size": [
+          128,
+          240
+        ],
+        "bottom_padding": 36,
+        "anchor_y_normalized": 0.875
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 246.0,
+    "body_height_cv": 0.014081713882673798,
+    "anchor_y_std": 0.02946278254943947,
+    "bottom_padding_min": 16,
+    "bottom_padding_max": 36
+  },
+  "processing": {
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_creative": "built-in image_gen",
+    "source_art_is_not_procedurally_drawn": true
+  }
+}

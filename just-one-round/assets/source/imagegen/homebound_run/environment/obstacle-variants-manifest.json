@@ -1,0 +1,35 @@
+{
+  "schema": "homebound_run.obstacle_variants.v1",
+  "creative_source": "built-in image_gen only",
+  "master_reference": "assets/images/homebound_run/streetscape_barricade.png and streetscape_scaffold_crossbeam.png",
+  "runtime_contract": {
+    "base_scale": "2x2 logical-pixel clusters",
+    "runtime_scale": 4,
+    "filter": "nearest",
+    "anchor": "bottom/contact",
+    "preserved_behavior": "existing hurdle and arch collision rules"
+  },
+  "variants": {
+    "obstacle_jump_variant": {
+      "role": "low jump-only obstacle",
+      "raw": "obstacle_jump_variant_v1/raw/obstacle_jump_variant_raw.png",
+      "processed": "obstacle_jump_variant_v1/processed/obstacle_jump_variant.png",
+      "runtime": "assets/images/homebound_run/obstacle_jump_variant.png",
+      "base_size": [128, 64],
+      "runtime_size": [512, 256],
+      "alpha_bbox": [16, 100, 496, 240],
+      "silhouette": "two orange cones, sagging black/yellow chain, centered blue crate"
+    },
+    "obstacle_slide_variant": {
+      "role": "low-clearance slide-only obstacle",
+      "raw": "obstacle_slide_variant_v1/raw/obstacle_slide_variant_raw.png",
+      "processed": "obstacle_slide_variant_v1/processed/obstacle_slide_variant.png",
+      "runtime": "assets/images/homebound_run/obstacle_slide_variant.png",
+      "base_size": [128, 128],
+      "runtime_size": [512, 512],
+      "alpha_bbox": [24, 160, 488, 488],
+      "silhouette": "green corrugated awning, striped valance, open lower tunnel, slim side poles"
+    }
+  },
+  "routing": "The presentation layer selects variants deterministically from generated obstacle ids; id 0 fixtures retain original art. An explicit domain variant field can replace this selector without changing assets or collision geometry."
+}

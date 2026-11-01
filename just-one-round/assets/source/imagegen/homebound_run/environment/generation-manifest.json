@@ -1,0 +1,65 @@
+{
+  "schema": "homebound_run.environment_generation_manifest.v1",
+  "creative_source": "built-in image_gen only",
+  "style_reference": "../characters/raw/student_run_master_raw.png",
+  "selected_raws": {
+    "alley_background": {
+      "raw": "alley_background/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-ceb73b6c-b615-4b50-a544-538bf2ab1b43.png",
+      "prompt_record": "alley_background/prompt-used.txt",
+      "selection_note": "Second generation selected after the first variant read as a static road; this raw keeps a quiet lower wall/courtyard atmosphere and is center-cropped aspect-preserving."
+    },
+    "asphalt": {
+      "raw": "asphalt/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-68e323aa-01ea-4829-bac4-91365e0d1ac8.png",
+      "prompt_record": "asphalt/prompt-used.txt",
+      "selection_note": "Third generation selected after two denser texture variants; final raw is intentionally sparse and low-contrast."
+    },
+    "facade_school": {
+      "raw": "facade_school/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-1e59bd26-b75f-413c-875d-40e925d914de.png",
+      "prompt_record": "facade_school/prompt-used.txt"
+    },
+    "facade_shops": {
+      "raw": "facade_shops/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-80c50745-93fe-4613-94b1-d70b62e99ec9.png",
+      "prompt_record": "facade_shops/prompt-used.txt"
+    },
+    "facade_homes": {
+      "raw": "facade_homes/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-df4c1201-a544-4b4f-b752-c60ac203baef.png",
+      "prompt_record": "facade_homes/prompt-used.txt"
+    },
+    "facade_construction": {
+      "raw": "facade_construction/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-32d8d9c9-bcfc-4081-be2c-c3d6bdacfdec.png",
+      "prompt_record": "facade_construction/prompt-used.txt"
+    },
+    "obstacle_hurdle": {
+      "raw": "obstacle_hurdle/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-967a680c-5bc5-45a5-8ef5-70bc8cc48a6e.png",
+      "prompt_record": "obstacle_hurdle/prompt-used.txt",
+      "selection_note": "Final low-wide revision selected after the first hurdle specimen was too tall; processed occupied bbox is 120x18 base pixels, 6.667:1."
+    },
+    "obstacle_shutter": {
+      "raw": "obstacle_shutter/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-0f19aa3a-bee4-4cc6-b01f-ad1d7ae308a6.png",
+      "prompt_record": "obstacle_shutter/prompt-used.txt"
+    },
+    "obstacle_stack": {
+      "raw": "obstacle_stack/raw.png",
+      "previous_raw_preserved": "obstacle_stack/raw.previous-tall.png",
+      "previous_imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-bb8cb9b2-e2e0-4e62-8365-a2cd3ad7240d.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-bf6816b2-6f7c-4e5a-a0fb-3af88190721e.png",
+      "prompt_record": "obstacle_stack/prompt-used.txt"
+      ,"selection_note": "Replaced the original tall tower after runtime capture. Final raw is a compact three-piece two-tier block; processed bbox is 56x56 base pixels, ratio 1.0, with bottom at y=92."
+    },
+    "home_gate": {
+      "raw": "home_gate/raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a148b2-da68-7663-977e-a0d084778f96/exec-ba329b7f-c8e7-4f13-8e82-65ccaf060a3a.png",
+      "prompt_record": "home_gate/prompt-used.txt"
+    }
+  },
+  "postprocess_script": "postprocess_environment.py",
+  "postprocess_report": "qc/postprocess-report.json"
+}

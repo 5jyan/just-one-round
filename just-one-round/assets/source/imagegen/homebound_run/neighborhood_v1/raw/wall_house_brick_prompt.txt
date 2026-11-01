@@ -1,0 +1,15 @@
+Use the accepted cream plaster wall and the preserved Korean home frontage raw as
+style and architecture references. Create one opaque 4:3 front orthographic
+pixel-art wall plate for a Korean neighborhood alley: a compact two-story
+low-rise house with broad muted warm red brick color fields, restrained cream
+plaster, a believable dark lower entrance door around 2.0–2.4 meters tall, an
+upper window level with simple Korean frames, and at most a small wall-mounted
+mailbox, lamp, utility pipe, or planter. Keep the whole image a flat wall plane
+with a straight bottom contact line. Leave calm plain connector margins at the
+far left and far right. Use broad readable pixel masses and deliberate 2x
+clusters, warm upper-right light, cool lower weathering, and dark navy stepped
+outlines. No perspective, street, road, sidewalk, sky, skyline, visible
+rooftop or roof cap, border, pilaster, giant white pillar, character, vehicle,
+readable text, logo, watermark, or transparency. This source will be reduced
+to an authored 256x192 grid and enlarged 4x to 1024x768, so keep forms crisp
+and legible on that grid.

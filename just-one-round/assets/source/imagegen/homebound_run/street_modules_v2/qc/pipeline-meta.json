@@ -1,0 +1,1001 @@
+{
+  "schema": "homebound_run.street_modules_v2.qc.v1",
+  "game": "homebound_run",
+  "family": "street_modules_v2",
+  "creative_source": "built-in image_gen only",
+  "authored_size": [
+    256,
+    192
+  ],
+  "runtime_size": [
+    1024,
+    768
+  ],
+  "nearest_scale": 4,
+  "world_footprint_m": [
+    7.333,
+    5.5
+  ],
+  "visual_contract": {
+    "camera": "front-on orthographic full facade plane; no baked perspective",
+    "material": "each plate reaches all four edges with its own brick, sage/blue-grey, or teal building material",
+    "proportions": "upright two-story facade crop; grounded door or shutter at bottom; no visible roof",
+    "lighting": "warm diffuse upper-right with cool recesses; no large baked projection shadows",
+    "texture": "quiet refined 32-bit clusters and broad readable material fields",
+    "forbidden": [
+      "white border",
+      "surrounding plaster canvas",
+      "sky",
+      "road",
+      "ground plane",
+      "roof slope",
+      "rooftop",
+      "perspective",
+      "isometric view",
+      "readable text",
+      "characters",
+      "vehicles"
+    ]
+  },
+  "assets": {
+    "street_house_brick": {
+      "kind": "fullbleed_imagegen_facade",
+      "authored": "processed/authored/street_house_brick.png",
+      "runtime": "processed/runtime/street_house_brick.png",
+      "export": "assets/images/homebound_run/street_house_brick.png",
+      "raw": "raw/street_brickhouse_raw.png",
+      "prompt": "raw/street_brickhouse_prompt.txt",
+      "crop_box_xyxy": [
+        0,
+        0,
+        1448,
+        1086
+      ],
+      "front_source_rect": {
+        "authored_rect_xyxy": [
+          0,
+          0,
+          256,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          0,
+          0,
+          1024,
+          768
+        ],
+        "vertical_span_world_m": 5.5
+      },
+      "fullbleed": true,
+      "material": "warm terracotta and muted red brick",
+      "material_swatch": {
+        "authored_rect_xyxy": [
+          8,
+          128,
+          40,
+          160
+        ],
+        "normalized_rect_xyxy": [
+          0.03125,
+          0.6666666666666666,
+          0.15625,
+          0.8333333333333334
+        ],
+        "runtime_rect_xyxy": [
+          32,
+          512,
+          160,
+          640
+        ],
+        "vertical_span_world_m": 0.917,
+        "source": "processed/material-swatches/street_house_brick_material_32x32.png",
+        "authored_size": [
+          32,
+          32
+        ],
+        "world_size_m": [
+          0.9166,
+          0.9167
+        ],
+        "clean_material_only": true,
+        "selection_note": "measured feature-free facade material patch; no object or cast shadow"
+      },
+      "features": {
+        "door": {
+          "authored_rect_xyxy": [
+            149,
+            108,
+            188,
+            192
+          ],
+          "normalized_rect_xyxy": [
+            0.58203125,
+            0.5625,
+            0.734375,
+            1.0
+          ],
+          "runtime_rect_xyxy": [
+            596,
+            432,
+            752,
+            768
+          ],
+          "vertical_span_world_m": 2.406
+        },
+        "entry_frame": {
+          "authored_rect_xyxy": [
+            141,
+            88,
+            190,
+            192
+          ],
+          "normalized_rect_xyxy": [
+            0.55078125,
+            0.4583333333333333,
+            0.7421875,
+            1.0
+          ],
+          "runtime_rect_xyxy": [
+            564,
+            352,
+            760,
+            768
+          ],
+          "vertical_span_world_m": 2.979
+        },
+        "window": [
+          {
+            "authored_rect_xyxy": [
+              31,
+              25,
+              117,
+              73
+            ],
+            "normalized_rect_xyxy": [
+              0.12109375,
+              0.13020833333333334,
+              0.45703125,
+              0.3802083333333333
+            ],
+            "runtime_rect_xyxy": [
+              124,
+              100,
+              468,
+              292
+            ],
+            "vertical_span_world_m": 1.375
+          },
+          {
+            "authored_rect_xyxy": [
+              160,
+              25,
+              206,
+              75
+            ],
+            "normalized_rect_xyxy": [
+              0.625,
+              0.13020833333333334,
+              0.8046875,
+              0.390625
+            ],
+            "runtime_rect_xyxy": [
+              640,
+              100,
+              824,
+              300
+            ],
+            "vertical_span_world_m": 1.432
+          }
+        ],
+        "awning": {
+          "authored_rect_xyxy": [
+            123,
+            82,
+            206,
+            92
+          ],
+          "normalized_rect_xyxy": [
+            0.48046875,
+            0.4270833333333333,
+            0.8046875,
+            0.4791666666666667
+          ],
+          "runtime_rect_xyxy": [
+            492,
+            328,
+            824,
+            368
+          ],
+          "vertical_span_world_m": 0.286
+        },
+        "canopy": {
+          "authored_rect_xyxy": [
+            123,
+            82,
+            206,
+            92
+          ],
+          "normalized_rect_xyxy": [
+            0.48046875,
+            0.4270833333333333,
+            0.8046875,
+            0.4791666666666667
+          ],
+          "runtime_rect_xyxy": [
+            492,
+            328,
+            824,
+            368
+          ],
+          "vertical_span_world_m": 0.286
+        },
+        "sill": [
+          {
+            "authored_rect_xyxy": [
+              31,
+              69,
+              117,
+              79
+            ],
+            "normalized_rect_xyxy": [
+              0.12109375,
+              0.359375,
+              0.45703125,
+              0.4114583333333333
+            ],
+            "runtime_rect_xyxy": [
+              124,
+              276,
+              468,
+              316
+            ],
+            "vertical_span_world_m": 0.286
+          },
+          {
+            "authored_rect_xyxy": [
+              160,
+              70,
+              206,
+              80
+            ],
+            "normalized_rect_xyxy": [
+              0.625,
+              0.3645833333333333,
+              0.8046875,
+              0.4166666666666667
+            ],
+            "runtime_rect_xyxy": [
+              640,
+              280,
+              824,
+              320
+            ],
+            "vertical_span_world_m": 0.286
+          }
+        ],
+        "meter": {
+          "authored_rect_xyxy": [
+            210,
+            106,
+            226,
+            127
+          ],
+          "normalized_rect_xyxy": [
+            0.8203125,
+            0.5520833333333334,
+            0.8828125,
+            0.6614583333333334
+          ],
+          "runtime_rect_xyxy": [
+            840,
+            424,
+            904,
+            508
+          ],
+          "vertical_span_world_m": 0.602
+        },
+        "planter": {
+          "authored_rect_xyxy": [
+            17,
+            50,
+            138,
+            94
+          ],
+          "normalized_rect_xyxy": [
+            0.06640625,
+            0.2604166666666667,
+            0.5390625,
+            0.4895833333333333
+          ],
+          "runtime_rect_xyxy": [
+            68,
+            200,
+            552,
+            376
+          ],
+          "vertical_span_world_m": 1.26
+        }
+      },
+      "door_contract": {
+        "bottom_authored_y": 192,
+        "target_height_world_m": 2.1,
+        "measured_height_world_m": 2.406
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "role": "facade material owns the lower contact; runtime geometry supplies road/depth"
+      },
+      "raw_sha256": "33ec6e4c5fb7541069264dae46b8a66a860b86be49543a224be4d71729baea30"
+    },
+    "street_house_sage": {
+      "kind": "fullbleed_imagegen_facade",
+      "authored": "processed/authored/street_house_sage.png",
+      "runtime": "processed/runtime/street_house_sage.png",
+      "export": "assets/images/homebound_run/street_house_sage.png",
+      "raw": "raw/street_sagehouse_raw.png",
+      "prompt": "raw/street_sagehouse_prompt.txt",
+      "crop_box_xyxy": [
+        0,
+        0,
+        1448,
+        1086
+      ],
+      "front_source_rect": {
+        "authored_rect_xyxy": [
+          0,
+          0,
+          256,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          0,
+          0,
+          1024,
+          768
+        ],
+        "vertical_span_world_m": 5.5
+      },
+      "fullbleed": true,
+      "material": "desaturated sage green and blue-grey painted facade",
+      "material_swatch": {
+        "authored_rect_xyxy": [
+          8,
+          144,
+          40,
+          176
+        ],
+        "normalized_rect_xyxy": [
+          0.03125,
+          0.75,
+          0.15625,
+          0.9166666666666666
+        ],
+        "runtime_rect_xyxy": [
+          32,
+          576,
+          160,
+          704
+        ],
+        "vertical_span_world_m": 0.917,
+        "source": "processed/material-swatches/street_house_sage_material_32x32.png",
+        "authored_size": [
+          32,
+          32
+        ],
+        "world_size_m": [
+          0.9166,
+          0.9167
+        ],
+        "clean_material_only": true,
+        "selection_note": "measured feature-free facade material patch; no object or cast shadow"
+      },
+      "features": {
+        "door": {
+          "authored_rect_xyxy": [
+            149,
+            112,
+            193,
+            192
+          ],
+          "normalized_rect_xyxy": [
+            0.58203125,
+            0.5833333333333334,
+            0.75390625,
+            1.0
+          ],
+          "runtime_rect_xyxy": [
+            596,
+            448,
+            772,
+            768
+          ],
+          "vertical_span_world_m": 2.292
+        },
+        "entry_frame": {
+          "authored_rect_xyxy": [
+            136,
+            84,
+            196,
+            192
+          ],
+          "normalized_rect_xyxy": [
+            0.53125,
+            0.4375,
+            0.765625,
+            1.0
+          ],
+          "runtime_rect_xyxy": [
+            544,
+            336,
+            784,
+            768
+          ],
+          "vertical_span_world_m": 3.094
+        },
+        "window": [
+          {
+            "authored_rect_xyxy": [
+              33,
+              25,
+              130,
+              70
+            ],
+            "normalized_rect_xyxy": [
+              0.12890625,
+              0.13020833333333334,
+              0.5078125,
+              0.3645833333333333
+            ],
+            "runtime_rect_xyxy": [
+              132,
+              100,
+              520,
+              280
+            ],
+            "vertical_span_world_m": 1.289
+          },
+          {
+            "authored_rect_xyxy": [
+              160,
+              25,
+              210,
+              71
+            ],
+            "normalized_rect_xyxy": [
+              0.625,
+              0.13020833333333334,
+              0.8203125,
+              0.3697916666666667
+            ],
+            "runtime_rect_xyxy": [
+              640,
+              100,
+              840,
+              284
+            ],
+            "vertical_span_world_m": 1.318
+          },
+          {
+            "authored_rect_xyxy": [
+              33,
+              100,
+              105,
+              144
+            ],
+            "normalized_rect_xyxy": [
+              0.12890625,
+              0.5208333333333334,
+              0.41015625,
+              0.75
+            ],
+            "runtime_rect_xyxy": [
+              132,
+              400,
+              420,
+              576
+            ],
+            "vertical_span_world_m": 1.26
+          }
+        ],
+        "awning": {
+          "authored_rect_xyxy": [
+            134,
+            81,
+            211,
+            89
+          ],
+          "normalized_rect_xyxy": [
+            0.5234375,
+            0.421875,
+            0.82421875,
+            0.4635416666666667
+          ],
+          "runtime_rect_xyxy": [
+            536,
+            324,
+            844,
+            356
+          ],
+          "vertical_span_world_m": 0.229
+        },
+        "canopy": {
+          "authored_rect_xyxy": [
+            134,
+            81,
+            211,
+            89
+          ],
+          "normalized_rect_xyxy": [
+            0.5234375,
+            0.421875,
+            0.82421875,
+            0.4635416666666667
+          ],
+          "runtime_rect_xyxy": [
+            536,
+            324,
+            844,
+            356
+          ],
+          "vertical_span_world_m": 0.229
+        },
+        "sill": [
+          {
+            "authored_rect_xyxy": [
+              33,
+              66,
+              130,
+              76
+            ],
+            "normalized_rect_xyxy": [
+              0.12890625,
+              0.34375,
+              0.5078125,
+              0.3958333333333333
+            ],
+            "runtime_rect_xyxy": [
+              132,
+              264,
+              520,
+              304
+            ],
+            "vertical_span_world_m": 0.286
+          },
+          {
+            "authored_rect_xyxy": [
+              160,
+              67,
+              210,
+              77
+            ],
+            "normalized_rect_xyxy": [
+              0.625,
+              0.3489583333333333,
+              0.8203125,
+              0.4010416666666667
+            ],
+            "runtime_rect_xyxy": [
+              640,
+              268,
+              840,
+              308
+            ],
+            "vertical_span_world_m": 0.286
+          },
+          {
+            "authored_rect_xyxy": [
+              33,
+              139,
+              100,
+              145
+            ],
+            "normalized_rect_xyxy": [
+              0.12890625,
+              0.7239583333333334,
+              0.390625,
+              0.7552083333333334
+            ],
+            "runtime_rect_xyxy": [
+              132,
+              556,
+              400,
+              580
+            ],
+            "vertical_span_world_m": 0.172
+          }
+        ],
+        "meter": {
+          "authored_rect_xyxy": [
+            214,
+            102,
+            230,
+            123
+          ],
+          "normalized_rect_xyxy": [
+            0.8359375,
+            0.53125,
+            0.8984375,
+            0.640625
+          ],
+          "runtime_rect_xyxy": [
+            856,
+            408,
+            920,
+            492
+          ],
+          "vertical_span_world_m": 0.602
+        },
+        "planter": {
+          "authored_rect_xyxy": [
+            18,
+            49,
+            146,
+            91
+          ],
+          "normalized_rect_xyxy": [
+            0.0703125,
+            0.2552083333333333,
+            0.5703125,
+            0.4739583333333333
+          ],
+          "runtime_rect_xyxy": [
+            72,
+            196,
+            584,
+            364
+          ],
+          "vertical_span_world_m": 1.203
+        }
+      },
+      "door_contract": {
+        "bottom_authored_y": 192,
+        "target_height_world_m": 2.1,
+        "measured_height_world_m": 2.292
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "role": "facade material owns the lower contact; runtime geometry supplies road/depth"
+      },
+      "raw_sha256": "c3e4d681ca87fb80b26ca211c572c1edba13fbf665775135373193ab5988ef08"
+    },
+    "street_shopfront": {
+      "kind": "fullbleed_imagegen_facade",
+      "authored": "processed/authored/street_shopfront.png",
+      "runtime": "processed/runtime/street_shopfront.png",
+      "export": "assets/images/homebound_run/street_shopfront.png",
+      "raw": "raw/street_shopfront_raw.png",
+      "prompt": "raw/street_shopfront_prompt.txt",
+      "crop_box_xyxy": [
+        0,
+        0,
+        1448,
+        1086
+      ],
+      "front_source_rect": {
+        "authored_rect_xyxy": [
+          0,
+          0,
+          256,
+          192
+        ],
+        "normalized_rect_xyxy": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "runtime_rect_xyxy": [
+          0,
+          0,
+          1024,
+          768
+        ],
+        "vertical_span_world_m": 5.5
+      },
+      "fullbleed": true,
+      "material": "faded teal and deep blue-green shop facade",
+      "material_swatch": {
+        "authored_rect_xyxy": [
+          144,
+          0,
+          176,
+          32
+        ],
+        "normalized_rect_xyxy": [
+          0.5625,
+          0.0,
+          0.6875,
+          0.16666666666666666
+        ],
+        "runtime_rect_xyxy": [
+          576,
+          0,
+          704,
+          128
+        ],
+        "vertical_span_world_m": 0.917,
+        "source": "processed/material-swatches/street_shopfront_material_32x32.png",
+        "authored_size": [
+          32,
+          32
+        ],
+        "world_size_m": [
+          0.9166,
+          0.9167
+        ],
+        "clean_material_only": true,
+        "selection_note": "measured feature-free facade material patch; no object or cast shadow"
+      },
+      "features": {
+        "door": {
+          "authored_rect_xyxy": [
+            186,
+            116,
+            214,
+            192
+          ],
+          "normalized_rect_xyxy": [
+            0.7265625,
+            0.6041666666666666,
+            0.8359375,
+            1.0
+          ],
+          "runtime_rect_xyxy": [
+            744,
+            464,
+            856,
+            768
+          ],
+          "vertical_span_world_m": 2.177
+        },
+        "entry_frame": {
+          "authored_rect_xyxy": [
+            181,
+            100,
+            217,
+            192
+          ],
+          "normalized_rect_xyxy": [
+            0.70703125,
+            0.5208333333333334,
+            0.84765625,
+            1.0
+          ],
+          "runtime_rect_xyxy": [
+            724,
+            400,
+            868,
+            768
+          ],
+          "vertical_span_world_m": 2.635
+        },
+        "shutter": {
+          "authored_rect_xyxy": [
+            30,
+            110,
+            178,
+            192
+          ],
+          "normalized_rect_xyxy": [
+            0.1171875,
+            0.5729166666666666,
+            0.6953125,
+            1.0
+          ],
+          "runtime_rect_xyxy": [
+            120,
+            440,
+            712,
+            768
+          ],
+          "vertical_span_world_m": 2.349
+        },
+        "window": [
+          {
+            "authored_rect_xyxy": [
+              28,
+              31,
+              65,
+              66
+            ],
+            "normalized_rect_xyxy": [
+              0.109375,
+              0.16145833333333334,
+              0.25390625,
+              0.34375
+            ],
+            "runtime_rect_xyxy": [
+              112,
+              124,
+              260,
+              264
+            ],
+            "vertical_span_world_m": 1.003
+          },
+          {
+            "authored_rect_xyxy": [
+              82,
+              31,
+              160,
+              66
+            ],
+            "normalized_rect_xyxy": [
+              0.3203125,
+              0.16145833333333334,
+              0.625,
+              0.34375
+            ],
+            "runtime_rect_xyxy": [
+              328,
+              124,
+              640,
+              264
+            ],
+            "vertical_span_world_m": 1.003
+          },
+          {
+            "authored_rect_xyxy": [
+              181,
+              31,
+              218,
+              67
+            ],
+            "normalized_rect_xyxy": [
+              0.70703125,
+              0.16145833333333334,
+              0.8515625,
+              0.3489583333333333
+            ],
+            "runtime_rect_xyxy": [
+              724,
+              124,
+              872,
+              268
+            ],
+            "vertical_span_world_m": 1.031
+          }
+        ],
+        "awning": {
+          "authored_rect_xyxy": [
+            11,
+            83,
+            179,
+            100
+          ],
+          "normalized_rect_xyxy": [
+            0.04296875,
+            0.4322916666666667,
+            0.69921875,
+            0.5208333333333334
+          ],
+          "runtime_rect_xyxy": [
+            44,
+            332,
+            716,
+            400
+          ],
+          "vertical_span_world_m": 0.487
+        },
+        "sill": [
+          {
+            "authored_rect_xyxy": [
+              28,
+              62,
+              65,
+              71
+            ],
+            "normalized_rect_xyxy": [
+              0.109375,
+              0.3229166666666667,
+              0.25390625,
+              0.3697916666666667
+            ],
+            "runtime_rect_xyxy": [
+              112,
+              248,
+              260,
+              284
+            ],
+            "vertical_span_world_m": 0.258
+          },
+          {
+            "authored_rect_xyxy": [
+              79,
+              63,
+              164,
+              70
+            ],
+            "normalized_rect_xyxy": [
+              0.30859375,
+              0.328125,
+              0.640625,
+              0.3645833333333333
+            ],
+            "runtime_rect_xyxy": [
+              316,
+              252,
+              656,
+              280
+            ],
+            "vertical_span_world_m": 0.201
+          },
+          {
+            "authored_rect_xyxy": [
+              181,
+              63,
+              218,
+              72
+            ],
+            "normalized_rect_xyxy": [
+              0.70703125,
+              0.328125,
+              0.8515625,
+              0.375
+            ],
+            "runtime_rect_xyxy": [
+              724,
+              252,
+              872,
+              288
+            ],
+            "vertical_span_world_m": 0.258
+          }
+        ],
+        "meter": {
+          "authored_rect_xyxy": [
+            226,
+            108,
+            242,
+            127
+          ],
+          "normalized_rect_xyxy": [
+            0.8828125,
+            0.5625,
+            0.9453125,
+            0.6614583333333334
+          ],
+          "runtime_rect_xyxy": [
+            904,
+            432,
+            968,
+            508
+          ],
+          "vertical_span_world_m": 0.544
+        }
+      },
+      "door_contract": {
+        "bottom_authored_y": 192,
+        "target_height_world_m": 2.1,
+        "measured_height_world_m": 2.177
+      },
+      "source_bottom_contact": {
+        "authored_y": 192,
+        "runtime_y": 768,
+        "role": "facade material owns the lower contact; runtime geometry supplies road/depth"
+      },
+      "raw_sha256": "f4542532bb70b9bea63928ecf1b80a41586f75eb42d88f7a98bf4f77014b91b3"
+    }
+  },
+  "processing": {
+    "aspect": "native 4:3 source retained; center crop only if needed",
+    "authored": "nearest-neighbor to 256x192 from native creative source",
+    "runtime": "nearest-neighbor 4x to 1024x768",
+    "front_source_rect": "always full authored plate [0,0,256,192]; no trimmed content bbox",
+    "material_swatches": "deterministic 32x32 authored extracts preserved under processed/material-swatches",
+    "contact_sheet": "qc/street_modules_contact_sheet.png"
+  }
+}

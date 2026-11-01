@@ -1,0 +1,41 @@
+{
+  "schema": "homebound_run.plaster_walls_v1.generation_manifest.v1",
+  "creative_source": "built-in image_gen only",
+  "style_reference": "../characters/processed/student_run/frames/L-contact.png",
+  "master_reference": "../characters/raw/student_run_master_raw.png",
+  "accepted_outputs": {
+    "wall_plaster_a": {
+      "raw": "raw/master_plain_raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-32f1d53a-2ea1-4075-86fd-60a0ef8c5af8.png",
+      "prompt": "raw/master_plain_prompt.txt",
+      "selection_note": "Second plain-master generation selected for its thin quiet lower weathering and mostly blank upper wall; candidate one is preserved beside it."
+    },
+    "wall_plaster_b": {
+      "raw": "raw/plaster_b_raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-783541c5-7bda-49dd-ad2b-659839fa5bf7.png",
+      "prompt": "raw/plaster_b_prompt.txt",
+      "selection_note": "Master-referenced quiet material variation; master side margins and bottom contact rows are restored deterministically."
+    },
+    "wall_window": {
+      "raw": "raw/window_feature_raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-edea7de2-6c71-47ee-9d8e-391f89a736f5.png",
+      "prompt": "raw/window_feature_prompt.txt",
+      "selection_note": "Master-referenced transparent single-window cutout, composited onto the exact master plate."
+    },
+    "wall_door": {
+      "raw": "raw/door_feature_raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-abb6f4f9-1bb4-473c-b06c-d07dade94f2d.png",
+      "prompt": "raw/door_feature_prompt.txt",
+      "selection_note": "Master-referenced transparent single-door cutout, composited onto the exact master plate."
+    },
+    "wall_mural": {
+      "raw": "raw/mural_feature_raw.png",
+      "imagegen_output": "$HOME/.codex/generated_images/01a160a0-6cd8-71e0-b824-1ac41fde3ce7/exec-c4644118-a64d-4030-a476-2fca2f3065f7.png",
+      "prompt": "raw/mural_feature_prompt.txt",
+      "selection_note": "Master-referenced transparent blue-flowers mural cutout, composited onto the exact master plate."
+    }
+  },
+  "preserved_candidate_raw": "raw/master_plain_raw_candidate1.png",
+  "postprocess_script": "process_plaster_walls.py",
+  "postprocess_metadata": "qc/pipeline-meta.json"
+}

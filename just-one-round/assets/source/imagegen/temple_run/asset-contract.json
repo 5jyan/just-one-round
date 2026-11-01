@@ -1,0 +1,69 @@
+{
+  "game": "temple_run",
+  "production": "ImageGen creative source + deterministic extraction/alpha cleanup/resizing/seam conditioning",
+  "master_reference": "raw/master_style_reference.png",
+  "visual_contract": {
+    "view": "rear-camera 3/4 perspective runner with warm sunrise",
+    "style": "clean HD hand-painted game art with slightly awkward-cute silhouettes",
+    "palette": ["amber sandstone", "jade moss", "deep emerald foliage", "teal mist", "golden light"],
+    "lighting": "soft golden sunrise from upper right with restrained cool mist",
+    "forbidden": ["Temple Run logos", "text", "watermarks", "opaque background on sprites", "static road baked into environment plate"]
+  },
+  "environment": {
+    "source": "raw/jungle_background_raw.png",
+    "source_size": [1024, 1536],
+    "runtime": "assets/images/temple_run/jungle_background.png",
+    "runtime_size": [720, 1280],
+    "source_aspect": "2:3",
+    "runtime_aspect": "9:16",
+    "transform": "symmetric center crop to 864x1536, then high-quality downsample to 720x1280",
+    "center_lane": "clear misty valley from lower edge to distant gate; moving path is supplied independently",
+    "horizon_anchor_source": [512, 410],
+    "runtime_note": "The authored source is 1024x1536. If a taller fixed-width viewport is used, crop only side scenery or use a viewport contract; do not stretch the lane."
+  },
+  "runner": {
+    "run_source": "raw/runner_run_raw.png",
+    "run_source_grid": "2x2, 512x768 source cells",
+    "run_runtime": "assets/images/temple_run/runner_run.png",
+    "run_runtime_size": [512, 192],
+    "run_frame_size": [128, 192],
+    "run_order": ["left contact", "left passing", "right contact", "right passing"],
+    "jump_runtime": "assets/images/temple_run/runner_jump.png",
+    "slide_runtime": "assets/images/temple_run/runner_slide.png",
+    "action_frame_size": [128, 192],
+    "shared_baseline_y": 184,
+    "anchor": "feet/bottom with eight pixels of lower transparent padding",
+    "filtering": "integer-safe pixel preserving placement; no runtime smoothing requirement is imposed by these HD assets"
+  },
+  "obstacles": {
+    "runtime_size": [256, 256],
+    "hurdle": "raw/obstacle_hurdle_raw_v2.png; solid beam barrier, jump-only read",
+    "arch": "raw/obstacle_arch_raw_v2.png; short low-clearance opening, slide read",
+    "rubble": "raw/obstacle_rubble_raw_v2.png; dedicated safe-margin rubble heap",
+    "discarded_pack_cells": "The grouped pack is preserved as raw provenance; its rubble cell crossed the seam and is not used at runtime."
+  },
+  "collectibles": {
+    "source": "raw/collectibles_pack_raw.png",
+    "runtime_names": ["coin", "magnet", "shield", "boost"],
+    "runtime_size": [128, 128]
+  },
+  "guardian": {
+    "source": "raw/guardian_raw.png",
+    "runtime": "assets/images/temple_run/guardian.png",
+    "runtime_size": [256, 256],
+    "role": "background/chase guardian sprite, transparent"
+  },
+  "path": {
+    "source": "raw/temple_path_raw.png",
+    "runtime": "assets/images/temple_run/temple_path.png",
+    "runtime_size": [512, 512],
+    "repeat": "horizontal and vertical; deterministic opposite-edge conditioning produced exact edge equality"
+  },
+  "qc": {
+    "manifest": "qc/qc-manifest.json",
+    "contact_sheet": "qc/temple_run_assets_contact.png",
+    "runner_animation": "qc/runner_run_gif_strip.png",
+    "path_repeat_preview": "qc/path_tile_3x3.png",
+    "transparent_preview": "qc/transparent_assets_on_green.png"
+  }
+}

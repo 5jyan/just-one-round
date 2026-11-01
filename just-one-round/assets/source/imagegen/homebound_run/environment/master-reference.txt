@@ -1,0 +1,14 @@
+Accepted style master (character worker):
+assets/source/imagegen/homebound_run/characters/processed/student_run/frames/L-contact.png
+
+Accepted raw identity sheet:
+assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw.png
+
+Use the processed single frame as Image 1 for environment generation. It locks
+the shared 32-bit pixel cluster scale, dark-navy stepped outline, warm upper
+right light, cool blue-gray shadows, and detail density. It is a style/identity
+reference only; do not copy the student into environment, wall, or hazard art.
+
+The character worker reported processor QC for the accepted run master:
+4 non-empty frames, 0 edge-touch frames, 0 clamped frames, body-scale CV
+0.0146, normalized anchor-Y standard deviation 0.0296.

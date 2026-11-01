@@ -1,0 +1,11 @@
+Use case: modular game environment wall panel for a mobile endless runner.
+Asset type: one wide opaque front-facing planar pixel-art construction hoarding panel, 128x96 base intent, for "집에 좀 가자".
+Reference: Image 1 is the accepted student run master shown in the conversation. Match its rich late-1990s 32-bit pixel clusters, dark-navy stepped outlines, warm upper-right light, cool blue-gray shadows, and restrained detail density. Use the reference only for style; do not include the student.
+
+Primary request: create a distinct Korean alley construction section. Use faded teal corrugated metal hoarding, dark vertical supports, a cream temporary gate section, a few terracotta brick blocks, and simple low-contrast wear. The wall should feel like a temporary building site beside an incoming road.
+
+Composition: front-on planar modular panel with a straight shared bottom contact line. Emphasize broad corrugation and support spacing without fine noise. Fill the panel edge to edge; no street perspective and no sky.
+
+Style/medium: crisp 32-bit pixel art, 3-4 hard-edged shade levels, dark navy contours, faded teal metal, cream safety blocks, terracotta accents, restrained worn paint clusters.
+
+Hard constraints: no readable warning text, no Hangul or English letters, no logos, no construction workers, no vehicles, no road, no sidewalk, no sky, no ground plane, no perspective convergence, no border, no watermark, no smooth HD or 3D rendering. Opaque RGB wall fill only.

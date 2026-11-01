@@ -1,0 +1,11 @@
+Use case: modular game environment wall panel for a mobile endless runner.
+Asset type: one wide opaque front-facing planar pixel-art wall panel, 128x96 base intent, for "집에 좀 가자".
+Reference: Image 1 is the accepted student run master shown in the conversation. Match its rich late-1990s 32-bit pixel clusters, dark-navy stepped outlines, warm upper-right light, cool blue-gray shadows, and restrained detail density. Use the reference only for style; do not include the student.
+
+Primary request: create a distinct quiet Korean residential frontage beside a narrow alley. Use cream painted brick, one small dark residential door, a modest porch roof, a utility box, a low wall section, and a few irregular brick or tile accents. It should feel lived-in but calm and must read as a broad side wall from an incoming road view.
+
+Composition: front-on planar modular panel with a straight shared bottom contact line. Keep wide readable masses and enough quiet negative space for gameplay. Fill the panel edge to edge; no street perspective and no sky.
+
+Style/medium: crisp 32-bit pixel art, 3-4 hard-edged shade levels, dark navy contours, cream painted walls, terracotta brick accents, faded teal utility details, restrained wear clusters.
+
+Hard constraints: no readable text, no Korean or English letters, no house number, no logo, no characters, no vehicles, no road, no sidewalk, no sky, no ground plane, no perspective convergence, no border, no watermark, no smooth HD or 3D rendering. Opaque RGB wall fill only.

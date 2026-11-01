@@ -1,0 +1,316 @@
+{
+  "generated_by": "ImageGen; deterministic postprocess only",
+  "background": {
+    "source": "raw/jungle_background_raw.png",
+    "source_size": [
+      1024,
+      1536
+    ],
+    "runtime": "assets/images/temple_run/jungle_background.png",
+    "runtime_size": [
+      720,
+      1280
+    ],
+    "crop": "center crop from 2:3 source to 9:16 runtime plate",
+    "center_lane": "clear misty valley; no static road or runner"
+  },
+  "path": {
+    "source": "raw/temple_path_raw.png",
+    "runtime": "assets/images/temple_run/temple_path.png",
+    "size": [
+      512,
+      512
+    ],
+    "repeat": "horizontal and vertical; equalized opposite edge bands"
+  },
+  "runner": {
+    "run": {
+      "source": "raw/runner_run_raw.png",
+      "sheet": [
+        512,
+        192
+      ],
+      "gif": "processed/runner_run.gif (110ms loop)",
+      "frames": [
+        {
+          "name": "run-1.png",
+          "size": [
+            128,
+            192
+          ],
+          "alpha_bbox": [
+            24,
+            14,
+            104,
+            184
+          ],
+          "x_offset": -5,
+          "baseline_y": 184,
+          "edge_touch": false
+        },
+        {
+          "name": "run-2.png",
+          "size": [
+            128,
+            192
+          ],
+          "alpha_bbox": [
+            24,
+            14,
+            104,
+            184
+          ],
+          "x_offset": 10,
+          "baseline_y": 184,
+          "edge_touch": false
+        },
+        {
+          "name": "run-3.png",
+          "size": [
+            128,
+            192
+          ],
+          "alpha_bbox": [
+            22,
+            14,
+            106,
+            184
+          ],
+          "x_offset": -2,
+          "baseline_y": 184,
+          "edge_touch": false
+        },
+        {
+          "name": "run-4.png",
+          "size": [
+            128,
+            192
+          ],
+          "alpha_bbox": [
+            22,
+            14,
+            106,
+            184
+          ],
+          "x_offset": 8,
+          "baseline_y": 184,
+          "edge_touch": false
+        }
+      ]
+    },
+    "jump": {
+      "source": "raw/runner_jump_raw.png",
+      "size": [
+        128,
+        192
+      ],
+      "alpha_bbox": [
+        7,
+        35,
+        122,
+        184
+      ],
+      "baseline_y": 184,
+      "vertical_offset": 17,
+      "edge_touch": false
+    },
+    "slide": {
+      "source": "raw/runner_slide_raw.png",
+      "size": [
+        128,
+        192
+      ],
+      "alpha_bbox": [
+        3,
+        70,
+        126,
+        184
+      ],
+      "baseline_y": 184,
+      "vertical_offset": 23,
+      "edge_touch": false
+    }
+  },
+  "obstacles": {
+    "source": "raw/obstacle_pack_raw.png",
+    "frames": [
+      {
+        "name": "obstacle_hurdle_pack_reference",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_bbox": [
+          18,
+          110,
+          251,
+          230
+        ],
+        "edge_touch": false
+      },
+      {
+        "name": "obstacle_arch",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_bbox": [
+          9,
+          25,
+          243,
+          239
+        ],
+        "edge_touch": false
+      },
+      {
+        "name": "obstacle_rubble_pack_reference",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_bbox": [
+          17,
+          35,
+          256,
+          204
+        ],
+        "edge_touch": true
+      },
+      {
+        "name": "obstacle_pillar_variant",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_bbox": [
+          0,
+          8,
+          192,
+          235
+        ],
+        "edge_touch": true
+      }
+    ],
+    "hurdle": {
+      "source": "raw/obstacle_hurdle_raw_v2.png",
+      "runtime": "assets/images/temple_run/obstacle_hurdle.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        99,
+        247,
+        172
+      ],
+      "edge_touch": false
+    },
+    "rubble": {
+      "source": "raw/obstacle_rubble_raw_v2.png",
+      "runtime": "assets/images/temple_run/obstacle_rubble.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        18,
+        76,
+        238,
+        203
+      ],
+      "edge_touch": false
+    },
+    "arch": {
+      "source": "raw/obstacle_arch_raw_v2.png",
+      "runtime": "assets/images/temple_run/obstacle_arch.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        15,
+        55,
+        241,
+        229
+      ],
+      "edge_touch": false
+    }
+  },
+  "collectibles": {
+    "source": "raw/collectibles_pack_raw.png",
+    "frames": [
+      {
+        "name": "coin",
+        "size": [
+          128,
+          128
+        ],
+        "alpha_bbox": [
+          14,
+          12,
+          123,
+          121
+        ],
+        "edge_touch": false
+      },
+      {
+        "name": "magnet",
+        "size": [
+          128,
+          128
+        ],
+        "alpha_bbox": [
+          16,
+          24,
+          113,
+          117
+        ],
+        "edge_touch": false
+      },
+      {
+        "name": "shield",
+        "size": [
+          128,
+          128
+        ],
+        "alpha_bbox": [
+          16,
+          3,
+          120,
+          115
+        ],
+        "edge_touch": false
+      },
+      {
+        "name": "boost",
+        "size": [
+          128,
+          128
+        ],
+        "alpha_bbox": [
+          2,
+          5,
+          125,
+          111
+        ],
+        "edge_touch": false
+      }
+    ]
+  },
+  "guardian": {
+    "source": "raw/guardian_raw.png",
+    "runtime": "assets/images/temple_run/guardian.png",
+    "size": [
+      256,
+      256
+    ],
+    "alpha_bbox": [
+      14,
+      10,
+      250,
+      247
+    ],
+    "edge_touch": false
+  }
+}

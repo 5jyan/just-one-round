@@ -1,0 +1,243 @@
+{
+  "asset": "homebound_run",
+  "operation": "student_run_v2",
+  "input": "assets/source/imagegen/homebound_run/characters/raw/student_run_master_raw_v2.png",
+  "raw_size": [
+    1448,
+    1086
+  ],
+  "base_cell": [
+    48,
+    72
+  ],
+  "runtime_cell": [
+    192,
+    288
+  ],
+  "integer_scale": 4,
+  "frame_order": [
+    "L-contact",
+    "L-passing",
+    "R-contact",
+    "R-passing"
+  ],
+  "source_frames": [
+    {
+      "index": 0,
+      "label": "L-contact",
+      "source_bbox": [
+        326,
+        45,
+        550,
+        509
+      ],
+      "source_bbox_size": [
+        224,
+        464
+      ],
+      "source_crop": [
+        257,
+        0,
+        619,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 4
+    },
+    {
+      "index": 1,
+      "label": "L-passing",
+      "source_bbox": [
+        130,
+        45,
+        364,
+        509
+      ],
+      "source_bbox_size": [
+        234,
+        464
+      ],
+      "source_crop": [
+        66,
+        0,
+        428,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 4
+    },
+    {
+      "index": 2,
+      "label": "R-contact",
+      "source_bbox": [
+        314,
+        24,
+        572,
+        486
+      ],
+      "source_bbox_size": [
+        258,
+        462
+      ],
+      "source_crop": [
+        262,
+        0,
+        624,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 16
+    },
+    {
+      "index": 3,
+      "label": "R-passing",
+      "source_bbox": [
+        174,
+        25,
+        416,
+        486
+      ],
+      "source_bbox_size": [
+        242,
+        461
+      ],
+      "source_crop": [
+        114,
+        0,
+        476,
+        543
+      ],
+      "base_size": [
+        48,
+        72
+      ],
+      "runtime_size": [
+        192,
+        288
+      ],
+      "anchor_bottom_target": 272,
+      "anchor_translation_y": 16
+    }
+  ],
+  "qc": {
+    "frames": [
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          36,
+          28,
+          156,
+          272
+        ],
+        "subject_size": [
+          120,
+          244
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          32,
+          28,
+          160,
+          272
+        ],
+        "subject_size": [
+          128,
+          244
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          28,
+          28,
+          164,
+          272
+        ],
+        "subject_size": [
+          136,
+          244
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      },
+      {
+        "empty": false,
+        "edge_touch": false,
+        "size": [
+          192,
+          288
+        ],
+        "bbox": [
+          32,
+          28,
+          160,
+          272
+        ],
+        "subject_size": [
+          128,
+          244
+        ],
+        "bottom_padding": 16,
+        "anchor_y_normalized": 0.9444444444444444
+      }
+    ],
+    "empty_count": 0,
+    "edge_touch_count": 0,
+    "body_height_mean": 244.0,
+    "body_height_cv": 0.0,
+    "anchor_y_std": 0.0,
+    "bottom_padding_min": 16,
+    "bottom_padding_max": 16
+  },
+  "processing": {
+    "chroma_key": "#FF00FF",
+    "resampling": "nearest",
+    "source_creative": "built-in image_gen",
+    "source_art_is_not_procedurally_drawn": true
+  }
+}
