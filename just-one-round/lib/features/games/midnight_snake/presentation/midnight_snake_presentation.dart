@@ -15,7 +15,7 @@ const midnightSnakePresentation = GamePresentationDefinition(
     ),
     GameGuidePageDefinition(
       title: '야식을 먹고 길어지기',
-      description: '일반 야식은 1점, 반복해서 나타나는 황금 소시지는 3점, 천천히 움직이는 쥐는 2점을 줍니다.',
+      description: '일반 야식은 1점, 반복해서 나타나는 황금 소시지는 3점, 천천히 움직이는 쥐는 3점을 줍니다.',
       detail:
           '황금 소시지와 쥐는 서로 번갈아 나타나며, 하나가 끝난 뒤 30초 후 다음 보너스가 시작돼요. 무엇을 먹어도 몸은 한 칸만 길어집니다.',
       visual: GameGuideVisualKind.snakeGrow,

@@ -51,6 +51,161 @@ void main() {
     expect(state.head.manhattanDistanceTo(food!), greaterThanOrEqualTo(3));
   });
 
+  test(
+    'the opening food window stays inside the exact head-relative 6x6 area',
+    () {
+      const head = SnakeCell(7, 4);
+      for (var seed = 0; seed < 100; seed++) {
+        final food = MidnightSnakeRules.chooseReachableFood(
+          body: const [head],
+          random: Random(seed),
+          elapsedSeconds: 59.999,
+        );
+        expect(food, isNotNull);
+        expect(
+          MidnightSnakeRules.isWithinOpeningFoodRegion(head: head, cell: food!),
+          isTrue,
+        );
+      }
+
+      expect(
+        MidnightSnakeRules.isWithinOpeningFoodRegion(
+          head: head,
+          cell: const SnakeCell(4, 1),
+        ),
+        isTrue,
+      );
+      expect(
+        MidnightSnakeRules.isWithinOpeningFoodRegion(
+          head: head,
+          cell: const SnakeCell(9, 6),
+        ),
+        isTrue,
+      );
+      expect(
+        MidnightSnakeRules.isWithinOpeningFoodRegion(
+          head: head,
+          cell: const SnakeCell(10, 6),
+        ),
+        isFalse,
+      );
+      expect(
+        MidnightSnakeRules.isWithinOpeningFoodRegion(
+          head: head,
+          cell: const SnakeCell(4, 0),
+        ),
+        isFalse,
+      );
+    },
+  );
+
+  test(
+    'the opening food region clips at board edges and opens at 60 seconds',
+    () {
+      const head = SnakeCell(0, 0);
+      for (var seed = 0; seed < 100; seed++) {
+        final food = MidnightSnakeRules.chooseReachableFood(
+          body: const [head],
+          random: Random(seed),
+          elapsedSeconds: 59.999,
+        );
+        expect(food, isNotNull);
+        expect(food!.row, inInclusiveRange(0, 2));
+        expect(food.column, inInclusiveRange(0, 2));
+      }
+
+      final globalFoods = [
+        for (var seed = 0; seed < 100; seed++)
+          MidnightSnakeRules.chooseReachableFood(
+            body: const [head],
+            random: Random(seed),
+            elapsedSeconds: 60,
+          ),
+      ];
+      expect(
+        globalFoods.any(
+          (food) => food != null && (food.row > 2 || food.column > 2),
+        ),
+        isTrue,
+      );
+    },
+  );
+
+  test(
+    'blocked and unreachable cells remain excluded from food candidates',
+    () {
+      const body = [SnakeCell(7, 4), SnakeCell(7, 3)];
+      final blocked = {const SnakeCell(7, 5), const SnakeCell(6, 4)};
+      for (var seed = 0; seed < 100; seed++) {
+        final food = MidnightSnakeRules.chooseReachableFood(
+          body: body,
+          random: Random(seed),
+          elapsedSeconds: 59.999,
+          blockedCells: blocked,
+        );
+        expect(food, isNotNull);
+        expect(body, isNot(contains(food)));
+        expect(blocked, isNot(contains(food)));
+        expect(
+          MidnightSnakeRules.isWithinOpeningFoodRegion(
+            head: body.first,
+            cell: food!,
+          ),
+          isTrue,
+        );
+      }
+    },
+  );
+
+  test('defers a local refill when a global candidate remains reachable', () {
+    const head = SnakeCell(0, 0);
+    const golden = SnakeCell(0, 2);
+    const mouse = SnakeCell(0, 3);
+    const globalCandidate = SnakeCell(0, 4);
+    final openCells = {
+      head,
+      const SnakeCell(0, 1),
+      golden,
+      mouse,
+      globalCandidate,
+    };
+    final body = <SnakeCell>[head];
+    const tail = SnakeCell(14, 8);
+    for (var row = 0; row < MidnightSnakeRules.rowCount; row++) {
+      for (var column = 0; column < MidnightSnakeRules.columnCount; column++) {
+        final cell = SnakeCell(row, column);
+        if (!openCells.contains(cell) && cell != head && cell != tail) {
+          body.add(cell);
+        }
+      }
+    }
+    body.add(tail);
+
+    final state = MidnightSnakeState.forTesting(
+      body: body,
+      direction: SnakeDirection.right,
+      food: null,
+      goldenSausage: golden,
+      mouse: mouse,
+      goldenExpiresAt: 100,
+      mouseExpiresAt: 100,
+    );
+
+    final result = state.step(Random(1), elapsedSeconds: 59.999);
+
+    expect(result.moved, isTrue);
+    expect(result.finishReason, isNull);
+    expect(state.food, isNull);
+    expect(
+      MidnightSnakeRules.reachableFoodCandidates(
+        body: state.body,
+        elapsedSeconds: MidnightSnakeRules.foodOpeningWindowSeconds,
+        blockedCells: {golden, mouse},
+      ),
+      contains(globalCandidate),
+    );
+  });
+
   test('speed curve accelerates without a sudden opening tick', () {
     expect(MidnightSnakeRules.moveIntervalAt(0), 0.60);
     expect(MidnightSnakeRules.moveIntervalAt(29), 0.46);
@@ -208,7 +363,7 @@ void main() {
   });
 
   test(
-    'catching the mouse gives two points and starts the golden cooldown',
+    'catching the mouse gives three points and starts the golden cooldown',
     () {
       final state = MidnightSnakeState.forTesting(
         body: const [SnakeCell(1, 0), SnakeCell(1, 1)],
@@ -225,7 +380,7 @@ void main() {
 
       expect(result.caughtMouse, isTrue);
       expect(result.scoreGained, MidnightSnakeRules.mouseScore);
-      expect(state.score, 2);
+      expect(state.score, 3);
       expect(state.body.length, 3);
       expect(state.mouse, isNull);
       expect(state.mouseIsResolved, isTrue);
@@ -239,6 +394,6 @@ void main() {
 
   test('bonus score cap includes the repeating bonus loop', () {
     expect(MidnightSnakeRules.maximumBaseScore, 131);
-    expect(MidnightSnakeRules.maximumScore, 145);
+    expect(MidnightSnakeRules.maximumScore, 149);
   });
 }

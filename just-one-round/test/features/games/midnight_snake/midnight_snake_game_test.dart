@@ -120,6 +120,43 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('forwards elapsed play time to the food spawn rule', (
+    tester,
+  ) async {
+    final game = MidnightSnakeGame(
+      random: Random(11),
+      countdownDuration: Duration.zero,
+      onFinished: (_) {},
+    );
+    addTearDown(game.disposeController);
+
+    await tester.pumpWidget(MaterialApp(home: GameWidget(game: game)));
+    for (var attempt = 0; attempt < 20 && !game.isLoaded; attempt++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(game.isLoaded, isTrue);
+    game.pauseEngine();
+
+    game.advanceForTesting(elapsedSeconds: 60);
+    game.advanceForTesting(elapsedSeconds: 60);
+
+    final state = game.stateForTesting;
+    expect(game.elapsedSecondsForTesting, 60);
+    expect(state.head, const SnakeCell(7, 6));
+    expect(state.food, isNotNull);
+    expect(
+      MidnightSnakeRules.isWithinOpeningFoodRegion(
+        head: state.head,
+        cell: state.food!,
+      ),
+      isFalse,
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('bottom direction buttons steer through the real pointer path', (
     tester,
   ) async {
@@ -298,8 +335,8 @@ void main() {
     expect(game.scorePopupForTesting, '+3');
 
     game.stateForTesting.mouse = const SnakeCell(7, 8);
-    expect(game.advanceForTesting().scoreGained, 2);
-    expect(game.scorePopupForTesting, '+2');
+    expect(game.advanceForTesting().scoreGained, 3);
+    expect(game.scorePopupForTesting, '+3');
 
     await tester.pumpWidget(const SizedBox.shrink());
   });

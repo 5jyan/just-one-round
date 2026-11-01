@@ -88,7 +88,7 @@ void main() {
     expect(find.text('HOW TO PLAY · 2/4'), findsOneWidget);
     expect(find.text('야식을 먹고 길어지기'), findsOneWidget);
     expect(find.textContaining('황금 소시지는 3점'), findsOneWidget);
-    expect(find.textContaining('쥐는 2점'), findsOneWidget);
+    expect(find.textContaining('쥐는 3점'), findsOneWidget);
     expect(
       find.byKey(const Key('midnight-snake-grow-guide-animation')),
       findsOneWidget,

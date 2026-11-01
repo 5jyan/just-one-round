@@ -202,7 +202,11 @@ class MidnightSnakeGame extends FlameGame
           if (_moveAccumulator < interval) break;
           _moveAccumulator -= interval;
           processedTicks++;
-          final result = _board.advance(_random, transitionDuration: interval);
+          final result = _board.advance(
+            _random,
+            elapsedSeconds: _playingElapsed,
+            transitionDuration: interval,
+          );
           if (result.ateAnyPickup) {
             unawaited(HapticFeedback.mediumImpact());
           }
@@ -362,15 +366,23 @@ class MidnightSnakeGame extends FlameGame
   double get movementProgressForTesting => _board.movementProgress;
 
   @visibleForTesting
+  double get elapsedSecondsForTesting => _board.elapsedSeconds;
+
+  @visibleForTesting
   String? get scorePopupForTesting => _board.scorePopupText;
 
   @visibleForTesting
   double get deathProgressForTesting => _board.deathProgress;
 
   @visibleForTesting
-  SnakeStepResult advanceForTesting() {
+  SnakeStepResult advanceForTesting({double? elapsedSeconds}) {
+    if (elapsedSeconds != null) {
+      _playingElapsed = elapsedSeconds;
+      _board.elapsedSeconds = elapsedSeconds;
+    }
     final result = _board.advance(
       _random,
+      elapsedSeconds: _playingElapsed,
       transitionDuration: MidnightSnakeRules.moveIntervalAt(_playingElapsed),
     );
     if (result.finishReason case final reason?) _beginFinish(reason);
@@ -610,7 +622,11 @@ class _MidnightSnakeBoard extends PositionComponent {
     return (_movementElapsed / _movementDuration).clamp(0, 1);
   }
 
-  SnakeStepResult advance(Random random, {required double transitionDuration}) {
+  SnakeStepResult advance(
+    Random random, {
+    required double elapsedSeconds,
+    required double transitionDuration,
+  }) {
     if (!isPlaying) {
       return const SnakeStepResult(moved: false, ateFood: false);
     }

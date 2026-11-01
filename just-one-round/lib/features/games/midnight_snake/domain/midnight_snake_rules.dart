@@ -248,13 +248,7 @@ class MidnightSnakeState {
     }
 
     if (ateFood) {
-      food = MidnightSnakeRules.chooseReachableFood(
-        body: _body,
-        random: random,
-        blockedCells: {?goldenSausage, ?mouse},
-      );
-      foodTypeIndex = random.nextInt(MidnightSnakeRules.foodTypeCount);
-      if (food == null) finishReason = SnakeFinishReason.boardComplete;
+      food = null;
     }
     if (ateGoldenSausage) {
       _resolveGoldenEvent(elapsedSeconds);
@@ -262,6 +256,7 @@ class MidnightSnakeState {
     if (caughtMouse) {
       _resolveMouseEvent(elapsedSeconds);
     }
+    _tryRefillFood(random, elapsedSeconds: elapsedSeconds);
 
     return SnakeStepResult(
       moved: true,
@@ -272,6 +267,34 @@ class MidnightSnakeState {
       pickupCell: ateAnyPickup ? nextHead : null,
       finishReason: finishReason,
     );
+  }
+
+  void _tryRefillFood(Random random, {required double elapsedSeconds}) {
+    if (food != null || isFinished) return;
+
+    final blockedCells = <SnakeCell>{?goldenSausage, ?mouse};
+    final selected = MidnightSnakeRules.chooseReachableFood(
+      body: _body,
+      random: random,
+      elapsedSeconds: elapsedSeconds,
+      blockedCells: blockedCells,
+    );
+    if (selected != null) {
+      food = selected;
+      foodTypeIndex = random.nextInt(MidnightSnakeRules.foodTypeCount);
+      return;
+    }
+
+    // Defer when only a reachable global candidate exists outside the opening region.
+    if (elapsedSeconds < MidnightSnakeRules.foodOpeningWindowSeconds &&
+        MidnightSnakeRules.reachableFoodCandidates(
+          body: _body,
+          elapsedSeconds: MidnightSnakeRules.foodOpeningWindowSeconds,
+          blockedCells: blockedCells,
+        ).isNotEmpty) {
+      return;
+    }
+    finishReason = SnakeFinishReason.boardComplete;
   }
 
   void updateBonusEvents({
@@ -418,13 +441,14 @@ abstract final class MidnightSnakeRules {
   static const maximumQueuedDirections = 3;
   static const regularFoodScore = 1;
   static const goldenSausageScore = 3;
-  static const mouseScore = 2;
+  static const mouseScore = 3;
   static const maximumBaseScore = rowCount * columnCount - initialBodyLength;
   static const maximumScore =
       maximumBaseScore +
       maximumGoldenBonusCount * (goldenSausageScore - regularFoodScore) +
       maximumMouseBonusCount * (mouseScore - regularFoodScore);
   static const foodTypeCount = 6;
+  static const foodOpeningWindowSeconds = 60.0;
   static const gameDuration = Duration(minutes: 5);
   static const lateGameStartSeconds = 120.0;
   static const lateGameStartIntervalSeconds = 0.25;
@@ -504,11 +528,14 @@ abstract final class MidnightSnakeRules {
   static SnakeCell? chooseReachableFood({
     required List<SnakeCell> body,
     required Random random,
+    double elapsedSeconds = 0,
     Set<SnakeCell> blockedCells = const {},
   }) {
-    final reachable = reachableEmptyCells(
+    final reachable = reachableFoodCandidates(
       body: body,
-    ).where((cell) => !blockedCells.contains(cell)).toList(growable: false);
+      elapsedSeconds: elapsedSeconds,
+      blockedCells: blockedCells,
+    );
     if (reachable.isEmpty) return null;
     final head = body.first;
     final preferred = reachable
@@ -516,6 +543,36 @@ abstract final class MidnightSnakeRules {
         .toList(growable: false);
     final candidates = preferred.isNotEmpty ? preferred : reachable;
     return candidates[random.nextInt(candidates.length)];
+  }
+
+  static List<SnakeCell> reachableFoodCandidates({
+    required List<SnakeCell> body,
+    double elapsedSeconds = 0,
+    Set<SnakeCell> blockedCells = const {},
+  }) {
+    final reachable = reachableEmptyCells(body: body)
+        .where((cell) => !blockedCells.contains(cell))
+        .where(
+          (cell) =>
+              elapsedSeconds >= foodOpeningWindowSeconds ||
+              isWithinOpeningFoodRegion(head: body.first, cell: cell),
+        )
+        .toList(growable: false);
+    return List.unmodifiable(reachable);
+  }
+
+  static bool isWithinOpeningFoodRegion({
+    required SnakeCell head,
+    required SnakeCell cell,
+  }) {
+    final minRow = max(0, head.row - 3);
+    final maxRow = min(rowCount - 1, head.row + 2);
+    final minColumn = max(0, head.column - 3);
+    final maxColumn = min(columnCount - 1, head.column + 2);
+    return cell.row >= minRow &&
+        cell.row <= maxRow &&
+        cell.column >= minColumn &&
+        cell.column <= maxColumn;
   }
 
   static SnakeCell? chooseReachableCorner({
