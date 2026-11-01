@@ -382,7 +382,6 @@ class _PreviewResultBadge extends StatelessWidget {
           child: WordSafeText(
             '승리 · 나0.184초 / 상대0.231초',
             maxLines: 1,
-            overflow: TextOverflow.clip,
             singleLine: true,
             style: TextStyle(
               fontFamily: 'Galmuri',
@@ -428,7 +427,6 @@ class _PreviewBadge extends StatelessWidget {
       child: WordSafeText(
         label,
         maxLines: 1,
-        overflow: TextOverflow.clip,
         textAlign: TextAlign.center,
         singleLine: true,
         style: TextStyle(

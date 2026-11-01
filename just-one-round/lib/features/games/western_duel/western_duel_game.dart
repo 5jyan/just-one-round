@@ -11,6 +11,7 @@ import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/games/domain/mini_game.dart';
 import 'package:just_one_round/features/games/western_duel/domain/western_duel_opponent.dart';
 import 'package:just_one_round/features/games/western_duel/domain/western_duel_rules.dart';
+import 'package:just_one_round/features/profile/domain/nickname_color.dart';
 
 enum WesternDuelPhase {
   loading,
@@ -983,14 +984,15 @@ class _WesternDuelScene extends PositionComponent {
     painter.paint(canvas, Offset(centerX - painter.width / 2, y));
   }
 
-  Color _nameColor(String? value) => switch (value) {
-    'coral' => const Color(0xFFFFA182),
-    'mint' => const Color(0xFF9AE2C0),
-    'sky' => const Color(0xFF9DCBFF),
-    'violet' => const Color(0xFFC7A5FF),
-    'pink' => const Color(0xFFFFB8D5),
-    _ => const Color(0xFFFFE6B4),
-  };
+  Color _nameColor(String? value) {
+    // Duel snapshots do not include level. Preserve the scene's original
+    // default/coral treatment while sharing the vivid automatic tier colors.
+    if (value == null || value == 'default') {
+      return const Color(0xFFFFE6B4);
+    }
+    if (value == 'coral') return const Color(0xFFFFA182);
+    return NicknameColors.resolve(value);
+  }
 
   void _renderStandoffAtmosphere(Canvas canvas, double centerOffset) {
     if (game.phase != WesternDuelPhase.standoff &&

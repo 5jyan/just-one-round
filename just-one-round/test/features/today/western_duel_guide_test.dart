@@ -11,11 +11,13 @@ import 'package:just_one_round/features/games/western_duel/presentation/western_
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late ThemeData qcTheme;
 
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
     final loader = FontLoader('Galmuri')
       ..addFont(rootBundle.load('assets/fonts/Galmuri11-Bold.ttf'));
     await loader.load();
