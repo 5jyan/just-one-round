@@ -40,6 +40,15 @@ void main() {
     expect(find.text('125'), findsOneWidget);
     expect(find.text('225'), findsOneWidget);
     expect(find.byKey(const Key('profile-exp-progress')), findsOneWidget);
+    expect(
+      find.byKey(const Key('profile-nickname-color-info')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('LV.5 노랑'), findsOneWidget);
+    expect(
+      find.byKey(const Key('profile-nickname-color-action')),
+      findsNothing,
+    );
     expect(find.byKey(const Key('profile-nickname-action')), findsOneWidget);
     expect(find.byKey(const Key('profile-kakao-action')), findsOneWidget);
 

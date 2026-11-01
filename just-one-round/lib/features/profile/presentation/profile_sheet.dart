@@ -9,7 +9,7 @@ import 'package:just_one_round/shared/widgets/coin_mark.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 import 'package:just_one_round/shared/widgets/word_safe_text.dart';
 
-enum ProfileAction { editNickname, nicknameColor, linkKakao, inviteFriends }
+enum ProfileAction { editNickname, linkKakao, inviteFriends }
 
 Future<ProfileAction?> showProfileSheet(
   BuildContext context, {
@@ -18,7 +18,6 @@ Future<ProfileAction?> showProfileSheet(
   required bool kakaoConfigured,
   required bool kakaoLinked,
   required bool isAnonymousAccount,
-  String nicknameColor = 'default',
   int nicknameChangeTickets = 0,
   ReferralStatus referralStatus = const ReferralStatus.empty(),
 }) {
@@ -33,7 +32,6 @@ Future<ProfileAction?> showProfileSheet(
       kakaoConfigured: kakaoConfigured,
       kakaoLinked: kakaoLinked,
       isAnonymousAccount: isAnonymousAccount,
-      nicknameColor: nicknameColor,
       nicknameChangeTickets: nicknameChangeTickets,
       referralStatus: referralStatus,
     ),
@@ -47,7 +45,6 @@ class _ProfileSheet extends StatelessWidget {
     required this.kakaoConfigured,
     required this.kakaoLinked,
     required this.isAnonymousAccount,
-    required this.nicknameColor,
     required this.nicknameChangeTickets,
     required this.referralStatus,
   });
@@ -57,7 +54,6 @@ class _ProfileSheet extends StatelessWidget {
   final bool kakaoConfigured;
   final bool kakaoLinked;
   final bool isAnonymousAccount;
-  final String nicknameColor;
   final int nicknameChangeTickets;
   final ReferralStatus referralStatus;
 
@@ -131,7 +127,7 @@ class _ProfileSheet extends StatelessWidget {
                             displayName,
                             key: const Key('profile-display-name'),
                             style: TextStyle(
-                              color: NicknameColors.resolve(nicknameColor),
+                              color: NicknameColors.forLevel(economy.level),
                               fontFamily: 'Galmuri',
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
@@ -156,6 +152,8 @@ class _ProfileSheet extends StatelessWidget {
                 const SizedBox(height: 16),
                 _EconomyCard(economy: economy),
                 const SizedBox(height: 14),
+                _NicknameColorInfo(level: economy.level),
+                const SizedBox(height: 14),
                 _ProfileActionTile(
                   key: const Key('profile-nickname-action'),
                   icon: Icons.badge_outlined,
@@ -167,16 +165,6 @@ class _ProfileSheet extends StatelessWidget {
                       : '랭킹에 표시할 이름을 정해 주세요.',
                   onTap: () =>
                       Navigator.of(context).pop(ProfileAction.editNickname),
-                ),
-                const SizedBox(height: 8),
-                _ProfileActionTile(
-                  key: const Key('profile-nickname-color-action'),
-                  icon: Icons.palette_outlined,
-                  title: '닉네임 색상',
-                  subtitle:
-                      '${NicknameColors.label(nicknameColor)} 적용 중 · 변경은 색상권 필요',
-                  onTap: () =>
-                      Navigator.of(context).pop(ProfileAction.nicknameColor),
                 ),
                 const SizedBox(height: 8),
                 _ProfileActionTile(
@@ -220,8 +208,10 @@ class _EconomyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final levelStart = (economy.level - 1) * (economy.level - 1) * 100;
-    final levelEnd = economy.level * economy.level * 100;
+    final levelStart = PlayerEconomy.experienceThresholdForLevel(economy.level);
+    final levelEnd = PlayerEconomy.experienceThresholdForLevel(
+      economy.level + 1,
+    );
     final progress =
         ((economy.experiencePoints - levelStart) /
                 max(1, levelEnd - levelStart))
@@ -309,6 +299,65 @@ class _EconomyCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _NicknameColorInfo extends StatelessWidget {
+  const _NicknameColorInfo({required this.level});
+
+  final int level;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const Key('profile-nickname-color-info'),
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+    decoration: BoxDecoration(
+      color: AppColors.backgroundDeep,
+      border: Border.all(color: AppColors.surfaceLight),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.palette_outlined,
+              color: NicknameColors.forLevel(level),
+              size: 18,
+            ),
+            const SizedBox(width: 7),
+            Expanded(
+              child: WordSafeText(
+                '닉네임 색상 · ${NicknameColors.labelForLevel(level)}',
+                style: TextStyle(
+                  color: NicknameColors.forLevel(level),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            WordSafeText(
+              'LV.$level',
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontFamily: 'Galmuri',
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        const WordSafeText(
+          'LV.5 노랑 · LV.10 그린 · LV.15 블루 · LV.20 퍼플 · LV.25 핑크 · LV.30 골드',
+          style: TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            height: 1.35,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ProfileMetric extends StatelessWidget {

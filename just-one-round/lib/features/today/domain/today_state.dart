@@ -262,6 +262,8 @@ class TodayState {
     this.requiresKakaoForDailyPlay = false,
     this.compatibility = const ClientCompatibility.supported(),
     this.economy = const PlayerEconomy.zero(),
+    this.levelRewardedThrough = 0,
+    this.levelCelebrationSeenThrough = 0,
     this.tomorrow,
   });
 
@@ -333,6 +335,10 @@ class TodayState {
       requiresKakaoForDailyPlay:
           json['requires_kakao_for_daily_play'] as bool? ?? false,
       economy: _economyFromJson(json),
+      levelRewardedThrough:
+          (json['level_rewarded_through'] as num?)?.toInt() ?? 0,
+      levelCelebrationSeenThrough:
+          (json['level_celebration_seen_through'] as num?)?.toInt() ?? 0,
       tomorrow: json['tomorrow'] is Map
           ? TomorrowGame.fromJson(
               Map<String, dynamic>.from(json['tomorrow'] as Map),
@@ -389,6 +395,8 @@ class TodayState {
   final bool requiresKakaoForDailyPlay;
   final ClientCompatibility compatibility;
   final PlayerEconomy economy;
+  final int levelRewardedThrough;
+  final int levelCelebrationSeenThrough;
   final TomorrowGame? tomorrow;
 
   bool get requiresUpdate => compatibility.updateRequired;
@@ -465,6 +473,8 @@ class TodayState {
     requiresKakaoForDailyPlay: requiresKakaoForDailyPlay,
     compatibility: value,
     economy: economy,
+    levelRewardedThrough: levelRewardedThrough,
+    levelCelebrationSeenThrough: levelCelebrationSeenThrough,
     tomorrow: tomorrow,
     practiceAvailable: practiceAvailable,
   );
@@ -509,6 +519,8 @@ class TodayState {
       requiresKakaoForDailyPlay: requiresKakaoForDailyPlay,
       compatibility: compatibility,
       economy: economy,
+      levelRewardedThrough: levelRewardedThrough,
+      levelCelebrationSeenThrough: levelCelebrationSeenThrough,
       tomorrow: tomorrow,
     );
   }

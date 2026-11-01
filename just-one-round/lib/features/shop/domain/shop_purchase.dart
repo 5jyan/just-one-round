@@ -3,7 +3,6 @@ import 'package:just_one_round/features/economy/domain/player_economy.dart';
 abstract final class ShopCatalog {
   static const practiceTicketPrice = 100;
   static const challengeTicketPrice = 250;
-  static const nicknameColorTicketPrice = 300;
   static const nicknameChangeTicketPrice = 500;
   static const coinAdReward = 50;
 }
@@ -28,7 +27,7 @@ class ShopPurchaseResult {
     required this.coinsSpent,
     required this.practiceTickets,
     required this.challengeTickets,
-    required this.nicknameColorTickets,
+    this.nicknameColorTickets = 0,
     required this.nicknameChangeTickets,
     required this.economy,
   });

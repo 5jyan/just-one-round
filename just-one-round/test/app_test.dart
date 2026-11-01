@@ -382,7 +382,7 @@ void main() {
     await tester.tap(rankingButton);
     await tester.pumpAndSettle();
 
-    expect(repository.rankFetchCalls, 2);
+    expect(repository.rankFetchCalls, 1);
     expect(repository.requestedPlayDate, isNotNull);
     expect(find.text('31개'), findsNothing);
     expect(find.text('최신랭커'), findsOneWidget);
@@ -421,14 +421,41 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('previous-winner-card')), findsOneWidget);
-    expect(find.text('지난 1등'), findsOneWidget);
+    expect(find.text('지난 똥피하기 1등'), findsOneWidget);
+    expect(find.text('PREVIOUS WINNER'), findsOneWidget);
+    expect(find.text('1등'), findsNothing);
+    expect(find.byKey(const Key('previous-winner-trophy')), findsOneWidget);
     expect(find.text('지난랭커'), findsOneWidget);
     expect(find.text('LV.6'), findsOneWidget);
+    expect(find.text('4.90초'), findsOneWidget);
     expect(find.text('작은공룡'), findsOneWidget);
     expect(find.byKey(const Key('overall-leaderboard')), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('지난 똥피하기 1등')).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(const Key('previous-winner-card'))).dy,
+      ),
+    );
+    expect(repository.previousGameId, 'dung_dodge_v2');
+    expect(repository.previousBeforeDate, isNotNull);
+    expect(
+      isSamePlayDate(
+        repository.previousBeforeDate!,
+        dailyPlayDateAt(DateTime.now()),
+      ),
+      isTrue,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Text &&
+            RegExp(r'^\d{4}\.\d{2}\.\d{2}$').hasMatch(widget.data ?? ''),
+      ),
+      findsNothing,
+    );
   });
 
-  testWidgets('지난 1등이 비어도 오늘 랭킹은 계속 표시한다', (tester) async {
+  testWidgets('지난 회차 우승자가 없어도 오늘 랭킹은 계속 표시한다', (tester) async {
     final repository = _HistoricalRankingRepository(
       const DailyRankResult(
         score: null,
@@ -450,11 +477,12 @@ void main() {
     await tester.tap(find.byKey(const Key('ranking-button')));
     await tester.pumpAndSettle();
 
-    expect(find.text('지난 1등 기록이 없어요.'), findsOneWidget);
+    expect(find.byKey(const Key('previous-winner-card')), findsNothing);
+    expect(find.text('PREVIOUS WINNER'), findsNothing);
     expect(find.text('작은공룡'), findsOneWidget);
   });
 
-  testWidgets('지난 1등 조회 오류가 오늘 랭킹을 막지 않는다', (tester) async {
+  testWidgets('지난 회차 우승자 조회 오류가 오늘 랭킹을 막지 않는다', (tester) async {
     final repository = _HistoricalRankingRepository(null, failPrevious: true);
     await tester.pumpWidget(
       ProviderScope(
@@ -467,7 +495,8 @@ void main() {
     await tester.tap(find.byKey(const Key('ranking-button')));
     await tester.pumpAndSettle();
 
-    expect(find.text('지난 1등을 불러오지 못했어요.'), findsOneWidget);
+    expect(find.byKey(const Key('previous-winner-card')), findsNothing);
+    expect(find.text('PREVIOUS WINNER'), findsNothing);
     expect(find.text('작은공룡'), findsOneWidget);
   });
 
@@ -787,10 +816,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repository.acknowledged, isFalse);
+    expect(repository.requestedRankDates, contains(DateTime(2026, 7, 26)));
     expect(
       repository.requestedRankDates,
-      containsAll(<DateTime?>[DateTime(2026, 7, 26), DateTime(2026, 7, 25)]),
+      isNot(contains(DateTime(2026, 7, 25))),
     );
+    expect(repository.previousGameId, 'dung_dodge_v2');
+    expect(repository.previousBeforeDate, DateTime(2026, 7, 26));
     expect(find.text('어제의 랭킹'), findsOneWidget);
     expect(find.byKey(const Key('overall-leaderboard')), findsOneWidget);
     expect(find.byKey(const Key('leaderboard-gap')), findsNothing);
@@ -816,6 +848,13 @@ void main() {
     await tester.pump();
     await tester.tap(startButton);
     await tester.pumpAndSettle();
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 250)),
+    );
+    await _pumpUntilFound(
+      tester,
+      find.byKey(const Key('game-start-guide-button')),
+    );
     await tester.tap(find.byKey(const Key('game-start-guide-button')));
     await tester.pump();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
@@ -1247,6 +1286,8 @@ class _HistoricalRankingRepository extends PreviewDailyGameRepository {
 
   final DailyRankResult? previousResult;
   final bool failPrevious;
+  String? previousGameId;
+  DateTime? previousBeforeDate;
 
   @override
   Future<DailyRankResult> fetchDailyRank({DateTime? playDate}) async {
@@ -1256,6 +1297,17 @@ class _HistoricalRankingRepository extends PreviewDailyGameRepository {
       return previousResult!;
     }
     return (await fetchToday()).result!;
+  }
+
+  @override
+  Future<DailyRankResult?> fetchPreviousGameWinner({
+    required String gameId,
+    required DateTime beforeDate,
+  }) async {
+    previousGameId = gameId;
+    previousBeforeDate = beforeDate;
+    if (failPrevious) throw StateError('previous winner lookup failed');
+    return previousResult;
   }
 }
 
@@ -1410,6 +1462,8 @@ class _PreviousResultRepository extends PreviewDailyGameRepository {
   String? acknowledgedGameId;
   DateTime? requestedRankDate;
   final requestedRankDates = <DateTime?>[];
+  String? previousGameId;
+  DateTime? previousBeforeDate;
 
   @override
   Future<TodayState> fetchToday() async => TodayState(
@@ -1487,6 +1541,19 @@ class _PreviousResultRepository extends PreviewDailyGameRepository {
             isMe: rank == 8,
           ),
       ],
+    );
+  }
+
+  @override
+  Future<DailyRankResult?> fetchPreviousGameWinner({
+    required String gameId,
+    required DateTime beforeDate,
+  }) async {
+    previousGameId = gameId;
+    previousBeforeDate = beforeDate;
+    return super.fetchPreviousGameWinner(
+      gameId: gameId,
+      beforeDate: beforeDate,
     );
   }
 }

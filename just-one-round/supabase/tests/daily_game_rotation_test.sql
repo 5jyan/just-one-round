@@ -116,6 +116,58 @@ begin
   ) <> 0 then
     raise exception 'reactivation replayed a scheduled game';
   end if;
+
+  -- A production-shaped handoff sorts a new cycle by each game's latest
+  -- actual appearance, so the games that ended the prior cycle do not repeat
+  -- immediately. A future preallocated row must not affect that order.
+  delete from public.daily_games where play_date >= date '2099-02-01';
+  delete from public.daily_game_rotation_entries;
+  update public.daily_game_rotation_state
+  set current_cycle = 1, updated_at = now()
+  where id;
+
+  update public.games set is_active = false;
+  update public.games
+  set is_active = true, minimum_app_build = 1
+  where id in (
+    'apple_game_v2',
+    'bathhouse_sort',
+    'western_duel',
+    'beat_the_dealer',
+    'dung_dodge_v2'
+  );
+  update public.app_runtime_config set minimum_supported_build = 1 where id;
+
+  insert into public.daily_games (play_date, game_id, game_version)
+  values
+    (date '2099-02-22', 'beat_the_dealer', 1),
+    (date '2099-02-23', 'dung_dodge_v2', 1),
+    (date '2099-02-24', 'apple_game_v2', 1),
+    (date '2099-02-25', 'bathhouse_sort', 1),
+    (date '2099-02-26', 'western_duel', 1),
+    -- This future row is ignored when choosing the 2099-02-27 cycle order.
+    (date '2099-03-20', 'beat_the_dealer', 1);
+
+  insert into public.daily_game_rotation_entries (
+    cycle_no, game_id, position, scheduled_date
+  )
+  values
+    (1, 'beat_the_dealer', 1, date '2099-02-22'),
+    (1, 'dung_dodge_v2', 2, date '2099-02-23'),
+    (1, 'apple_game_v2', 3, date '2099-02-24'),
+    (1, 'bathhouse_sort', 4, date '2099-02-25'),
+    (1, 'western_duel', 5, date '2099-02-26');
+
+  scheduled := public.ensure_daily_game(date '2099-02-27');
+  if scheduled.game_id <> 'beat_the_dealer' then
+    raise exception 'expected least-recent game first, got %', scheduled.game_id;
+  end if;
+
+  -- Once the new-cycle order is created, the queue remains stable.
+  scheduled := public.ensure_daily_game(date '2099-02-28');
+  if scheduled.game_id <> 'dung_dodge_v2' then
+    raise exception 'expected second least-recent game, got %', scheduled.game_id;
+  end if;
 end;
 $$;
 

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/features/economy/domain/player_economy.dart';
-import 'package:just_one_round/features/profile/domain/nickname_color.dart';
-import 'package:just_one_round/features/profile/presentation/nickname_color_choice_list.dart';
 import 'package:just_one_round/features/shop/domain/shop_purchase.dart';
 import 'package:just_one_round/shared/widgets/coin_mark.dart';
 import 'package:just_one_round/shared/widgets/pixel_action_dialog.dart';
@@ -27,16 +25,10 @@ class ShopSheetResult {
 Future<ShopSheetResult?> showShopSheet(
   BuildContext context, {
   required PlayerEconomy economy,
-  required String nickname,
-  required String nicknameColor,
   required int practiceTickets,
   required int challengeTickets,
-  required int nicknameColorTickets,
   required int nicknameChangeTickets,
   required Future<ShopPurchaseResult> Function(String itemId) onPurchase,
-  required Future<ShopPurchaseResult> Function(String color)
-  onPurchaseNicknameColor,
-  required Future<void> Function(String color) onSetNicknameColor,
 }) => showModalBottomSheet<ShopSheetResult>(
   context: context,
   isScrollControlled: true,
@@ -44,43 +36,27 @@ Future<ShopSheetResult?> showShopSheet(
   backgroundColor: Colors.transparent,
   builder: (_) => _ShopSheet(
     economy: economy,
-    nickname: nickname,
-    nicknameColor: nicknameColor,
     practiceTickets: practiceTickets,
     challengeTickets: challengeTickets,
-    nicknameColorTickets: nicknameColorTickets,
     nicknameChangeTickets: nicknameChangeTickets,
     onPurchase: onPurchase,
-    onPurchaseNicknameColor: onPurchaseNicknameColor,
-    onSetNicknameColor: onSetNicknameColor,
   ),
 );
 
 class _ShopSheet extends StatefulWidget {
   const _ShopSheet({
     required this.economy,
-    required this.nickname,
-    required this.nicknameColor,
     required this.practiceTickets,
     required this.challengeTickets,
-    required this.nicknameColorTickets,
     required this.nicknameChangeTickets,
     required this.onPurchase,
-    required this.onPurchaseNicknameColor,
-    required this.onSetNicknameColor,
   });
 
   final PlayerEconomy economy;
-  final String nickname;
-  final String nicknameColor;
   final int practiceTickets;
   final int challengeTickets;
-  final int nicknameColorTickets;
   final int nicknameChangeTickets;
   final Future<ShopPurchaseResult> Function(String itemId) onPurchase;
-  final Future<ShopPurchaseResult> Function(String color)
-  onPurchaseNicknameColor;
-  final Future<void> Function(String color) onSetNicknameColor;
 
   @override
   State<_ShopSheet> createState() => _ShopSheetState();
@@ -90,9 +66,7 @@ class _ShopSheetState extends State<_ShopSheet> {
   late var _economy = widget.economy;
   late var _practiceTickets = widget.practiceTickets;
   late var _challengeTickets = widget.challengeTickets;
-  late var _nicknameColorTickets = widget.nicknameColorTickets;
   late var _nicknameChangeTickets = widget.nicknameChangeTickets;
-  late var _nicknameColor = widget.nicknameColor;
   String? _buyingItem;
   String? _message;
   var _purchased = false;
@@ -106,7 +80,6 @@ class _ShopSheetState extends State<_ShopSheet> {
   String _itemLabel(String itemId) => switch (itemId) {
     'practice_ticket' => '연습권 1장',
     'challenge_ticket' => '도전권 1장',
-    'nickname_color_ticket' => '닉네임 색상권 1장',
     'nickname_change_ticket' => '닉네임 변경권 1장',
     _ => '아이템 1장',
   };
@@ -114,7 +87,6 @@ class _ShopSheetState extends State<_ShopSheet> {
   int _itemPrice(String itemId) => switch (itemId) {
     'practice_ticket' => ShopCatalog.practiceTicketPrice,
     'challenge_ticket' => ShopCatalog.challengeTicketPrice,
-    'nickname_color_ticket' => ShopCatalog.nicknameColorTicketPrice,
     'nickname_change_ticket' => ShopCatalog.nicknameChangeTicketPrice,
     _ => 0,
   };
@@ -141,34 +113,6 @@ class _ShopSheetState extends State<_ShopSheet> {
     return confirmed == true;
   }
 
-  Future<bool> _confirmNicknameColor(
-    String color, {
-    required bool purchaseMode,
-  }) async {
-    if (_buyingItem != null) return false;
-    setState(() {
-      _buyingItem = 'confirming_nickname_color';
-      _message = null;
-    });
-    final label = NicknameColors.label(color);
-    final confirmed = await showPixelConfirmationDialog(
-      context,
-      title: '색상을 적용할까요?',
-      message: purchaseMode
-          ? '닉네임을 $label 색상으로 바꾸고 ${ShopCatalog.nicknameColorTicketPrice} C를 결제해요.'
-          : '닉네임을 $label 색상으로 바꾸고 색상권 1장을 사용해요.',
-      confirmLabel: purchaseMode ? '구매 후 적용' : '적용하기',
-      dialogKey: const Key('nickname-color-confirmation'),
-      titleKey: const Key('nickname-color-confirmation-title'),
-      messageKey: const Key('nickname-color-confirmation-message'),
-      cancelKey: const Key('nickname-color-cancel'),
-      confirmKey: const Key('nickname-color-confirm'),
-    );
-    if (!mounted) return false;
-    setState(() => _buyingItem = null);
-    return confirmed == true;
-  }
-
   Future<void> _buy(String itemId) async {
     if (_buyingItem != null) return;
     if (!await _confirmPurchase(itemId) || !mounted) return;
@@ -183,7 +127,6 @@ class _ShopSheetState extends State<_ShopSheet> {
         _economy = result.economy;
         _practiceTickets = result.practiceTickets;
         _challengeTickets = result.challengeTickets;
-        _nicknameColorTickets = result.nicknameColorTickets;
         _nicknameChangeTickets = result.nicknameChangeTickets;
         _purchased = true;
         _message = null;
@@ -213,90 +156,6 @@ class _ShopSheetState extends State<_ShopSheet> {
       final insufficient = error.toString().contains('insufficient coin');
       setState(() {
         _message = insufficient ? '코인이 부족해요.' : '구매하지 못했어요. 잠시 후 다시 시도해 주세요.';
-      });
-    } finally {
-      if (mounted) setState(() => _buyingItem = null);
-    }
-  }
-
-  Future<void> _selectNicknameColor(String color) async {
-    if (_buyingItem != null ||
-        _nicknameColorTickets <= 0 ||
-        color == _nicknameColor) {
-      return;
-    }
-    setState(() {
-      _buyingItem = 'nickname_color_select';
-      _message = null;
-    });
-    try {
-      await widget.onSetNicknameColor(color);
-      if (!mounted) return;
-      setState(() {
-        _nicknameColor = color;
-        _nicknameColorTickets--;
-        _purchased = true;
-        _message = null;
-      });
-      unawaited(HapticFeedback.mediumImpact());
-    } catch (_) {
-      if (mounted) {
-        setState(() => _message = '색상을 적용하지 못했어요. 색상권을 확인해 주세요.');
-      }
-    } finally {
-      if (mounted) setState(() => _buyingItem = null);
-    }
-  }
-
-  Future<void> _openNicknameColorChooser() async {
-    if (_buyingItem != null) return;
-    final purchaseMode = _nicknameColorTickets <= 0;
-    final color = await showNicknameColorChoiceSheet(
-      context,
-      nickname: widget.nickname,
-      selectedColor: _nicknameColor,
-      purchaseMode: purchaseMode,
-      price: ShopCatalog.nicknameColorTicketPrice,
-    );
-    if (!mounted || color == null || color == _nicknameColor) return;
-    if (purchaseMode) {
-      if (await _confirmNicknameColor(color, purchaseMode: true) && mounted) {
-        await _purchaseNicknameColor(color);
-      }
-    } else {
-      if (await _confirmNicknameColor(color, purchaseMode: false) && mounted) {
-        await _selectNicknameColor(color);
-      }
-    }
-  }
-
-  Future<void> _purchaseNicknameColor(String color) async {
-    if (_buyingItem != null) return;
-    setState(() {
-      _buyingItem = 'nickname_color_ticket';
-      _message = null;
-    });
-    try {
-      final result = await widget.onPurchaseNicknameColor(color);
-      if (!mounted) return;
-      setState(() {
-        _economy = result.economy;
-        _practiceTickets = result.practiceTickets;
-        _challengeTickets = result.challengeTickets;
-        _nicknameColorTickets = result.nicknameColorTickets;
-        _nicknameChangeTickets = result.nicknameChangeTickets;
-        _nicknameColor = color;
-        _purchased = true;
-        _message = null;
-      });
-      unawaited(HapticFeedback.mediumImpact());
-    } catch (error) {
-      if (!mounted) return;
-      final insufficient = error.toString().contains('insufficient coin');
-      setState(() {
-        _message = insufficient
-            ? '코인이 부족해요.'
-            : '색상을 적용하지 못했어요. 잠시 후 다시 시도해 주세요.';
       });
     } finally {
       if (mounted) setState(() => _buyingItem = null);
@@ -376,21 +235,6 @@ class _ShopSheetState extends State<_ShopSheet> {
                     _buyingItem == null &&
                     _economy.coins >= ShopCatalog.nicknameChangeTicketPrice,
                 onBuy: () => _buy('nickname_change_ticket'),
-              ),
-              const SizedBox(height: 10),
-              _NicknameColorItem(
-                key: const Key('shop-nickname-color-ticket'),
-                selectedColor: _nicknameColor,
-                colorTickets: _nicknameColorTickets,
-                price: ShopCatalog.nicknameColorTicketPrice,
-                busy:
-                    _buyingItem == 'nickname_color_ticket' ||
-                    _buyingItem == 'nickname_color_select',
-                enabled:
-                    _buyingItem == null &&
-                    (_nicknameColorTickets > 0 ||
-                        _economy.coins >= ShopCatalog.nicknameColorTicketPrice),
-                onChoose: () => unawaited(_openNicknameColorChooser()),
               ),
               if (_message != null) ...[
                 const SizedBox(height: 12),
@@ -674,107 +518,6 @@ class _OwnedCountEffectState extends State<_OwnedCountEffect>
       );
     },
   );
-}
-
-class _NicknameColorItem extends StatelessWidget {
-  const _NicknameColorItem({
-    required this.selectedColor,
-    required this.colorTickets,
-    required this.price,
-    required this.busy,
-    required this.enabled,
-    required this.onChoose,
-    super.key,
-  });
-
-  final String selectedColor;
-  final int colorTickets;
-  final int price;
-  final bool busy;
-  final bool enabled;
-  final VoidCallback onChoose;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasColorChoice = colorTickets > 0;
-    final description = hasColorChoice
-        ? '색상권 1장으로 내 닉네임 색상을 선택'
-        : selectedColor == 'default'
-        ? '버튼을 눌러 내 닉네임 색상을 선택'
-        : '${NicknameColors.label(selectedColor)} 적용 중 · 다시 바꾸려면 구매';
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundDeep,
-        border: Border.all(color: AppColors.border, width: 2),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Icon(
-              Icons.palette_outlined,
-              color: AppColors.primary,
-              size: 34,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                WordSafeText(
-                  hasColorChoice ? '닉네임 색상 고르기' : '닉네임 색상권',
-                  style: const TextStyle(
-                    color: AppColors.text,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                WordSafeText(
-                  description,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 11,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          FilledButton(
-            onPressed: enabled ? onChoose : null,
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.backgroundDeep,
-            ),
-            child: busy
-                ? const SizedBox.square(
-                    dimension: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : hasColorChoice
-                ? const WordSafeText('색상 고르기')
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CoinMark(
-                        color: AppColors.backgroundDeep,
-                        inkColor: AppColors.primary,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
-                      WordSafeText('$price'),
-                    ],
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _ShopItem extends StatelessWidget {

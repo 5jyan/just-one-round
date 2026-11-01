@@ -73,7 +73,7 @@ void main() {
       ProviderScope(
         overrides: [
           dailyGameRepositoryProvider.overrideWithValue(
-            PreviewDailyGameRepository(initialGameId: 'bathhouse_sort'),
+            _BathhouseGoldenRepository(),
           ),
         ],
         child: const MaterialApp(
@@ -111,7 +111,7 @@ void main() {
       ProviderScope(
         overrides: [
           dailyGameRepositoryProvider.overrideWithValue(
-            PreviewDailyGameRepository(initialGameId: 'bathhouse_sort'),
+            _BathhouseGoldenRepository(),
           ),
         ],
         child: const MaterialApp(home: TodayScreen()),
@@ -165,4 +165,60 @@ void main() {
     await tester.pump(const Duration(milliseconds: 5000));
     expect(tester.takeException(), isNull);
   });
+}
+
+class _BathhouseGoldenRepository extends PreviewDailyGameRepository {
+  _BathhouseGoldenRepository() : super(initialGameId: 'bathhouse_sort');
+
+  static final _goldenPlayDate = DateTime(2026, 10, 7);
+
+  @override
+  Future<TodayState> fetchToday() async {
+    final state = await super.fetchToday();
+    final tomorrow = state.tomorrow;
+    return TodayState(
+      playDate: _goldenPlayDate,
+      game: state.game,
+      attempts: state.attempts,
+      adAttemptAvailable: state.adAttemptAvailable,
+      testMode: state.testMode,
+      result: state.result,
+      nickname: state.nickname,
+      dailyClaimed: state.dailyClaimed,
+      practiceAvailable: state.practiceAvailable,
+      playCount: state.playCount,
+      practicePlayCount: state.practicePlayCount,
+      challengePending: state.challengePending,
+      practicePending: state.practicePending,
+      challengeAvailable: state.challengeAvailable,
+      adChallengeAvailable: state.adChallengeAvailable,
+      extraChallengeAvailable: state.extraChallengeAvailable,
+      challengeTicketAvailable: state.challengeTicketAvailable,
+      nextPlayRequiresAd: state.nextPlayRequiresAd,
+      challengeRequiresAd: state.challengeRequiresAd,
+      practiceRequiresAd: state.practiceRequiresAd,
+      practiceTicketCapacity: state.practiceTicketCapacity,
+      practiceTicketsRemaining: state.practiceTicketsRemaining,
+      practiceRewardAvailable: state.practiceRewardAvailable,
+      practiceRewardEarned: state.practiceRewardEarned,
+      storePracticeTickets: state.storePracticeTickets,
+      storeChallengeTickets: state.storeChallengeTickets,
+      storeNicknameColorTickets: state.storeNicknameColorTickets,
+      storeNicknameChangeTickets: state.storeNicknameChangeTickets,
+      nicknameColor: state.nicknameColor,
+      socialNotificationsEnabled: state.socialNotificationsEnabled,
+      rankedAdAttemptUsed: state.rankedAdAttemptUsed,
+      coinAdAvailable: state.coinAdAvailable,
+      deviceDailyLimitReached: state.deviceDailyLimitReached,
+      requiresKakaoForDailyPlay: state.requiresKakaoForDailyPlay,
+      compatibility: state.compatibility,
+      economy: state.economy,
+      tomorrow: tomorrow == null
+          ? null
+          : TomorrowGame(
+              playDate: _goldenPlayDate.add(const Duration(days: 1)),
+              game: tomorrow.game,
+            ),
+    );
+  }
 }

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:just_one_round/app/app_environment.dart';
@@ -11,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/core/auth/kakao_auth_service.dart';
 import 'package:just_one_round/core/notifications/push_notification_service.dart';
+import 'package:just_one_round/core/reviews/app_review_service.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
 import 'package:just_one_round/features/games/bathhouse_sort/presentation/bathhouse_sort_preview.dart';
 import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
@@ -19,6 +21,7 @@ import 'package:just_one_round/features/games/net_boat/presentation/net_boat_pre
 import 'package:just_one_round/features/games/mole_reaction/presentation/mole_reaction_preview.dart';
 import 'package:just_one_round/features/games/western_duel/presentation/western_duel_preview.dart';
 import 'package:just_one_round/features/games/wind_darts/presentation/wind_darts_preview.dart';
+import 'package:just_one_round/features/games/temple_run/presentation/temple_run_preview.dart';
 import 'package:just_one_round/features/games/midnight_snake/presentation/midnight_snake_path.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_definition.dart';
 import 'package:just_one_round/features/games/presentation/game_presentation_registry.dart';
@@ -31,16 +34,18 @@ import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/profile/presentation/nickname_dialog.dart';
 import 'package:just_one_round/features/profile/domain/nickname_color.dart';
-import 'package:just_one_round/features/profile/presentation/nickname_color_choice_list.dart';
 import 'package:just_one_round/features/profile/presentation/profile_sheet.dart';
 import 'package:just_one_round/features/referral/domain/referral.dart';
 import 'package:just_one_round/features/shop/presentation/shop_sheet.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/daily_reset.dart';
+import 'package:just_one_round/features/today/domain/daily_nonplayer.dart';
+import 'package:just_one_round/features/today/domain/level_up_reward.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/mama_duck_trail_home_preview.dart';
+import 'package:just_one_round/features/today/presentation/level_up_reward_dialog.dart';
 import 'package:just_one_round/shared/widgets/coin_mark.dart';
 import 'package:just_one_round/shared/widgets/pixel_action_dialog.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
@@ -88,8 +93,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   var _isCheckingDailyReset = false;
   var _isDailyResetDialogVisible = false;
   var _isCheckingPreviousResult = false;
+  var _isCheckingLevelUpReward = false;
   var _showTomorrow = false;
   var _isPreviousResultDialogVisible = false;
+  var _isLevelUpRewardDialogVisible = false;
   var _testerVersionTapCount = 0;
   String? _pendingFreePracticeRequestId;
   final _pendingShopPurchaseRequestIds = <String, String>{};
@@ -101,10 +108,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   var _practiceTicketAnimationDelta = 0;
   var _practiceTicketAnimationRevision = 0;
   var _ticketAnimationGeneration = 0;
+  var _clearTicketAnimationOnNextState = false;
   _CoinRewardEffectData? _coinRewardEffect;
   Timer? _dailyResetTimer;
   Timer? _playActionNoticeTimer;
   Timer? _previousResultTimer;
+  Timer? _levelUpRewardTimer;
   Timer? _testerVersionTapTimer;
   Timer? _coinRewardEffectTimer;
   Timer? _ticketAnimationTimer;
@@ -134,6 +143,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     _dailyResetTimer?.cancel();
     _playActionNoticeTimer?.cancel();
     _previousResultTimer?.cancel();
+    _levelUpRewardTimer?.cancel();
     _testerVersionTapTimer?.cancel();
     _coinRewardEffectTimer?.cancel();
     _cancelTicketAnimationWaiter();
@@ -151,6 +161,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   }
 
   void _handleTodayState(TodayState state) {
+    if (_clearTicketAnimationOnNextState &&
+        (_practiceTicketDisplayOverride != null ||
+            _challengeTicketDisplayOverride != null)) {
+      _clearTicketAnimationOnNextState = false;
+      final generation = _ticketAnimationGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || generation != _ticketAnimationGeneration) return;
+        _cancelTicketAnimation(generation);
+      });
+    }
     if (_practiceTicketDisplayOverride != null &&
         state.practiceTicketsRemaining == _practiceTicketAnimationTarget) {
       final generation = _ticketAnimationGeneration;
@@ -182,6 +202,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       });
     }
     _scheduleDailyResetCheck();
+    _scheduleLevelUpRewardCheck(state);
     if (state.requiresUpdate) {
       _previousResultTimer?.cancel();
       return;
@@ -200,6 +221,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     if (!changed &&
         ref.read(todayStateProvider).value?.requiresUpdate != true) {
       await _checkForPreviousDailyResult();
+      await _checkForLevelUpReward();
     }
   }
 
@@ -223,8 +245,122 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     });
   }
 
+  void _scheduleLevelUpRewardCheck(
+    TodayState state, {
+    Duration delay = Duration.zero,
+  }) {
+    _levelUpRewardTimer?.cancel();
+    if (state.requiresUpdate ||
+        state.levelRewardedThrough <= state.levelCelebrationSeenThrough) {
+      return;
+    }
+    _levelUpRewardTimer = Timer(delay, () {
+      unawaited(_checkForLevelUpReward());
+    });
+  }
+
+  bool get _canShowLevelUpReward {
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    return mounted &&
+        !_accountDeleted &&
+        ModalRoute.of(context)?.isCurrent == true &&
+        LevelUpCelebrationGate.readyOf(context) &&
+        (lifecycle == null || lifecycle == AppLifecycleState.resumed) &&
+        !_isCheckingPreviousResult &&
+        !_isLevelUpRewardDialogVisible &&
+        !_isDailyResetDialogVisible &&
+        !_isPreviousResultDialogVisible &&
+        !_isClaiming &&
+        !_isSavingProfile &&
+        !_isRunningDeveloperAction &&
+        !_isLinkingKakao &&
+        !_isOpeningShop;
+  }
+
+  Future<void> _checkForLevelUpReward() async {
+    if (!mounted || _isCheckingLevelUpReward || _isLevelUpRewardDialogVisible) {
+      return;
+    }
+    final state = ref.read(todayStateProvider).value;
+    if (state == null ||
+        state.requiresUpdate ||
+        state.levelRewardedThrough <= state.levelCelebrationSeenThrough) {
+      return;
+    }
+    if (!_canShowLevelUpReward) {
+      // Retry visibility locally; never poll the server while another screen is open.
+      _scheduleLevelUpRewardCheck(state, delay: const Duration(seconds: 1));
+      return;
+    }
+    final accountId = _appReviewAccountId();
+    _isCheckingLevelUpReward = true;
+    try {
+      final reward = await ref
+          .read(levelUpRewardRepositoryProvider)
+          .fetchPendingLevelUpReward()
+          .timeout(const Duration(seconds: 12));
+      if (!mounted || reward == null || _appReviewAccountId() != accountId) {
+        return;
+      }
+      final currentState = ref.read(todayStateProvider).value;
+      if (currentState == null ||
+          currentState.requiresUpdate ||
+          currentState.levelRewardedThrough <=
+              currentState.levelCelebrationSeenThrough) {
+        return;
+      }
+      if (!_canShowLevelUpReward) {
+        _scheduleLevelUpRewardCheck(
+          currentState,
+          delay: const Duration(seconds: 1),
+        );
+        return;
+      }
+      if (accountId != null && accountId != reward.userId) return;
+      await _showLevelUpRewardDialog(reward);
+    } catch (error, stackTrace) {
+      debugPrint('[LevelUpReward] Pending reward lookup failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    } finally {
+      _isCheckingLevelUpReward = false;
+    }
+  }
+
+  Future<void> _showLevelUpRewardDialog(LevelUpReward reward) async {
+    if (!mounted || _isLevelUpRewardDialogVisible) return;
+    _isLevelUpRewardDialogVisible = true;
+    try {
+      await showLevelUpRewardDialog(
+        context,
+        reward: reward,
+        onConfirm: () async {
+          final currentUserId = _appReviewAccountId();
+          if (currentUserId != null && currentUserId != reward.userId) {
+            throw StateError('account changed before acknowledging reward');
+          }
+          await ref
+              .read(levelUpRewardRepositoryProvider)
+              .acknowledgeLevelUpReward(
+                throughLevel: reward.toLevel,
+                expectedUserId: reward.userId,
+              )
+              .timeout(const Duration(seconds: 12));
+          if (mounted) ref.invalidate(todayStateProvider);
+        },
+      );
+    } finally {
+      _isLevelUpRewardDialogVisible = false;
+      if (mounted) {
+        final state = ref.read(todayStateProvider).value;
+        if (state != null) _scheduleLevelUpRewardCheck(state);
+      }
+    }
+  }
+
   Future<void> _checkForPreviousDailyResult() async {
     if (_isCheckingPreviousResult ||
+        _isCheckingLevelUpReward ||
+        _isLevelUpRewardDialogVisible ||
         _isDailyResetDialogVisible ||
         _isPreviousResultDialogVisible ||
         !mounted) {
@@ -258,6 +394,51 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       _schedulePreviousResultCheck();
     } finally {
       _isCheckingPreviousResult = false;
+      unawaited(_consumePendingAppReview());
+    }
+  }
+
+  Future<void> _consumePendingAppReview() async {
+    if (!mounted) return;
+    final accountId = _appReviewAccountId();
+    await ref
+        .read(appReviewServiceProvider)
+        .consumePending(
+          fetchHistory: () =>
+              ref.read(dailyGameRepositoryProvider).fetchHistory(),
+          canRequest: () => _canRequestAppReview(accountId),
+        );
+  }
+
+  bool _canRequestAppReview(String? expectedAccountId) {
+    if (!mounted || ModalRoute.of(context)?.isCurrent != true) return false;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return false;
+    }
+    if (_isCheckingPreviousResult ||
+        _isCheckingLevelUpReward ||
+        _isCheckingDailyReset ||
+        _isDailyResetDialogVisible ||
+        _isPreviousResultDialogVisible ||
+        _isLevelUpRewardDialogVisible ||
+        _isClaiming ||
+        _isSavingProfile ||
+        _isRunningDeveloperAction ||
+        _isLinkingKakao ||
+        _isOpeningShop ||
+        _accountDeleted) {
+      return false;
+    }
+    if (_appReviewAccountId() != expectedAccountId) return false;
+    final state = ref.read(todayStateProvider).value;
+    return state != null && !state.requiresUpdate && !state.testMode;
+  }
+
+  String? _appReviewAccountId() {
+    try {
+      return Supabase.instance.client.auth.currentUser?.id;
+    } on Object {
+      return null;
     }
   }
 
@@ -285,6 +466,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
               nearby: const [],
             ),
             gameId: result.gameId,
+            gameName: result.displayName,
             playDate: result.playDate,
             title: '어제의 랭킹',
           ),
@@ -296,6 +478,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     } finally {
       _isPreviousResultDialogVisible = false;
       _schedulePreviousResultCheck();
+      final state = ref.read(todayStateProvider).value;
+      if (state != null) _scheduleLevelUpRewardCheck(state);
     }
   }
 
@@ -383,13 +567,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       final shopResult = await showShopSheet(
         context,
         economy: state.economy,
-        nickname: state.nickname?.trim().isNotEmpty == true
-            ? state.nickname!.trim()
-            : '내 닉네임',
-        nicknameColor: state.nicknameColor,
         practiceTickets: state.storePracticeTickets,
         challengeTickets: state.storeChallengeTickets,
-        nicknameColorTickets: state.storeNicknameColorTickets,
         nicknameChangeTickets: state.storeNicknameChangeTickets,
         onPurchase: (itemId) async {
           final requestId = _pendingShopPurchaseRequestIds.putIfAbsent(
@@ -407,25 +586,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           if (mounted) ref.invalidate(todayStateProvider);
           return purchase;
         },
-        onPurchaseNicknameColor: (color) async {
-          final requestKey = 'nickname_color:$color';
-          final requestId = _pendingShopPurchaseRequestIds.putIfAbsent(
-            requestKey,
-            createPlayRequestId,
-          );
-          final repository = ref.read(dailyGameRepositoryProvider);
-          final purchase = await _withTransientNetworkRetry(
-            () => repository.purchaseNicknameColor(
-              color: color,
-              requestId: requestId,
-            ),
-          );
-          _pendingShopPurchaseRequestIds.remove(requestKey);
-          if (mounted) ref.invalidate(todayStateProvider);
-          return purchase;
-        },
-        onSetNicknameColor: (color) =>
-            ref.read(socialRepositoryProvider).setNicknameColor(color),
       );
       // A purchase can be followed by a back swipe or a barrier dismissal,
       // both of which used to return null and leave the home inventory stale.
@@ -717,7 +877,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       kakaoConfigured: kakaoAuthService.isConfigured,
       kakaoLinked: kakaoAuthService.isLinked,
       isAnonymousAccount: _readAnonymousAccountStatus(),
-      nicknameColor: state.nicknameColor,
       nicknameChangeTickets: state.storeNicknameChangeTickets,
       referralStatus: referralStatus,
     );
@@ -729,8 +888,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
           nicknameChangeTickets: state.storeNicknameChangeTickets,
           sourceState: state,
         );
-      case ProfileAction.nicknameColor:
-        await _chooseNicknameColor(state);
       case ProfileAction.linkKakao:
         await _linkKakaoAccount();
       case ProfileAction.inviteFriends:
@@ -764,74 +921,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     }
   }
 
-  Future<void> _chooseNicknameColor(TodayState state) async {
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      useSafeArea: true,
-      backgroundColor: AppColors.surface,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Expanded(
-                  child: WordSafeText(
-                    '닉네임 색상',
-                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
-                  ),
-                ),
-                IconButton(
-                  tooltip: '닫기',
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: AppColors.textMuted),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            WordSafeText(
-              state.storeNicknameColorTickets > 0
-                  ? '내 닉네임을 눌러 색상을 고르세요. 다시 바꾸려면 색상권이 필요해요.'
-                  : '선택한 색상은 고정돼요. 다시 바꾸려면 상점에서 색상권을 구매하세요.',
-              style: const TextStyle(color: AppColors.textMuted),
-            ),
-            const SizedBox(height: 14),
-            NicknameColorChoiceList(
-              nickname: state.nickname?.trim().isNotEmpty == true
-                  ? state.nickname!.trim()
-                  : '내 닉네임',
-              selectedColor: state.nicknameColor,
-              enabled: state.storeNicknameColorTickets > 0,
-              onSelected: (token) => Navigator.of(context).pop(token),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (selected == null || !mounted) return;
-    final confirmed = await showPixelConfirmationDialog(
-      context,
-      title: '색상을 적용할까요?',
-      message: '${NicknameColors.label(selected)} 색상으로 바꾸고 색상권 1장을 사용해요.',
-      confirmLabel: '적용하기',
-      dialogKey: const Key('profile-nickname-color-confirmation'),
-      titleKey: const Key('profile-nickname-color-confirmation-title'),
-      messageKey: const Key('profile-nickname-color-confirmation-message'),
-      cancelKey: const Key('profile-nickname-color-cancel'),
-      confirmKey: const Key('profile-nickname-color-confirm'),
-    );
-    if (!mounted || confirmed != true) return;
-    try {
-      await ref.read(socialRepositoryProvider).setNicknameColor(selected);
-      ref.invalidate(todayStateProvider);
-      _showMessage('${NicknameColors.label(selected)} 색상을 적용했어요.');
-    } catch (_) {
-      _showMessage('색상을 적용하지 못했어요. 색상권을 확인해 주세요.');
-    }
-  }
-
   Future<void> _linkKakaoAccount() async {
     final service = ref.read(kakaoAuthServiceProvider);
     if (!service.isConfigured) {
@@ -848,6 +937,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         // existing Kakao account. Refresh synchronously so the home screen
         // shows that account's economy instead of briefly rendering the old
         // anonymous account's cached state.
+        ref.invalidate(previousGameWinnerProvider);
         try {
           await ref.refresh(todayStateProvider.future).then<void>((_) {});
         } catch (_) {
@@ -1130,6 +1220,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       startState = isTomorrow
           ? latestState.tomorrowPreview ?? latestState
           : latestState;
+      if (mode == _PlayStartMode.practice && !startState.practicePending) {
+        // A confirmed start should have removed the persisted request ID. If
+        // an older client left one behind, the authoritative home state lets
+        // us replace it before charging a new practice ticket. Keep the ID
+        // when practice_pending is true so a lost claim response remains
+        // safely retryable.
+        _pendingFreePracticeRequestId = null;
+      }
       if (startState.game == null ||
           !GameRegistry.supports(
             startState.game!.id,
@@ -1191,6 +1289,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                   repository,
                   latestState.playDate,
                   gameDate: startState.playDate,
+                  reuseExistingRequest: startState.practicePending,
                 ),
       };
       if (attempt == null) return;
@@ -1202,9 +1301,17 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       _pendingFreePracticeRequestId = null;
       keepTicketAnimation = true;
       setState(() => _isClaiming = false);
+      _clearTicketAnimationOnNextState = ticketAnimationGeneration != null;
       await context.push('/play', extra: attempt);
       if (!mounted) return;
-      ref.invalidate(todayStateProvider);
+      try {
+        await ref
+            .refresh(todayStateProvider.future)
+            .timeout(const Duration(seconds: 12));
+      } catch (_) {
+        ref.invalidate(todayStateProvider);
+      }
+      _cancelTicketAnimation(ticketAnimationGeneration);
     } catch (error) {
       if (!mounted) return;
       if (_isAppUpdateRequiredError(error)) {
@@ -1511,6 +1618,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
 
   void _cancelTicketAnimation(int? generation) {
     if (generation == null || generation != _ticketAnimationGeneration) return;
+    _clearTicketAnimationOnNextState = false;
     _ticketAnimationGeneration++;
     _cancelTicketAnimationWaiter();
     if (!mounted) return;
@@ -1527,11 +1635,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     DailyGameRepository repository,
     DateTime expectedPlayDate, {
     DateTime? gameDate,
+    bool reuseExistingRequest = true,
   }) async {
     if (repository case final DailyPracticeRepository practiceRepository) {
       final requestId = _pendingFreePracticeRequestId ??=
           await practiceRepository.getOrCreatePracticeRequestId(
             gameDate ?? expectedPlayDate,
+            reuseExisting: reuseExistingRequest,
           );
       final attempt = await _withTransientNetworkRetry(
         () => practiceRepository.claimDailyPractice(
@@ -1602,13 +1712,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     required Future<RewardedAdSession> Function() prepare,
     required Future<PlayAttempt> Function(String sessionId) claim,
   }) async {
-    final session = await _withTransientNetworkRetry(prepare);
+    final session = await _withTransientNetworkRetry(
+      prepare,
+    ).timeout(const Duration(seconds: 12));
 
     final recoveredAttempt = await _claimVerifiedReward(
       claim,
       session.id,
       retries: 0,
-    );
+    ).timeout(const Duration(seconds: 12));
     if (recoveredAttempt != null) return recoveredAttempt;
 
     final outcome = await _rewardedAdService.show(
@@ -1947,6 +2059,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
             nearby: [],
           ),
       gameId: state.game?.id,
+      gameName: state.game?.displayName,
       playDate: state.playDate,
       title: state.isTomorrowPreview ? '내일의 랭킹' : '오늘의 랭킹',
     );
@@ -1955,6 +2068,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   Future<void> _showRankingForDate({
     required DailyRankResult initialResult,
     required String? gameId,
+    required String? gameName,
     required DateTime playDate,
     required String title,
   }) {
@@ -1965,6 +2079,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       builder: (context) => _RankingSheet(
         initialResult: initialResult,
         gameId: gameId,
+        gameName: gameName,
         playDate: playDate,
         title: title,
       ),
@@ -2381,54 +2496,62 @@ class _RequiredUpdateView extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Center(
-    key: const Key('required-update-screen'),
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: PixelPanel(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.system_update_alt_rounded,
-                color: AppColors.primary,
-                size: 56,
-              ),
-              const SizedBox(height: 18),
-              const WordSafeText(
-                '게임이 업데이트 되었어요',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.text,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
+  Widget build(BuildContext context) {
+    final productionReleaseRequired =
+        compatibility.reason == 'production_release_required';
+    return Center(
+      key: const Key('required-update-screen'),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: PixelPanel(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.system_update_alt_rounded,
+                  color: AppColors.primary,
+                  size: 56,
                 ),
-              ),
-              const SizedBox(height: 10),
-              const WordSafeText(
-                '원활한 게임 플레이를 위해\n앱을 업데이트 해주세요',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  height: 1.5,
-                  fontWeight: FontWeight.w700,
+                const SizedBox(height: 18),
+                WordSafeText(
+                  productionReleaseRequired
+                      ? '정식 버전으로 업데이트해 주세요'
+                      : '게임이 업데이트 되었어요',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.text,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 22),
-              PixelButton(
-                key: const Key('required-update-button'),
-                label: '스토어에서 업데이트',
-                icon: Icons.open_in_new_rounded,
-                onPressed: () => _openStore(context),
-              ),
-            ],
+                const SizedBox(height: 10),
+                WordSafeText(
+                  productionReleaseRequired
+                      ? '알파 테스트 대신 Google Play의 정식 버전을 이용해 주세요.'
+                      : '원활한 게임 플레이를 위해\n앱을 업데이트 해주세요',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    height: 1.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                PixelButton(
+                  key: const Key('required-update-button'),
+                  label: productionReleaseRequired ? '정식 버전 받기' : '스토어에서 업데이트',
+                  icon: Icons.open_in_new_rounded,
+                  onPressed: () => _openStore(context),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _DailyGameChangedDialog extends StatelessWidget {
@@ -3689,12 +3812,14 @@ class _RankingSheet extends ConsumerWidget {
   const _RankingSheet({
     required this.initialResult,
     required this.gameId,
+    required this.gameName,
     required this.playDate,
     required this.title,
   });
 
   final DailyRankResult initialResult;
   final String? gameId;
+  final String? gameName;
   final DateTime playDate;
   final String title;
 
@@ -3707,10 +3832,22 @@ class _RankingSheet extends ConsumerWidget {
           error: (_, _) => initialResult,
           loading: () => initialResult,
         );
-    final previousPlayDate = previousDailyPlayDate(playDate);
-    final previousResult = isDailyResultAvailable(previousPlayDate)
-        ? ref.watch(dailyRankProvider(previousPlayDate))
-        : null;
+    final previousResult = gameId == null
+        ? null
+        : ref
+              .watch(
+                previousGameWinnerProvider((
+                  gameId: gameId!,
+                  beforeDate: playDate,
+                )),
+              )
+              .when(
+                data: (winner) => winner,
+                error: (_, _) => null,
+                loading: () => null,
+              );
+    final hasPreviousWinner =
+        previousResult?.leaders.any((entry) => entry.rank == 1) ?? false;
     final rankingEntries = [...result.leaders]
       ..sort((a, b) => a.rank.compareTo(b.rank));
     return _SheetFrame(
@@ -3723,25 +3860,40 @@ class _RankingSheet extends ConsumerWidget {
             onClose: () => Navigator.of(context).pop(),
             closeKey: const Key('ranking-sheet-close'),
           ),
-          const SizedBox(height: 16),
-          _PreviousWinnerCard(
-            playDate: previousPlayDate,
-            result: previousResult,
-          ),
+          if (hasPreviousWinner &&
+              gameId != null &&
+              gameName != null &&
+              previousResult != null) ...[
+            const SizedBox(height: 16),
+            _RankingSectionTitle(
+              eyebrow: 'PREVIOUS WINNER',
+              title: '지난 $gameName 1등',
+            ),
+            const SizedBox(height: 10),
+            _PreviousWinnerCard(gameId: gameId!, result: previousResult),
+          ],
           const SizedBox(height: 16),
           const _RankingSectionTitle(eyebrow: 'TOP SCORES', title: '전체 랭킹'),
           const SizedBox(height: 10),
           Expanded(
-            child: rankingEntries.isEmpty
-                ? const Center(
-                    child: WordSafeText(
-                      '아직 등록된 기록이 없어요.',
-                      style: TextStyle(color: AppColors.textMuted),
-                    ),
-                  )
-                : ListView(
-                    key: const Key('overall-leaderboard'),
-                    children: [
+            child: Stack(
+              children: [
+                ListView(
+                  key: const Key('overall-leaderboard'),
+                  scrollCacheExtent: const ScrollCacheExtent.pixels(1000),
+                  padding: const EdgeInsets.only(bottom: 72),
+                  children: [
+                    if (rankingEntries.isEmpty)
+                      const SizedBox(
+                        height: 130,
+                        child: Center(
+                          child: WordSafeText(
+                            '아직 등록된 기록이 없어요.',
+                            style: TextStyle(color: AppColors.textMuted),
+                          ),
+                        ),
+                      )
+                    else
                       for (
                         var index = 0;
                         index < rankingEntries.length;
@@ -3761,10 +3913,72 @@ class _RankingSheet extends ConsumerWidget {
                         if (index < rankingEntries.length - 1)
                           const SizedBox(height: 6),
                       ],
-                    ],
+                  ],
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    color: AppColors.surface,
+                    padding: const EdgeInsets.only(top: 8),
+                    child: OutlinedButton.icon(
+                      key: const Key('daily-nonplayers-button'),
+                      onPressed: gameId == null
+                          ? null
+                          : () => _showNonplayers(
+                              context,
+                              playDate: playDate,
+                              gameId: gameId!,
+                              canBoast:
+                                  result.score != null && result.rank != null,
+                            ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 52),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        foregroundColor: AppColors.text,
+                        disabledForegroundColor: AppColors.textMuted,
+                        side: const BorderSide(
+                          color: AppColors.border,
+                          width: 2,
+                        ),
+                        shape: const RoundedRectangleBorder(),
+                        textStyle: const TextStyle(
+                          fontFamily: 'Galmuri',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      icon: const Icon(Icons.people_outline, size: 20),
+                      label: const WordSafeText('아직 플레이하지 않은 유저 보기'),
+                    ),
                   ),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showNonplayers(
+    BuildContext context, {
+    required DateTime playDate,
+    required String gameId,
+    required bool canBoast,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _DailyNonplayersSheet(
+        playDate: playDate,
+        gameId: gameId,
+        canBoast: canBoast,
       ),
     );
   }
@@ -3775,194 +3989,452 @@ class _RankingSheet extends ConsumerWidget {
     NearbyRank entry, {
     required bool canBoast,
   }) async {
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      builder: (_) => _RankActionSheet(entry: entry, canBoast: canBoast),
-    );
-    if (action == null || !context.mounted) return;
-    await _handleRankAction(context, ref, entry, action);
-  }
-
-  Future<void> _handleRankAction(
-    BuildContext context,
-    WidgetRef ref,
-    NearbyRank entry,
-    String action,
-  ) async {
     final targetUserId = entry.userId;
     if (targetUserId == null) return;
-    var chosenAction = action;
-    if (action == 'gift') {
-      final state = ref.read(todayStateProvider).value;
-      final item = await showModalBottomSheet<String>(
-        context: context,
-        backgroundColor: Colors.transparent,
-        useSafeArea: true,
-        builder: (_) => _RankGiftSheet(
-          nickname: entry.nickname,
-          practiceTickets: state?.storePracticeTickets ?? 0,
-          challengeTickets: state?.storeChallengeTickets ?? 0,
-          nicknameChangeTickets: state?.storeNicknameChangeTickets ?? 0,
-        ),
-      );
-      if (item == null || !context.mounted) return;
-      chosenAction = item;
-    }
-    final actionLabel = switch (action) {
-      'poke' => '찌르기',
-      'boast' => '자랑하기',
-      _ => '선물하기',
-    };
-    try {
-      final SocialRepository repository = ref.read(socialRepositoryProvider);
-      if (action == 'gift') {
-        await repository.giftShopItem(
-          targetUserId: targetUserId,
-          itemId: chosenAction,
-        );
-        ref.invalidate(todayStateProvider);
-      } else {
-        await repository.sendSocialAction(
-          targetUserId: targetUserId,
-          action: action,
-        );
-      }
-      if (!context.mounted) return;
-      final successMessage = switch (action) {
-        'poke' => '${entry.nickname}님을 찔렀어요.',
-        'boast' => '${entry.nickname}님에게 내 순위를 자랑했어요.',
-        _ =>
-          '${entry.nickname}님에게 ${switch (chosenAction) {
-            'practice_ticket' => '연습권',
-            'challenge_ticket' => '도전권',
-            'nickname_change_ticket' => '닉네임 변경권',
-            _ => '아이템',
-          }} 1장을 선물했어요.',
-      };
-      await showPixelCompletionDialog(
-        context,
-        title: '$actionLabel 완료',
-        message: successMessage,
-        dialogKey: Key('social-$action-completed'),
-        titleKey: Key('social-$action-completed-title'),
-        messageKey: Key('social-$action-completed-message'),
-        confirmKey: Key('social-$action-completed-confirm'),
-      );
-    } catch (error) {
-      if (!context.mounted) return;
-      final text = error is PostgrestException
-          ? error.message
-          : error.toString();
-      final message = text.contains('daily poke')
-          ? '오늘 찌르기는 3번까지 보낼 수 있어요.'
-          : text.contains('daily boast')
-          ? '오늘 자랑하기는 3번까지 보낼 수 있어요.'
-          : text.contains('daily social')
-          ? '오늘 보낼 수 있는 알림을 다 사용했어요.'
-          : text.contains('cooldown')
-          ? '자랑하기는 6시간 후에 다시 보낼 수 있어요.'
-          : text.contains('rank is not available')
-          ? '오늘의 도전 기록이 있어야 자랑할 수 있어요.'
-          : '요청을 처리하지 못했어요.';
-      await showPixelCompletionDialog(
-        context,
-        title: '$actionLabel 안내',
-        message: message,
-        dialogKey: Key('social-$action-error'),
-        titleKey: Key('social-$action-error-title'),
-        messageKey: Key('social-$action-error-message'),
-        confirmKey: Key('social-$action-error-confirm'),
-      );
-    }
+    await _showRankActionsForTarget(
+      context,
+      ref,
+      targetUserId: targetUserId,
+      nickname: entry.nickname,
+      canBoast: canBoast,
+    );
   }
 }
 
-class _PreviousWinnerCard extends StatelessWidget {
-  const _PreviousWinnerCard({required this.playDate, required this.result});
+Future<void> _showRankActionsForTarget(
+  BuildContext context,
+  WidgetRef ref, {
+  required String targetUserId,
+  required String nickname,
+  required bool canBoast,
+}) async {
+  final action = await showModalBottomSheet<String>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    useSafeArea: true,
+    builder: (_) => _RankActionSheet(
+      userId: targetUserId,
+      nickname: nickname,
+      canBoast: canBoast,
+    ),
+  );
+  if (action == null || !context.mounted) return;
+  await _handleRankActionForTarget(
+    context,
+    ref,
+    targetUserId: targetUserId,
+    nickname: nickname,
+    action: action,
+  );
+}
+
+Future<void> _handleRankActionForTarget(
+  BuildContext context,
+  WidgetRef ref, {
+  required String targetUserId,
+  required String nickname,
+  required String action,
+}) async {
+  var chosenAction = action;
+  if (action == 'gift') {
+    final state = ref.read(todayStateProvider).value;
+    final item = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (_) => _RankGiftSheet(
+        nickname: nickname,
+        practiceTickets: state?.storePracticeTickets ?? 0,
+        challengeTickets: state?.storeChallengeTickets ?? 0,
+        nicknameChangeTickets: state?.storeNicknameChangeTickets ?? 0,
+      ),
+    );
+    if (item == null || !context.mounted) return;
+    chosenAction = item;
+  }
+  final actionLabel = switch (action) {
+    'poke' => '찌르기',
+    'boast' => '자랑하기',
+    _ => '선물하기',
+  };
+  try {
+    final SocialRepository repository = ref.read(socialRepositoryProvider);
+    if (action == 'gift') {
+      await repository.giftShopItem(
+        targetUserId: targetUserId,
+        itemId: chosenAction,
+      );
+      ref.invalidate(todayStateProvider);
+    } else {
+      await repository.sendSocialAction(
+        targetUserId: targetUserId,
+        action: action,
+      );
+    }
+    if (!context.mounted) return;
+    final successMessage = switch (action) {
+      'poke' => '$nickname님을 찔렀어요.',
+      'boast' => '$nickname님에게 내 순위를 자랑했어요.',
+      _ =>
+        '$nickname님에게 ${switch (chosenAction) {
+          'practice_ticket' => '연습권',
+          'challenge_ticket' => '도전권',
+          'nickname_change_ticket' => '닉네임 변경권',
+          _ => '아이템',
+        }} 1장을 선물했어요.',
+    };
+    await showPixelCompletionDialog(
+      context,
+      title: '$actionLabel 완료',
+      message: successMessage,
+      dialogKey: Key('social-$action-completed'),
+      titleKey: Key('social-$action-completed-title'),
+      messageKey: Key('social-$action-completed-message'),
+      confirmKey: Key('social-$action-completed-confirm'),
+    );
+  } catch (error) {
+    if (!context.mounted) return;
+    final text = error is PostgrestException ? error.message : error.toString();
+    final message = text.contains('daily poke')
+        ? '오늘 찌르기는 3번까지 보낼 수 있어요.'
+        : text.contains('daily boast')
+        ? '오늘 자랑하기는 3번까지 보낼 수 있어요.'
+        : text.contains('daily social')
+        ? '오늘 보낼 수 있는 알림을 다 사용했어요.'
+        : text.contains('cooldown')
+        ? '자랑하기는 6시간 후에 다시 보낼 수 있어요.'
+        : text.contains('rank is not available')
+        ? '오늘의 도전 기록이 있어야 자랑할 수 있어요.'
+        : '요청을 처리하지 못했어요.';
+    await showPixelCompletionDialog(
+      context,
+      title: '$actionLabel 안내',
+      message: message,
+      dialogKey: Key('social-$action-error'),
+      titleKey: Key('social-$action-error-title'),
+      messageKey: Key('social-$action-error-message'),
+      confirmKey: Key('social-$action-error-confirm'),
+    );
+  }
+}
+
+class _DailyNonplayersSheet extends ConsumerStatefulWidget {
+  const _DailyNonplayersSheet({
+    required this.playDate,
+    required this.gameId,
+    required this.canBoast,
+  });
 
   final DateTime playDate;
-  final AsyncValue<DailyRankResult>? result;
+  final String gameId;
+  final bool canBoast;
+
+  @override
+  ConsumerState<_DailyNonplayersSheet> createState() =>
+      _DailyNonplayersSheetState();
+}
+
+class _DailyNonplayersSheetState extends ConsumerState<_DailyNonplayersSheet> {
+  final _players = <DailyNonplayer>[];
+  var _initialLoading = true;
+  var _initialRequestStarted = false;
+  var _loadingMore = false;
+  String? _nextCursor;
+  Object? _initialError;
+  Object? _loadMoreError;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_loadInitial());
+    });
+  }
+
+  Future<void> _loadInitial() async {
+    if (_initialRequestStarted && _initialLoading) return;
+    setState(() {
+      _initialRequestStarted = true;
+      _initialLoading = true;
+      _initialError = null;
+      _loadMoreError = null;
+      _players.clear();
+      _nextCursor = null;
+    });
+    try {
+      final page = await ref
+          .read(dailyNonplayersRepositoryProvider)
+          .fetchDailyNonplayers(
+            playDate: widget.playDate,
+            gameId: widget.gameId,
+          );
+      if (!mounted) return;
+      setState(() {
+        _appendVisiblePlayers(page.players);
+        _nextCursor = page.nextCursor;
+        _initialLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _initialLoading = false;
+        _initialError = error;
+      });
+    }
+  }
+
+  Future<void> _loadMore() async {
+    final cursor = _nextCursor;
+    if (cursor == null || _loadingMore || _initialLoading) return;
+    setState(() {
+      _loadingMore = true;
+      _loadMoreError = null;
+    });
+    try {
+      final page = await ref
+          .read(dailyNonplayersRepositoryProvider)
+          .fetchDailyNonplayers(
+            playDate: widget.playDate,
+            gameId: widget.gameId,
+            afterUserId: cursor,
+          );
+      if (!mounted) return;
+      setState(() {
+        _appendVisiblePlayers(page.players);
+        _nextCursor = page.nextCursor == cursor ? null : page.nextCursor;
+        _loadingMore = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loadingMore = false;
+        _loadMoreError = error;
+      });
+    }
+  }
+
+  void _appendVisiblePlayers(Iterable<DailyNonplayer> players) {
+    final knownIds = _players.map((player) => player.userId).toSet();
+    for (final player in players) {
+      final nickname = player.nickname.trim();
+      if (nickname.isEmpty || _isGeneratedNickname(nickname)) continue;
+      if (!knownIds.add(player.userId)) continue;
+      _players.add(player);
+    }
+  }
+
+  bool _isGeneratedNickname(String nickname) =>
+      RegExp(r'^신원미상#[0-9]+$').hasMatch(nickname);
+
+  @override
+  Widget build(BuildContext context) => _SheetFrame(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SheetHeader(
+          eyebrow: 'PLAYERS TO MEET',
+          title: '아직 플레이하지 않은 유저',
+          onClose: () => Navigator.of(context).pop(),
+          closeKey: const Key('daily-nonplayers-close'),
+        ),
+        const SizedBox(height: 8),
+        const WordSafeText(
+          '이 게임을 아직 시작하지 않은 유저예요.',
+          style: TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Expanded(child: _buildContent()),
+      ],
+    ),
+  );
+
+  Widget _buildContent() {
+    if (_initialLoading) {
+      return const Center(
+        child: CircularProgressIndicator(key: Key('daily-nonplayers-loading')),
+      );
+    }
+    if (_initialError != null && _players.isEmpty) {
+      return _NonplayersMessage(
+        key: const Key('daily-nonplayers-error'),
+        message: '유저 목록을 불러오지 못했어요.',
+        actionLabel: '다시 시도',
+        onPressed: _loadInitial,
+      );
+    }
+    if (_players.isEmpty && _nextCursor == null) {
+      return const _NonplayersMessage(
+        key: Key('daily-nonplayers-empty'),
+        message: '아직 플레이하지 않은 유저가 없어요.',
+      );
+    }
+
+    final footerCount = _nextCursor == null ? 0 : 1;
+    return ListView.separated(
+      key: const Key('daily-nonplayers-list'),
+      padding: const EdgeInsets.only(bottom: 8),
+      itemCount: _players.length + footerCount,
+      separatorBuilder: (_, index) => index < _players.length - 1
+          ? const SizedBox(height: 6)
+          : const SizedBox.shrink(),
+      itemBuilder: (context, index) {
+        if (index < _players.length) {
+          final player = _players[index];
+          return _DailyNonplayerRow(
+            player: player,
+            onAction: () => unawaited(
+              _showRankActionsForTarget(
+                context,
+                ref,
+                targetUserId: player.userId,
+                nickname: player.nickname.trim(),
+                canBoast: widget.canBoast,
+              ),
+            ),
+          );
+        }
+        return _buildFooter();
+      },
+    );
+  }
+
+  Widget _buildFooter() {
+    if (_loadingMore) {
+      return const Padding(
+        padding: EdgeInsets.all(12),
+        child: Center(
+          child: CircularProgressIndicator(
+            key: Key('daily-nonplayers-more-loading'),
+          ),
+        ),
+      );
+    }
+    if (_loadMoreError != null) {
+      return OutlinedButton(
+        key: const Key('daily-nonplayers-more-retry'),
+        onPressed: _loadMore,
+        child: const WordSafeText('목록 더 불러오기 다시 시도'),
+      );
+    }
+    return OutlinedButton(
+      key: const Key('daily-nonplayers-more-button'),
+      onPressed: _loadMore,
+      child: const WordSafeText('더 보기'),
+    );
+  }
+}
+
+class _NonplayersMessage extends StatelessWidget {
+  const _NonplayersMessage({
+    required this.message,
+    this.actionLabel,
+    this.onPressed,
+    super.key,
+  });
+
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        WordSafeText(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: AppColors.textMuted,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        if (actionLabel != null && onPressed != null) ...[
+          const SizedBox(height: 12),
+          OutlinedButton(
+            key: const Key('daily-nonplayers-retry'),
+            onPressed: onPressed,
+            child: WordSafeText(actionLabel!),
+          ),
+        ],
+      ],
+    ),
+  );
+}
+
+class _DailyNonplayerRow extends StatelessWidget {
+  const _DailyNonplayerRow({required this.player, required this.onAction});
+
+  final DailyNonplayer player;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: Key('daily-nonplayer-${player.userId}'),
+    constraints: const BoxConstraints(minHeight: 68),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    decoration: BoxDecoration(
+      color: AppColors.backgroundDeep,
+      border: Border.all(color: AppColors.surfaceLight),
+    ),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 44,
+          child: WordSafeText(
+            'LV.${player.level}',
+            singleLine: true,
+            maxLines: 1,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontFamily: 'Galmuri',
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: WordSafeText(
+            player.nickname.trim(),
+            style: TextStyle(
+              color: NicknameColors.forLevel(player.level),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        IconButton(
+          key: Key('daily-nonplayer-more-${player.userId}'),
+          tooltip: '상호작용',
+          onPressed: onAction,
+          icon: const Icon(Icons.more_horiz, color: AppColors.textMuted),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PreviousWinnerCard extends StatelessWidget {
+  const _PreviousWinnerCard({required this.gameId, required this.result});
+
+  final String gameId;
+  final DailyRankResult result;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       key: const Key('previous-winner-card'),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      constraints: const BoxConstraints(minHeight: 74),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
         color: AppColors.backgroundDeep,
         border: Border.all(color: AppColors.surfaceLight),
       ),
-      child: Row(
-        children: [
-          Icon(
-            result == null
-                ? Icons.hourglass_empty_rounded
-                : Icons.emoji_events_outlined,
-            color: AppColors.primary,
-            size: 24,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    const WordSafeText(
-                      '지난 1등',
-                      style: TextStyle(
-                        color: AppColors.text,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const Spacer(),
-                    WordSafeText(
-                      _formatRankingDate(playDate),
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                if (result == null)
-                  const WordSafeText(
-                    '집계 중',
-                    style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  )
-                else
-                  result!.when(
-                    loading: () => const WordSafeText(
-                      '지난 1등 불러오는 중…',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    error: (_, _) => const WordSafeText(
-                      '지난 1등을 불러오지 못했어요.',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    data: (rankResult) => _previousWinnerContent(rankResult),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      child: _previousWinnerContent(result),
     );
   }
 
@@ -3986,43 +4458,57 @@ class _PreviousWinnerCard extends StatelessWidget {
     }
     return Row(
       children: [
-        const WordSafeText(
-          '1등',
-          style: TextStyle(
+        const SizedBox(
+          width: 42,
+          child: Icon(
+            Icons.emoji_events_outlined,
+            key: Key('previous-winner-trophy'),
             color: AppColors.primary,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
+            size: 22,
           ),
         ),
-        const SizedBox(width: 8),
+        Expanded(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 34,
+                child: WordSafeText(
+                  'LV.${winner.level}',
+                  singleLine: true,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontFamily: 'Galmuri',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 7),
+              Flexible(
+                child: WordSafeText(
+                  winner.nickname,
+                  style: TextStyle(
+                    color: NicknameColors.forLevel(winner.level),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         WordSafeText(
-          'LV.${winner.level}',
+          GameRegistry.formatScore(gameId, winner.score),
           style: const TextStyle(
-            color: AppColors.textMuted,
             fontFamily: 'Galmuri',
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        const SizedBox(width: 7),
-        Flexible(
-          child: WordSafeText(
-            winner.nickname,
-            style: TextStyle(
-              color: NicknameColors.resolve(winner.nicknameColor),
-              fontWeight: FontWeight.w900,
-            ),
+            color: AppColors.reward,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],
     );
   }
 }
-
-String _formatRankingDate(DateTime date) =>
-    '${date.year.toString().padLeft(4, '0')}.'
-    '${date.month.toString().padLeft(2, '0')}.'
-    '${date.day.toString().padLeft(2, '0')}';
 
 class _RankingSectionTitle extends StatelessWidget {
   const _RankingSectionTitle({required this.eyebrow, required this.title});
@@ -4059,20 +4545,26 @@ class _RankingSectionTitle extends StatelessWidget {
 }
 
 class _RankActionSheet extends StatelessWidget {
-  const _RankActionSheet({required this.entry, required this.canBoast});
+  const _RankActionSheet({
+    required this.userId,
+    required this.nickname,
+    required this.canBoast,
+  });
 
-  final NearbyRank entry;
+  final String userId;
+  final String nickname;
   final bool canBoast;
 
   @override
   Widget build(BuildContext context) => _RankSheetSurface(
+    key: Key('rank-actions-$userId'),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _SheetHeader(
           eyebrow: 'RANKING PLAYER',
-          title: entry.nickname,
+          title: nickname,
           onClose: () => Navigator.of(context).pop(),
         ),
         const SizedBox(height: 8),
@@ -4168,7 +4660,7 @@ class _RankGiftSheet extends StatelessWidget {
 }
 
 class _RankSheetSurface extends StatelessWidget {
-  const _RankSheetSurface({required this.child});
+  const _RankSheetSurface({required this.child, super.key});
 
   final Widget child;
 
@@ -4320,7 +4812,7 @@ class _LeaderboardRow extends StatelessWidget {
                   child: WordSafeText(
                     entry.nickname,
                     style: TextStyle(
-                      color: NicknameColors.resolve(entry.nicknameColor),
+                      color: NicknameColors.forLevel(entry.level),
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -4541,6 +5033,12 @@ class _GuidePage extends StatelessWidget {
     GameGuideVisualKind.windDartsWind ||
     GameGuideVisualKind.windDartsDistance ||
     GameGuideVisualKind.windDartsScoring => true,
+    GameGuideVisualKind.templeRunControls ||
+    GameGuideVisualKind.templeRunHazards ||
+    GameGuideVisualKind.templeRunManeuvers ||
+    GameGuideVisualKind.templeRunCorner ||
+    GameGuideVisualKind.templeRunItems ||
+    GameGuideVisualKind.templeRunScore => true,
     _ => false,
   };
 
@@ -4845,6 +5343,31 @@ class _GuideVisual extends StatelessWidget {
     ),
     GameGuideVisualKind.windDartsScoring => const WindDartsPreview(
       scene: WindDartsPreviewScene.scoring,
+      animate: false,
+    ),
+    GameGuideVisualKind.templeRunControls => const TempleRunPreview(
+      scene: TempleRunPreviewScene.controls,
+      animate: false,
+    ),
+    GameGuideVisualKind.templeRunHazards => const TempleRunPreview(
+      scene: TempleRunPreviewScene.hazards,
+      animate: false,
+    ),
+    GameGuideVisualKind.templeRunManeuvers => const TempleRunPreview(
+      scene: TempleRunPreviewScene.maneuvers,
+      animate: false,
+    ),
+    GameGuideVisualKind.templeRunCorner => const TempleRunPreview(
+      scene: TempleRunPreviewScene.corner,
+      animate: false,
+      initialFrame: 55,
+    ),
+    GameGuideVisualKind.templeRunItems => const TempleRunPreview(
+      scene: TempleRunPreviewScene.items,
+      animate: false,
+    ),
+    GameGuideVisualKind.templeRunScore => const TempleRunPreview(
+      scene: TempleRunPreviewScene.score,
       animate: false,
     ),
   };
@@ -7686,6 +8209,7 @@ class _GamePreview extends StatelessWidget {
             animate: true,
           ),
           GameHomePreviewKind.windDarts => const WindDartsPreview(),
+          GameHomePreviewKind.templeRun => const TempleRunPreview(),
         },
       ),
     );

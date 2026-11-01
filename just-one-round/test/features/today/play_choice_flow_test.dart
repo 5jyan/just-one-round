@@ -262,7 +262,7 @@ void main() {
   testWidgets('중단된 연습 재진입은 이미 예약된 티켓을 다시 차감하지 않는다', (tester) async {
     final repository = _TicketRepository(
       _ticketState(tickets: 1, practicePending: true),
-    );
+    )..persistedPracticeRequestId = 'feedface-0000-4000-8000-000000000001';
     await _pumpTicketState(tester, repository.state, repository: repository);
 
     final practiceButton = find.byKey(const Key('practice-button'));
@@ -272,6 +272,10 @@ void main() {
 
     expect(find.byKey(const Key('practice-ticket-delta')), findsNothing);
     expect(repository.dailyPracticeClaims, 1);
+    expect(repository.practiceRequestReuseExisting, [true]);
+    expect(repository.practiceRequestIds, [
+      'feedface-0000-4000-8000-000000000001',
+    ]);
     expect(find.byType(GameScreen), findsOneWidget);
   });
 
@@ -449,6 +453,128 @@ void main() {
     expect(adService.showCalls, 1);
     expect(repository.challengeTicketClaims, 0);
     expect(find.byType(GameScreen), findsOneWidget);
+  });
+
+  testWidgets('광고 추가 도전 실패 후 두 버튼의 로딩이 풀리고 연습을 시작한다', (tester) async {
+    final repository = _TicketRepository(
+      _ticketState(
+        playCount: 1,
+        tickets: 1,
+        practiceAvailable: true,
+        extraChallengeAvailable: true,
+        adChallengeAvailable: true,
+      ),
+    )..rankedRewardPendingOnce = true;
+    final adService = _CountingAdService()
+      ..showGate = Completer<RewardedAdOutcome>();
+    await _pumpTicketState(
+      tester,
+      repository.state,
+      repository: repository,
+      adService: adService,
+    );
+
+    final challengeButton = find.byKey(const Key('challenge-button'));
+    await tester.ensureVisible(challengeButton);
+    await tester.tap(challengeButton);
+    for (var frame = 0; frame < 20 && adService.showCalls == 0; frame++) {
+      await tester.pump();
+    }
+    await tester.pump();
+
+    expect(adService.showCalls, 1);
+    expect(
+      find.descendant(of: challengeButton, matching: find.text('로딩중')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('practice-button')),
+        matching: find.text('로딩중'),
+      ),
+      findsOneWidget,
+    );
+
+    adService.showGate!.complete(RewardedAdOutcome.failed);
+    await tester.pumpAndSettle();
+
+    expect(find.text('광고를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'), findsOneWidget);
+    expect(find.text('로딩중'), findsNothing);
+    final practiceButton = find.byKey(const Key('practice-button'));
+    expect(
+      find.descendant(of: practiceButton, matching: find.text('연습하기')),
+      findsOneWidget,
+    );
+    expect(tester.widget<PixelButton>(practiceButton).onPressed, isNotNull);
+
+    await tester.tap(practiceButton);
+    await tester.pumpAndSettle();
+
+    expect(repository.dailyPracticeClaims, 1);
+    expect(repository.practiceAdPrepareCalls, 0);
+    expect(adService.showCalls, 1);
+    expect(find.byType(GameScreen), findsOneWidget);
+  });
+
+  testWidgets('광고 준비가 12초를 넘기면 로딩을 풀고 광고를 보여주지 않는다', (tester) async {
+    final repository = _TicketRepository(
+      _ticketState(
+        playCount: 1,
+        tickets: 1,
+        practiceAvailable: true,
+        extraChallengeAvailable: true,
+        adChallengeAvailable: true,
+      ),
+    )..rankedAdPrepareGate = Completer<void>();
+    final adService = _CountingAdService();
+    await _pumpTicketState(
+      tester,
+      repository.state,
+      repository: repository,
+      adService: adService,
+    );
+
+    final challengeButton = find.byKey(const Key('challenge-button'));
+    await tester.ensureVisible(challengeButton);
+    await tester.tap(challengeButton);
+    for (
+      var frame = 0;
+      frame < 20 && repository.rankedAdPrepareCalls == 0;
+      frame++
+    ) {
+      await tester.pump();
+    }
+    await tester.pump();
+
+    expect(repository.rankedAdPrepareCalls, 1);
+    expect(
+      find.descendant(of: challengeButton, matching: find.text('로딩중')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('practice-button')),
+        matching: find.text('로딩중'),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.pump(const Duration(seconds: 12));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.text('로딩중'), findsNothing);
+    final practiceButton = find.byKey(const Key('practice-button'));
+    expect(
+      find.descendant(of: practiceButton, matching: find.text('연습하기')),
+      findsOneWidget,
+    );
+    expect(tester.widget<PixelButton>(practiceButton).onPressed, isNotNull);
+    expect(adService.showCalls, 0);
+    expect(repository.rankedRewardClaims, 0);
+    expect(repository.dailyChallengeClaims, 0);
+    expect(repository.dailyPracticeClaims, 0);
+    expect(find.byType(GameScreen), findsNothing);
   });
 
   testWidgets('도전권이 있어도 별도 도전권 버튼을 노출하지 않는다', (tester) async {
@@ -893,7 +1019,7 @@ void main() {
     expect(repository.savedNicknames, ['다른닉네임']);
   });
 
-  testWidgets('상점의 도전권과 색상권 구매·선택을 확인 팝업으로 확정한다', (tester) async {
+  testWidgets('상점은 도전권과 닉네임 변경권만 판매한다', (tester) async {
     final state = _ticketState(
       tickets: 1,
       economy: PlayerEconomy.fromTotals(coins: 1000, experiencePoints: 0),
@@ -903,13 +1029,8 @@ void main() {
 
     await tester.tap(find.byKey(const Key('shop-button')));
     await tester.pumpAndSettle();
-    expect(
-      find.descendant(
-        of: find.byKey(const Key('shop-nickname-color-ticket')),
-        matching: find.textContaining('보유'),
-      ),
-      findsNothing,
-    );
+    expect(find.byKey(const Key('shop-nickname-color-ticket')), findsNothing);
+    expect(find.textContaining('닉네임 색상권'), findsNothing);
 
     await tester.tap(
       find.descendant(
@@ -931,31 +1052,10 @@ void main() {
     );
     expect(find.byKey(const Key('shop-purchase-celebration')), findsNothing);
 
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(const Key('shop-nickname-color-ticket')),
-        matching: find.byType(FilledButton),
-      ),
-    );
-    await tester.pumpAndSettle();
     expect(
-      find.byKey(const Key('nickname-color-choice-sheet')),
+      find.byKey(const Key('shop-nickname-change-ticket')),
       findsOneWidget,
     );
-    expect(find.text('테스터'), findsNWidgets(5));
-    expect(find.byKey(const Key('shop-purchase-celebration')), findsNothing);
-
-    await tester.tap(find.byKey(const Key('nickname-color-choice-coral')));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('nickname-color-choice-coral')), findsNothing);
-    expect(
-      find.byKey(const Key('nickname-color-confirmation')),
-      findsOneWidget,
-    );
-    expect(find.text('색상을 적용할까요?'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('nickname-color-confirm')));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('다시 바꾸려면 구매'), findsOneWidget);
   });
 
   testWidgets('상점에는 코인 광고 보상을 표시하지 않는다', (tester) async {
@@ -994,6 +1094,47 @@ void main() {
     expect(repository.practiceRequestIds, hasLength(2));
     expect(repository.practiceRequestIds.toSet(), hasLength(1));
     expect(find.byType(GameScreen), findsOneWidget);
+  });
+
+  testWidgets('서버에 대기 중인 연습이 없으면 오래된 요청 ID 대신 새 요청 ID를 쓴다', (tester) async {
+    final repository = _TicketRepository(_ticketState(tickets: 1))
+      ..persistedPracticeRequestId = 'deadbeef-0000-4000-8000-000000000001';
+    await _pumpTicketState(tester, repository.state, repository: repository);
+
+    final practiceButton = find.byKey(const Key('practice-button'));
+    await tester.ensureVisible(practiceButton);
+    await tester.tap(practiceButton);
+    await tester.pumpAndSettle();
+
+    expect(repository.practiceRequestReuseExisting, [false]);
+    expect(repository.practiceRequestIds, hasLength(1));
+    expect(
+      repository.practiceRequestIds.single,
+      isNot('deadbeef-0000-4000-8000-000000000001'),
+    );
+    expect(find.byType(GameScreen), findsOneWidget);
+  });
+
+  testWidgets('게임에서 홈으로 돌아오면 서버 잔액으로 티켓 이펙트를 끝낸다', (tester) async {
+    final repository = _TicketRepository(_ticketState(tickets: 1));
+    await _pumpTicketState(tester, repository.state, repository: repository);
+
+    final practiceButton = find.byKey(const Key('practice-button'));
+    await tester.ensureVisible(practiceButton);
+    await tester.tap(practiceButton);
+    await tester.pumpAndSettle();
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('confirm-game-exit-button')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('practice-ticket-inline')),
+        matching: find.text('1'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('연습 후 홈에서 다시 시작하면 새 요청 ID로 다음 연습권을 쓴다', (tester) async {
@@ -1150,6 +1291,7 @@ class _TicketRepository extends PreviewDailyGameRepository {
   var dailyPracticeClaims = 0;
   var dailyChallengeClaims = 0;
   var rankedAdPrepareCalls = 0;
+  Completer<void>? rankedAdPrepareGate;
   var practiceAdPrepareCalls = 0;
   var practiceTicketClaims = 0;
   var rewardPendingOnce = false;
@@ -1166,6 +1308,9 @@ class _TicketRepository extends PreviewDailyGameRepository {
   Object? setNicknameError;
   Completer<void>? fetchGate;
   final practiceRequestIds = <String>[];
+  final practiceRequestReuseExisting = <bool>[];
+  String? persistedPracticeRequestId;
+  var _nextPracticeRequestSequence = 0;
   final purchaseRequestIds = <String>[];
   var shopPurchaseCalls = 0;
 
@@ -1186,6 +1331,8 @@ class _TicketRepository extends PreviewDailyGameRepository {
   @override
   Future<RewardedAdSession> prepareRewardedAd(DateTime expectedPlayDate) async {
     rankedAdPrepareCalls++;
+    final gate = rankedAdPrepareGate;
+    if (gate != null) await gate.future;
     return super.prepareRewardedAd(expectedPlayDate);
   }
 
@@ -1243,6 +1390,21 @@ class _TicketRepository extends PreviewDailyGameRepository {
   }
 
   @override
+  Future<String> getOrCreatePracticeRequestId(
+    DateTime expectedPlayDate, {
+    bool reuseExisting = true,
+  }) async {
+    practiceRequestReuseExisting.add(reuseExisting);
+    if (reuseExisting && persistedPracticeRequestId != null) {
+      return persistedPracticeRequestId!;
+    }
+    _nextPracticeRequestSequence++;
+    persistedPracticeRequestId =
+        '00000000-0000-4000-8000-${_nextPracticeRequestSequence.toString().padLeft(12, '0')}';
+    return persistedPracticeRequestId!;
+  }
+
+  @override
   Future<RewardedAdSession> preparePracticeAd(DateTime expectedPlayDate) async {
     practiceAdPrepareCalls++;
     return super.preparePracticeAd(expectedPlayDate);
@@ -1295,6 +1457,7 @@ class _TicketRepository extends PreviewDailyGameRepository {
 
 class _CountingAdService extends FakeRewardedAdService {
   var showCalls = 0;
+  Completer<RewardedAdOutcome>? showGate;
 
   @override
   Future<RewardedAdOutcome> show({
@@ -1302,6 +1465,8 @@ class _CountingAdService extends FakeRewardedAdService {
     required String verificationSessionId,
   }) async {
     showCalls++;
+    final gate = showGate;
+    if (gate != null) return gate.future;
     return super.show(
       userId: userId,
       verificationSessionId: verificationSessionId,

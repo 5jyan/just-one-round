@@ -34,6 +34,6 @@ void main() {
     expect(economy.coins, 40);
     expect(economy.experiencePoints, 100);
     expect(economy.level, 2);
-    expect(economy.experienceToNextLevel, 300);
+    expect(economy.experienceToNextLevel, 250);
   });
 }

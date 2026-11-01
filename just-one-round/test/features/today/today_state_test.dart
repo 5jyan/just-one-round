@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:just_one_round/features/games/lily_frog/domain/lily_frog_rules.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 
@@ -159,12 +160,29 @@ void main() {
       'minimum_supported_build': 2,
       'update_required': true,
       'store_url': 'https://example.com/store',
+      'reason': 'production_release_required',
     });
 
     expect(compatibility.updateRequired, isTrue);
     expect(compatibility.currentBuild, 1);
     expect(compatibility.minimumSupportedBuild, 2);
     expect(compatibility.storeUrl, 'https://example.com/store');
+    expect(compatibility.reason, 'production_release_required');
+
+    final genericUpdate = compatibility.requiringUpdate(
+      reason: 'unsupported_game',
+    );
+    expect(genericUpdate.updateRequired, isTrue);
+    expect(genericUpdate.storeUrl, 'https://example.com/store');
+    expect(genericUpdate.reason, 'unsupported_game');
+  });
+
+  test('시뮬레이터 미리보기는 실제 똥피하기와 빙글개굴 버전을 사용한다', () async {
+    final dung = PreviewDailyGameRepository(initialGameId: 'dung_dodge_v2');
+    final lily = PreviewDailyGameRepository(initialGameId: 'lily_frog');
+
+    expect((await dung.fetchToday()).game?.version, 1);
+    expect((await lily.fetchToday()).game?.version, LilyFrogRules.rulesVersion);
   });
 
   test('연습과 도전 선택 상태를 파싱한다', () {

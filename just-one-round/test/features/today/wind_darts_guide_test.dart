@@ -9,12 +9,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/app/theme/app_theme.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
+import 'package:just_one_round/features/games/wind_darts/presentation/wind_darts_presentation.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late ThemeData qcTheme;
 
+  test(
+    'wind darts guide copy states the verified controls, wind, rounds, and gold score',
+    () {
+      final pages = windDartsPresentation.guidePages;
+      expect(pages, hasLength(4));
+      expect(pages[0].title, '누르고, 조준하고, 놓으세요');
+      expect(pages[0].detail, contains('6초'));
+      expect(pages[0].detail, contains('파워가 아니에요'));
+      expect(pages[1].description, '화살표 방향으로 다트가 밀려요. 숫자가 클수록 더 많이 밀려요.');
+      expect(pages[2].title, '7라운드, 점점 더 멀리');
+      expect(pages[3].description, contains('S-BULL은 25점'));
+      expect(pages[3].detail, contains('마지막 GOLD는 점수가 2배'));
+      expect(pages[3].detail, contains('백그라운드'));
+    },
+  );
+
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
     final loader = FontLoader('Galmuri')
       ..addFont(rootBundle.load('assets/fonts/Galmuri11-Bold.ttf'));
     await loader.load();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -13,13 +14,16 @@ import 'package:just_one_round/features/gameplay/domain/game_result.dart';
 import 'package:just_one_round/features/gameplay/data/pending_score_submission.dart';
 import 'package:just_one_round/features/economy/domain/economy_transaction.dart';
 import 'package:just_one_round/features/economy/domain/player_economy.dart';
+import 'package:just_one_round/features/games/apple_game_v2/domain/apple_game_v2_rules.dart';
 import 'package:just_one_round/features/games/bathhouse_sort/domain/bathhouse_sort_rules.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
+import 'package:just_one_round/features/games/lily_frog/domain/lily_frog_rules.dart';
 import 'package:just_one_round/features/games/western_duel/domain/western_duel_opponent.dart';
 import 'package:just_one_round/features/games/wind_darts/domain/wind_darts_rules.dart';
 import 'package:just_one_round/features/games/wind_darts/domain/wind_darts_opponent.dart';
 import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
 import 'package:just_one_round/features/games/net_boat/domain/net_boat_rules.dart';
+import 'package:just_one_round/features/games/temple_run/domain/temple_run_rules.dart';
 import 'package:just_one_round/features/history/domain/play_history_entry.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_session.dart';
 import 'package:just_one_round/features/referral/domain/referral.dart';
@@ -27,10 +31,14 @@ import 'package:just_one_round/features/shop/domain/shop_purchase.dart';
 import 'package:just_one_round/features/social/domain/social_notification.dart';
 import 'package:just_one_round/features/today/data/pending_play_request.dart';
 import 'package:just_one_round/features/today/domain/daily_reset.dart';
+import 'package:just_one_round/features/today/domain/daily_nonplayer.dart';
 import 'package:just_one_round/features/today/domain/previous_daily_result.dart';
+import 'package:just_one_round/features/today/domain/level_up_reward.dart';
 import 'package:just_one_round/features/today/domain/tester_activation_result.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+const _untimedWindDartsVersions = <int>{3, WindDartsRules.rulesVersion};
 
 abstract interface class DailyGameRepository {
   Future<TodayState> fetchToday();
@@ -49,6 +57,10 @@ abstract interface class DailyGameRepository {
   Future<DailyRankResult?> retryPendingScore();
   Future<void> setNickname(String nickname);
   Future<DailyRankResult> fetchDailyRank({DateTime? playDate});
+  Future<DailyRankResult?> fetchPreviousGameWinner({
+    required String gameId,
+    required DateTime beforeDate,
+  });
   Future<List<PlayHistoryEntry>> fetchHistory();
   Future<PreviousDailyResult?> fetchUnseenPreviousDailyResult();
   Future<RewardGrant> acknowledgePreviousDailyResult(
@@ -64,10 +76,6 @@ abstract interface class DailyGameRepository {
     required String itemId,
     required String requestId,
   });
-  Future<ShopPurchaseResult> purchaseNicknameColor({
-    required String color,
-    required String requestId,
-  });
   Future<List<DeveloperGame>> fetchDeveloperGames();
   Future<String> submitSupportInquiry({
     required String message,
@@ -79,6 +87,47 @@ abstract interface class DailyGameRepository {
   Future<void> deactivateTestMode();
   Future<void> resetDeveloperDailyProgress();
   Future<void> setDeveloperGame(String gameId);
+}
+
+abstract interface class DailyNonplayersRepository {
+  Future<DailyNonplayersPage> fetchDailyNonplayers({
+    required DateTime playDate,
+    required String gameId,
+    String? afterUserId,
+  });
+}
+
+abstract interface class LevelUpRewardRepository {
+  Future<LevelUpReward?> fetchPendingLevelUpReward();
+
+  Future<void> acknowledgeLevelUpReward({
+    required int throughLevel,
+    required String expectedUserId,
+  });
+}
+
+class NoopLevelUpRewardRepository implements LevelUpRewardRepository {
+  const NoopLevelUpRewardRepository();
+
+  @override
+  Future<LevelUpReward?> fetchPendingLevelUpReward() async => null;
+
+  @override
+  Future<void> acknowledgeLevelUpReward({
+    required int throughLevel,
+    required String expectedUserId,
+  }) async {}
+}
+
+class NoopDailyNonplayersRepository implements DailyNonplayersRepository {
+  const NoopDailyNonplayersRepository();
+
+  @override
+  Future<DailyNonplayersPage> fetchDailyNonplayers({
+    required DateTime playDate,
+    required String gameId,
+    String? afterUserId,
+  }) async => const DailyNonplayersPage(players: [], nextCursor: null);
 }
 
 abstract interface class WesternDuelStartRepository {
@@ -94,7 +143,6 @@ abstract interface class FirstChallengeNicknamePromptRepository {
 }
 
 abstract interface class SocialRepository {
-  Future<void> setNicknameColor(String color);
   Future<void> setSocialNotificationsEnabled(bool enabled);
   Future<void> sendSocialAction({
     required String targetUserId,
@@ -124,7 +172,12 @@ class NoopSocialRepository implements SocialRepository {
   Future<void> giftShopItem({
     required String targetUserId,
     required String itemId,
-  }) async {}
+  }) async {
+    if (itemId == 'nickname_color_ticket') {
+      throw StateError('nickname color ticket is retired');
+    }
+  }
+
   @override
   Future<void> registerPushDevice({
     required String platform,
@@ -136,13 +189,14 @@ class NoopSocialRepository implements SocialRepository {
     required String action,
   }) async {}
   @override
-  Future<void> setNicknameColor(String color) async {}
-  @override
   Future<void> setSocialNotificationsEnabled(bool enabled) async {}
 }
 
 abstract interface class DailyPracticeRepository {
-  Future<String> getOrCreatePracticeRequestId(DateTime expectedPlayDate);
+  Future<String> getOrCreatePracticeRequestId(
+    DateTime expectedPlayDate, {
+    bool reuseExisting = true,
+  });
   Future<PlayAttempt> claimDailyPractice(
     DateTime expectedPlayDate, {
     required String requestId,
@@ -174,6 +228,24 @@ String createPlayRequestId({Random? random}) {
 final dailyGameRepositoryProvider = Provider<DailyGameRepository>(
   (ref) => PreviewDailyGameRepository(),
 );
+
+final dailyNonplayersRepositoryProvider = Provider<DailyNonplayersRepository>((
+  ref,
+) {
+  final repository = ref.watch(dailyGameRepositoryProvider);
+  return repository is DailyNonplayersRepository
+      ? repository as DailyNonplayersRepository
+      : const NoopDailyNonplayersRepository();
+});
+
+final levelUpRewardRepositoryProvider = Provider<LevelUpRewardRepository>((
+  ref,
+) {
+  final repository = ref.watch(dailyGameRepositoryProvider);
+  return repository is LevelUpRewardRepository
+      ? repository as LevelUpRewardRepository
+      : const NoopLevelUpRewardRepository();
+});
 
 final referralRepositoryProvider = Provider<ReferralRepository>((ref) {
   final repository = ref.watch(dailyGameRepositoryProvider);
@@ -214,6 +286,46 @@ final dailyRankProvider = FutureProvider.autoDispose
           .fetchDailyRank(playDate: playDate),
     );
 
+final previousGameWinnerProvider = FutureProvider.autoDispose
+    .family<DailyRankResult?, ({String gameId, DateTime beforeDate})>((
+      ref,
+      key,
+    ) async {
+      final keepAlive = ref.keepAlive();
+      final cachedAt = DateTime.now();
+      final cacheExpiresAt = cachedAt.add(
+        durationUntilNextDailyReset(cachedAt),
+      );
+      Timer? expiryTimer;
+      ref.onDispose(() {
+        expiryTimer?.cancel();
+        keepAlive.close();
+      });
+
+      try {
+        final result = await ref
+            .watch(dailyGameRepositoryProvider)
+            .fetchPreviousGameWinner(
+              gameId: key.gameId,
+              beforeDate: key.beforeDate,
+            );
+        if (!ref.mounted) return result;
+        final expiryDelay = cacheExpiresAt.difference(DateTime.now());
+        expiryTimer = Timer(
+          expiryDelay.isNegative ? Duration.zero : expiryDelay,
+          () {
+            if (!ref.mounted) return;
+            keepAlive.close();
+            ref.invalidateSelf();
+          },
+        );
+        return result;
+      } catch (_) {
+        keepAlive.close();
+        rethrow;
+      }
+    });
+
 ClientCompatibility? unsupportedGameCompatibilityFor(
   TodayState state,
   ClientCompatibility compatibility,
@@ -241,6 +353,8 @@ class AppUpdateRequiredException implements Exception {
 class SupabaseDailyGameRepository
     implements
         DailyGameRepository,
+        DailyNonplayersRepository,
+        LevelUpRewardRepository,
         DailyPracticeRepository,
         LocalPracticeAdVerificationRepository,
         AppUpdateRewardRepository,
@@ -257,6 +371,7 @@ class SupabaseDailyGameRepository
     PendingPlayRequestStore? pendingPlayRequestStore,
     Future<String> Function()? deviceHashLoader,
     SharedTestProfileConfig? sharedTestProfile,
+    this.isFirebaseTestLab = false,
   }) : _deviceHashLoader = deviceHashLoader ?? readDeviceInstallHash,
        _pendingStore = pendingStore ?? SharedPreferencesPendingScoreStore(),
        _pendingPlayRequestStore =
@@ -278,6 +393,7 @@ class SupabaseDailyGameRepository
   final Future<String> Function() _deviceHashLoader;
   final PendingScoreStore _pendingStore;
   final PendingPlayRequestStore _pendingPlayRequestStore;
+  final bool isFirebaseTestLab;
   final AnonymousSessionGuard _sessionGuard;
   late final DeviceRegistrationGuard _deviceRegistration =
       DeviceRegistrationGuard(
@@ -464,8 +580,13 @@ class SupabaseDailyGameRepository
   }
 
   @override
-  Future<String> getOrCreatePracticeRequestId(DateTime expectedPlayDate) async {
-    final saved = await _pendingPlayRequestStore.load(expectedPlayDate);
+  Future<String> getOrCreatePracticeRequestId(
+    DateTime expectedPlayDate, {
+    bool reuseExisting = true,
+  }) async {
+    final saved = reuseExisting
+        ? await _pendingPlayRequestStore.load(expectedPlayDate)
+        : null;
     if (saved != null) return saved;
     final requestId = createPlayRequestId();
     await _pendingPlayRequestStore.save(expectedPlayDate, requestId);
@@ -495,9 +616,11 @@ class SupabaseDailyGameRepository
       'confirm_western_duel_started',
       params: {'play_reference_id': attempt.id},
     );
-    return WesternDuelOpponent.fromJson(
+    final opponent = WesternDuelOpponent.fromJson(
       Map<String, dynamic>.from(response as Map),
     );
+    await _clearPendingPracticeRequest(attempt);
+    return opponent;
   }
 
   @override
@@ -511,10 +634,19 @@ class SupabaseDailyGameRepository
     if (attemptVersion == null) {
       throw const FormatException('Wind darts attempt version is missing');
     }
-    return WindDartsOpponent.fromJson(
+    final opponent = WindDartsOpponent.fromJson(
       Map<String, dynamic>.from(response as Map),
       attemptVersion: attemptVersion,
     );
+    await _clearPendingPracticeRequest(attempt);
+    return opponent;
+  }
+
+  Future<void> _clearPendingPracticeRequest(PlayAttempt attempt) async {
+    final requestId = attempt.clientRequestId;
+    final playDate = attempt.playDate;
+    if (requestId == null || playDate == null) return;
+    await _pendingPlayRequestStore.remove(playDate, requestId);
   }
 
   @override
@@ -755,12 +887,6 @@ class SupabaseDailyGameRepository
   }
 
   @override
-  Future<void> setNicknameColor(String color) async {
-    await _ensureSignedIn();
-    await _client.rpc('set_my_nickname_color', params: {'new_color': color});
-  }
-
-  @override
   Future<void> setSocialNotificationsEnabled(bool enabled) async {
     await _ensureSignedIn();
     await _client.rpc(
@@ -774,6 +900,7 @@ class SupabaseDailyGameRepository
     required String targetUserId,
     required String action,
   }) async {
+    if (isFirebaseTestLab) return;
     await _ensureSignedIn();
     await _client.rpc(
       'send_social_action',
@@ -790,6 +917,10 @@ class SupabaseDailyGameRepository
     required String targetUserId,
     required String itemId,
   }) async {
+    if (itemId == 'nickname_color_ticket') {
+      throw StateError('nickname color ticket is retired');
+    }
+    if (isFirebaseTestLab) return;
     await _ensureSignedIn();
     await _client.rpc(
       'gift_shop_item',
@@ -849,6 +980,43 @@ class SupabaseDailyGameRepository
   }
 
   @override
+  Future<DailyRankResult?> fetchPreviousGameWinner({
+    required String gameId,
+    required DateTime beforeDate,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'get_previous_game_winner',
+      params: {
+        'target_game_id': gameId,
+        'before_date': playDateParameter(beforeDate),
+      },
+    );
+    if (response == null) return null;
+    return DailyRankResult.fromJson(Map<String, dynamic>.from(response as Map));
+  }
+
+  @override
+  Future<DailyNonplayersPage> fetchDailyNonplayers({
+    required DateTime playDate,
+    required String gameId,
+    String? afterUserId,
+  }) async {
+    await _ensureSignedIn();
+    final response = await _client.rpc(
+      'get_daily_nonplayers',
+      params: {
+        'target_date': playDateParameter(playDate),
+        'target_game_id': gameId,
+        'after_user_id': ?afterUserId,
+      },
+    );
+    return DailyNonplayersPage.fromJson(
+      Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
   Future<List<PlayHistoryEntry>> fetchHistory() async {
     await _ensureSignedIn();
     final response = await _client.rpc(
@@ -870,6 +1038,35 @@ class SupabaseDailyGameRepository
     if (response == null) return null;
     return PreviousDailyResult.fromJson(
       Map<String, dynamic>.from(response as Map),
+    );
+  }
+
+  @override
+  Future<LevelUpReward?> fetchPendingLevelUpReward() async {
+    await _ensureSignedIn();
+    final raw = await _client.rpc('get_pending_level_up_reward');
+    if (raw == null) return null;
+    final value = raw is List ? (raw.isEmpty ? null : raw.first) : raw;
+    if (value is! Map) return null;
+    return LevelUpReward.fromJson(Map<String, dynamic>.from(value));
+  }
+
+  @override
+  Future<void> acknowledgeLevelUpReward({
+    required int throughLevel,
+    required String expectedUserId,
+  }) async {
+    await _ensureSignedIn();
+    final currentUserId = _client.auth.currentUser?.id;
+    if (currentUserId != expectedUserId) {
+      throw StateError('account changed before acknowledging level-up reward');
+    }
+    await _client.rpc(
+      'acknowledge_level_up_reward',
+      params: {
+        'through_level': throughLevel,
+        'expected_user_id': expectedUserId,
+      },
     );
   }
 
@@ -912,25 +1109,13 @@ class SupabaseDailyGameRepository
     required String itemId,
     required String requestId,
   }) async {
+    if (itemId == 'nickname_color_ticket') {
+      throw StateError('nickname color ticket is retired');
+    }
     await _ensureSignedIn();
     final response = await _client.rpc(
       'purchase_shop_item',
       params: {'item_id': itemId, 'purchase_request_id': requestId},
-    );
-    return ShopPurchaseResult.fromJson(
-      Map<String, dynamic>.from(response as Map),
-    );
-  }
-
-  @override
-  Future<ShopPurchaseResult> purchaseNicknameColor({
-    required String color,
-    required String requestId,
-  }) async {
-    await _ensureSignedIn();
-    final response = await _client.rpc(
-      'purchase_nickname_color',
-      params: {'new_color': color, 'purchase_request_id': requestId},
     );
     return ShopPurchaseResult.fromJson(
       Map<String, dynamic>.from(response as Map),
@@ -1042,11 +1227,11 @@ List<PlayAttempt> issuedAttemptsWithoutPending(
 }
 
 bool _isStaleIssuedAttempt(PlayAttempt attempt, DateTime now) {
-  // v3 has no player-facing timer. Never expire its issued attempt from a
-  // state refresh; explicit interruption and the server's daily deadline keep
-  // their existing authority.
+  // Wind Darts v3/v4 has no player-facing timer. Never expire its issued
+  // attempt from a state refresh; explicit interruption and the server's
+  // daily deadline keep their existing authority.
   if (attempt.gameId == 'wind_darts' &&
-      attempt.gameVersion == WindDartsRules.rulesVersion) {
+      _untimedWindDartsVersions.contains(attempt.gameVersion)) {
     return false;
   }
 
@@ -1099,6 +1284,8 @@ Future<T> refreshStateAfterPendingRetry<T, R>({
 class PreviewDailyGameRepository
     implements
         DailyGameRepository,
+        DailyNonplayersRepository,
+        LevelUpRewardRepository,
         DailyPracticeRepository,
         AppUpdateRewardRepository,
         ChuseokGiftRepository,
@@ -1113,7 +1300,9 @@ class PreviewDailyGameRepository
     this.compatibility = const ClientCompatibility.supported(),
     this.initialEconomy = const PlayerEconomy.zero(),
     String initialGameId = 'dung_dodge_v2',
-  }) : _selectedGameId = initialGameId;
+  }) : _selectedGameId = initialGameId,
+       _levelRewardedThrough = initialEconomy.level,
+       _levelCelebrationSeenThrough = initialEconomy.level;
 
   bool testMode;
   final ClientCompatibility compatibility;
@@ -1121,15 +1310,19 @@ class PreviewDailyGameRepository
   late PlayerEconomy _economy = initialEconomy;
   var _storePracticeTickets = 0;
   var _storeChallengeTickets = 0;
-  var _storeNicknameColorTickets = 0;
   var _storeNicknameChangeTickets = 0;
-  var _nicknameColor = 'default';
+  final int _levelRewardedThrough;
+  int _levelCelebrationSeenThrough;
   String _selectedGameId;
 
   static const _games = [
     DeveloperGame(id: 'dung_dodge_v2', version: 1, displayName: '똥피하기'),
     DeveloperGame(id: 'gravity_switch', version: 1, displayName: '중력 스위치'),
-    DeveloperGame(id: 'apple_game_v2', version: 1, displayName: '사과게임'),
+    DeveloperGame(
+      id: 'apple_game_v2',
+      version: AppleGameV2Rules.rulesVersion,
+      displayName: '사과게임',
+    ),
     DeveloperGame(id: 'number_rush', version: 1, displayName: '탭50'),
     DeveloperGame(id: 'mole_reaction', version: 1, displayName: '두더지 반응속도'),
     DeveloperGame(id: 'western_duel', version: 1, displayName: '딱 한 발만'),
@@ -1152,11 +1345,20 @@ class PreviewDailyGameRepository
       version: BathhouseSortRules.rulesVersion,
       displayName: '남탕! 여탕!',
     ),
-    DeveloperGame(id: 'lily_frog', version: 3, displayName: '빙글개굴'),
+    DeveloperGame(
+      id: 'lily_frog',
+      version: LilyFrogRules.rulesVersion,
+      displayName: '빙글개굴',
+    ),
     DeveloperGame(
       id: 'net_boat',
       version: NetBoatRules.rulesVersion,
       displayName: '만선호',
+    ),
+    DeveloperGame(
+      id: 'temple_run',
+      version: TempleRunRules.rulesVersion,
+      displayName: '집에 좀 가자',
     ),
   ];
 
@@ -1178,11 +1380,11 @@ class PreviewDailyGameRepository
     nickname: testMode ? 'tester' : null,
     compatibility: compatibility,
     economy: _economy,
+    levelRewardedThrough: _levelRewardedThrough,
+    levelCelebrationSeenThrough: _levelCelebrationSeenThrough,
     storePracticeTickets: _storePracticeTickets,
     storeChallengeTickets: _storeChallengeTickets,
-    storeNicknameColorTickets: _storeNicknameColorTickets,
     storeNicknameChangeTickets: _storeNicknameChangeTickets,
-    nicknameColor: _nicknameColor,
     coinAdAvailable: !testMode,
     tomorrow: TomorrowGame(
       playDate: dailyPlayDateAt(DateTime.now()).add(const Duration(days: 1)),
@@ -1303,8 +1505,11 @@ class PreviewDailyGameRepository
 
   @override
   Future<String> getOrCreatePracticeRequestId(
-    DateTime expectedPlayDate,
-  ) async => createPlayRequestId();
+    DateTime expectedPlayDate, {
+    bool reuseExisting = true,
+  }) async {
+    return createPlayRequestId();
+  }
 
   @override
   Future<void> confirmPlayStarted(PlayAttempt attempt) async {}
@@ -1404,7 +1609,7 @@ class PreviewDailyGameRepository
     PlayAttempt attempt,
   ) async => const WindDartsOpponent(
     nickname: '서부의 단골',
-    shotScores: [45, 60, 39, 57, 60, 60],
+    shotScores: [7, 19, 10, 20, 6, 9, 22],
     isBot: true,
   );
 
@@ -1440,19 +1645,6 @@ class PreviewDailyGameRepository
   Future<void> setNickname(String nickname) async {}
 
   @override
-  Future<void> setNicknameColor(String color) async {
-    const selectableColors = {'coral', 'mint', 'sky', 'violet', 'pink'};
-    if (!selectableColors.contains(color) || color == _nicknameColor) {
-      throw StateError('invalid nickname color');
-    }
-    if (_storeNicknameColorTickets <= 0) {
-      throw StateError('nickname color ticket is not available');
-    }
-    _storeNicknameColorTickets--;
-    _nicknameColor = color;
-  }
-
-  @override
   Future<void> setSocialNotificationsEnabled(bool enabled) async {}
 
   @override
@@ -1465,7 +1657,11 @@ class PreviewDailyGameRepository
   Future<void> giftShopItem({
     required String targetUserId,
     required String itemId,
-  }) async {}
+  }) async {
+    if (itemId == 'nickname_color_ticket') {
+      throw StateError('nickname color ticket is retired');
+    }
+  }
 
   @override
   Future<List<SocialNotification>> fetchUnseenSocialNotifications() async =>
@@ -1488,6 +1684,40 @@ class PreviewDailyGameRepository
       return _previewPreviousRankResult(_selectedGameId);
     }
     return result;
+  }
+
+  @override
+  Future<DailyRankResult?> fetchPreviousGameWinner({
+    required String gameId,
+    required DateTime beforeDate,
+  }) async => _previewPreviousRankResult(gameId);
+
+  @override
+  Future<DailyNonplayersPage> fetchDailyNonplayers({
+    required DateTime playDate,
+    required String gameId,
+    String? afterUserId,
+  }) async {
+    if (afterUserId != null) {
+      return const DailyNonplayersPage(players: [], nextCursor: null);
+    }
+    return const DailyNonplayersPage(
+      players: [
+        DailyNonplayer(
+          userId: '90000000-0000-4000-8000-000000000001',
+          nickname: '연습중인감자',
+          nicknameColor: 'mint',
+          level: 3,
+        ),
+        DailyNonplayer(
+          userId: '90000000-0000-4000-8000-000000000002',
+          nickname: '오늘은관전',
+          nicknameColor: 'default',
+          level: 1,
+        ),
+      ],
+      nextCursor: null,
+    );
   }
 
   DailyRankResult _previewPreviousRankResult(String gameId) =>
@@ -1526,6 +1756,35 @@ class PreviewDailyGameRepository
   Future<PreviousDailyResult?> fetchUnseenPreviousDailyResult() async => null;
 
   @override
+  Future<LevelUpReward?> fetchPendingLevelUpReward() async {
+    if (_levelRewardedThrough <= _levelCelebrationSeenThrough) return null;
+    final fromLevel = max(1, _levelCelebrationSeenThrough);
+    return LevelUpReward(
+      userId: 'preview-user',
+      fromLevel: fromLevel,
+      toLevel: _levelRewardedThrough,
+      challengeTickets: max(0, _levelRewardedThrough - fromLevel),
+    );
+  }
+
+  @override
+  Future<void> acknowledgeLevelUpReward({
+    required int throughLevel,
+    required String expectedUserId,
+  }) async {
+    if (expectedUserId != 'preview-user') {
+      throw StateError('account changed before acknowledging level-up reward');
+    }
+    if (throughLevel < 1 || throughLevel > _levelRewardedThrough) {
+      throw StateError('invalid level acknowledgement');
+    }
+    _levelCelebrationSeenThrough = max(
+      _levelCelebrationSeenThrough,
+      throughLevel,
+    );
+  }
+
+  @override
   Future<RewardGrant> acknowledgePreviousDailyResult(
     DateTime playDate,
     String gameId,
@@ -1556,7 +1815,6 @@ class PreviewDailyGameRepository
     final price = switch (itemId) {
       'practice_ticket' => ShopCatalog.practiceTicketPrice,
       'challenge_ticket' => ShopCatalog.challengeTicketPrice,
-      'nickname_color_ticket' => ShopCatalog.nicknameColorTicketPrice,
       'nickname_change_ticket' => ShopCatalog.nicknameChangeTicketPrice,
       _ => throw StateError('unknown shop item'),
     };
@@ -1571,8 +1829,6 @@ class PreviewDailyGameRepository
       _storePracticeTickets++;
     } else if (itemId == 'challenge_ticket') {
       _storeChallengeTickets++;
-    } else if (itemId == 'nickname_color_ticket') {
-      _storeNicknameColorTickets++;
     } else {
       _storeNicknameChangeTickets++;
     }
@@ -1582,40 +1838,6 @@ class PreviewDailyGameRepository
       coinsSpent: price,
       practiceTickets: _storePracticeTickets,
       challengeTickets: _storeChallengeTickets,
-      nicknameColorTickets: _storeNicknameColorTickets,
-      nicknameChangeTickets: _storeNicknameChangeTickets,
-      economy: _economy,
-    );
-  }
-
-  @override
-  Future<ShopPurchaseResult> purchaseNicknameColor({
-    required String color,
-    required String requestId,
-  }) async {
-    const selectableColors = {'coral', 'mint', 'sky', 'violet', 'pink'};
-    if (!selectableColors.contains(color)) {
-      throw StateError('invalid nickname color');
-    }
-    if (color == _nicknameColor) {
-      throw StateError('nickname color is already selected');
-    }
-    final price = ShopCatalog.nicknameColorTicketPrice;
-    if (_economy.coins < price) {
-      throw StateError('insufficient coin balance');
-    }
-    _economy = PlayerEconomy.fromTotals(
-      coins: _economy.coins - price,
-      experiencePoints: _economy.experiencePoints,
-    );
-    _nicknameColor = color;
-    return ShopPurchaseResult(
-      itemId: 'nickname_color_ticket',
-      quantity: 1,
-      coinsSpent: price,
-      practiceTickets: _storePracticeTickets,
-      challengeTickets: _storeChallengeTickets,
-      nicknameColorTickets: _storeNicknameColorTickets,
       nicknameChangeTickets: _storeNicknameChangeTickets,
       economy: _economy,
     );
@@ -1680,7 +1902,7 @@ class PreviewDailyGameRepository
   TodayGame _previewGame(String gameId) => switch (gameId) {
     'dung_dodge_v2' => const TodayGame(
       id: 'dung_dodge_v2',
-      version: 2,
+      version: 1,
       displayName: '똥피하기',
       description: '좌우로 움직여 떨어지는 똥을 피하세요.',
       durationSeconds: 300,
@@ -1694,7 +1916,7 @@ class PreviewDailyGameRepository
     ),
     'apple_game_v2' => const TodayGame(
       id: 'apple_game_v2',
-      version: 1,
+      version: AppleGameV2Rules.rulesVersion,
       displayName: '사과게임',
       description: '달빛 과수원에서 사과 숫자의 합을 10으로 만들어 최대한 많이 지우세요.',
       durationSeconds: 140,
@@ -1771,7 +1993,7 @@ class PreviewDailyGameRepository
     ),
     'lily_frog' => const TodayGame(
       id: 'lily_frog',
-      version: 3,
+      version: LilyFrogRules.rulesVersion,
       displayName: '빙글개굴',
       description: '연잎 가장자리를 도는 개구리를 접선 방향으로 점프시켜 연못을 건너세요.',
       durationSeconds: 150,
@@ -1782,6 +2004,13 @@ class PreviewDailyGameRepository
       displayName: '만선호',
       description: '빠른 통통배로 위험한 바다생물을 피해 더 크고 비싼 생물을 그물로 잡으세요.',
       durationSeconds: NetBoatRules.gameDurationSeconds,
+    ),
+    'temple_run' => const TodayGame(
+      id: 'temple_run',
+      version: TempleRunRules.rulesVersion,
+      displayName: '집에 좀 가자',
+      description: '덮개 자재와 작업발판을 피해 골목을 달리고 차단대를 뛰어넘어 집에 도착하세요.',
+      durationSeconds: 300,
     ),
     _ => throw UnsupportedError('Unsupported preview game id: $gameId'),
   };

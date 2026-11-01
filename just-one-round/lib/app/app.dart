@@ -21,6 +21,7 @@ import 'package:just_one_round/features/social/domain/social_notification.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:just_one_round/features/today/presentation/today_screen.dart';
+import 'package:just_one_round/features/today/presentation/level_up_reward_dialog.dart';
 import 'package:just_one_round/shared/widgets/pixel_button.dart';
 import 'package:just_one_round/shared/widgets/pixel_panel.dart';
 import 'package:just_one_round/shared/widgets/word_safe_text.dart';
@@ -209,7 +210,13 @@ class _AppContentState extends ConsumerState<_AppContent>
         StartupIntro(
           ready: _criticalOtaReady && (today.hasValue || today.hasError),
           onFinished: _handleStartupFinished,
-          child: widget.child,
+          child: LevelUpCelebrationGate(
+            ready:
+                _mainPageVisible &&
+                !_startupModalFlowActive &&
+                _criticalOtaRestartMessage == null,
+            child: widget.child,
+          ),
         ),
         if (_criticalOtaRestartMessage case final message?
             when !requiresStoreUpdate)
@@ -234,7 +241,7 @@ class _AppContentState extends ConsumerState<_AppContent>
 
   void _handleStartupFinished() {
     if (_mainPageVisible || _criticalOtaRestartMessage != null) return;
-    _mainPageVisible = true;
+    setState(() => _mainPageVisible = true);
     unawaited(_initializeRewardedAds());
     final today = ref.read(todayStateProvider).value;
     unawaited(
@@ -250,7 +257,7 @@ class _AppContentState extends ConsumerState<_AppContent>
   }
 
   Future<void> _showStartupModals() async {
-    _startupModalFlowActive = true;
+    setState(() => _startupModalFlowActive = true);
     try {
       await _showSocialInbox();
       // A cold-start notification tap has priority over every other startup
@@ -264,7 +271,7 @@ class _AppContentState extends ConsumerState<_AppContent>
       if (!mounted || _pushTapPending) return;
       await _maybeShowPushOptInReward();
     } finally {
-      _startupModalFlowActive = false;
+      if (mounted) setState(() => _startupModalFlowActive = false);
       if (_pushOptInRewardResumePending && mounted) {
         unawaited(_retryPushOptInRewardAfterResume());
       }

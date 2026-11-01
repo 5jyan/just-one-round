@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_one_round/features/gameplay/data/pending_score_submission.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/games/wind_darts/domain/wind_darts_rules.dart';
 import 'package:just_one_round/features/today/data/daily_game_repository.dart';
 import 'package:just_one_round/features/today/domain/today_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -303,6 +304,38 @@ void main() {
       ),
       isEmpty,
     );
+    expect(
+      issuedAttemptsWithoutPending(
+        state,
+        const {},
+        now: DateTime.utc(2026, 8, 1, 0, 3, 15),
+      ),
+      isEmpty,
+    );
+  });
+
+  test('v4 무제한 시도도 stale cleanup에서 만료하지 않는다', () {
+    final state = TodayState(
+      playDate: DateTime(2026, 8, 1),
+      game: null,
+      attempts: [
+        PlayAttempt(
+          id: 'wind-v4-attempt',
+          ordinal: 4,
+          status: 'issued',
+          grantType: 'daily',
+          gameId: 'wind_darts',
+          gameVersion: WindDartsRules.rulesVersion,
+          gameDurationSeconds: 75,
+          issuedAt: DateTime.utc(2026, 8, 1),
+        ),
+      ],
+      adAttemptAvailable: false,
+      testMode: false,
+      result: null,
+      nickname: null,
+    );
+
     expect(
       issuedAttemptsWithoutPending(
         state,
