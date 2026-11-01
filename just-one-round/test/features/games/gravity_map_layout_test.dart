@@ -22,7 +22,7 @@ void main() {
 
     expect(layout.columnWidth, 48);
     expect(layout.initialColumnCount, 12);
-    expect(layout.patterns, hasLength(20));
+    expect(layout.patterns, hasLength(21));
     expect(layout.patterns.first.id, 'basic_easy');
     expect(layout.patterns.first.columns, hasLength(15));
 
@@ -30,7 +30,36 @@ void main() {
     expect(v.unlockAfterSeconds, 0);
     expect(v.columns, hasLength(15));
 
-    final testPattern = layout.patterns.singleWhere(
+    const syntheticSource = '''
+{
+  "cellSize": 48,
+  "baseCeilingHeight": 128,
+  "baseFloorHeight": 128,
+  "initialColumnCount": 4,
+  "patterns": [
+    {
+      "id": "playable",
+      "unlockAfterSeconds": 0,
+      "mapFile": "patterns/playable.map"
+    },
+    {
+      "id": "test",
+      "unlockAfterSeconds": 0,
+      "testOnly": true,
+      "mapFile": "patterns/test.map"
+    }
+  ]
+}
+''';
+    final syntheticLayout = GravityMapLayout.fromJsonString(
+      syntheticSource,
+      mapFiles: const {
+        'patterns/playable.map': '□□□□□\n□□□□□\n□□□□□',
+        'patterns/test.map':
+            '□□□□□\n□□□□□\n□□□□□\n□□□□□\n□□□□■\n□□□□□\n□□□□□\n□□□□□\n□□□□□\n□□□□□\n□□□□□\n□□□□□',
+      },
+    );
+    final testPattern = syntheticLayout.patterns.singleWhere(
       (pattern) => pattern.id == 'test',
     );
     expect(testPattern.testOnly, isTrue);
