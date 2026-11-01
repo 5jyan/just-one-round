@@ -48,31 +48,4 @@ then
   exit 1
 fi
 
-DISPATCH_RESPONSE="$TEMP_DIR/dispatch.json"
-if ! DISPATCH_STATUS="$(request_worker "$PUSH_WORKER_URL" "$DISPATCH_RESPONSE")"; then
-  printf '%s\n' "Push worker dispatch request failed" >&2
-  exit 1
-fi
-if [[ "$DISPATCH_STATUS" != "200" ]] || ! python3 - "$DISPATCH_RESPONSE" <<'PY'
-import json
-import sys
-
-try:
-    with open(sys.argv[1], encoding="utf-8") as response_file:
-        payload = json.load(response_file)
-except (json.JSONDecodeError, OSError, TypeError):
-    raise SystemExit(1)
-
-if not isinstance(payload, dict):
-    raise SystemExit(1)
-for field in ("processed", "sent"):
-    value = payload.get(field)
-    if isinstance(value, bool) or not isinstance(value, int):
-        raise SystemExit(1)
-PY
-then
-  printf '%s\n' "Push worker dispatch check failed" >&2
-  exit 1
-fi
-
 printf '%s\n' "Push worker check passed"

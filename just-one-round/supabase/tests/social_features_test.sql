@@ -13,19 +13,29 @@ where id = '26262626-2626-4262-8262-262626262626';
 select set_config('request.jwt.claim.sub', '25252525-2525-4252-8252-252525252525', true);
 set local role authenticated;
 
-select is(public.purchase_nickname_color('mint',
-  'bbbbbbbb-0000-4000-8000-000000000001')->>'coins', '300',
-  'choosing a nickname color spends 300 coins');
-select is(public.purchase_nickname_color('mint',
-  'bbbbbbbb-0000-4000-8000-000000000001')->>'nickname_color', 'mint',
-  'a color purchase applies a permanent nickname color');
+select throws_ok(
+  $$ select public.purchase_nickname_color(
+    'mint', 'bbbbbbbb-0000-4000-8000-000000000001'
+  ) $$,
+  'P0001',
+  'nickname color purchases are retired',
+  'new nickname color purchases are retired'
+);
+select throws_ok(
+  $$ select public.purchase_nickname_color(
+    'mint', 'bbbbbbbb-0000-4000-8000-000000000001'
+  ) $$,
+  'P0001',
+  'nickname color purchases are retired',
+  'a new color purchase retry is still rejected without a debit'
+);
 select is((select store_nickname_color_tickets::text from public.profiles
   where id = '25252525-2525-4252-8252-252525252525'), '0',
-  'applying a color consumes one ticket');
+  'retired color purchases do not grant or consume tickets');
 select throws_ok(
   $$ select public.set_my_nickname_color('default') $$,
-  'P0001', 'invalid nickname color',
-  'a selected nickname color cannot be reset for free');
+  'P0001', 'nickname colors are determined by level',
+  'the legacy nickname color selector is retired');
 
 select public.purchase_shop_item('practice_ticket',
   'bbbbbbbb-0000-4000-8000-000000000002');

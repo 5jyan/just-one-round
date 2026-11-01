@@ -59,7 +59,7 @@ class NearbyRanking extends StatelessWidget {
                     child: WordSafeText(
                       item.nickname,
                       style: TextStyle(
-                        color: NicknameColors.resolve(item.nicknameColor),
+                        color: NicknameColors.forLevel(item.level),
                         fontWeight: FontWeight.w800,
                       ),
                     ),

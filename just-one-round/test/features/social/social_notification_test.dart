@@ -41,6 +41,34 @@ void main() {
     expect(notification.message, '홈런왕님은 기록이 104.65m로 오늘 1등으로 자랑했어요.');
   });
 
+  test('자랑 문구는 딱 한 발 점수를 소수 셋째 자리 초로 변환한다', () {
+    final notification = SocialNotification(
+      id: 'western-notice',
+      actionType: 'boast',
+      senderNickname: '총잡이',
+      senderRank: 1,
+      senderScore: 999650,
+      senderGameId: 'western_duel',
+      createdAt: DateTime(2026, 8, 21),
+    );
+
+    expect(notification.message, '총잡이님은 기록이 0.350초로 오늘 1등으로 자랑했어요.');
+  });
+
+  test('자랑 문구는 두더지 점수를 밀리초로 변환한다', () {
+    final notification = SocialNotification(
+      id: 'mole-notice',
+      actionType: 'boast',
+      senderNickname: '두더지왕',
+      senderRank: 2,
+      senderScore: 999650,
+      senderGameId: 'mole_reaction',
+      createdAt: DateTime(2026, 8, 21),
+    );
+
+    expect(notification.message, '두더지왕님은 기록이 350ms로 오늘 2등으로 자랑했어요.');
+  });
+
   test('이전 알림도 새 점수 필드가 없어도 읽을 수 있다', () {
     final notification = SocialNotification.fromJson({
       'id': 'legacy',
