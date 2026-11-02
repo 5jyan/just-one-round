@@ -32,6 +32,13 @@ Deno.serve(async (request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  const { error: duelError } = await adminClient.rpc("void_duels_for_account", {
+    target_user_id: data.user.id,
+  });
+  if (duelError) {
+    console.error("Duel cleanup failed", duelError);
+    return response({ error: "Account could not be deleted" }, 500);
+  }
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(
     data.user.id,
   );
