@@ -43,7 +43,7 @@
 
 ### 만들기
 
-랭킹·미참여 유저의 기존 상대 액션 진입점을 재사용한다. 현재 `_RankActionSheet`는 플레이어에게 찌르기·자랑하기·선물하기를 제공하므로, 여기에 `1:1 대결` 진입을 추가한다 ([랭킹 액션 화면](../lib/features/today/presentation/today_screen.dart)).
+대결 신청은 오늘의 랭킹에서 상대를 선택했을 때만 제공한다. `_RankActionSheet`에 `1:1 대결`을 추가하며, 미참여 유저 목록에는 신청을 제공하지 않는다. 홈의 대결 목록은 받은 요청과 결과를 확인하는 용도로 유지한다 ([랭킹 액션 화면](../lib/features/today/presentation/today_screen.dart)).
 
 신청 화면은 상대, 게임, 내기 금액을 보여준다. 금액은 `−10`, `+10`으로 조정하고 서버가 positive integer이며 10의 배수인지 다시 검사한다. 추천 초기값을 사용할 때 UI 범위는 10~200이지만, 200은 기존 상한을 자동 확정하는 값이 아니다. 사용 가능 잔액에 맞춰 선택 가능한 금액을 클램프하되 상대 잔액은 절대 공개하지 않는다.
 
@@ -51,7 +51,7 @@
 
 방 상세는 서버가 반환한 상태를 단일 source of truth로 그린다. 화면에 보이는 READY·로딩·입장 표시는 낙관적으로 시작할 수 있지만, 자동 시작·차감·결과는 서버 응답이 확인된 경우에만 반영한다.
 
-신청 RPC가 초대 전용 방과 매치를 함께 만든다. 신청자는 자동 입장하고, 두 run의 입장 상태는 아직 `ready`가 아니다. 요청 시점에는 양쪽 코인을 차감하지 않는다.
+신청 RPC가 초대 전용 방과 매치를 함께 만든다. 신청자는 자동 입장하고, `duel_runs`에 두 참가자 행을 `ready=false`와 함께 만든다. 이때는 실행 token·seed·실행 시각을 발급하지 않는다. 요청 시점에는 양쪽 코인을 차감하지 않는다.
 
 ### 입장
 
@@ -67,7 +67,7 @@
 
 1. 양쪽 S를 동시에 escrow 차감
 2. 공통 server seed와 immutable game/rules/runtime snapshot 발급
-3. 두 run 생성
+3. 기존 두 run 행에 각자의 단회 실행 token과 공통 실행 상태 발급
 4. `start_at = server_now + 3초` 계산
 5. 매치를 `starting`으로 전환하고 start event 발행
 
@@ -79,7 +79,7 @@
 
 ### 이탈과 기한
 
-시작 확정 전 명시적 leave, 초대 거절, 취소, waiting TTL 만료는 코인 차감 없이 방을 종료한다. 시작 전 네트워크 lease가 만료되면 두 READY를 해제하고 waiting 방을 TTL 안에 유지한다. 재입장한 두 사람이 다시 로딩한 뒤 새 READY를 눌러야 한다. 이전 session generation·room revision의 늦은 heartbeat·READY packet은 거부한다.
+시작 확정 전 명시적 leave, 초대 거절, 취소, waiting TTL 만료는 코인 차감 없이 방을 종료한다. 둘째 READY 커밋부터 공통 3초 countdown과 `start_at` 도달 전 구간의 이탈은 기권(forfeit)이다. 시작 전 네트워크 lease가 만료되면 두 READY를 해제하고 waiting 방을 TTL 안에 유지한다. 재입장한 두 사람이 다시 로딩한 뒤 새 READY를 눌러야 한다. 이전 session generation·room revision의 늦은 heartbeat·READY packet은 거부한다.
 
 start event가 늦게 도착해도 `start_at` 이전이고 해당 run이 아직 실행 중이 아니면 기존 run으로 참여한다. `start_at`이 지난 뒤 아직 실행되지 않은 run에 늦게 처음 입장하는 것은 허용하지 않으며 새 seed, 시계 초기화, 새 판 발급도 하지 않는다.
 
@@ -112,7 +112,7 @@ start event가 늦게 도착해도 `start_at` 이전이고 해당 run이 아직 
 
 ## 5. 공정한 실행과 점수
 
-서버는 두 run에 같은 seed, `attempt_ordinal = 1`, game ID/version, duel rules revision, runtime revision, 규칙 snapshot, 공통 `start_at`을 발급한다. seed와 상대 raw score는 READY·Realtime payload·푸시에서 노출하지 않는다.
+서버는 두 run에 같은 seed, `attempt_ordinal = 1`, game ID/version, duel rules revision, runtime revision, 규칙 snapshot, 공통 `start_at`을 발급한다. seed는 시작 확정 전 비공개로 두고, 커밋 후에는 각 participant가 인증된 run RPC로 자기 실행 seed를 받는다. seed는 Realtime·푸시 payload에 넣지 않는다. raw score는 두 결과가 종결되기 전까지 비공개로 두고, 최종 결과 화면과 조회 응답에서만 양쪽 점수를 표시한다.
 
 현재 `MiniGameSeed.forAttempt`는 날짜·게임·버전 기반이고 ([공통 시드 계산](../lib/features/games/domain/mini_game_seed.dart)), `beat_the_dealer`는 런타임에서 매번 random seed를 사용한다. 대결은 서버 seed override를 추가하고 블랙잭의 fresh random 경로를 우회해야 한다. 게임 버전 숫자만 같아도 규칙 검증이 바뀔 수 있으므로 revision을 함께 고정한다.
 
@@ -130,7 +130,7 @@ start event가 늦게 도착해도 `start_at` 이전이고 해당 run이 아직 
 
 기존 `coin_transactions`의 사용자·reference key unique 원장을 재사용한다 ([경제 원장 migration](../supabase/migrations/20260802000600_player_economy.sql)). reference key는 `duel:match_id:kind:user_id:part`처럼 매치·종류·분할 순번을 인코딩한다. 별도 `(match_id, user_id, kind)` unique 컬럼을 중복 생성하지 않는다. escrow, refund, payout 모두 XP delta는 0이다.
 
-지갑 잔액 상한 때문에 partial credit이 필요할 수 있다. 정산 결과를 먼저 확정하고 `owed_amount`, `credited_amount`를 보관한다. match/run lock 아래 `owed_amount - credited_amount`를 계산해 상한 안에서 지급하고, 분할마다 고유 reference key와 순번을 사용해 같은 분할만 중복 방지한다. 남은 금액은 수령 대기로 표시하고 재접속·worker가 공용 credit helper로 재시도한다. 수수료 0 추천 기준 보존식은 `참가자 지갑 잔액 합 + 미정산 보관금 + 미수령 채권(owed_amount - credited_amount) = 최초 총액`이다. 이 경제 gate를 해결하기 전에는 추천 최대 200을 운영 상한으로 확정하지 않는다.
+추천 수수료는 0이다. 승자는 총 2S를 받고 순이익은 S, 패자는 S를 잃는다. 동점은 각자 S를 환불한다. 지갑 잔액 상한 때문에 partial credit이 필요할 수 있다. 정산 결과를 먼저 확정하고 `owed_amount`, `credited_amount`를 보관한다. match/run lock 아래 `owed_amount - credited_amount`를 계산해 상한 안에서 지급하고, 분할마다 고유 reference key와 순번을 사용해 같은 분할만 중복 방지한다. 남은 금액은 수령 대기로 표시하고 재접속·worker가 공용 credit helper로 재시도한다. 수수료 0 추천 기준 보존식은 `참가자 지갑 잔액 합 + 미정산 보관금 + 미수령 채권(owed_amount - credited_amount) = 최초 총액`이다. 이 경제 gate를 해결하기 전에는 추천 최대 200을 운영 상한으로 확정하지 않는다.
 
 계정 삭제나 테스트 계정 전환은 foreign-key cascade에 맡기지 않는다. 관련 waiting/starting/playing 매치를 내부 void 정산으로 먼저 환불해 상대 지분을 보호한 뒤 상태를 변경한다. 실제 삭제 업무와 테스트 전환 트리거는 별도 구현 접점으로 남긴다. 테스트 격리는 [social isolation migration](../supabase/migrations/20261011000400_test_social_isolation.sql)을 따르고, 차단 endpoint는 제거된 상태다 ([차단 endpoint 제거 migration](../supabase/migrations/20260821000400_remove_user_report_and_block_endpoints.sql)).
 
@@ -138,7 +138,7 @@ start event가 늦게 도착해도 `start_at` 이전이고 해당 run이 아직 
 
 `duel_matches`는 `waiting`, `starting`, `playing`, `settled`, `declined`, `cancelled`, `expired`, `voided`, room revision, waiting TTL, common `start_at`, seed reference, game/rules snapshot, outcome과 audit 시각을 저장한다.
 
-`duel_runs`는 match/player unique pair, entry/presence, session generation, lease, loading, ready, 실행 상태, submitted/forfeited, server submit deadline, raw score, validated result, terminal reason을 저장한다. 실행 seed와 private result는 participant 전용 RPC로만 읽는다.
+`duel_runs`는 match/player unique pair, entry/presence, session generation, lease, loading, ready, 실행 상태, submitted/forfeited, server submit deadline, raw score, validated result, terminal reason을 저장한다. 실행 seed는 participant 인증 RPC로 발급하고, raw score는 두 결과가 종결되기 전 participant 전용으로 읽는다. 종결 후 최종 결과 RPC는 양쪽 점수를 함께 반환한다.
 
 최소 RPC는 `get_duel_options`, `get_duels`, `get_duel`, `create_duel`, `join_duel`, `heartbeat_duel`, `set_duel_ready`, `leave_duel`, `submit_duel_result`, `forfeit_duel`다. 별도 수락·시작 RPC는 두지 않는다. 만료·정산은 내부 `expire_and_settle_duel`과 주기 worker, mutating RPC의 lazy settle로 처리한다.
 
@@ -152,7 +152,7 @@ RLS는 private seed/result 직접 SELECT·INSERT를 막는다. `SECURITY DEFINER
 
 `features/duels/domain`, `data`, `presentation`에 room snapshot, presence/READY, common clock, seed override, run callback을 둔다. 기존 게임 factory·순수 rules·가이드를 재사용하며 거대한 새 게임 프레임워크는 만들지 않는다.
 
-게임은 READY 전에 asset preload를 끝내 둘째 READY 뒤 추가 로딩을 최소화한다. Realtime room presence, READY, start event로 UI를 즉시 갱신하지만 권위는 DB snapshot/server clock이다. 이벤트가 유실되면 `get_duel` 재조회와 짧은 polling으로 복구한다.
+게임은 READY 전에 asset preload를 끝내 둘째 READY 뒤 추가 로딩을 최소화한다. Realtime은 민감 테이블을 직접 구독하지 않고 participant 전용으로 정제한 `status`·`revision` 알림만 보낸다. UI는 이벤트 수신 뒤 participant 인증 `get_duel` RPC로 snapshot을 조회하며, seed와 상대 비공개 점수는 broadcast하지 않는다. 권위는 DB snapshot/server clock이고 이벤트가 유실되면 `get_duel` 재조회와 짧은 polling으로 복구한다.
 
 대결 결과는 pending queue에 mode, match_id, run_id, room revision, raw result, duration을 보관한다. 기존 일일 중심 모델은 대결 필드를 추가하되 구형 decoding을 보존한다 ([대기 점수 제출 모델](../lib/features/gameplay/data/pending_score_submission.dart)). `submit_daily_score`를 대결에서 그대로 호출하지 않고 게임별 순수 검증을 공유 모듈로 추출한다. 추출 후 일일 score SQL 회귀 테스트를 실행한다.
 
@@ -162,7 +162,7 @@ RLS는 private seed/result 직접 SELECT·INSERT를 막는다. `SECURITY DEFINER
 
 기존 social RPC는 알림 전체 발신 건수로 일일 한도를 계산할 수 있다 ([소셜 액션 migration](../supabase/migrations/20260821000600_nickname_colors_social_actions.sql)). duel room/result 알림은 찌르기·자랑하기 한도에서 분리한다. 푸시 실패에도 대결 목록과 inbox가 남아야 한다.
 
-상대 잔액, seed, private raw score는 상대에게 노출하지 않는다. 자기 자신·NPC·테스트 격리 규칙에 걸린 계정은 후보에서 제외한다. 테스트 계정끼리와 일반 계정 사이의 방·푸시·결과를 기존 isolation 정책과 함께 검증한다.
+상대 잔액, 시작 확정 전 seed, 두 결과 종결 전 상대 raw score는 노출하지 않는다. 종결 후에는 권한 있는 양쪽 participant에게 최종 양쪽 점수를 표시한다. 자기 자신·NPC·테스트 격리 규칙에 걸린 계정은 후보에서 제외한다. 테스트 계정끼리와 일반 계정 사이의 방·푸시·결과를 기존 isolation 정책과 함께 검증한다.
 
 ## 10. 구현 순서와 acceptance
 
@@ -184,7 +184,7 @@ RLS는 private seed/result 직접 SELECT·INSERT를 막는다. `SECURITY DEFINER
 - 네트워크 단절은 즉시 기권시키지 않고 durable retry와 submit deadline으로 복구한다.
 - 대결이 일일 랭킹·도전권·XP·광고 사용량을 바꾸지 않는다.
 - 동시성·재시도에도 coin ledger와 partial payout이 중복되지 않는다.
-- 계정 삭제·테스트 전환 전에 pending escrow와 상대 지분이 void 정산된다.
+- 계정 삭제 전 pending escrow와 상대 지분을 정산하고 미수령 상대 지급금이 있으면 삭제를 보류한다. 열린 대결 중 테스트 모드 전환은 차단한다.
 - seed/private score/잔액이 Realtime·푸시·비참가자 조회로 누출되지 않는다.
 - `duel_enabled`를 끈 게임은 신규 방을 만들 수 없고 이미 시작한 방은 정산된다.
 
@@ -198,3 +198,11 @@ RLS는 private seed/result 직접 SELECT·INSERT를 막는다. `SECURITY DEFINER
 4. partial payout을 허용할 경제 상한과 미수령 채권 UI를 출시 전에 확정할 것인가?
 
 이 버전의 시작 계약은 두 READY 원자 커밋과 공통 `start_at`으로만 발생한다.
+
+## 12. 로컬 검증 및 운영 활성화 상태
+
+로컬 서버와 iPhone 16 Plus 시뮬레이터에서 방 생성, 두 사람 READY, 자동 시작, 결과 제출과 승자 지급을 확인했다. 상대 플레이는 별도 테스트 계정의 서버 호출로 수행했다. 테스트용 코인은 원래 잔액으로 복구했다.
+
+만료·비활성 게임의 시작을 서버에서 차단하고, 정산 스케줄이 없으면 대결 시작을 막는다. 스케줄 처리가 지연될 경우 참가자의 대결 조회에서 만료 정산과 미수령 지급을 다시 시도한다. 계정 삭제 준비 중에는 새 대결을 차단하고, 상대의 미수령 지급금이 남아 있다면 삭제를 보류한다.
+
+게임별 점수 범위와 일부 시간 관계는 서버에서 검증하지만 실제 입력의 재생 검증은 없다. 따라서 클라이언트가 조작한 점수를 완전히 배제하지 못하며, 운영 데이터베이스의 `duel_enabled`는 기본 비활성이다. 로컬 활성화와 테스트 통과는 운영 활성화나 두 실기기의 동시 플레이 검증을 의미하지 않는다.
