@@ -152,7 +152,12 @@ insert into public.profiles (
     'b0300004-3030-4030-8030-000000000004',
     '2026-10-01T00:00:00Z'::timestamptz,
     now(), false, 0
-  );
+  )
+on conflict (id) do update set
+  created_at = excluded.created_at,
+  updated_at = excluded.updated_at,
+  is_test_account = excluded.is_test_account,
+  store_challenge_tickets = excluded.store_challenge_tickets;
 
 update public.profiles
 set
