@@ -10,6 +10,7 @@ class SocialNotification {
     this.senderRank,
     this.senderScore,
     this.senderGameId,
+    this.duelId,
   });
 
   factory SocialNotification.fromJson(Map<String, dynamic> json) =>
@@ -22,6 +23,7 @@ class SocialNotification {
         senderRank: (json['sender_rank'] as num?)?.toInt(),
         senderScore: (json['sender_score'] as num?)?.toInt(),
         senderGameId: json['sender_game_id'] as String?,
+        duelId: json['duel_id'] as String? ?? json['request_id'] as String?,
       );
 
   final String id;
@@ -32,6 +34,7 @@ class SocialNotification {
   final int? senderRank;
   final int? senderScore;
   final String? senderGameId;
+  final String? duelId;
 
   String get scoreLabel {
     final score = senderScore;
@@ -49,6 +52,7 @@ class SocialNotification {
       '$senderNickname님은 기록이 $scoreLabel로 오늘 '
           '${senderRank ?? '-'}등으로 자랑했어요.',
     'gift' => '$senderNickname님이 ${giftLabel(giftItemId)} 1장을 선물했습니다.',
+    'duel_room_invite' => '$senderNickname님이 1:1 대결을 신청했어요. 대결방에서 확인해 주세요.',
     _ => '$senderNickname님이 소식을 보냈습니다.',
   };
 

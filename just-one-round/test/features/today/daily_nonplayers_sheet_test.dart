@@ -68,6 +68,10 @@ void main() {
       find.byKey(const Key('daily-nonplayer-more-user-1')),
       findsOneWidget,
     );
+    await tester.tap(find.byKey(const Key('daily-nonplayer-more-user-1')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('rank-action-duel')), findsNothing);
+    expect(find.byKey(const Key('rank-action-poke')), findsOneWidget);
   });
 
   testWidgets(

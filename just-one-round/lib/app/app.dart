@@ -14,6 +14,7 @@ import 'package:just_one_round/core/notifications/push_opt_in_reward.dart';
 import 'package:just_one_round/core/notifications/push_notification_route.dart';
 import 'package:just_one_round/core/update/app_update_reward.dart';
 import 'package:just_one_round/core/update/critical_ota_update.dart';
+import 'package:just_one_round/features/duels/presentation/duel_lobby_screen.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_screen.dart';
 import 'package:just_one_round/features/history/presentation/play_history_screen.dart';
 import 'package:just_one_round/features/monetization/domain/rewarded_ad_service.dart';
@@ -44,6 +45,13 @@ GoRouter createAppRouter({String initialLocation = '/'}) => GoRouter(
     GoRoute(
       path: '/history',
       builder: (context, state) => const PlayHistoryScreen(),
+    ),
+    // Push invitations land on the server-backed duel list. The list is the
+    // safe destination for stale/non-participant room ids and never performs
+    // a join, READY, or game start just because a notification was tapped.
+    GoRoute(
+      path: duelLobbyRoutePath,
+      builder: (context, state) => const DuelLobbyScreen(),
     ),
   ],
 );
@@ -589,10 +597,11 @@ class _AppContentState extends ConsumerState<_AppContent>
       return;
     }
     _pushTapPending = true;
-    // A push tap should land on the safe daily-game home first, then show the
-    // same in-app inbox dialog used by foreground delivery. Reading the
-    // notification is deferred until the user confirms that dialog so a tap
-    // never loses the social message.
+    // A push tap uses only the allow-listed destination. Duel invitations land
+    // on the server-backed duel list; legacy social notifications still land
+    // on the safe daily-game home. Reading the notification remains deferred
+    // until the inbox flow confirms it, so a tap never loses the social
+    // message.
     final destination = pushDestinationPath(message.data);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -765,6 +774,11 @@ class _SocialNotificationDialog extends StatelessWidget {
       'poke' => ('콕! 찔렸어요', Icons.touch_app_rounded, AppColors.reward),
       'boast' => ('자랑 ON', Icons.emoji_events_rounded, AppColors.primary),
       'gift' => ('선물이 도착했어요!', Icons.card_giftcard_rounded, AppColors.reward),
+      'duel_room_invite' => (
+        '1:1 대결 신청',
+        Icons.sports_esports_rounded,
+        AppColors.primary,
+      ),
       _ => ('새 알림', Icons.notifications_rounded, AppColors.primary),
     };
 

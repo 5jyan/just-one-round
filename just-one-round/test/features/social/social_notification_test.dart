@@ -80,4 +80,29 @@ void main() {
 
     expect(notification.message, '옛친구님은 기록이 -로 오늘 8등으로 자랑했어요.');
   });
+
+  test('1:1 대결 초대는 대결방 안내 문구를 사용한다', () {
+    final notification = SocialNotification(
+      id: 'duel-invite',
+      actionType: 'duel_room_invite',
+      senderNickname: '대결상대',
+      duelId: '65095082-d8d7-4c7b-af83-1c6a436caa98',
+      createdAt: DateTime(2026, 8, 21),
+    );
+
+    expect(notification.message, '대결상대님이 1:1 대결을 신청했어요. 대결방에서 확인해 주세요.');
+    expect(notification.duelId, '65095082-d8d7-4c7b-af83-1c6a436caa98');
+  });
+
+  test('대결 초대의 예전 request_id도 선택적으로 보존한다', () {
+    final notification = SocialNotification.fromJson({
+      'id': 'legacy-duel-invite',
+      'action_type': 'duel_room_invite',
+      'sender_nickname': '옛상대',
+      'request_id': '65095082-d8d7-4c7b-af83-1c6a436caa98',
+      'created_at': '2026-08-21T00:00:00Z',
+    });
+
+    expect(notification.duelId, '65095082-d8d7-4c7b-af83-1c6a436caa98');
+  });
 }

@@ -516,6 +516,7 @@ void main() {
     expect(find.text('RANKING PLAYER'), findsOneWidget);
     expect(find.text('작은공룡'), findsWidgets);
     expect(find.byKey(const Key('rank-action-poke')), findsOneWidget);
+    expect(find.byKey(const Key('rank-action-duel')), findsOneWidget);
     expect(find.byKey(const Key('rank-action-boast')), findsOneWidget);
     expect(find.byKey(const Key('rank-action-gift')), findsOneWidget);
 

@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_one_round/app/theme/app_colors.dart';
 import 'package:just_one_round/core/reviews/app_review_service.dart';
+import 'package:just_one_round/features/gameplay/data/duel_runtime_launch_guard.dart';
 import 'package:just_one_round/features/gameplay/domain/game_result.dart';
+import 'package:just_one_round/features/gameplay/domain/duel_play_context.dart';
 import 'package:just_one_round/features/gameplay/presentation/game_end_transition.dart';
 import 'package:just_one_round/features/games/apple_game_v2/apple_game_v2.dart';
 import 'package:just_one_round/features/games/apple_game_v2/domain/apple_game_v2_rules.dart';
@@ -44,6 +46,8 @@ bool _needsNicknameSetup(String? nickname) {
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({
     this.attempt,
+    this.duelContext,
+    this.duelLaunchGuard,
     this.gameDuration,
     this.countdownDuration = const Duration(seconds: 3),
     super.key,
@@ -52,6 +56,8 @@ class GameScreen extends ConsumerStatefulWidget {
   final Duration? gameDuration;
   final Duration countdownDuration;
   final PlayAttempt? attempt;
+  final DuelPlayContext? duelContext;
+  final DuelRuntimeLaunchGuard? duelLaunchGuard;
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -79,6 +85,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   var _isGameLoaded = false;
   var _isConfirmingStart = false;
   var _playStarted = false;
+  var _duelEnteredBeforeStart = false;
+  late final DuelRuntimeLaunchGuard? _duelLaunchGuard;
+  late final Future<bool>? _duelEntryClaim;
   PlayAttempt? _resolvedAttempt;
   WindDartsOpponent? _windDartsOpponent;
 
@@ -87,10 +96,28 @@ class _GameScreenState extends ConsumerState<GameScreen>
     super.initState();
     _repository = ref.read(dailyGameRepositoryProvider);
     _rewardedAdService = ref.read(rewardedAdServiceProvider);
+    _duelLaunchGuard = widget.duelContext == null
+        ? null
+        : widget.duelLaunchGuard ?? DuelRuntimeLaunchGuard();
     WidgetsBinding.instance.addObserver(this);
-    _definition = GameRegistry.forId(widget.attempt?.gameId ?? 'dung_dodge_v2');
+    _definition = GameRegistry.forId(
+      widget.duelContext?.gameId ?? widget.attempt?.gameId ?? 'dung_dodge_v2',
+    );
     final attempt = widget.attempt;
-    _showStartGuide = widget.countdownDuration > Duration.zero;
+    final duel = widget.duelContext;
+    _duelEnteredBeforeStart =
+        duel == null || duel.timeUntilStart > Duration.zero;
+    // Reserve the server run as soon as this screen owns it. The marker is
+    // intentionally earlier than the start gate: a background/route dispose
+    // during asset loading must not leave an unmarked run that can be replayed
+    // from the room again. The server startAt remains authoritative below.
+    _duelEntryClaim = duel == null ? null : _claimDuelEntryNow(duel);
+    // Duel rooms show the guide before READY. Once both players are READY the
+    // room launches this screen and the common server clock starts the game
+    // automatically, so showing the daily start guide here would add a second
+    // tap and desynchronise the players.
+    _showStartGuide =
+        widget.duelContext == null && widget.countdownDuration > Duration.zero;
     _game = _createGame();
     if (_showStartGuide) {
       final game = _game;
@@ -121,30 +148,35 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   MiniGameController _createGame() {
     final attempt = widget.attempt;
+    final duel = widget.duelContext;
     final appleRulesVersion = _definition.id == 'apple_game_v2'
-        ? attempt?.gameVersion ?? AppleGameV2Rules.rulesVersion
+        ? duel?.gameVersion ??
+              attempt?.gameVersion ??
+              AppleGameV2Rules.rulesVersion
         : null;
     final challengeSeed =
-        _definition.id == 'beat_the_dealer' || _definition.id == 'western_duel'
-        ? MiniGameSeed.randomSeed()
-        : MiniGameSeed.forAttempt(
-            gameId: _definition.id,
-            gameVersion: appleRulesVersion ?? attempt?.gameVersion ?? 1,
-            playDate: attempt?.playDate,
-            // Other games keep their shared daily/practice layouts. Blackjack
-            // intentionally uses a fresh random seed for every play above.
-            practiceOrdinal: attempt?.isPractice == true
-                ? attempt?.practiceOrdinal ?? attempt?.ordinal ?? 1
-                : null,
-          );
+        duel?.challengeSeed ??
+        (_definition.id == 'beat_the_dealer' || _definition.id == 'western_duel'
+            ? MiniGameSeed.randomSeed()
+            : MiniGameSeed.forAttempt(
+                gameId: _definition.id,
+                gameVersion: appleRulesVersion ?? attempt?.gameVersion ?? 1,
+                playDate: attempt?.playDate,
+                // Other games keep their shared daily/practice layouts. Blackjack
+                // intentionally uses a fresh random seed for every play above.
+                practiceOrdinal: attempt?.isPractice == true
+                    ? attempt?.practiceOrdinal ?? attempt?.ordinal ?? 1
+                    : null,
+              ));
     final gameDuration =
+        duel?.gameDuration ??
         widget.gameDuration ??
         _issuedAttemptDuration(widget.attempt) ??
         _definition.defaultDuration;
     if (_definition.id == 'apple_game_v2') {
       return AppleGameV2(
         gameDuration: gameDuration,
-        countdownDuration: widget.countdownDuration,
+        countdownDuration: duel?.countdownDuration ?? widget.countdownDuration,
         assetSet: AppleGameV2AssetSet.midnightOrchard,
         rulesVersion: appleRulesVersion!,
         random: math.Random(challengeSeed),
@@ -153,7 +185,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
     return _definition.create(
       gameDuration: gameDuration,
-      countdownDuration: widget.countdownDuration,
+      countdownDuration: duel?.countdownDuration ?? widget.countdownDuration,
       attemptOrdinal: attempt?.ordinal ?? 1,
       challengeSeed: challengeSeed,
       onFinished: _handleFinished,
@@ -181,6 +213,31 @@ class _GameScreenState extends ConsumerState<GameScreen>
     if (_isConfirmingStart) return false;
     if (mounted) setState(() => _isConfirmingStart = true);
     try {
+      final duel = widget.duelContext;
+      if (duel != null) {
+        // Claim before checking the clock so a second route/process cannot
+        // bypass the initial-entry grace window. A failed claim is always
+        // treated as a replay and is forfeited below.
+        if (!await _claimDuelEntry()) {
+          await _abortDuelStart();
+          return false;
+        }
+        // A first screen can arrive a few milliseconds after startAt because
+        // the room response and route transition are not instantaneous. Keep
+        // that bounded bridge, but reject genuinely late first entries. A
+        // screen that was already present before startAt is allowed to finish
+        // loading; it still starts against the unchanged server clock.
+        if (!duel.canAcceptInitialEntry(
+          enteredBeforeStart: _duelEnteredBeforeStart,
+        )) {
+          await _abortDuelStart();
+          return false;
+        }
+        await _waitForDuelStart(duel);
+        if (!mounted || _hasEnded) return false;
+        _playStarted = true;
+        return true;
+      }
       final attempt = await _resolveAttemptForStart();
       if (_game is WesternDuelGame) {
         final source = _repository;
@@ -228,6 +285,40 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
   }
 
+  Future<bool> _claimDuelEntryNow(DuelPlayContext duel) async {
+    try {
+      return await _duelLaunchGuard!.claim(duel);
+    } on Object {
+      // Persistence is a safety gate. Do not launch when a restart marker
+      // cannot be written; the caller will forfeit the server run.
+      return false;
+    }
+  }
+
+  Future<bool> _claimDuelEntry() async {
+    final claim = _duelEntryClaim;
+    if (claim == null) return true;
+    return claim;
+  }
+
+  Future<void> _waitForDuelStart(DuelPlayContext duel) async {
+    var remaining = duel.timeUntilStart;
+    while (remaining > Duration.zero && mounted && !_hasEnded) {
+      // Keep the timer bounded so a small clock-sync correction or a delayed
+      // start event does not leave the engine asleep for the whole countdown.
+      final wait = remaining > const Duration(milliseconds: 250)
+          ? const Duration(milliseconds: 250)
+          : remaining;
+      await Future<void>.delayed(wait);
+      remaining = duel.timeUntilStart;
+    }
+  }
+
+  Future<void> _abortDuelStart() async {
+    if (!_hasEnded) await _interruptAttempt();
+    if (mounted) _returnHome();
+  }
+
   Future<PlayAttempt?> _resolveAttemptForStart() async {
     if (_resolvedAttempt != null) return _resolvedAttempt;
     final attempt = widget.attempt;
@@ -269,6 +360,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _hasEnded = true;
       _showExitWarning = false;
     });
+    if (widget.duelContext != null) {
+      unawaited(_submitResult(result));
+      return;
+    }
     final isMoleTimeout =
         _definition.id == 'mole_reaction' &&
         result.endType == GameEndType.timeUp;
@@ -351,6 +446,27 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Future<void> _submitResult(GameResult result) async {
+    final duel = widget.duelContext;
+    if (duel != null) {
+      final submit = duel.submitResult;
+      if (submit == null) {
+        if (mounted) {
+          setState(
+            () => _submitError = StateError('Duel result callback unavailable'),
+          );
+        }
+        return;
+      }
+      if (mounted) setState(() => _isSubmitting = true);
+      try {
+        await submit(result);
+      } catch (error) {
+        if (mounted) setState(() => _submitError = error);
+      } finally {
+        if (mounted) setState(() => _isSubmitting = false);
+      }
+      return;
+    }
     final attempt = await _resolveAttemptForSubmission();
     if (attempt == null || attempt.isPractice) return;
     if (!mounted) return;
@@ -385,6 +501,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (_hasEnded || _showStartGuide) return;
     if (shouldInterruptGame(state)) {
+      if (widget.duelContext != null) {
+        // A duel run cannot be resumed after the app leaves the foreground.
+        // Daily/practice runs keep their existing pause-and-confirm flow.
+        unawaited(_leaveGame());
+        return;
+      }
       if (_game is WesternDuelGame) {
         if (_game.reactionMilliseconds != null) {
           _game.interrupt();
@@ -430,9 +552,27 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _hasEnded = true;
     if (_isGameLoaded) _game.interrupt();
     if (mounted) setState(() {});
+    final duel = widget.duelContext;
+    if (duel != null) {
+      await _forfeitDuel(duel);
+      return;
+    }
     final attempt = widget.attempt;
     if (_playStarted && attempt != null && !attempt.isPractice) {
       await _expireActiveAttempt();
+    }
+  }
+
+  Future<void> _forfeitDuel(DuelPlayContext duel) async {
+    // Complete the local reservation before the terminal callback. This
+    // closes the background/dispose race where a room could otherwise reopen
+    // the same run while the marker write is still in flight.
+    await _claimDuelEntry();
+    try {
+      await duel.forfeit?.call();
+    } catch (_) {
+      // The server keeps the run terminal deadline as a fallback when the app
+      // is interrupted before the explicit forfeit reaches it.
     }
   }
 
@@ -450,6 +590,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final attempt = widget.attempt;
     final isTestMode = ref.read(todayStateProvider).value?.testMode == true;
     final canRequestReview =
+        widget.duelContext == null &&
         _result != null &&
         _rankResult != null &&
         !isTestMode &&
@@ -462,7 +603,34 @@ class _GameScreenState extends ConsumerState<GameScreen>
       ref.read(appReviewServiceProvider).markPending();
     }
     ref.invalidate(todayStateProvider);
+    if (widget.duelContext != null) {
+      // DuelRoomScreen enters the game with an imperative pushReplacement.
+      // Changing the GoRouter location alone leaves that route on top of the
+      // navigator, so explicitly unwind the game/room/lobby stack first.
+      final router = GoRouter.maybeOf(context);
+      final navigator = Navigator.of(context);
+      if (navigator.canPop()) {
+        navigator.popUntil((route) => route.isFirst);
+      }
+      router?.go('/');
+      return;
+    }
     context.go('/');
+  }
+
+  void _returnToDuelRoom() {
+    if (widget.duelContext == null) {
+      _returnHome();
+      return;
+    }
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      // The duel room must stay below GameScreen for this action. The room
+      // owns the polling/snapshot refresh that reveals the settled outcome.
+      navigator.pop();
+      return;
+    }
+    _returnHome();
   }
 
   @override
@@ -471,6 +639,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     if (!_hasEnded) {
       _hasEnded = true;
       if (_isGameLoaded) _game.interrupt();
+      if (widget.duelContext case final duel?) {
+        unawaited(_forfeitDuel(duel));
+      }
       final attempt = widget.attempt;
       if (_playStarted && attempt != null && !attempt.isPractice) {
         unawaited(_expireActiveAttempt());
@@ -578,12 +749,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         : null,
                     windDartsOpponent: _windDartsOpponent,
                     isPractice: widget.attempt?.isPractice ?? false,
+                    isDuel: widget.duelContext != null,
                     rankResult: _rankResult,
                     isSubmitting: _isSubmitting,
                     submitError: _submitError,
                     isSavingNickname: _isSavingNickname,
                     onChooseNickname: _chooseNickname,
                     onRetrySubmit: () => _submitResult(result),
+                    onDuelRoom: widget.duelContext == null
+                        ? null
+                        : _returnToDuelRoom,
                     onHome: _returnHome,
                   ),
                   null => null,
@@ -2785,12 +2960,14 @@ class _ResultPanel extends StatelessWidget {
     this.westernFailure,
     this.windDartsOpponent,
     required this.isPractice,
+    required this.isDuel,
     required this.rankResult,
     required this.isSubmitting,
     required this.submitError,
     required this.isSavingNickname,
     required this.onChooseNickname,
     required this.onRetrySubmit,
+    this.onDuelRoom,
     required this.onHome,
   });
 
@@ -2800,12 +2977,14 @@ class _ResultPanel extends StatelessWidget {
   final String? westernFailure;
   final WindDartsOpponent? windDartsOpponent;
   final bool isPractice;
+  final bool isDuel;
   final DailyRankResult? rankResult;
   final bool isSubmitting;
   final Object? submitError;
   final bool isSavingNickname;
   final VoidCallback onChooseNickname;
   final VoidCallback onRetrySubmit;
+  final VoidCallback? onDuelRoom;
   final VoidCallback onHome;
 
   @override
@@ -2944,7 +3123,7 @@ class _ResultPanel extends StatelessWidget {
               ),
             )
           else if (isSubmitting)
-            const WordSafeText('오늘 순위를 계산하고 있어요...')
+            WordSafeText(isDuel ? '대결 결과를 전송하고 있어요...' : '오늘 순위를 계산하고 있어요...')
           else if (rankResult case final rank?)
             Column(
               children: [
@@ -2995,6 +3174,8 @@ class _ResultPanel extends StatelessWidget {
                 WordSafeText(
                   submitError is DeferredAttemptResolutionException
                       ? '광고 확인이 늦어 랭킹에 반영하지 못했어요. 잠시 후 다시 시도해 주세요.'
+                      : isDuel
+                      ? '대결 결과를 전송하지 못했어요. 같은 결과로 다시 시도해 주세요.'
                       : '점수를 기기에 보관했어요. 서버가 복구되면 자동 전송됩니다.',
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.danger, fontSize: 12),
@@ -3006,8 +3187,26 @@ class _ResultPanel extends StatelessWidget {
                   onPressed: onRetrySubmit,
                 ),
               ],
+            )
+          else if (isDuel)
+            const WordSafeText(
+              '제출 완료 · 상대 결과를 기다리고 있어요',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textMuted, fontSize: 12),
             ),
           const SizedBox(height: 24),
+          if (isDuel && onDuelRoom != null) ...[
+            SizedBox(
+              width: double.infinity,
+              child: PixelButton(
+                key: const Key('duel-result-room-button'),
+                label: '대결 결과 보기',
+                icon: Icons.emoji_events_outlined,
+                onPressed: onDuelRoom,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           SizedBox(
             width: double.infinity,
             child: PixelButton(

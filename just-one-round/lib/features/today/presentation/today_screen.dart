@@ -14,6 +14,7 @@ import 'package:just_one_round/core/auth/kakao_auth_service.dart';
 import 'package:just_one_round/core/notifications/push_notification_service.dart';
 import 'package:just_one_round/core/reviews/app_review_service.dart';
 import 'package:just_one_round/features/games/game_registry.dart';
+import 'package:just_one_round/features/duels/presentation/duel_lobby_screen.dart';
 import 'package:just_one_round/features/games/bathhouse_sort/presentation/bathhouse_sort_preview.dart';
 import 'package:just_one_round/features/games/midnight_snake/domain/midnight_snake_rules.dart';
 import 'package:just_one_round/features/games/lily_frog/presentation/lily_frog_home_preview.dart';
@@ -2280,6 +2281,22 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                               _showRanking(displayedState),
                                         ),
                                       ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: _HomeActionButton(
+                                          key: const Key('duel-lobby-button'),
+                                          label: '1:1 대결',
+                                          icon: Icons.sports_esports_outlined,
+                                          compact: true,
+                                          onPressed: () =>
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute<void>(
+                                                  builder: (_) =>
+                                                      const DuelLobbyScreen(),
+                                                ),
+                                              ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 18),
@@ -4007,18 +4024,32 @@ Future<void> _showRankActionsForTarget(
   required String targetUserId,
   required String nickname,
   required bool canBoast,
+  bool allowDuel = true,
 }) async {
   final action = await showModalBottomSheet<String>(
     context: context,
     backgroundColor: Colors.transparent,
+    isScrollControlled: true,
     useSafeArea: true,
     builder: (_) => _RankActionSheet(
       userId: targetUserId,
       nickname: nickname,
       canBoast: canBoast,
+      allowDuel: allowDuel,
     ),
   );
   if (action == null || !context.mounted) return;
+  if (action == 'duel') {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => DuelLobbyScreen(
+          initialOpponentUserId: targetUserId,
+          initialOpponentNickname: nickname,
+        ),
+      ),
+    );
+    return;
+  }
   await _handleRankActionForTarget(
     context,
     ref,
@@ -4293,6 +4324,7 @@ class _DailyNonplayersSheetState extends ConsumerState<_DailyNonplayersSheet> {
                 targetUserId: player.userId,
                 nickname: player.nickname.trim(),
                 canBoast: widget.canBoast,
+                allowDuel: false,
               ),
             ),
           );
@@ -4549,11 +4581,13 @@ class _RankActionSheet extends StatelessWidget {
     required this.userId,
     required this.nickname,
     required this.canBoast,
+    required this.allowDuel,
   });
 
   final String userId;
   final String nickname;
   final bool canBoast;
+  final bool allowDuel;
 
   @override
   Widget build(BuildContext context) => _RankSheetSurface(
@@ -4577,6 +4611,16 @@ class _RankActionSheet extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
+        if (allowDuel) ...[
+          _RankActionTile(
+            key: const Key('rank-action-duel'),
+            icon: Icons.sports_esports_outlined,
+            title: '1:1 대결 신청',
+            subtitle: '게임과 코인을 골라 대결해요',
+            onTap: () => Navigator.of(context).pop('duel'),
+          ),
+          const SizedBox(height: 7),
+        ],
         _RankActionTile(
           key: const Key('rank-action-poke'),
           icon: Icons.touch_app_outlined,
@@ -7941,12 +7985,14 @@ class _HomeActionButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.compact = false,
     super.key,
   });
 
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) => OutlinedButton.icon(
@@ -7956,6 +8002,7 @@ class _HomeActionButton extends StatelessWidget {
     style: OutlinedButton.styleFrom(
       foregroundColor: AppColors.text,
       minimumSize: const Size.fromHeight(50),
+      padding: compact ? const EdgeInsets.symmetric(horizontal: 4) : null,
       side: const BorderSide(color: AppColors.border, width: 2),
       shape: const RoundedRectangleBorder(),
       textStyle: const TextStyle(fontWeight: FontWeight.w900),
